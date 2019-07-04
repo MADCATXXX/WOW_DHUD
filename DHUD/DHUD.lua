@@ -4,7 +4,7 @@ DHUD modification for WotLK and Cataclysm by MADCAT
 -----------------------------------------------------------------------------------]]--
 
 -- Init Vars --
-DHUD_VERSION    = "Version: 1.5.50000c";
+DHUD_VERSION    = "Version: 1.5.50000d";
 DHUD_TEXT_EMPTY = "";
 DHUD_TEXT_HP2   = "<color_hp><hp_value></color>";
 DHUD_TEXT_HP3   = "<color_hp><hp_value></color>/<hp_max>";
@@ -24,6 +24,9 @@ DHUD_TEXT_CT1   = "<color>ffff00<casttime_remain></color>";
 DHUD_TEXT_CT2   = "<spellname><color>ffff00<casttime_remain></color>"; 
 DHUD_TEXT_CD1   = "<color>ff0000<casttime_delay></color>";
 
+-- dummy variable, that is not used, need to declare global or CastGlyph() error would appear --
+local _;
+-- dhud variables --
 DHUD = {
     debug             = nil,
     vars_loaded       = nil,

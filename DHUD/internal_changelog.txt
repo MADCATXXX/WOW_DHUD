@@ -1,3 +1,6 @@
+changelog 1.5.50000d MADCAT revision31:
+-fixed CastGlyph() error in glyphs interface, thanks to Priss2035
+
 changelog 1.5.50000c MADCAT revision30:
 -paladin can now have up to 5 holy power stacks, updated addon to reflect it
 
