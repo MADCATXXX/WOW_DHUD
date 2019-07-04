@@ -5975,6 +5975,8 @@ DHUDCastBarManager = MCCreateSubClass(DHUDGuiSlotManager, {
 	isExists	= false,
 	-- defines if cast bar info is currently visible
 	castBarInfoVisible = false,
+	-- defines if cast bar info should be visible
+	castBarInfoShouldBeVisible = false,
 	-- id of the unit from DHUDColorizeTools constants
 	unitColorId = 0,
 	-- allows to show or hide player cast bar info
@@ -6190,7 +6192,7 @@ function DHUDCastBarManager:onDataChange(e)
 	else
 		icon.border:Show();
 	end
-	self:changeCastInfoVisibility(self.STATIC_showPlayerCastBarInfo);
+	self:changeCastInfoVisibility(self.castBarInfoShouldBeVisible);
 	-- update animation state
 	if (self.currentDataTracker.isCasting) then
 		self.helper:startCastBarAnimation(self.currentDataTracker.timeTotal);
@@ -6217,7 +6219,7 @@ end
 
 --- new data tracker has been set for this slot, update if neccesary
 function DHUDCastBarManager:onDataTrackerChange(e)
-	self:changeCastInfoVisibility(true);
+	self.castBarInfoShouldBeVisible = true;
 	-- switch by unit type
 	if (self.currentDataTracker.trackUnitId == "player") then
 		self.unitColorId = DHUDColorizeTools.COLOR_ID_UNIT_SELF;
@@ -6225,7 +6227,7 @@ function DHUDCastBarManager:onDataTrackerChange(e)
 		self:setTextFormatParamsForVariable("unitTexts_player_castDelay", self.FUNCTIONS_MAP_CASTINFO, "textFormatDelayFunction");
 		self:setTextFormatParamsForVariable("unitTexts_player_castSpellName", self.FUNCTIONS_MAP_CASTINFO, "textFormatSpellNameFunction");
 		-- hide cast info if required
-		self:changeCastInfoVisibility(self.STATIC_showPlayerCastBarInfo);
+		self.castBarInfoShouldBeVisible = self.STATIC_showPlayerCastBarInfo;
 	else
 		self.unitColorId = DHUDColorizeTools.COLOR_ID_UNIT_TARGET;
 		self:setTextFormatParamsForVariable("unitTexts_target_castTime", self.FUNCTIONS_MAP_CASTINFO, "textFormatTimeFunction");

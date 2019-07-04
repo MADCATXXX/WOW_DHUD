@@ -6,6 +6,9 @@
 -custom timer tracker for bandits guile that will update auras list (e.g. addCustomTimerTracker), add white bijou icon that always atleast one, doesn't drop with time
 -GCD tracker as part of helper and add support of it to cooldowns and spell cast tracker
 
+changelog 2.0.60000.51:
+-fixed target cast bar info after gcd updates
+
 changelog 2.0.60000.50:
 -updated bandit's guile tracking and removed logs
 
