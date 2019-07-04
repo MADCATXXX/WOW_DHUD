@@ -2,10 +2,10 @@
 ## Interface: 80000
 ## Notes: Head-Up Display with all possible information about player and it's target
 ## Title: Drathals HUD
-## Version: v2.0.80000.59
+## Version: v2.0.80000.60
 ## SavedVariables: DHUDODB3
 ## SavedVariablesPerCharacter: DHUD_SavedVars
-## X-Curse-Packaged-Version: DHUDv2080000_59
+## X-Curse-Packaged-Version: DHUDv2080000_60
 ## X-Curse-Project-ID: dhud-3_0
 ## X-Curse-Project-Name: DHUD for 8.0
 ## X-Curse-Repository-ID: wow/dhud-3_0/mainline
@@ -19,10 +19,8 @@ datatrackers/power/AuraValueTracker.lua
 datatrackers/power/PowerSpecificTracker.lua
 datatrackers/power/PowerMainTracker.lua
 datatrackers/power/HealthTracker.lua
-datatrackers/power/PlayerComboPointsTracker.lua
 datatrackers/power/DeathKnightRunesTracker.lua
 datatrackers/power/StaggerTracker.lua
-datatrackers/power/VehicleComboPointsTracker.lua
 datatrackers/timers/TimersTrackerBase.lua
 datatrackers/timers/TimersTrackerCustom.lua
 datatrackers/timers/AurasTracker.lua

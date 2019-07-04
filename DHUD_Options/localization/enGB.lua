@@ -655,6 +655,15 @@ L["SETTING_COLORS_GUARDIAN_PASSIVE_TOOLTIP"] = "Color to be used on bar and text
 L["SETTING_COLORS_ALTERNATIVEPOWER_ECLIPSE"] = "Eclipse";
 L["SETTING_COLORS_ALTERNATIVEPOWER_ECLIPSE_TOOLTIP"] = "Color to be used on bar and text when displaying Player Eclipse";
 
+L["SETTING_COLORS_ALTERNATIVEPOWER_MAELSTROM"] = "Maelstrom";
+L["SETTING_COLORS_ALTERNATIVEPOWER_MAELSTROM_TOOLTIP"] = "Color to be used on bar and text when displaying Player Maelstrom";
+
+L["SETTING_COLORS_ALTERNATIVEPOWER_FURY"] = "Fury";
+L["SETTING_COLORS_ALTERNATIVEPOWER_FURY_TOOLTIP"] = "Color to be used on bar and text when displaying Player Fury";
+
+L["SETTING_COLORS_ALTERNATIVEPOWER_PAIN"] = "Pain";
+L["SETTING_COLORS_ALTERNATIVEPOWER_PAIN_TOOLTIP"] = "Color to be used on bar and text when displaying Player Pain";
+
 L["SETTING_COLORS_ALTERNATIVEPOWER_BURNINGEMBERS"] = "Burning Embers";
 L["SETTING_COLORS_ALTERNATIVEPOWER_BURNINGEMBERS_TOOLTIP"] = "Color to be used on bar and text when displaying Player Burning Embers";
 

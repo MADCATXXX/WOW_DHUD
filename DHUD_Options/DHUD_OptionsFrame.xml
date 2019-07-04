@@ -2383,15 +2383,37 @@
 									<Attribute name="SETTING" value="colors_player_eclipse" />
 								</Attributes>
 							</Frame>
-							<Frame name="$parent_AlternativeVengeanceColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+							<Frame name="$parent_AlternativeMaelstromColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-391" />
+									</Anchor>
+								</Anchors>
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_ALTERNATIVEPOWER_MAELSTROM" />
+									<Attribute name="SETTING" value="colors_player_maelstrom" />
+								</Attributes>
+							</Frame>
+							<Frame name="$parent_AlternativeFuryColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-417" />
+									</Anchor>
+								</Anchors>
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_ALTERNATIVEPOWER_FURY" />
+									<Attribute name="SETTING" value="colors_player_fury" />
+								</Attributes>
+							</Frame>
+							<Frame name="$parent_AlternativePainColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
 								<Anchors>
 									<Anchor point="TOPLEFT">
 										<Offset x="117" y="-443" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
-									<Attribute name="LTEXT" value="SETTING_COLORS_OTHERPOWER_VENGEANCE" />
-									<Attribute name="SETTING" value="colors_player_vengeance" />
+									<Attribute name="LTEXT" value="SETTING_COLORS_ALTERNATIVEPOWER_PAIN" />
+									<Attribute name="SETTING" value="colors_player_pain" />
 								</Attributes>
 							</Frame>
 							<Frame name="$parent_AlternativeStaggerColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">

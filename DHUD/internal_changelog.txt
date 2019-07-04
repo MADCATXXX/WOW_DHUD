@@ -46,6 +46,12 @@
 -other textures support (renetair from DHUD4)
 -add option to place cast info under bar
 
+changelog 2.0.80000.60:
+- fixed pet cooldowns tracking
+- fixed vehicle combo points tracking
+- fixed color picker in dhud settings addon (color was displayed incorrectly)
+- dhud settings addon now has options to change player maelstrom, fury, pain
+
 changelog 2.0.80000.59:
 - if there is error in "lua start up code" setting - it will be disabled for next launch
 - fixed druid eclipse/lunar power color

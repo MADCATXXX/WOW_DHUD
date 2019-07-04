@@ -294,32 +294,34 @@ function DHUDCooldownsTracker:updatePetCooldowns()
 	local timerMs = trackingHelper.timerMs;
 	-- create variables
 	local cooldownId = 0;
-	local spellType, spellId, autocastAllowed, autocastEnabled, spellData, startTime, duration, enable;
+	local spellType, petActionId, autocastAllowed, autocastEnabled, spellData, startTime, duration, enable, name, texture;
 	-- iterate over spell book
 	for i = 1, numPetSpells, 1 do
 		-- get spell info
-		spellType, spellId = GetSpellBookItemInfo(i, BOOKTYPE_PET);
+		spellType, petActionId = GetSpellBookItemInfo(i, BOOKTYPE_PET);
 		-- only process spells
-		if (spellId ~= nil) then
+		if (petActionId ~= nil) then
 			-- check if spell is on autocast, we should only display non-autocast spells
 			autocastAllowed, autocastEnabled = GetSpellAutocast(i, BOOKTYPE_PET);
-			--print("i " .. i .. ", spellType " .. MCTableToString(spellType) .. ", spellId " .. MCTableToString(spellId) .. ", autocastEnabled " .. MCTableToString(autocastEnabled));
+			--print("i " .. i .. ", spellType " .. MCTableToString(spellType) .. ", petActionId " .. MCTableToString(petActionId) .. ", autocastEnabled " .. MCTableToString(autocastEnabled));
 			if (not autocastEnabled) then
-				spellData = trackingHelper:getSpellData(spellId, true);
+				name = GetSpellBookItemName(i, BOOKTYPE_PET);
+				spellData = trackingHelper:getSpellData(name, true);
+				--texture = GetSpellBookItemTexture(i, BOOKTYPE_PET);
 				-- check usual cooldown
 				startTime, duration, enable = GetSpellCooldown(i, BOOKTYPE_PET);
 				-- valid cooldown?
 				if (startTime ~= nil and duration > 1.5) then
-					--print("filling spelldId " .. MCTableToString(spellId) .. ", name " .. MCTableToString(spellData[1]) .. ", texture " .. MCTableToString(spellData[3]));
+					--print("filling spelldId " .. MCTableToString(petActionId) .. ", name " .. MCTableToString(spellData[1]) .. ", texture " .. MCTableToString(spellData[3]));
 					cooldownId = cooldownId + 1;
-					timer = self:findTimer(cooldownId, spellId);
+					timer = self:findTimer(cooldownId, petActionId);
 					-- fill timer info, { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder }
 					timer[1] = self.TIMER_TYPE_MASK_PETSPELL + self.TIMER_TYPE_MASK_ACTIVE; -- type
 					timer[2] = startTime + duration - timerMs; -- timeLeft
 					timer[3] = duration; -- duration
-					timer[4] = spellId; -- id
-					timer[5] = spellId; -- tooltipId
-					timer[6] = spellData[1]; -- name
+					timer[4] = petActionId; -- id
+					timer[5] = spellData[7]; -- tooltipId
+					timer[6] = name; -- spellData[1]; -- name
 					timer[7] = 1; -- stacks
 					timer[8] = spellData[3]; -- texture
 				end

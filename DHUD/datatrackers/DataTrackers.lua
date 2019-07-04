@@ -27,12 +27,21 @@ DHUDDataTrackers = {
 		-------------------------
 		-- Player Combo Points --
 		-------------------------
-		ALL.selfComboPoints = DHUDPlayerComboPointsTracker:new();
+		ALL.selfComboPoints = DHUDSpecificPowerTracker:new();
+		ALL.selfComboPoints:setResourceType(4, "COMBO_POINTS");
+		-- combopoints available only for druid and rogue
+		if (trackingHelper.playerClass == "ROGUE" or trackingHelper.playerClass == "DRUID") then
+			ALL.selfComboPoints:initPlayerNotInVehicleOrNoneUnitId();
+		end
+		ALL.selfComboPoints.updateFrequently = false;
 
 		--------------------------
 		-- Vehicle Combo Points --
 		--------------------------
-		ALL.vehicleComboPoints = DHUDVehicleComboPointsTracker:new();
+		ALL.vehicleComboPoints = DHUDSpecificPowerTracker:new();
+		ALL.vehicleComboPoints:setResourceType(4, "COMBO_POINTS");
+		ALL.vehicleComboPoints:initVehicleOrNoneUnitId();
+		ALL.vehicleComboPoints.updateFrequently = false;
 
 		---------------------------
 		-- Player/Vehicle Health --
