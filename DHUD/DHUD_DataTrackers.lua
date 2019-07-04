@@ -2439,8 +2439,13 @@ function DHUDSpellCastTracker:updateSpellChannelDelay()
 	-- update delay
 	local timerMs = trackingHelper:getTimerMs();
 	local name, nameSubtext, text, texture, startTime, endTime, isTradeSkill, notInterruptible = UnitChannelInfo(self.unitId);
+	if (name == nil) then
+		--print("noChannelInfo");
+		return;
+	end
 	local newTimeTotal = endTime / 1000 - self.timeStart;
-	self.delay = self.timeTotal - newTimeTotal;
+	self.delay = newTimeTotal - self.timeTotal;
+	--print("delay is " .. self.delay);
 	self.timeProgress = endTime / 1000 - timerMs;
 	self.timeUpdatedAt = timerMs;
 	-- process data change

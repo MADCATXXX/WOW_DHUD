@@ -476,12 +476,13 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			["playerAurasPriorityList"] = { { }, 5 },
 			-- allows to show auras from this list, regardless of time or charges
 			["targetAurasWhiteList"] = { { -- druid symbiosis spells are named the same, no point in including them
-				48792, -- DK: Icebound Fortiture, prevents stuns on target
+				48792, -- DK: Icebound Fortitude, prevents stuns on target, reduces all damage by 20%
 				48707, -- DK: Anti-Magic Shell, prevents all magic damage to target
 				33786, -- Druid: Cyclone, prevents any damage to target
 				61336, -- Druid: Survival Instincts, reduces all gamage by 50%
 				19263, -- Hunter: Deterrence, prevents all damage to target
 				45438, -- Mage: Ice block, prevents all damage to target
+				108978, -- Mage: Alter Time, reverts all damage done to target after 6 seconds
 				122464, -- Monk: Dematerialize, causes all abilities to miss
 				1022, -- Paladin: Hand of protection, prevents physical damage to target
 				642, -- Paladin: Divine Shield, prevents all damage to target
@@ -491,7 +492,8 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				5277, -- Rogue: Evasion, increased dodge chance by 100%
 				30823, -- Shaman: Shamanistic Rage, reduces all damage by 30%
 				110913, -- Warlock: Dark Bargain, prevents all damage, 50% of the damage will be dealed after buff expires
-				971, -- Warrior: Shield Wall, reduces damage by 60%
+				104773, -- Warlock: Unending Resolve, reduces all damage by 40%
+				871, -- Warrior: Shield Wall, reduces damage by 60%
 				118038, -- Warrior: Die by the Sword, reduces damage by 20% and increases parry by 100%
 			}, 5 },
 			-- allows to not show auras from this list, regardless of time or charges
