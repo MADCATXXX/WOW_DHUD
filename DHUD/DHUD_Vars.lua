@@ -383,7 +383,7 @@ DHUD_variables = {
                 if level < 0 then
                     level = 99;
                 end
-                local color = GetDifficultyColor(level);
+                local color = GetQuestDifficultyColor(level);
                 if color and UnitExists(unit) then
                     text = DHUD:gsub(text, '<color_level>', "|cff"..DHUD_DecToHex(color.r,color.g,color.b) );
                 else

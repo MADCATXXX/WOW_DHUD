@@ -4,7 +4,7 @@ DHUD modification for WotLK Beta by MADCAT
 -----------------------------------------------------------------------------------]]--
 
 -- Init Vars --
-DHUD_VERSION    = "Version: 1.5.30100c";
+DHUD_VERSION    = "Version: 1.5.30200a";
 DHUD_TEXT_EMPTY = "";
 DHUD_TEXT_HP2   = "<color_hp><hp_value></color>";
 DHUD_TEXT_HP3   = "<color_hp><hp_value></color>/<hp_max>";
@@ -2782,7 +2782,11 @@ function DHUD:MCUpdatePlayerEnergy()
     end
 
     -- Update Bar
-    value = tonumber(mcplenergy/mcplmaxenergy);
+	if mcplmaxenergy == 0 then
+		value = 0;
+	else
+	    value = tonumber(mcplenergy/mcplmaxenergy);
+	end
     local bar  = self.text2bar["DHUD_PlayerMana_Text"];
     self.bar_values[bar] = value;
     if DHUD_Settings["animatebars"] == 0 or set then
@@ -2837,7 +2841,12 @@ function DHUD:MCUpdatePetEnergy()
     end
 
     -- Update Bar
-    value = tonumber(mcpetenergy/mcpetmaxenergy);
+	if mcpetmaxenergy == 0 then
+		value = 0;
+	else
+	    value = tonumber(mcpetenergy/mcpetmaxenergy);
+	end
+	
     local bar  = self.text2bar["DHUD_PetMana_Text"];
     self.bar_values[bar] = value;
     if DHUD_Settings["animatebars"] == 0 or set then
