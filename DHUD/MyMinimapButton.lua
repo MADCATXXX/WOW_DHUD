@@ -6,7 +6,7 @@
 	See MyMinimapButton_API_readme.txt for more info.
 ]]
 
-local version = 0.4
+local version = 4.04
 
 if not MyMinimapButton or MyMinimapButton.Version<version then
 

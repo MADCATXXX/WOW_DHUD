@@ -1,3 +1,7 @@
+changelog 1.5.40000d MADCAT revision22:
+-options window now can be moved with mouse
+-fixed color change settings not working for mid and right button
+
 changelog 1.5.40000c MADCAT revision21:
 -added holly power tracking for paladins, it will shop up as rogue combopoints
 -fixed target power(mana) bars not changing amount of power(mana)

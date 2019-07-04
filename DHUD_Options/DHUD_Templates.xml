@@ -752,7 +752,7 @@
                 </Layers>
         		<Scripts>
         			<OnClick>
-                        DHUDO_ColorPicker_OnClick(2);
+                        DHUDO_ColorPicker_OnClick(self, 2);
         			</OnClick>
         		</Scripts>
         		<HighlightTexture file="Interface\Buttons\CheckButtonHilight" alphaMode="ADD"></HighlightTexture>
@@ -782,7 +782,7 @@
                 </Layers>
         		<Scripts>
         			<OnClick>
-                        DHUDO_ColorPicker_OnClick(3);
+                        DHUDO_ColorPicker_OnClick(self, 3);
         			</OnClick>
         		</Scripts>
         		<HighlightTexture file="Interface\Buttons\CheckButtonHilight" alphaMode="ADD"></HighlightTexture>

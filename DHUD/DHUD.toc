@@ -1,7 +1,7 @@
 ## Interface: 40000
-## Title: Drathals HUD [|cffffffffv1.5.40000c|r]
+## Title: Drathals HUD [|cffffffffv1.5.40000d|r]
 ## Author: MADCAT, Markus Inger (Drathal/Silberklinge), Howie (Caeryn)
-## Version: v1.5.40000c
+## Version: v1.5.40000d
 ## Notes: Drathals HUD. 
 ## SavedVariables: DHUDODB3
 ## SavedVariablesPerCharacter: DHUD_Settings

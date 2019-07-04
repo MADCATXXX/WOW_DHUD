@@ -1,10 +1,10 @@
 --[[-----------------------------------------------------------------------------------
 Drathals HUD (c) 2006 by Markus Inger / Drathal / Silberklinge / Silbersegen
-DHUD modification for WotLK Beta by MADCAT
+DHUD modification for WotLK and Cataclysm by MADCAT
 -----------------------------------------------------------------------------------]]--
 
 -- Init Vars --
-DHUD_VERSION    = "Version: 1.5.40000c";
+DHUD_VERSION    = "Version: 1.5.40000d";
 DHUD_TEXT_EMPTY = "";
 DHUD_TEXT_HP2   = "<color_hp><hp_value></color>";
 DHUD_TEXT_HP3   = "<color_hp><hp_value></color>/<hp_max>";

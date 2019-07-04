@@ -1224,7 +1224,7 @@
                         </Anchors>
             			<Scripts>
             				<OnLoad>
-            				    getglobal(self:GetName().."Text"):SetText("|cff88ff88DHUD Layout1|r (Mirror)");
+            				    getglobal(self:GetName().."Text"):SetText("|cff88ff88DHUD Layout1|r (Mirror Player Buff, ComboPoints/Runes)");
             				    if DHUD:GetConfig("layouttyp") == "DHUD_StandardMirror_Layout" then
             				        DHUD_RADIO_layout3:SetChecked(1);
             				    else
@@ -1242,7 +1242,7 @@
                         </Anchors>
             			<Scripts>
             				<OnLoad>
-            				    getglobal(self:GetName().."Text"):SetText("|cff88ff88DHUD Layout2|r (Mirror)");
+            				    getglobal(self:GetName().."Text"):SetText("|cff88ff88DHUD Layout2|r (Mirror Player Buff, ComboPoints/Runes)");
             				    if DHUD:GetConfig("layouttyp") == "DHUD_PlayerLeftMirror_Layout" then
             				        DHUD_RADIO_layout4:SetChecked(1);
             				    else
@@ -1393,28 +1393,27 @@
 		<Scripts>
 		    <OnLoad>
 		        DHUDO_OnLoad(self);
+				self:RegisterForDrag("LeftButton");
 		    </OnLoad>
 			<OnMouseDown>
-				if (arg1 == "LeftButton") then
-					self:StartMoving();
-				end
 			</OnMouseDown>
 			<OnMouseUp>
-				if (arg1 == "LeftButton") then
-					self:StopMovingOrSizing();
-				end
 			</OnMouseUp>
 			<OnShow>
 			</OnShow>
 			<OnHide>
 			</OnHide>
+			<OnDragStart>
+				self:StartMoving();
+			</OnDragStart>
+			<OnDragStop>
+				self:StopMovingOrSizing();
+			</OnDragStop>
 		</Scripts>
+		
 
 	</Frame>
 	
-	
-
-
 
 	<Frame name="DHUDYesNoFrame" toplevel="true" parent="DHUDOptionsFrame" hidden="true">
 		<Size>
@@ -1527,10 +1526,4 @@
     		</Layer>
 		</Layers>
     </Frame>
-
-
-
-
-
-
 </Ui>
