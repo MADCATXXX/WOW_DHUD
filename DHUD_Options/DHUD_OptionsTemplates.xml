@@ -442,7 +442,7 @@
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT">
 						<Offset>
-							<AbsDimension x="-80" y="-8"/>
+							<AbsDimension x="-8" y="-8"/>
 						</Offset>
 					</Anchor>
 					<Anchor point="BOTTOMRIGHT" relativeTo="$parent" relativePoint="BOTTOMRIGHT">
@@ -988,7 +988,7 @@
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT">
 						<Offset>
-							<AbsDimension x="-80" y="-8"/>
+							<AbsDimension x="-8" y="-8"/>
 						</Offset>
 					</Anchor>
 					<Anchor point="BOTTOMRIGHT" relativeTo="$parent" relativePoint="BOTTOMRIGHT">
@@ -1210,6 +1210,87 @@
 		<Scripts>
 			<OnLoad>
 				DHUD_OptionsTemplates_LUA:processPositionBoxOnLoad(self);
+			</OnLoad>
+		</Scripts>
+	</Frame>
+	<Frame name="DHUD_OptionsTemplate_GeneralTextBox" virtual="true">
+		<Size>
+			<AbsDimension x="330" y="46"/>
+		</Size>
+		<Backdrop bgFile="Interface\ChatFrame\ChatFrameBackground" edgeFile="Interface\Buttons\UI-SliderBar-Border" tile="true">
+			<BackgroundInsets>
+				<AbsInset left="3" right="22" top="6" bottom="6" />
+			</BackgroundInsets>
+			<TileSize>
+				<AbsValue val="16" />
+			</TileSize>
+			<EdgeSize>
+				<AbsValue val="9" />
+			</EdgeSize>
+		</Backdrop>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<FontString name="$parent_Label" inherits="GameFontNormalSmall" text="EditBox">
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT">
+							<Offset>
+								<AbsDimension x="0" y="0" />
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<ScrollFrame name="$parent_ScrollFrame" inherits="UIPanelScrollFrameTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT">
+						<Offset>
+							<AbsDimension x="8" y="-7"/>
+						</Offset>
+					</Anchor>
+					<Anchor point="BOTTOMRIGHT" relativeTo="$parent" relativePoint="BOTTOMRIGHT">
+						<Offset>
+							<AbsDimension x="-26" y="6"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<ScrollChild>
+					<EditBox name="$parent_Text" multiLine="true" letters="255" autoFocus="false" enableMouse="true">
+						<Anchors>
+							<Anchor point="LEFT" relativeTo="$parent" relativePoint="LEFT" />
+							<Anchor point="RIGHT" relativeTo="$parent" relativePoint="RIGHT" />
+						</Anchors>
+						<Size>
+							<AbsDimension x="100" y="46"/>
+						</Size>
+						<FontString font="Fonts\ARIALN.TTF">
+							<Color r="1" g="1" b="1"/>
+							<FontHeight>
+								<AbsValue val="12"/>
+							</FontHeight>
+						</FontString>
+					</EditBox>
+				</ScrollChild>
+			</ScrollFrame>
+			<Button name="$parent_Clicker">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT">
+						<Offset>
+							<AbsDimension x="-8" y="-8"/>
+						</Offset>
+					</Anchor>
+					<Anchor point="BOTTOMRIGHT" relativeTo="$parent" relativePoint="BOTTOMRIGHT">
+						<Offset>
+							<AbsDimension x="-8" y="8"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				DHUD_OptionsTemplates_LUA:processGeneralTextBoxOnLoad(self);
 			</OnLoad>
 		</Scripts>
 	</Frame>

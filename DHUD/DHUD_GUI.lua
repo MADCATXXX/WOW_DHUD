@@ -1945,6 +1945,7 @@ function DHUDGUI:createTextFontString(frame, variableName, relativePointThis, re
 	-- create text
 	local textField = frame:CreateFontString(frame:GetName() .. "_" .. variableName, fontLayer);
 	local fontName = self.fonts[fontType];
+	textField.fontName = fontName; -- required since GetFont won't return the font that was set (SetFont function is now asynchronous, moreover their order is now not dependent)
 	textField:SetFont(fontName, 10, "");
 	textField:SetFontObject(GameFontHighlightSmall);
 	textField:SetJustifyH(alignH);
@@ -3252,6 +3253,7 @@ function DHUDGUI:processFrameFontSizeSetting(settingName, settingId, scaledWithS
 		local fontSize = DHUDSettings:getValue(settingName);
 		self.fontSizes[settingId] = fontSize;
 		local realFontSize = fontSize / self.scale[self.SCALE_MAIN];
+		--print("settingName " .. settingName .. ", fontSize: " .. fontSize .. ", SCALE_MAIN: " .. self.scale[self.SCALE_MAIN]);
 		if (scaledWithSettingId ~= nil) then
 			realFontSize = realFontSize / self.scale[scaledWithSettingId];
 		end
@@ -3262,6 +3264,7 @@ function DHUDGUI:processFrameFontSizeSetting(settingName, settingId, scaledWithS
 				v = v[variableName];
 				if (v ~= nil) then
 					fontName, cFontSize, fontFlags = v:GetFont();
+					fontName = v.fontName;
 					v:SetFont(fontName, realFontSize, fontFlags);
 					v:DSetText(v:GetText()); -- required to resize textFields
 				end
@@ -3272,6 +3275,8 @@ function DHUDGUI:processFrameFontSizeSetting(settingName, settingId, scaledWithS
 			v = v[variableName];
 			if (v ~= nil) then
 				fontName, cFontSize, fontFlags = v:GetFont();
+				fontName = v.fontName;
+				--print("for frame " .. v:GetName() .. " setting font to " .. fontName .. ", text size to " .. realFontSize .. " (previous " .. cFontSize .. ")");
 				v:SetFont(fontName, realFontSize, fontFlags);
 				v:DSetText(v:GetText()); -- required to resize textFields
 			end
@@ -3292,6 +3297,7 @@ function DHUDGUI:processFrameFontSizeSetting(settingName, settingId, scaledWithS
 					realFontSize = realFontSize / self.scale[scaledWithSettingId];
 				end
 				local fontName, cFontSize, fontFlags = frame:GetFont();
+				fontName = frame.fontName;
 				frame:SetFont(fontName, realFontSize, fontFlags);
 				frame:DSetText(frame:GetText()); -- required to resize textFields
 			end
@@ -3329,6 +3335,7 @@ function DHUDGUI:processFrameFontOutlineSetting(settingName, settingId, variable
 				v = v[variableName];
 				if (v ~= nil) then
 					fontName, fontSize, cFontFlags = v:GetFont();
+					fontName = v.fontName;
 					v:SetFont(fontName, fontSize, fontFlags);
 				end
 			end
@@ -3354,6 +3361,7 @@ function DHUDGUI:processFrameFontOutlineSetting(settingName, settingId, variable
 				local fontOutline = self.fontOutlines[settingId];
 				local fontFlags = self.FONT_OUTLINES[fontOutline + 1];
 				local fontName, fontSize, cFontFlags = frame:GetFont();
+				fontName = frame.fontName;
 				frame:SetFont(fontName, fontSize, fontFlags);
 			end
 		end

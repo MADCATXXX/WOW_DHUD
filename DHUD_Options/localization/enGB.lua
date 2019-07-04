@@ -41,6 +41,7 @@ L["TAB_TIMERS"] = "Timers";
 L["TAB_COLORS"] = "Colors";
 L["TAB_UNITTEXTS"] = "Unit Texts";
 L["TAB_OFFSETS"] = "Offsets";
+L["TAB_SERVICE"] = "Service";
 -- general blizzard
 L["HEADER_BLIZZARD"] = "Blizzard Frames:";
 
@@ -53,8 +54,11 @@ L["SETTING_BLIZZARD_TARGET_TOOLTIP"] = "Show Blizzard Target Frame";
 L["SETTING_BLIZZARD_CASTBAR"] = "Show Castingbar";
 L["SETTING_BLIZZARD_CASTBAR_TOOLTIP"] = "Show Blizzard Castingbar";
 
-L["SETTING_BLIZZARD_SPELLACTIVATION"] = "SpellActivation Alpha";
-L["SETTING_BLIZZARD_SPELLACTIVATION_TOOLTIP"] = "Change Alpha of Blizzard Spell Activation Frame";
+L["SETTING_BLIZZARD_SPELLACTIVATION_ALPHA"] = "SpellActivation Alpha";
+L["SETTING_BLIZZARD_SPELLACTIVATION_ALPHA_TOOLTIP"] = "Change Alpha of Blizzard Spell Activation Frame";
+
+L["SETTING_BLIZZARD_SPELLACTIVATION_SCALE"] = "SpellActivation Scale";
+L["SETTING_BLIZZARD_SPELLACTIVATION_SCALE_TOOLTIP"] = "Change Scale of Blizzard Spell Activation Frame";
 
 -- general scale
 L["HEADER_SCALE"] = "Scale:";
@@ -606,6 +610,9 @@ L["SETTING_COLORS_PET_MANA_TOOLTIP"] = "Color to be used on bar and text when di
 L["SETTING_COLORS_PET_FOCUS"] = "Focus";
 L["SETTING_COLORS_PET_FOCUS_TOOLTIP"] = "Color to be used on bar and text when displaying Pet Focus";
 
+L["SETTING_COLORS_PET_ENERGY"] = "Energy";
+L["SETTING_COLORS_PET_ENERGY_TOOLTIP"] = "Color to be used on bar and text when displaying Pet Energy";
+
 L["HEADER_COLORS_ALTERNATIVEPOWER"] = "Player Alternative Powers:";
 
 L["SETTING_COLORS_ALTERNATIVEPOWER_ECLIPSE"] = "Eclipse";
@@ -737,3 +744,14 @@ L["SETTING_OFFSET_RIGHTSMALLBAR1_TOOLTIP"] = "Change position of Right Small Inn
 
 L["SETTING_OFFSET_RIGHTSMALLBAR2"] = "Right Small Outer Bar";
 L["SETTING_OFFSET_RIGHTSMALLBAR2_TOOLTIP"] = "Change position of Right Small Outer Bar Text, use right click for increased offset step";
+
+-- service
+L["HEADER_SERVICE_LUA"] = "LUA code:";
+
+L["SETTING_SERVICE_LUA_ONLOAD"] = "On load LUA code:";
+L["SETTING_SERVICE_LUA_ONLOAD_TOOLTIP"] = "LUA code that will be executed on game start, usefull to change some things like camera max. distance";
+
+L["HEADER_SERVICE_BLIZZARD"] = "Blizzard Frames:";
+
+L["SETTING_SERVICE_ERRORS"] = "Errors filtering";
+L["SETTING_SERVICE_ERRORS_TOOLTIP"] = "Change level of UI error messages filtering (e.g. Not Enough Energy), 0 - all errors are shown, 1 - errors are hidden, 2 - error frame is hidden (quest messages won't be shown)";

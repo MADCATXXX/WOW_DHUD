@@ -262,7 +262,15 @@ function DHUD_OptionsTemplates_LUA:processSliderOnLoad(frame)
 		-- update value
 		local step = frame.stepInfo[3];
 		local oneDivStep = 1 / step;
-		value =  math.floor((value + 0.00001) * oneDivStep) / oneDivStep; 
+		value =  math.floor((value + 0.00001) * oneDivStep) / oneDivStep;
+		-- update slider position, required since 5.4
+		if (not frame.updatingSlider) then
+			frame.updatingSlider = true;
+			frame:SetValue(value);
+			frame.updatingSlider = false;
+		else
+			return; --ignore recursion handler
+		end
 		-- update text
 		_G[name .. "Text"]:SetText(frame.text .. " " .. value);
 		-- set value
@@ -1141,6 +1149,91 @@ function DHUD_OptionsTemplates_LUA:processPositionBoxOnLoad(frame)
 		-- update text
 		_G[name .. "_MiniEditBox"]:SetText(settingValue[1]);
 		_G[name .. "_MiniEditBox2"]:SetText(settingValue[2]);
+	end;
+	frame:SetScript("OnShow", function(frame)
+		frame:onShow();
+	end);
+	-- set tooltip handlers
+	frame:SetScript("OnEnter", function(frame)
+		GameTooltip:SetOwner(frame, "ANCHOR_RIGHT");
+		GameTooltip:SetText(DHUDOptionsLocalization[ltext .. "_TOOLTIP"] or ("LTOOLTIP: " .. ltext), 1, 1, 1, 1);
+	end);
+	frame:SetScript("OnLeave", function(frame)
+		GameTooltip:Hide();
+	end);
+end
+
+--- Options general text box frame is loaded
+function DHUD_OptionsTemplates_LUA:processGeneralTextBoxOnLoad(frame)
+	local name = frame:GetName();
+	local ltext = frame:GetAttribute("LTEXT") or "";
+	local setting = frame:GetAttribute("SETTING");
+	local help = frame:GetAttribute("HELP") or "";
+	-- save settings
+	frame.setting = setting;
+	-- update backdrop color
+	frame:SetBackdropColor(0.1, 0.1, 0.1, 1);
+	-- for nested function
+	local generalTextBoxFrame = frame;
+	-- update text box handlers
+	local scrollFrame = _G[name .. "_ScrollFrame"];
+	local scrollBar = _G[name .. "_ScrollFrameScrollBar"];
+	local textBox = _G[name .. "_ScrollFrame_Text"];
+	-- update text box size
+	textBox:SetWidth(frame:GetWidth() - 36);
+	-- text changed handler
+	textBox:SetScript("OnTextChanged", function(frame)
+		
+	end);
+	-- text changed handler
+	textBox:SetScript("OnCursorChanged", function(frame, x, y, w, h)
+		--print("x " .. x .. ", y " .. y .. ", w " .. w .. ", h " .. h);
+		local scrollPos = scrollFrame:GetVerticalScroll();
+		local frameHeight  = scrollFrame:GetHeight();
+		-- at top?
+		if ((scrollPos + y) > 0) then
+			scrollFrame:SetVerticalScroll(-y);
+		elseif (0 > (scrollPos + y - h + frameHeight)) then
+			scrollFrame:SetVerticalScroll(-y + h - frameHeight);
+		end
+	end);
+	-- escape handler
+	textBox:SetScript("OnEscapePressed", function(frame)
+		frame:ClearFocus();
+	end);
+	-- focus gained handler
+	textBox:SetScript("OnEditFocusGained", function(frame)
+		DHUD_OptionsTemplates_LUA.focusedTextBox = frame;
+		local helpId = help;
+		if (helpId ~= "") then
+			DHUD_OptionsFrame_LUA:showHelp(DHUDOptionsLocalization[helpId] or (helpId));
+		end
+	end);
+	-- focus lost handler
+	textBox:SetScript("OnEditFocusLost", function(frame)
+		DHUD_OptionsTemplates_LUA.focusedTextBox = nil;
+		DHUD_OptionsFrame_LUA:hideHelp();
+		-- update setting
+		local text = textBox:GetText();
+		DHUDOptions:setSettingValue(setting, text);
+		-- update frame
+		generalTextBoxFrame:onShow();
+	end);
+	textBox:SetAutoFocus(false);
+	textBox:SetMaxLetters(4096);
+	-- update click area handler
+	local clickArea = _G[name .. "_Clicker"];
+	clickArea:SetScript("OnClick", function(frame)
+		textBox:SetFocus();
+	end);
+	-- update label
+	_G[name .. "_Label"]:SetText(DHUDOptionsLocalization[ltext] or ("LTEXT: " .. ltext));
+	-- set on show handler
+	frame.onShow = function(frame)
+		-- read setting value
+		local settingValue = DHUDOptions:getSettingValue(frame.setting);
+		-- update text
+		textBox:SetText(settingValue);
 	end;
 	frame:SetScript("OnShow", function(frame)
 		frame:onShow();

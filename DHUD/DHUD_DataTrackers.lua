@@ -731,7 +731,7 @@ end
 --- set player or vehicle unit id for this tracker
 function DHUDDataTracker:initPlayerOrVehicleUnitId()
 	function self:onVehicleEvent(e)
-		self:setUnitId(trackingHelper.isInVehicle and "pet" or "player", true);
+		self:setUnitId(trackingHelper.isInVehicle and "vehicle" or "player", true);
 	end
 	self.trackUnitId = "player";
 	self:onVehicleEvent(nil);
@@ -854,6 +854,25 @@ DHUDPowerTracker = MCCreateSubClass(DHUDDataTracker, {
 	trackAmountMax		= false,
 	-- defines if maximum amount being tracked?
 	isTrackingAmountMax = false,
+	-- table with power type names, used to convert power id to power name
+	POWER_TYPES = {
+		[0]		= "MANA",
+		[1]		= "RAGE",
+		[2]		= "FOCUS",
+		[3]		= "ENERGY",
+		[4]		= "HAPPINESS",
+		[5]		= "RUNES",
+		[6]		= "RUNIC_POWER",
+		[7]		= "SOUL_SHARDS",
+		[8]		= "ECLIPSE",
+		[9]		= "HOLY_POWER",
+		[10]	= "ALTERNATE_POWER",
+		[11]	= "DARK_FORCE",
+		[12]	= "LIGHT_FORCE",
+		[13]	= "SHADOW_ORBS",
+		[14]	= "BURNING_EMBERS",
+		[15]	= "DEMONIC_FURY",
+	},
 	-- table with base percents for resource types, all unset resource types will be treated as 0
 	BASE_PERCENT_FOR_RESOURCE_TYPE = {
 		["MANA"]			= 1,
@@ -981,6 +1000,12 @@ end
 -- @param resourceType id of the resource type
 -- @param resourceTypeName name of the resource, used to improve performance, pass empty string to allow updates on every UNIT_POWER event
 function DHUDPowerTracker:setResourceType(resourceType, resourceTypeName)
+	-- don't save string if it's not usual resource, it will be reported as different in power change events
+	--print("self.POWER_TYPES[resourceType] " .. self.POWER_TYPES[resourceType] .. ", resourceTypeName " .. resourceTypeName);
+	if (self.POWER_TYPES[resourceType] ~= resourceTypeName) then
+		resourceTypeName = "";
+	end
+	-- return if already set
 	if (self.resourceType == resourceType and self.resourceTypeString == resourceTypeName) then
 		return;
 	end
@@ -1948,10 +1973,13 @@ function DHUDSpecificPowerTracker:init()
 	local tracker = self;
 	-- process units power points change event
 	function self.eventsFrame:UNIT_POWER(unitId, resourceTypeString)
-		--print("UNIT_POWER " .. MCTableToString(unitId) .. ", "  .. MCTableToString(resourceTypeString));
 		if (tracker.unitId ~= unitId) then
 			return;
 		end
+		--[[if (unitId == "vehicle") then
+			print("UNIT_POWER " .. MCTableToString(unitId) .. ", "  .. MCTableToString(resourceTypeString));
+			print("tracker.resourceTypeString " .. tracker.resourceTypeString .. ", resourceTypeString " .. resourceTypeString);
+		end]]--
 		if (tracker.resourceTypeString ~= "" and tracker.resourceTypeString ~= resourceTypeString) then
 			return;
 		end
@@ -1959,12 +1987,16 @@ function DHUDSpecificPowerTracker:init()
 	end
 	-- process units max power points change event
 	function self.eventsFrame:UNIT_MAXPOWER(unitId, resourceTypeString)
-		--print("UNIT_MAXPOWER " .. MCTableToString(unitId) .. ", "  .. MCTableToString(resourceTypeString) .. ", current " .. tracker.unitId);
 		if (tracker.unitId ~= unitId) then
 			return;
 		end
+		--[[if (unitId == "vehicle") then
+			print("UNIT_MAXPOWER " .. MCTableToString(unitId) .. ", "  .. MCTableToString(resourceTypeString) .. ", current " .. tracker.unitId);
+		end]]--
 		tracker:updateMaxPower();
-		--print("update max power to " .. MCTableToString(tracker.amountMax));
+		--[[if (unitId == "vehicle") then
+			print("update max power to " .. MCTableToString(tracker.amountMax));
+		end]]--
 	end
 	-- track maximum amount event if data tracker is not activated
 	self.trackAmountMax = true;
@@ -2093,10 +2125,12 @@ function DHUDMainPowerTracker:init()
 	local tracker = self;
 	-- process units power points type change event
 	function self.eventsFrame:UNIT_DISPLAYPOWER(unitId)
-		--print("UNIT_DISPLAYPOWER " .. MCTableToString(unitId) .. ", "  .. MCTableToString(resourceTypeString) .. ", current " .. tracker.unitId);
 		if (tracker.unitId ~= unitId) then
 			return;
 		end
+		--[[if (unitId == "vehicle") then
+			print("UNIT_DISPLAYPOWER " .. MCTableToString(unitId) .. ", "  .. MCTableToString(resourceTypeString) .. ", current " .. tracker.unitId);
+		end]]--
 		tracker:updatePowerType();
 		--print("update display power to " .. MCTableToString(tracker.resourceType) .. ", " .. MCTableToString(tracker.resourceTypeString));
 	end
@@ -2107,6 +2141,8 @@ end
 --- Update unit power type
 function DHUDMainPowerTracker:updatePowerType()
 	local powerType, powerTypeString = UnitPowerType(self.unitId);
+	--print("powerType " .. powerType .. ", powerTypeString " .. powerTypeString);
+	-- update resource
 	self:setResourceType(powerType, powerTypeString);
 end
 

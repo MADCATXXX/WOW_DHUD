@@ -533,6 +533,23 @@ function DHUDDebug:testColorTools()
 	return nil;
 end
 
+--------------------
+-- GUI Text sizes --
+--------------------
+
+--- function for text sizes debugging
+function DHUDDebug:testTextSizes()
+	print("testTextSizes - begin");
+	-- print text size of the text near health bars
+	print("Text sizes:");
+	local leftTextBig1 = DHUDGUI.frames["DHUD_Left_TextBig1"].textField;
+	filename, fontHeight, flags = leftTextBig1:GetFont();
+	print("leftTextBig1 filename " .. filename .. ", fontHeight " .. fontHeight .. ", flags " .. flags .. "");
+	-- return destructor
+	print("testTextSizes - end");
+	return nil;
+end
+
 -------------------
 -- Settings test --
 -------------------
@@ -618,6 +635,7 @@ function DHUDDebug:SlashCommandHandlerInit()
 	self.slashCommandFunctions["dt_pi"] = self.testDataPlayerInfo;
 	self.slashCommandFunctions["gui_em"] = self.testEllipseMath;
 	self.slashCommandFunctions["gui_tt"] = self.testTextTools;
+	self.slashCommandFunctions["gui_ts"] = self.testTextSizes;
 	self.slashCommandFunctions["gui_emdraw"] = self.testEllipseMathDraw;
 	self.slashCommandFunctions["gui_ct"] = self.testColorTools;
 	self.slashCommandFunctions["set_test"] = self.testSettings;

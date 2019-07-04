@@ -76,6 +76,8 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			["castingFrame"] = { false, 0 },
 			-- allows to change alpha of SpellActivationOverlayFrame
 			["spellActivationFrameAlpha"] = { 0.5, 0, { range = { 0, 1, 0.1 } } },
+			-- allows to change alpha of SpellActivationOverlayFrame
+			["spellActivationFrameScale"] = { 1, 0, { range = { 0.2, 2, 0.1 } } },
 		}, 1 },
 		-- allows to apply text outlines to the text frames
 		["outlines"] = { {
@@ -475,13 +477,22 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			-- allows to show auras from this list, regardless of time or charges
 			["targetAurasWhiteList"] = { { -- druid symbiosis spells are named the same, no point in including them
 				48792, -- DK: Icebound Fortiture, prevents stuns on target
+				48707, -- DK: Anti-Magic Shell, prevents all magic damage to target
 				33786, -- Druid: Cyclone, prevents any damage to target
-				1022, -- Paladin: Hand of protection, prevents physical damage to target
-				642, -- Paladin: Divine Shield, prevents all damage to target
+				61336, -- Druid: Survival Instincts, reduces all gamage by 50%
 				19263, -- Hunter: Deterrence, prevents all damage to target
 				45438, -- Mage: Ice block, prevents all damage to target
 				122464, -- Monk: Dematerialize, causes all abilities to miss
+				1022, -- Paladin: Hand of protection, prevents physical damage to target
+				642, -- Paladin: Divine Shield, prevents all damage to target
 				47585, -- Priest: Dispersion, reduces damage by 90%
+				33206, -- Priest: Pain Supression, reduces all damage by 40%
+				31224, -- Rogue: Cloak of Shadows, prevents all magic damage to target
+				5277, -- Rogue: Evasion, increased dodge chance by 100%
+				30823, -- Shaman: Shamanistic Rage, reduces all damage by 30%
+				110913, -- Warlock: Dark Bargain, prevents all damage, 50% of the damage will be dealed after buff expires
+				971, -- Warrior: Shield Wall, reduces damage by 60%
+				118038, -- Warrior: Die by the Sword, reduces damage by 20% and increases parry by 100%
 			}, 5 },
 			-- allows to not show auras from this list, regardless of time or charges
 			["targetAurasBlackList"] = { { }, 5 },
@@ -807,7 +818,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			-- allows to change level of ui errors, 0 - all errors shown, 1 - ui errors hidden, 2 - ui error frame is hidden (including quest messages)
 			["uiErrorFilter"] = { 0, 0, { range = { 0, 2, 1 } } },
 			-- lua code to be executed when addon is loaded, can be used to increase camera max distance and set other things
-			["luaStartUp"] = { "", 0 },
+			["luaStartUp"] = { "SetCVar(\"cameraDistanceMaxFactor\", 4);", 0 },
 		}, 1 },
 	},
 	-- settings table in following format: setting = value
@@ -1853,6 +1864,12 @@ end
 
 --- Class to handle settings that are not addon specific, e.g. showing/hiding blizzard frames
 DHUDNonAddonSettingsHandler = {
+	-- events frame to listen to game events
+	eventsFrame = nil,
+	-- required alpha for blizzard power auras, this value will be set to frame when required
+	blizzardPowerAurasAlpha = 1,
+	-- required scale for blizzard power auras, this value will be set to frame when required
+	blizzardPowerAurasScale = 1,
 	-- name of the setting that changes visibility of the player frame
 	SETTING_NAME_BLIZZARD_PLAYER = "blizzardFrames_playerFrame",
 	-- name of the setting that changes visibility of the target frame
@@ -1861,6 +1878,8 @@ DHUDNonAddonSettingsHandler = {
 	SETTING_NAME_BLIZZARD_CASTBAR = "blizzardFrames_castingFrame",
 	-- name of the setting that changes alpha of SpellActivationOverlayFrame
 	SETTING_NAME_BLIZZARD_SPELL_ACTIVATION_ALPHA = "blizzardFrames_spellActivationFrameAlpha",
+	-- name of the setting that changes scale of SpellActivationOverlayFrame
+	SETTING_NAME_BLIZZARD_SPELL_ACTIVATION_SCALE = "blizzardFrames_spellActivationFrameScale",
 	-- name of the setting that changes level of ui errors filtering
 	SETTING_NAME_SERVICE_UI_ERROR_FILTER = "service_uiErrorFilter",
 	-- name of the setting that contains code to be executed on start up
@@ -1899,9 +1918,16 @@ end
 
 -- value of the setting has changed
 function DHUDNonAddonSettingsHandler:onBlizzardSpellActivationFrameAlphaChange(e)
-	local val = DHUDSettings:getValue(self.SETTING_NAME_BLIZZARD_SPELL_ACTIVATION_ALPHA);
-	-- reduce alpha of blizzard power auras
-	SpellActivationOverlayFrame:SetAlpha(val);
+	self.blizzardPowerAurasAlpha = DHUDSettings:getValue(self.SETTING_NAME_BLIZZARD_SPELL_ACTIVATION_ALPHA);
+	-- update frame
+	self:updateBlizzardPowerAurasFrame();
+end
+
+-- value of the setting has changed
+function DHUDNonAddonSettingsHandler:onBlizzardSpellActivationFrameScaleChange(e)
+	self.blizzardPowerAurasScale = DHUDSettings:getValue(self.SETTING_NAME_BLIZZARD_SPELL_ACTIVATION_SCALE);
+	-- update frame
+	self:updateBlizzardPowerAurasFrame();
 end
 
 -- value of the setting has changed
@@ -1912,18 +1938,30 @@ end
 
 --- initialize non addon specific settings handler
 function DHUDNonAddonSettingsHandler:init()
+	-- events frame
+	self.eventsFrame = MCCreateBlizzEventFrame();
+	-- read settings
 	local playerFrameVisible = DHUDSettings:getValue(self.SETTING_NAME_BLIZZARD_PLAYER);
 	local targetFrameVisible = DHUDSettings:getValue(self.SETTING_NAME_BLIZZARD_TARGET);
 	local castbarFrameVisible = DHUDSettings:getValue(self.SETTING_NAME_BLIZZARD_CASTBAR);
 	local uiErrorsLevel = DHUDSettings:getValue(self.SETTING_NAME_SERVICE_UI_ERROR_FILTER);
 	local luaStartUp = DHUDSettings:getValue(self.SETTING_NAME_SERVICE_LUA_START_UP);
+	self.blizzardPowerAurasAlpha = DHUDSettings:getValue(self.SETTING_NAME_BLIZZARD_SPELL_ACTIVATION_ALPHA);
+	self.blizzardPowerAurasScale = DHUDSettings:getValue(self.SETTING_NAME_BLIZZARD_SPELL_ACTIVATION_SCALE);
 	-- listen to events
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. self.SETTING_NAME_BLIZZARD_PLAYER, self, self.onBlizzardPlayerFrameChange);
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. self.SETTING_NAME_BLIZZARD_TARGET, self, self.onBlizzardTargetFrameChange);
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. self.SETTING_NAME_BLIZZARD_CASTBAR, self, self.onBlizzardCastbarFrameChange);
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. self.SETTING_NAME_BLIZZARD_SPELL_ACTIVATION_ALPHA, self, self.onBlizzardSpellActivationFrameAlphaChange);
+	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. self.SETTING_NAME_BLIZZARD_SPELL_ACTIVATION_SCALE, self, self.onBlizzardSpellActivationFrameScaleChange);
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. self.SETTING_NAME_SERVICE_UI_ERROR_FILTER, self, self.onServiceUIErrorLevelChange);
-	self:onBlizzardSpellActivationFrameAlphaChange(nil);
+	-- register to power auras event
+	self.eventsFrame:RegisterEvent("SPELL_ACTIVATION_OVERLAY_SHOW");
+	-- process power auras event
+	function self.eventsFrame:SPELL_ACTIVATION_OVERLAY_SHOW()
+		DHUDNonAddonSettingsHandler:updateBlizzardPowerAurasFrame();
+	end
+	self:updateBlizzardPowerAurasFrame();
 	-- hide frames if required
 	if (not playerFrameVisible) then
 		self:hideBlizzardPlayerFrame();
@@ -2059,6 +2097,13 @@ function DHUDNonAddonSettingsHandler:hideBlizzardTargetFrame()
 	ComboFrame:Hide();
 end
 
+--- Function to show blizzard target frame
+function DHUDNonAddonSettingsHandler:updateBlizzardPowerAurasFrame()
+	-- change alpha and scale of blizzard power auras
+	SpellActivationOverlayFrame:SetAlpha(self.blizzardPowerAurasAlpha);
+	SpellActivationOverlayFrame:SetScale(self.blizzardPowerAurasScale);
+end
+
 --- Function to filter ui error messages of blizzard interface
 -- @param level level of ui error filtering, 0 - all errors shown, 1 - ui errors hidden, 2 - ui error frame is hidden (including quest messages)
 function DHUDNonAddonSettingsHandler:changeServiceUIErrorFiltering(level)
@@ -2077,8 +2122,9 @@ end
 --- Function to process lua start up code
 -- @param code code to be executed on startup
 function DHUDNonAddonSettingsHandler:processLuaStartUpCode(code)
-	local functionOnTimerTick = function(self, e)
-		DHUDDataTrackers.helper:removeEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE_FREQUENT, self, functionOnTimerTick);
+	self.onProcessLuaStartUpCode = function(self, e)
+		DHUDDataTrackers.helper:removeEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE_FREQUENT, self, self.onProcessLuaStartUpCode);
+		--DHUDMain:print("Lua start up code: " .. code);
 		local evalFunc, error = loadstring(code, "DHUD onLoad text input");
 		if (evalFunc ~= nil) then
 			evalFunc();
@@ -2087,5 +2133,5 @@ function DHUDNonAddonSettingsHandler:processLuaStartUpCode(code)
 		end
 	end
 	-- execute function on first timer tick to not break initialization if code contains errors
-	DHUDDataTrackers.helper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE_FREQUENT, self, functionOnTimerTick);
+	DHUDDataTrackers.helper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE_FREQUENT, self, self.onProcessLuaStartUpCode);
 end

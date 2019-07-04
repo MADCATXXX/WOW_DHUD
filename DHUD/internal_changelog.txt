@@ -1,7 +1,14 @@
+changelog 2.0.50400.43:
+-shield display styles?
+
 changelog 2.0.50400.42:
--fixed vehicle power update for some vehicles (plants vs zombies)?
--blizzard power auras scale?
--added visual settings for previous command line options?
+-fixed vehicle power update for some vehicles (plants vs zombies: power was returned as SUN_POWER but events where reporting it as ENERGY)
+-added setting to set scale of blizzard power auras
+-settings that affect blizzard power auras will be reapplied to frame when required
+-fixed font scaling bug on first game run (since game API function FontInstance:SetFont("filename", fontHeight, "flags") is now working asynchronously for not loaded fonts)
+-added various player character buffs to be shown in target short auras (like Shield Wall, Cloak of Shadows, etc..)
+-added visual settings for previous command line options
+-fixed slider behaviour for DHUD Settings, it was broken in 5.4 (the 'value step' property is ignored by WoW API)
 
 changelog 2.0.50400.41:
 -toc update
