@@ -4,7 +4,7 @@ DHUD modification for WotLK Beta by MADCAT
 -----------------------------------------------------------------------------------]]--
 
 -- Init Vars --
-DHUD_VERSION    = "Version: 1.5.30000c";
+DHUD_VERSION    = "Version: 1.5.30000d";
 DHUD_TEXT_EMPTY = "";
 DHUD_TEXT_HP2   = "<color_hp><hp_value></color>";
 DHUD_TEXT_HP3   = "<color_hp><hp_value></color>/<hp_max>";
@@ -355,7 +355,7 @@ end
 
 -- OnEvent --
 function DHUD:OnEvent()
-    -- MADCAT debug
+	-- MADCAT debug
     -- self:print("MainEvent: "..event);
 
     -- debug
@@ -372,6 +372,7 @@ function DHUD:OnEvent()
         if self.issetup ~= 2 then return; end
         if self.isinit  ~= 2 then return; end
         self:init();
+
     -- update HEALTH Bars, UNIT_HEALTHMAX removed  
     elseif ( event == "UNIT_HEALTH" ) then
         if arg1 == "player" then
@@ -401,7 +402,7 @@ function DHUD:OnEvent()
             self:UpdateValues("DHUD_PetMana_Text");
 		mcpetmaxenergy = UnitManaMax("pet");
         end
-        
+   
         -- Druidbar support
         if DruidBarKey and self.player_class == "DRUID" then
             self:UpdateValues("DHUD_PetMana_Text");
@@ -474,11 +475,12 @@ function DHUD:OnEvent()
         self:updateAlpha();
     elseif event == "UNIT_HAPPINESS" and arg1 == "pet" then
         self:updatePetIcon();
-    end
+    
+	end
 
     if self.issetup ~= 2 then return; end
     if self.isinit  ~= 2 then return; end
-        
+    
     -- castbar events
     if DHUD_Settings["castingbar"] == 1 then
         -- start spellcast
@@ -593,6 +595,7 @@ function DHUD:OnEvent()
             end
         end
    end
+ 
 end
 
 -- init textfield
@@ -722,7 +725,8 @@ end
 
 -- OnUpdate --
 function DHUD:OnUpdate()    
-    -- update speed
+    
+	-- update speed
     self.update_elapsed = self.update_elapsed + arg1;
     if self.update_elapsed < 0.3 then
         self.update_elapsed = 0;
@@ -906,7 +910,7 @@ function DHUD:setup()
     
     -- create all Frames
     self:createFrames();
-    
+   
     -- init Target Menu
     DHUD_Target_Text:RegisterForClicks('RightButtonUp');
     DHUD_Target_Text:SetScript("OnClick", function() 
@@ -921,7 +925,7 @@ function DHUD:setup()
     
     -- now register events
     self:registerEvents();
-                               
+                           
     -- we are done
     self:printd("setup END");
     self.issetup = 2;
@@ -951,7 +955,7 @@ function DHUD:init()
     self.isinit = 1;
     		    
     -- prepare colors
-    self:prepareColors();
+   self:prepareColors();
     
     -- set Hud Scale
     DHUD_Main:SetScale(DHUD_Settings["scale"] or 1);
@@ -1178,6 +1182,7 @@ function DHUD:init()
     -- init end   
     self.isinit = 2;
     self:printd("init END");
+	
 end
 
 -- Change Frame Pos
@@ -1514,7 +1519,7 @@ function DHUD:createFrame(name)
     
     -- debug
     self:printd("DHUD: createFrame "..name.." parent:"..frame.." typ:"..typ .." level:"..self.frame_level);    
-       
+
     -- set frame        
     if typ == "Frame" then
         ref = CreateFrame ("Frame", name, getglobal(frame) );
@@ -1621,7 +1626,7 @@ function DHUD:createFrame(name)
         ref:EnableMouse(false);
         ref:Show();
         self:initTextfield(ref,name);        
-        		
+      		
     -- set buffs    
     elseif typ == "Buff" then
         ref = CreateFrame("Button", name, getglobal(frame));
@@ -1659,6 +1664,7 @@ function DHUD:createFrame(name)
         ref:SetFrameLevel(self.frame_level);
         ref:SetParent(frame);
         
+
         ref:SetScript("OnEnter", function() 
                 if (not this:IsVisible()) then return; end
                 if DHUD_Settings["showauratips"] == 0 then return; end
@@ -1669,7 +1675,7 @@ function DHUD:createFrame(name)
                     GameTooltip:SetUnitBuff(this.unit, this.id);
                 end
             end );
- 
+
          ref:SetScript("OnLeave", function() 
                 GameTooltip:Hide();
             end );
@@ -1704,7 +1710,8 @@ function DHUD:createFrame(name)
         bgt:SetBlendMode("BLEND");
                 
         ref:SetNormalTexture( "Interface\\Icons\\Ability_Druid_TravelForm" );
-        ref:SetFrameLevel(self.frame_level);
+		-- Glyph and achiviements interface crash if uncomment following line
+        --ref:SetFrameLevel(self.frame_level);
         ref:SetParent(frame);
         
         ref:SetScript("OnEnter", function() 
@@ -1720,8 +1727,9 @@ function DHUD:createFrame(name)
                          
         ref:EnableMouse(true);
         ref:Show();
-        
+       	
     end
+
 end
 
 -- create minimap button (thanks to gello's great lib)
@@ -1979,10 +1987,12 @@ function DHUD:TargetAuras()
             button:Hide();
         end
     end
+	
 end
 
 -- update player Auras
 function DHUD:PlayerAuras()
+
     local i, icon, button, pbtimeLeft, pbtexture;
     local pbrank, pbcount, pbdebuffType, pbduration;
     local j = 1;
@@ -2042,6 +2052,7 @@ function DHUD:PlayerAuras()
 
         button:Hide();
     end
+	
 end
 
 -- ######MADCAT: UpdateEnergy smoothly

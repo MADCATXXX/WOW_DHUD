@@ -1,3 +1,7 @@
+Changelog 1.5.30000d Beta2:
+-fixed recent achievements window
+-probably fixed glyph window, need to test it.
+
 Changelog 1.5.30000c Beta1:
 -Pet Mana Updated every 0.1sec
 -removed MobInfo, MobHealth, MobHealth2 support, nolonger needed
