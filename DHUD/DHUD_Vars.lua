@@ -253,8 +253,8 @@ DHUD_variables = {
    ["<mp_percent>"] = { 
        func = function(text, unit)
                 local percent = 0;
-                local mana = UnitMana(unit);
-                local manamax = UnitManaMax(unit);
+                local mana = UnitPower(unit);
+                local manamax = UnitPowerMax(unit);
                 if (manamax > 0) then
                     percent = math.floor(mana/manamax * 100);
                 else
@@ -263,80 +263,80 @@ DHUD_variables = {
                 text = DHUD:gsub(text, '<mp_percent>', percent.."%%");
                 return text;
             end,
-      events  = { "UNIT_MANA","UNIT_FOCUS","UNIT_RAGE","UNIT_ENERGY","UNIT_DISPLAYPOWER", "UNIT_RUNIC_POWER" },
+      events  = { "UNIT_POWER","UNIT_DISPLAYPOWER" },
       hideval = "0%%", 
   },
   
    ["<mp_value>"] = { 
        func = function(text, unit)
-                local m = UnitMana(unit);
+                local m = UnitPower(unit);
                 text = DHUD:gsub(text, '<mp_value>', m);
                 return text;
             end,
-      events  = { "UNIT_MANA","UNIT_FOCUS","UNIT_RAGE","UNIT_ENERGY","UNIT_DISPLAYPOWER", "UNIT_RUNIC_POWER" },
+      events  = { "UNIT_POWER","UNIT_DISPLAYPOWER" },
       hideval = "0", 
   },
   
    ["<mp_value_druid>"] = { 
        func = function(text, unit)
                 local dm;
-                if UnitPowerType("player") ~= 0 and DruidBarKey then
-                    dm = math.floor(DruidBarKey.keepthemana);
+                if UnitPowerType("player") ~= 0 then
+                    dm = UnitPower("player",0);
                 else
                     dm = "";
                 end
                 text = DHUD:gsub(text, '<mp_value_druid>', dm);
                 return text;
             end,
-      events  = { "UNIT_MANA","UNIT_FOCUS","UNIT_RAGE","UNIT_ENERGY","UNIT_DISPLAYPOWER","UPDATE_SHAPESHIFT_FORMS", "UNIT_RUNIC_POWER" },
+      events  = { "UNIT_POWER","UNIT_DISPLAYPOWER","UPDATE_SHAPESHIFT_FORMS" },
       hideval = "", 
   },  
   
    ["<mp_max_druid>"] = { 
        func = function(text, unit)
                 local dm;
-                if UnitPowerType("player") ~= 0 and DruidBarKey then
-                    dm = math.floor(DruidBarKey.maxmana);
+                if UnitPowerType("player") ~= 0 then
+                    dm = UnitPowerMax("player",0);
                 else
                     dm = "";
                 end
                 text = DHUD:gsub(text, '<mp_max_druid>', dm);
                 return text;
             end,
-      events  = { "UNIT_MANA","UNIT_FOCUS","UNIT_RAGE","UNIT_ENERGY","UNIT_DISPLAYPOWER","UPDATE_SHAPESHIFT_FORMS", "UNIT_RUNIC_POWER" },
+      events  = { "UNIT_POWER","UNIT_DISPLAYPOWER","UPDATE_SHAPESHIFT_FORMS" },
       hideval = "", 
   }, 
 
    ["<mp_percent_druid>"] = { 
        func = function(text, unit)
                 local dm;
-                if UnitPowerType("player") ~= 0 and DruidBarKey then
-                    dm = math.floor(DruidBarKey.keepthemana / DruidBarKey.maxmana * 100);
+                if UnitPowerType("player") ~= 0 then
+                    dm = math.floor(UnitPower("player", 0) / UnitPowerMax("player",0) * 100);
                 else
                     dm = "";
                 end
                 text = DHUD:gsub(text, '<mp_percent_druid>', dm);
                 return text;
             end,
-      events  = { "UNIT_MANA","UNIT_FOCUS","UNIT_RAGE","UNIT_ENERGY","UNIT_DISPLAYPOWER","UPDATE_SHAPESHIFT_FORMS","UNIT_RUNIC_POWER" },
+      events  = { "UNIT_POWER","UNIT_DISPLAYPOWER","UPDATE_SHAPESHIFT_FORMS" },
       hideval = "", 
   }, 
       
    ["<mp_max>"] = { 
        func = function(text, unit)
-                local m = UnitManaMax(unit);
+                local m = UnitPowerMax(unit);
                 text = DHUD:gsub(text, '<mp_max>', m);
                 return text;
             end,
-      events  = { "UNIT_MANA","UNIT_FOCUS","UNIT_RAGE","UNIT_ENERGY","UNIT_DISPLAYPOWER", "UNIT_RUNIC_POWER" },
+      events  = { "UNIT_POWER","UNIT_DISPLAYPOWER" },
       hideval = "0", 
   },
   
   
    ["<mp_diff>"] = { 
        func = function(text, unit)
-                local m = UnitManaMax(unit) - UnitMana(unit);
-                if m > 0 and m < UnitManaMax(unit) then
+                local m = UnitPowerMax(unit) - UnitPower(unit);
+                if m > 0 and m < UnitPowerMax(unit) then
                     m = "-"..m;
                 else
                     m = "";
@@ -345,7 +345,7 @@ DHUD_variables = {
                 return text;
             end,
 			--"UNIT_MAXMANA", "UNIT_FOCUSMAX", "UNIT_RAGEMAX", "UNIT_ENERGYMAX", removed
-      events  = { "UNIT_MANA","UNIT_FOCUS","UNIT_RAGE","UNIT_ENERGY","UNIT_DISPLAYPOWER", "UNIT_RUNIC_POWER" },
+      events  = { "UNIT_POWER","UNIT_DISPLAYPOWER" },
       hideval = "", 
   },
   
@@ -575,22 +575,25 @@ DHUD_variables = {
    ["<color_mp>"] = { 
        func = function(text, unit)
                 local percent;
-                local health    = UnitMana(unit);
-                local healthmax = UnitManaMax(unit);
+                local health;
+				local healthmax;
                 local uc        = 0;
                 
-                if DruidBarKey and DHUD.player_class == "DRUID" and unit == "pet" then
-                    healthmax = DruidBarKey.maxmana;
-                    health    = DruidBarKey.keepthemana;
+                if DHUD.player_class == "DRUID" and unit == "pet" then
+                    healthmax = UnitPower("player", 0);
+                    health    = UnitPowerMax("player",0);
                     unit      = "player";
                     uc        =  1;
-                end
+                else
+					healthmax = UnitPower(unit);
+					health = UnitPowerMax(unit);
+				end
                 
                 if (healthmax > 0 and UnitExists(unit)) then
                     percent = health/healthmax;
                     local typunit = DHUD:getTypUnit(unit,"mana");
                     
-                    if DruidBarKey and DHUD.player_class == "DRUID" and uc == 1 then
+                    if DHUD.player_class == "DRUID" and uc == 1 then
                         typunit = "mana_player";
                     end
                     

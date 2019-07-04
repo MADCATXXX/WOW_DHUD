@@ -1,4 +1,11 @@
-changelog 1.5.40000a MADCAT revision20:
+changelog 1.5.40000c MADCAT revision21:
+-added holly power tracking for paladins, it will shop up as rogue combopoints
+-fixed target power(mana) bars not changing amount of power(mana)
+-blizzard DK Runes now hiding with players frame
+-druid mana bar now doesn't requre you to have "DruidBar" addon
+-slightly improved perfomance, using _G[] instead of getglobal(), etc...
+
+changelog 1.5.40000b MADCAT revision20:
 -fixed minimap icon and options to work with cataclysm
 -fixed target dropdown menu not showing on target name click
 

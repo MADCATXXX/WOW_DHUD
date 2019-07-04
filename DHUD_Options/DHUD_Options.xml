@@ -1304,9 +1304,15 @@
                                 <Offset><AbsDimension x="0" y="-25"/></Offset>
                         </Anchor></Anchors>
                     </CheckButton>
+					<!-- checkbox pallyhollypower -->
+					<CheckButton name="DHUD_Check_pallyhollypower" inherits="DHUD_Check_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Check_dkrunes">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                        </Anchor></Anchors>
+                    </CheckButton>
 					<!-- checkbox playerdebuffs -->
 					<CheckButton name="DHUD_Check_playerdebuffs" inherits="DHUD_Check_Template">
-                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Check_dkrunes">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Check_pallyhollypower">
                                 <Offset><AbsDimension x="0" y="-25"/></Offset>
                         </Anchor></Anchors>
                     </CheckButton>
@@ -1316,7 +1322,7 @@
                     <!-- ................... -->
                     <Frame name="DHUD_Header_madcat2scale" inherits="DHUD_HeaderTemplate">
                         <Scripts><OnLoad>
-                                DHUDO_Header_OnLoad(self, 10,-270);
+                                DHUDO_Header_OnLoad(self, 10,-290);
                         </OnLoad></Scripts>
                     </Frame>
 

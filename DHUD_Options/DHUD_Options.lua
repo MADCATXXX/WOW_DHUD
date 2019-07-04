@@ -3,7 +3,7 @@ DHUDDROPDOWNSELECTED = "";
 
 --Ace3 Profile Support
 local AppName = "DHUDO"
-local VERSION = AppName .. "v 1.5.40000b"
+local VERSION = AppName .. "v 1.5.40000c"
 
 local AceConfig = LibStub("AceConfig-3.0")
 local AceDBOptions = LibStub("AceDBOptions-3.0")
@@ -39,6 +39,7 @@ local defaults = {
 				["showraidicon"]	   = 1,
 				["debufftimer"]		   = 0,
 				["dkrunes"]			   = 1,
+				["pallyhollypower"]    = 1,
 				["playerdebuffs"]	   = 0,
                 ["animatebars"]        = 1,
                 ["barborders"]         = 1,

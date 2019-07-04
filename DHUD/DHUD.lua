@@ -4,7 +4,7 @@ DHUD modification for WotLK Beta by MADCAT
 -----------------------------------------------------------------------------------]]--
 
 -- Init Vars --
-DHUD_VERSION    = "Version: 1.5.40000b";
+DHUD_VERSION    = "Version: 1.5.40000c";
 DHUD_TEXT_EMPTY = "";
 DHUD_TEXT_HP2   = "<color_hp><hp_value></color>";
 DHUD_TEXT_HP3   = "<color_hp><hp_value></color>/<hp_max>";
@@ -62,6 +62,7 @@ DHUD = {
 	mcdkrune4		  = 2,
 	mcdkrune5		  = 3,
 	mcdkrune6		  = 3,
+	mcpallymovedcp    = 0,
     -- mcplenergy     = 0,
     --
     playerbufffilter  = "HELPFUL",
@@ -175,7 +176,7 @@ DHUD = {
 					"DHUD_Rune3",
 					"DHUD_Rune4",
 					"DHUD_Rune5",
-					"DHUD_Rune6",
+					"DHUD_Rune6"
                     -- "DHUD_RaidIcon",
 --                    "DHUD_PlayerBuff1",
 --                    "DHUD_PlayerBuff2",
@@ -204,15 +205,17 @@ DHUD = {
     -- Main Events
     -- WotLK PLAYER_COMBO_POINTS changed to UNIT_COMBO_POINTS, PLAYER_AURAS_CHANGED removed
     -- UNIT_ENERGYMAX, UNIT_MANAMAX, UNIT_FOCUSMAX, UNIT_HEALTHMAX, UNIT_RAGEMAX removed
+	-- Cata removed UNIT_MANA, UNIT_ENERGY, UNIT_RAGE, UNIT_RUNIC_POWER, UNIT_FOCUS and UNIT_HAPPINESS
+	-- instead "UNIT_POWER",
     mainEvents    = { "UNIT_AURA","UNIT_PET","UNIT_HEALTH",
-                      "UNIT_MANA","UNIT_FOCUS","UNIT_RAGE",
-                      "UNIT_ENERGY","UNIT_DISPLAYPOWER","UNIT_RUNE","UNIT_RUNIC_POWER","UNIT_TARGET",
+                      "UNIT_POWER",
+                      "UNIT_DISPLAYPOWER","UNIT_RUNE","UNIT_TARGET",
                       "PLAYER_ENTER_COMBAT","PLAYER_LEAVE_COMBAT","PLAYER_REGEN_ENABLED","PLAYER_REGEN_DISABLED",
                       "PLAYER_TARGET_CHANGED","UNIT_COMBO_POINTS","PLAYER_ALIVE","PLAYER_DEAD", "RAID_TARGET_UPDATE",
                       "UNIT_SPELLCAST_CHANNEL_START","UNIT_SPELLCAST_CHANNEL_UPDATE","UNIT_SPELLCAST_DELAYED","UNIT_SPELLCAST_FAILED",
                       "UNIT_SPELLCAST_INTERRUPTED","UNIT_SPELLCAST_START","UNIT_SPELLCAST_STOP","UNIT_SPELLCAST_CHANNEL_STOP",
                       "PLAYER_UPDATE_RESTING","UNIT_PVP_UPDATE","PLAYER_PET_CHANGED","UNIT_PVP_STATUS","PLAYER_UNGHOST",
-                      "UNIT_HAPPINESS", "UNIT_ENTERED_VEHICLE", "UNIT_EXITED_VEHICLE", "VEHICLE_PASSENGERS_CHANGED", "UPDATE_SHAPESHIFT_FORM" --"UPDATE_SHAPESHIFT_FORMS"--, "COMPANION_UPDATE" , "UNIT_ENTERING_VEHICLE"
+                      "UNIT_ENTERED_VEHICLE", "UNIT_EXITED_VEHICLE", "VEHICLE_PASSENGERS_CHANGED", "UPDATE_SHAPESHIFT_FORM" --"UPDATE_SHAPESHIFT_FORMS"--, "COMPANION_UPDATE" , "UNIT_ENTERING_VEHICLE"
     },
 
     -- movable farme
@@ -265,6 +268,7 @@ DHUD = {
 				["showraidicon"]	   = 1,
 				["debufftimer"]		   = 0,
 				["dkrunes"]			   = 1,
+				["pallyhollypower"]    = 1,
 				["playerdebuffs"]	   = 0,
                 ["animatebars"]        = 1,
                 ["barborders"]         = 1,
@@ -423,6 +427,9 @@ function DHUD:OnEvent(event, arg1, arg2, arg3)
 	--	end
 	--end
 	--self:print("MainEvent: "..event);
+	--if (arg1) then
+	--	self:print("arg1: "..arg1);
+	--end
 	
     -- debug
     self:printd("MainEvent: "..event);
@@ -433,7 +440,7 @@ function DHUD:OnEvent(event, arg1, arg2, arg3)
         self:firstload();
     -- zoning    
     elseif event == "PLAYER_ENTERING_WORLD" then
-		mcinvehicle = 0;
+		self.mcinvehicle = 0;
         self.enter = 1;
         if self:firstload() then return; end       
         if self.issetup ~= 2 then return; end
@@ -449,16 +456,16 @@ function DHUD:OnEvent(event, arg1, arg2, arg3)
 			--self:print("MainEvent: "..event);
 			local hasUI = UnitHasVehicleUI("player")
 			if hasUI then
-				mcinvehicle = 1;
+				self.mcinvehicle = 1;
 			else
-				mcinvehicle = 0;
+				self.mcinvehicle = 0;
 			end			
 			self:UpdateValues("DHUD_PetHealth_Text");
 		end
 	elseif event == "UNIT_EXITED_VEHICLE" then
 		if arg1 == "player" then
 			--self:print("MainEvent: "..event);
-			mcinvehicle = 0;
+			self.mcinvehicle = 0;
 			if DHUD_Settings["animatebars"] == 1 then
 				DHUD_Settings["animatebars"] = 0;
 				self:UpdateValues("DHUD_PlayerHealth_Text");
@@ -470,8 +477,8 @@ function DHUD:OnEvent(event, arg1, arg2, arg3)
 				self:UpdateValues("DHUD_PlayerHealth_Text");
 			end
 			
-			local text = getglobal("DHUD_PetHealth_Text").text;
-			local font = getglobal("DHUD_PetHealth_Text".."_Text");
+			local text = _G["DHUD_PetHealth_Text"].text;
+			local font = _G["DHUD_PetHealth_Text".."_Text"];
 			text = DHUD:gsub(text, '<color_hp>', "|cffffffff" );
             text = DHUD:gsub(text, '<hp_value>', "");
 		    text = DHUD:gsub(text, '</color>', '|r');
@@ -483,9 +490,9 @@ function DHUD:OnEvent(event, arg1, arg2, arg3)
 	elseif event == "VEHICLE_PASSENGERS_CHANGED" then
 		local hasUI = UnitHasVehicleUI("player")
 		if hasUI then
-			mcinvehicle = 1;
+			self.mcinvehicle = 1;
 		else
-			mcinvehicle = 0;
+			self.mcinvehicle = 0;
 			if DHUD_Settings["animatebars"] == 1 then
 				DHUD_Settings["animatebars"] = 0;
 				self:UpdateValues("DHUD_PlayerHealth_Text");
@@ -498,8 +505,8 @@ function DHUD:OnEvent(event, arg1, arg2, arg3)
 			end
 			self:triggerTextEvent("DHUD_PlayerHealth_Text");
 			
-			local text = getglobal("DHUD_PetHealth_Text").text;
-			local font = getglobal("DHUD_PetHealth_Text".."_Text");
+			local text = _G["DHUD_PetHealth_Text"].text;
+			local font = _G["DHUD_PetHealth_Text".."_Text"];
 			text = DHUD:gsub(text, '<color_hp>', "|cffffffff" );
             text = DHUD:gsub(text, '<hp_value>', "");
 		    text = DHUD:gsub(text, '</color>', '|r');
@@ -521,40 +528,36 @@ function DHUD:OnEvent(event, arg1, arg2, arg3)
             self:UpdateValues("DHUD_PetHealth_Text");
         end
 		--do not update alpha if cast complete
-        if not(getglobal("DHUD_EnemyCasting_Bar").enemyfadeOut) and not(getglobal("DHUD_Casting_Bar").fadeOut) then
+        if not(_G["DHUD_EnemyCasting_Bar"].enemyfadeOut) and not(_G["DHUD_Casting_Bar"].fadeOut) then
 			self:updateAlpha();
 		end
     -- update MANA Bars, UNIT_ENERGYMAX, UNIT_MANAMAX, UNIT_FOCUSMAX, UNIT_RAGEMAX   removed
-    elseif ( event == "UNIT_MANA" or 
-             event == "UNIT_FOCUS" or
-             event == "UNIT_RAGE" or
-             event == "UNIT_ENERGY" or event == "UNIT_DISPLAYPOWER" or
-             event == "UNIT_RUNIC_POWER" ) then
+    elseif ( event == "UNIT_POWER" or event == "UNIT_DISPLAYPOWER") then
         if arg1 == "player" then
-            self:UpdateValues("DHUD_PlayerMana_Text");
-            mcplmaxenergy = UnitManaMax("player");
+            --self:UpdateValues("DHUD_PlayerMana_Text");
+            self.mcplmaxenergy = UnitPowerMax("player");
 			
 			
-		-- mcplenergy = UnitMana("player");
+		-- mcplenergy = UnitPower("player");
         elseif arg1 == "target" then
             self:UpdateValues("DHUD_TargetMana_Text");
 		--if (event == "UNIT_RUNIC_POWER" ) then
 			--self:triggerTextEvent("DHUD_TargetMana_Text");
 		--end
         elseif arg1 == "pet" then
-            self:UpdateValues("DHUD_PetMana_Text");
-		mcpetmaxenergy = UnitManaMax("pet");
+            --self:UpdateValues("DHUD_PetMana_Text");
+			self.mcpetmaxenergy = UnitPowerMax("pet");
         end
    
         -- Druidbar support
-        if DruidBarKey and self.player_class == "DRUID" then
+        if self.player_class == "DRUID" then
             self:UpdateValues("DHUD_PetMana_Text");
             self:triggerTextEvent("DHUD_PlayerMana_Text");
             self:triggerTextEvent("DHUD_PetMana_Text");
         end
 		
         --do not update alpha if cast complete
-		if not(getglobal("DHUD_EnemyCasting_Bar").enemyfadeOut) and not(getglobal("DHUD_Casting_Bar").fadeOut) then
+		if not(_G["DHUD_EnemyCasting_Bar"].enemyfadeOut) and not(_G["DHUD_Casting_Bar"].fadeOut) then
 			self:updateAlpha();
 		end
     -- update self Auras
@@ -567,7 +570,7 @@ function DHUD:OnEvent(event, arg1, arg2, arg3)
         self:UpdateValues("DHUD_PetMana_Text");
         self:ChangeBackgroundTexture();
 		--do not update alpha if cast complete
-		if not(getglobal("DHUD_EnemyCasting_Bar").enemyfadeOut) and not(getglobal("DHUD_Casting_Bar").fadeOut) then
+		if not(_G["DHUD_EnemyCasting_Bar"].enemyfadeOut) and not(_G["DHUD_Casting_Bar"].fadeOut) then
 			self:updateAlpha();
 		end
         self:PlayerAuras();
@@ -577,9 +580,9 @@ function DHUD:OnEvent(event, arg1, arg2, arg3)
 		
     --update texture after shapeshift anc  HUD color
 	elseif event =="UPDATE_SHAPESHIFT_FORM" then
-		mcplenergy = UnitMana("player");
-		mcplmaxenergy = UnitManaMax("player");
-		local value = tonumber(mcplenergy/mcplmaxenergy);
+		mcplenergy = UnitPower("player");
+		self.mcplmaxenergy = UnitPowerMax("player");
+		local value = tonumber(mcplenergy/self.mcplmaxenergy);
 		local typunit = DHUD:getTypUnit("player","mana");
 		local color = DHUD_DecToHex(DHUD:Colorize(typunit,value));
 		local bar  = self.text2bar["DHUD_PlayerMana_Text"];
@@ -634,17 +637,16 @@ function DHUD:OnEvent(event, arg1, arg2, arg3)
         self:ChangeBackgroundTexture();
         self:updatePetIcon();
         self:updateAlpha();
-    elseif event == "UNIT_HAPPINESS" and arg1 == "pet" then
+    elseif event == "UNIT_POWER" and arg1 == "pet" then
         self:updatePetIcon();
-    
 	end
-
+	
     if self.issetup ~= 2 then return; end
     if self.isinit  ~= 2 then return; end
     
     -- castbar events
     if DHUD_Settings["castingbar"] == 1 then
-		local frame = getglobal("DHUD_Casting_Bar");
+		local frame = _G["DHUD_Casting_Bar"];
         -- start spellcast
         if (event == "UNIT_SPELLCAST_START") and (arg1 == "player") then
             spell, rank, displayName, icon, startTime, endTime, isTradeSkill = UnitCastingInfo(arg1);
@@ -668,9 +670,9 @@ function DHUD:OnEvent(event, arg1, arg2, arg3)
 			
 			--Spell Name and Texture
 			if DHUD_Settings["castingbarinfo"] == 1 then
-				local casticon = getglobal("DHUD_CB_Texture_Texture");
+				local casticon = _G["DHUD_CB_Texture_Texture"];
 	            casticon:SetTexture( icon );
-				getglobal("DHUD_CB_Texture"):Show();
+				_G["DHUD_CB_Texture"]:Show();
 				DHUD_CB_Text:SetAlpha(1);
 				self:triggerTextEvent("DHUD_CB_Text");
 			end
@@ -789,7 +791,7 @@ function DHUD:OnEvent(event, arg1, arg2, arg3)
    end
 	-- MADCAT Enemy castbar events
     if DHUD_Settings["enemycastingbar"] == 1 then
-		local frame = getglobal("DHUD_EnemyCasting_Bar");
+		local frame = _G["DHUD_EnemyCasting_Bar"];
         --self:print("MainEvent: "..event);
 		-- start spellcast
 		if (event == "UNIT_SPELLCAST_START") and (arg1 == "target") then
@@ -813,24 +815,24 @@ function DHUD:OnEvent(event, arg1, arg2, arg3)
 			
 			
 			--local texture,x0,x1,y0,y1 = unpack( self.C_textures["DHUD_PetUnhappy"] );
-			--local tex = getglobal("DHUD_EnemyCB_Texture");
+			--local tex = _G["DHUD_EnemyCB_Texture"];
             --tex:SetTexture(texture);
             --tex:SetTexCoord(-20,290,30,30);	
 			--icon:SetNormalTexture(enemyicon);
 			--self.enemyspellname = string.format( "%.1s", enemyspell );
-			--getglobal("DHUD_EnemyCB_Texture"):Show();
+			--_G["DHUD_EnemyCB_Texture"]:Show();
 			--icon:SetTexture( "Interface\\Icons\\Ability_Druid_TravelForm" , "Interface\\Icons\\Ability_Druid_TravelForm" );
-			--icon = getglobal("DHUD_EnemyCB_Texture_Texture");
+			--icon = _G["DHUD_EnemyCB_Texture_Texture"];
 			--icon:SetTexCoord(10,10,10,10);
 			
 			--Enemy Spell Name and Texture
-			local ecasticon = getglobal("DHUD_EnemyCB_Texture_Texture");
+			local ecasticon = _G["DHUD_EnemyCB_Texture_Texture"];
             ecasticon:SetTexture( enemyicon );
-			getglobal("DHUD_EnemyCB_Texture"):Show();
+			_G["DHUD_EnemyCB_Texture"]:Show();
 			DHUD_EnemyCB_Text:SetAlpha(1);
 			self:triggerTextEvent("DHUD_EnemyCB_Text");
 			--Show texture under cast bar if target has no mana
-			mctargetcancast=1;
+			self.mctargetcancast=1;
 			self:ChangeBackgroundTexture(); 
         -- stop 
         elseif ( event == "UNIT_SPELLCAST_STOP" or event == "UNIT_SPELLCAST_CHANNEL_STOP") and (arg1 == "target") then
@@ -859,7 +861,7 @@ function DHUD:OnEvent(event, arg1, arg2, arg3)
 				--Hide enemy spell info
 				--self.enemyspellname = nil;
 				--self:triggerTextEvent("DHUD_EnemyCB_Text");
-				--getglobal("DHUD_EnemyCB_Texture"):Hide();
+				--_G["DHUD_EnemyCB_Texture"]:Hide();
 				--Change enemy spellname text to interrupted
 				--self.enemyspellname = "|cffff0000Interrupted|r";
 				--self:triggerTextEvent("DHUD_EnemyCB_Text");
@@ -924,14 +926,14 @@ function DHUD:OnEvent(event, arg1, arg2, arg3)
             DHUD_EnemyFlash_Bar:Hide();
 			
 			--Enemy Spell Name and Texture
-			local ecasticon = getglobal("DHUD_EnemyCB_Texture_Texture");
+			local ecasticon = _G["DHUD_EnemyCB_Texture_Texture"];
             ecasticon:SetTexture( enemyicon );
-			getglobal("DHUD_EnemyCB_Texture"):Show();
+			_G["DHUD_EnemyCB_Texture"]:Show();
 			DHUD_EnemyCB_Text:SetAlpha(1);
 			self:triggerTextEvent("DHUD_EnemyCB_Text");
 			
 			--Show texture under cast bar if target has no mana
-			mctargetcancast=1;
+			self.mctargetcancast=1;
 			self:ChangeBackgroundTexture(); 
         -- channel update
         elseif (event == "UNIT_SPELLCAST_CHANNEL_UPDATE") and (arg1 == "target") then
@@ -1004,8 +1006,8 @@ end
 
 -- set Textbox
 function DHUD:doText(name)
-    local font = getglobal(name.."_Text");
-	local frame = getglobal(name);
+    local font = _G[name.."_Text"];
+	local frame = _G[name];
 
     -- hide npc / target / pet ?
     if frame.unit == "target" and DHUD_Settings["shownpc"] == 0 and self:TargetIsNPC() then 
@@ -1050,7 +1052,7 @@ function DHUD:doText(name)
     end
 
     font:SetWidth(1000);
-    local frame = getglobal(name);
+    local frame = _G[name];
     local w = font:GetStringWidth() + 10;
     font:SetWidth(w);
     frame:SetWidth(w); 
@@ -1072,9 +1074,9 @@ end
 
 -- fake text event
 function DHUD:triggerTextEvent(p)
-    --frame.unit = getglobal(p).unit;
-    --frame.vars = getglobal(p).vars;
-    --frame.text = getglobal(p).text;
+    --frame.unit = _G[p].unit;
+    --frame.vars = _G[p].vars;
+    --frame.text = _G[p].text;
     self:doText(p);
 end
 
@@ -1103,7 +1105,7 @@ function DHUD:OnUpdate(elapsed)
             self:Animate("DHUD_PetHealth_Bar");
             self:Animate("DHUD_PetMana_Bar");
         end
-        if DruidBarKey and self.player_class == "DRUID" and UnitPowerType("player") ~= 0 then
+        if self.player_class == "DRUID" and UnitPowerType("player") ~= 0 then
             self:Animate("DHUD_PetMana_Bar");
         end
     end
@@ -1111,7 +1113,7 @@ function DHUD:OnUpdate(elapsed)
 	
 	-- castingbar
     if DHUD_Settings["castingbar"] == 1 then
-		local frame = getglobal("DHUD_Casting_Bar");
+		local frame = _G["DHUD_Casting_Bar"];
         -- casting
         if frame.casting then
             local time = GetTime();
@@ -1206,7 +1208,7 @@ function DHUD:OnUpdate(elapsed)
 				if DHUD_Settings["castingbarinfo"] == 1 then
 					self.enemyspellname = nil;
 					self:triggerTextEvent("DHUD_CB_Text");
-					getglobal("DHUD_CB_Texture"):Hide();
+					_G["DHUD_CB_Texture"]:Hide();
 				end
             end
         end
@@ -1214,7 +1216,7 @@ function DHUD:OnUpdate(elapsed)
 	
 	    -- MADCAT enemy castingbar
     if DHUD_Settings["enemycastingbar"] == 1 then
-		local frame = getglobal("DHUD_EnemyCasting_Bar");
+		local frame = _G["DHUD_EnemyCasting_Bar"];
         -- casting
         if frame.enemycasting then
             local enemytime = GetTime();
@@ -1306,7 +1308,7 @@ function DHUD:OnUpdate(elapsed)
 				--Hide enemy spell info
 				self.enemyspellname = nil;
 				self:triggerTextEvent("DHUD_EnemyCB_Text");
-				getglobal("DHUD_EnemyCB_Texture"):Hide();
+				_G["DHUD_EnemyCB_Texture"]:Hide();
             end
         end
     end
@@ -1317,8 +1319,8 @@ function DHUD:OnUpdate(elapsed)
     self:MCUpdatePlayerEnergy();
     
     -- MADCAT pet energy update, messed up condition a little
-	if (DHUD_Settings["showpet"] == 1) and (self.has_pet_mana == 1 or mcinvehicle == 1) then
-	if (not(DruidBarKey) and not(self.player_class == "DRUID")) or mcinvehicle == 1 then
+	if (DHUD_Settings["showpet"] == 1) and (self.has_pet_mana == 1 or self.mcinvehicle == 1) then
+	if not(self.player_class == "DRUID") or self.mcinvehicle == 1 then
     	self:MCUpdatePetEnergy();
 	end
     end
@@ -1333,6 +1335,11 @@ function DHUD:OnUpdate(elapsed)
 	--Update DK runes, CPU consuming.
 	if self.player_class == "DEATHKNIGHT" and DHUD_Settings["dkrunes"] == 1 then
 		self:MCDKRunes();
+	end
+	
+	--Update Pallys Holly Power, CPU consuming
+	if self.player_class == "PALADIN" and DHUD_Settings["pallyhollypower"] == 1 then
+		self:MCPallyHollyPower();
 	end
 end
 
@@ -1460,9 +1467,9 @@ function DHUD:init()
     self:UpdateValues("DHUD_PetMana_Text",  1);
     
     -- Madcat Update Energy Information
-    mcplmaxenergy = UnitManaMax("player");
-    mcpetmaxenergy = UnitManaMax("pet");
-    -- mcplenergy = UnitMana("player");
+    self.mcplmaxenergy = UnitPowerMax("player");
+    self.mcpetmaxenergy = UnitPowerMax("pet");
+    -- mcplenergy = UnitPower("player");
                     
     -- Update Combos
     self:UpdateCombos();
@@ -1561,21 +1568,13 @@ function DHUD:init()
         PlayerFrame:UnregisterEvent("PLAYER_REGEN_ENABLED")
         PlayerFrameHealthBar:UnregisterEvent("UNIT_HEALTH")
         PlayerFrameHealthBar:UnregisterEvent("UNIT_MAXHEALTH")
-        PlayerFrameManaBar:UnregisterEvent("UNIT_MANA")
-        PlayerFrameManaBar:UnregisterEvent("UNIT_RAGE")
-        PlayerFrameManaBar:UnregisterEvent("UNIT_FOCUS")
-        PlayerFrameManaBar:UnregisterEvent("UNIT_ENERGY")
-        PlayerFrameManaBar:UnregisterEvent("UNIT_HAPPINESS")
-        PlayerFrameManaBar:UnregisterEvent("UNIT_MAXMANA")
-        PlayerFrameManaBar:UnregisterEvent("UNIT_MAXRAGE")
-        PlayerFrameManaBar:UnregisterEvent("UNIT_MAXFOCUS")
-        PlayerFrameManaBar:UnregisterEvent("UNIT_MAXENERGY")
-        PlayerFrameManaBar:UnregisterEvent("UNIT_MAXHAPPINESS")
+        PlayerFrameManaBar:UnregisterEvent("UNIT_POWER")
         PlayerFrameManaBar:UnregisterEvent("UNIT_DISPLAYPOWER")
         PlayerFrame:UnregisterEvent("UNIT_NAME_UPDATE")
         PlayerFrame:UnregisterEvent("UNIT_PORTRAIT_UPDATE")
         PlayerFrame:UnregisterEvent("UNIT_DISPLAYPOWER")
         PlayerFrame:Hide()
+		RuneFrame:Hide()
     else
         PlayerFrame:RegisterEvent("UNIT_LEVEL")
         PlayerFrame:RegisterEvent("UNIT_COMBAT")
@@ -1593,21 +1592,15 @@ function DHUD:init()
         PlayerFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
         PlayerFrameHealthBar:RegisterEvent("UNIT_HEALTH")
         PlayerFrameHealthBar:RegisterEvent("UNIT_MAXHEALTH")
-        PlayerFrameManaBar:RegisterEvent("UNIT_MANA")
-        PlayerFrameManaBar:RegisterEvent("UNIT_RAGE")
-        PlayerFrameManaBar:RegisterEvent("UNIT_FOCUS")
-        PlayerFrameManaBar:RegisterEvent("UNIT_ENERGY")
-        PlayerFrameManaBar:RegisterEvent("UNIT_HAPPINESS")
-        PlayerFrameManaBar:RegisterEvent("UNIT_MAXMANA")
-        PlayerFrameManaBar:RegisterEvent("UNIT_MAXRAGE")
-        PlayerFrameManaBar:RegisterEvent("UNIT_MAXFOCUS")
-        PlayerFrameManaBar:RegisterEvent("UNIT_MAXENERGY")
-        PlayerFrameManaBar:RegisterEvent("UNIT_MAXHAPPINESS")
+        PlayerFrameManaBar:RegisterEvent("UNIT_POWER")
         PlayerFrameManaBar:RegisterEvent("UNIT_DISPLAYPOWER")
         PlayerFrame:RegisterEvent("UNIT_NAME_UPDATE")
         PlayerFrame:RegisterEvent("UNIT_PORTRAIT_UPDATE")
         PlayerFrame:RegisterEvent("UNIT_DISPLAYPOWER")
         PlayerFrame:Show()
+		if (self.player_class == "DEATHKNIGHT") then
+			RuneFrame:Show()
+		end
     end
  
     -- hide blizz castbar
@@ -1645,28 +1638,28 @@ function DHUD:init()
     DHUD_EnemyCasting_Bar:SetAlpha(0);
     DHUD_EnemyCasting_Bar:Hide();
     DHUD_EnemyFlash_Bar:Hide();
-	getglobal("DHUD_EnemyCB_Texture"):Hide();
+	_G["DHUD_EnemyCB_Texture"]:Hide();
 	self.enemyspellname = nil;
 	self:triggerTextEvent("DHUD_EnemyCB_Text");
-	getglobal("DHUD_CB_Texture"):Hide();
+	_G["DHUD_CB_Texture"]:Hide();
 	self.spellname = nil;
 	self:triggerTextEvent("DHUD_CB_Text");
 	
 	--dk runes
     if (not (self.player_class == "DEATHKNIGHT")) or DHUD_Settings["dkrunes"] == 0 then
-		getglobal("DHUD_Rune1"):Hide();	
-		getglobal("DHUD_Rune2"):Hide();	
-		getglobal("DHUD_Rune3"):Hide();	
-		getglobal("DHUD_Rune4"):Hide();	
-		getglobal("DHUD_Rune5"):Hide();	
-		getglobal("DHUD_Rune6"):Hide();
+		_G["DHUD_Rune1"]:Hide();	
+		_G["DHUD_Rune2"]:Hide();	
+		_G["DHUD_Rune3"]:Hide();	
+		_G["DHUD_Rune4"]:Hide();	
+		_G["DHUD_Rune5"]:Hide();	
+		_G["DHUD_Rune6"]:Hide();
 	else
-		getglobal("DHUD_Rune1"):Show();
-		getglobal("DHUD_Rune2"):Show();
-		getglobal("DHUD_Rune3"):Show();
-		getglobal("DHUD_Rune4"):Show();
-		getglobal("DHUD_Rune5"):Show();
-		getglobal("DHUD_Rune6"):Show();
+		_G["DHUD_Rune1"]:Show();
+		_G["DHUD_Rune2"]:Show();
+		_G["DHUD_Rune3"]:Show();
+		_G["DHUD_Rune4"]:Show();
+		_G["DHUD_Rune5"]:Show();
+		_G["DHUD_Rune6"]:Show();
 		self:triggerTextEvent("DHUD_Rune1_Text");
 		self:triggerTextEvent("DHUD_Rune2_Text");
 		self:triggerTextEvent("DHUD_Rune3_Text");
@@ -1686,7 +1679,7 @@ function DHUD:init()
 		local i;
 		for i=1,5,1 do
 			local typ, point, frame, relative, x, y, width, height = unpack( self.C_frames["DHUD_Combo"..i] );
-			local ref = getglobal("DHUD_Combo"..i);
+			local ref = _G["DHUD_Combo"..i];
 			local x2;
 			--x2=(1-DHUD_Settings["scalecp"])*(1/(1+0.5*(i-1)))*20*(1/DHUD_Settings["scalecp"]);
 			x2=(1-DHUD_Settings["scalecp"])*(1/(1+0.5*(i-2)*(i-1)*(i-3)))*20*(1/DHUD_Settings["scalecp"]);
@@ -1708,11 +1701,12 @@ function DHUD:init()
 			end]]--
 			ref:SetPoint(point, frame , relative, x + x2, y);
 		end
+		self.mcpallymovedcp = 0;
 	end
 	
 	
     -- init castbar
-	local frame = getglobal("DHUD_Casting_Bar");
+	local frame = _G["DHUD_Casting_Bar"];
     frame.endTime = 0;
     
     -- pos frames
@@ -1747,7 +1741,7 @@ function DHUD:init()
     end
     
     -- alter pet manatext when class = DRUID
-    if DruidBarKey and self.player_class == "DRUID" and DHUD_Settings["DHUD_PetMana_Text"] == DHUD_TEXT_MP2 then
+    if self.player_class == "DRUID" and DHUD_Settings["DHUD_PetMana_Text"] == DHUD_TEXT_MP2 then
         DHUD_Settings["DHUD_PetMana_Text"] = DHUD_TEXT_MP7;
     end
     
@@ -1772,7 +1766,7 @@ function DHUD:PositionFrame(name,x2,y2)
         y2 = 0 - y2;
     end
     local typ, point, frame, relative, x, y, width, height = unpack( self.C_frames[name] );
-    local ref = getglobal(name);
+    local ref = _G[name];
     self:printd( name.." "..(x + x2).." "..(y + y2) );
     ref:SetPoint(point, frame , relative, x + x2, y + y2);
 end
@@ -1796,7 +1790,7 @@ function DHUD:TargetChanged()
     end
     
 	 if DHUD_Settings["enemycastingbar"] == 1 then
-		local frame = getglobal("DHUD_EnemyCasting_Bar");
+		local frame = _G["DHUD_EnemyCasting_Bar"];
 		--Remove Enemy CastBar if target Changed
 		if (DHUD_EnemyCasting_Bar:IsShown() and not(frame.enemyfadeOut) ) then
 	                DHUD_EnemyCasting_Bar_Texture:SetVertexColor(1, 0, 0);
@@ -1812,12 +1806,12 @@ function DHUD:TargetChanged()
 	    end
 		self.enemyspellname = nil;
 		self:triggerTextEvent("DHUD_EnemyCB_Text");
-		getglobal("DHUD_EnemyCB_Texture"):Hide();
+		_G["DHUD_EnemyCB_Texture"]:Hide();
 		--remove texture
-		mctargetcancast=nil;
+		self.mctargetcancast=nil;
 	end
 	
-    self:UpdateCombos();
+	self:UpdateCombos();
     self:updateRaidIcon();
     self:updateTargetPvP();
     self:ChangeBackgroundTexture();     
@@ -1828,9 +1822,9 @@ function DHUD:TargetChanged()
     if ( UnitIsUnit("target", "player") and ( GetNumPartyMembers() > 0 or GetNumRaidMembers() > 0 )) or
        ( UnitIsPlayer("target")  and not UnitIsEnemy("player", "target")  and not UnitIsUnit("target", "player") ) or
        UnitIsUnit("target", "pet") then
-        getglobal("DHUD_Target_Text"):EnableMouse(1);
+        _G["DHUD_Target_Text"]:EnableMouse(1);
     else
-        getglobal("DHUD_Target_Text"):EnableMouse(0);
+        _G["DHUD_Target_Text"]:EnableMouse(0);
     end
     
     self:triggerTextEvent("DHUD_TargetTarget_Text");
@@ -1888,7 +1882,7 @@ function DHUD:transform(name)
     self:printd("DHUD: transformFrame "..name.." typ:"..typ .." level:"..self.frame_level);
     
     if typ == "Frame" then
-        local ref = getglobal(name);
+        local ref = _G[name];
         ref:SetPoint(point, frame , relative, x, y);
         ref:SetHeight(height);
         ref:SetWidth(width); 
@@ -1905,7 +1899,7 @@ function DHUD:transform(name)
         ref:Show();       
     elseif typ == "Texture" then    
         local texture,x0,x1,y0,y1 = unpack( self.C_textures[name] );
-        local ref = getglobal(name);
+        local ref = _G[name];
         ref:ClearAllPoints();
         ref:SetPoint(point, frame , relative, x, y);
         ref:SetHeight(height);
@@ -1924,7 +1918,7 @@ function DHUD:transform(name)
             strata = "LOW";
         end
 
-        local bgt = getglobal(name.."_Texture");
+        local bgt = _G[name.."_Texture"];
         bgt:SetTexture(texture);
         bgt:ClearAllPoints();
         bgt:SetPoint("TOPLEFT", ref , "TOPLEFT", 0, 0);
@@ -1939,7 +1933,7 @@ function DHUD:transform(name)
 
     elseif typ == "Bar" then    
         local texture,x0,x1,y0,y1 = unpack( self.C_textures[name] );
-        local ref = getglobal(name);
+        local ref = _G[name];
         ref:ClearAllPoints();
         ref:SetPoint(point, frame , relative, x, y);
         ref:SetHeight(height);
@@ -1950,7 +1944,7 @@ function DHUD:transform(name)
             --ref:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 32, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
             --ref:SetBackdropColor(0,1,0,0.1);
         end
-        local bgt = getglobal(name.."_Texture");
+        local bgt = _G[name.."_Texture"];
         bgt:SetTexture(texture);
         bgt:SetPoint(point, ref, relative, 0, 0);
         bgt:SetHeight(height);
@@ -1964,7 +1958,7 @@ function DHUD:transform(name)
         ref:Show();    
         
     elseif typ == "Text" then
-        local ref = getglobal(name);
+        local ref = _G[name];
         ref:ClearAllPoints();
         ref:SetPoint(point, frame , relative, x, y);
         
@@ -1974,7 +1968,7 @@ function DHUD:transform(name)
             --ref:SetBackdropColor(0,0,1,0.5);
         end
         
-        local font = getglobal(name.."_Text");
+        local font = _G[name.."_Text"];
         font:SetFontObject(GameFontHighlightSmall);
         if self.debug then
             font:SetText(name);
@@ -1999,7 +1993,7 @@ function DHUD:transform(name)
         		
     -- set buffs    
     elseif typ == "Buff" then
-        ref = getglobal(name);
+        ref = _G[name];
         ref:ClearAllPoints();
         ref:SetPoint(point, frame , relative, x, y);
         ref:SetHeight(height);
@@ -2011,7 +2005,7 @@ function DHUD:transform(name)
            -- ref:SetBackdropColor(1,0,0,0.2);
         end
 
-        local font = getglobal(name.."_Text");
+        local font = _G[name.."_Text"];
         font:SetFontObject(GameFontHighlightSmall);
         font:SetText("");
         font:SetJustifyH("RIGHT");
@@ -2023,7 +2017,7 @@ function DHUD:transform(name)
         font:ClearAllPoints();
         font:SetPoint(point, frame, relative,x, y);
         
-        local bgt = getglobal(name.."_Border");
+        local bgt = _G[name.."_Border"];
         bgt:SetTexture("Interface\\Buttons\\UI-Debuff-Border");
         bgt:SetPoint("BOTTOM", ref, "BOTTOM", 0, 0);
         bgt:SetHeight(height);
@@ -2053,13 +2047,13 @@ function DHUD:transform(name)
         ref:Show();
         
     elseif typ == "PlayerBuff" then
-        ref = getglobal(name);
+        ref = _G[name];
         ref:ClearAllPoints();
         ref:SetPoint(point, frame , relative, x, y);
         ref:SetHeight(height);
         ref:SetWidth(width);
         
-        local font = getglobal(name.."_Text");
+        local font = _G[name.."_Text"];
         font:ClearAllPoints();
         font:SetFontObject(GameFontHighlightSmall);
         font:SetPoint("CENTER", ref, "CENTER", 0,0);
@@ -2069,7 +2063,7 @@ function DHUD:transform(name)
         font:SetWidth(width*2);
         font:SetHeight(height);
         
-        local bgt = getglobal(name.."_Border");
+        local bgt = _G[name.."_Border"];
         bgt:SetTexture("Interface\\AddOns\\DHUD\\layout\\serenity0");
         bgt:SetVertexColor(1.0,1.0,1.0);
         bgt:SetPoint("TOPLEFT", ref, "TOPLEFT", -7.5, 7.5);
@@ -2123,7 +2117,7 @@ function DHUD:createFrame(name)
 
     -- set frame        
     if typ == "Frame" then
-        ref = CreateFrame ("Frame", name, getglobal(frame) );
+        ref = CreateFrame ("Frame", name, _G[frame] );
         ref:ClearAllPoints();
         ref:SetPoint(point, frame , relative, x, y);
         ref:SetHeight(height);
@@ -2143,7 +2137,7 @@ function DHUD:createFrame(name)
     -- set bar
     elseif typ == "Texture" then    
         local texture,x0,x1,y0,y1 = unpack( self.C_textures[name] );
-        ref = CreateFrame("Frame", name, getglobal(frame) );
+        ref = CreateFrame("Frame", name, _G[frame] );
         ref:ClearAllPoints();
         ref:SetPoint(point, frame , relative, x, y);
         ref:SetHeight(height);
@@ -2175,7 +2169,7 @@ function DHUD:createFrame(name)
     -- set bar
     elseif typ == "Bar" then    
         local texture,x0,x1,y0,y1 = unpack( self.C_textures[name] );
-        ref = CreateFrame("Frame", name, getglobal(frame));
+        ref = CreateFrame("Frame", name, _G[frame]);
         ref:ClearAllPoints();
         ref:SetPoint(point, frame , relative, x, y);
         ref:SetHeight(height);
@@ -2221,7 +2215,7 @@ function DHUD:createFrame(name)
 		end
     -- set text
     elseif typ == "Text" then
-        ref = CreateFrame("Button", name, getglobal(frame));
+        ref = CreateFrame("Button", name, _G[frame]);
         ref:ClearAllPoints();
         ref:SetPoint(point, frame , relative, x, y);
         
@@ -2255,7 +2249,7 @@ function DHUD:createFrame(name)
       		
     -- set buffs    
     elseif typ == "Buff" then
-        ref = CreateFrame("Button", name, getglobal(frame));
+        ref = CreateFrame("Button", name, _G[frame]);
         ref:ClearAllPoints();
         ref:SetPoint(point, frame , relative, x, y);
         ref:SetHeight(height);
@@ -2323,7 +2317,7 @@ function DHUD:createFrame(name)
         ref:Show();
         
     elseif typ == "PlayerBuff" then
-        ref = CreateFrame("Button", name, getglobal(frame));
+        ref = CreateFrame("Button", name, _G[frame]);
         ref:ClearAllPoints();
         ref:SetPoint(point, frame , relative, x, y);
         ref:SetHeight(height);
@@ -2424,7 +2418,7 @@ function DHUD:SetBarColor(bar,percent)
     local unit = self.name2unit[bar];
     local typ  = self.name2typ[bar];
     typunit = self:getTypUnit(unit,typ);
-    local texture = getglobal(bar.."_Texture");
+    local texture = _G[bar.."_Texture"];
     texture:SetVertexColor(self:Colorize(typunit,percent));
 end
 
@@ -2497,7 +2491,7 @@ end
 
 -- set bar height
 function DHUD:SetBarHeight(bar,p)
-    local texture = getglobal(bar.."_Texture");
+    local texture = _G[bar.."_Texture"];
     
     -- Hide when Bar empty 
     if math.floor(p * 100) == 0 or UnitIsDeadOrGhost("player") then
@@ -2522,17 +2516,17 @@ function DHUD:SetBarHeight(bar,p)
     texture:SetHeight(h);
 	--self:print("x0: ".. x0 .. " x1: " .. x1 .. " top: " .. top .. " bottom: " .. bottom .. " t_g_t_p: " .. tex_gap_top_p .. " t_g_b_p:" .. tex_gap_bottom_p .. " p: " .. p .. " bar: " .. bar);
     texture:SetTexCoord(x0, x1, top, bottom );
-    texture:SetPoint(point, getglobal(frame), relative, x, tex_gap_bottom);
+    texture:SetPoint(point, _G[frame], relative, x, tex_gap_bottom);
     texture:Show();
 end;
 
 -- show / hide combopoints
 function DHUD:UpdateCombos()
 	local points;
-	if (not mcinvehicle or mcinvehicle == 0) then
+	if (not self.mcinvehicle or self.mcinvehicle == 0) then
 		points = GetComboPoints("player","target")
 		--self:print("Points: " .. points);
-	elseif mcinvehicle == 1 then
+	elseif self.mcinvehicle == 1 then
 		points = GetComboPoints("pet","target")
 		--self:print("Points: " .. points);
 	end
@@ -2593,20 +2587,20 @@ function DHUD:TargetAuras()
     -- Buffs
     for i = 1, 40 do
         local buffName, _, buffTexture, buffApplication = UnitBuff("target", i);
-        button = getglobal(buffFrame..i);
+        button = _G[buffFrame..i];
         button.hasdebuff = nil;
         button.unit = "target";
         button.id = i;
         if DHUD_Settings["shownpc"] == 0 and self:TargetIsNPC() then
             button:Hide();
         elseif buffName and DHUD_Settings["showauras"] == 1 and DHUD_Settings["showtarget"] == 1 then
-            icon = getglobal(button:GetName());
+            icon = _G[button:GetName()];
             icon:SetNormalTexture(buffTexture);
             
-            buffBorder = getglobal(button:GetName().."_Border");
+            buffBorder = _G[button:GetName().."_Border"];
             buffBorder:Hide();
             
-            buffText   = getglobal(button:GetName().."_Text");
+            buffText   = _G[button:GetName().."_Text"];
             if buffApplication <= 0 then
                 buffText:SetText("");
             elseif buffApplication > 1 then
@@ -2623,17 +2617,17 @@ function DHUD:TargetAuras()
     -- DeBuffs
     for i = 1, 40 do
         local debuffName, _, debuffTexture, debuffApplication, _, _, debufftimeLeft = UnitDebuff("target", i);
-        button = getglobal(debuffFrame..i);
+        button = _G[debuffFrame..i];
         button.hasdebuff = 1;
         button.unit = "target";
         button.id = i;
         if DHUD_Settings["shownpc"] == 0 and self:TargetIsNPC() then
             button:Hide();
         elseif debuffName and DHUD_Settings["showauras"] == 1 and DHUD_Settings["showtarget"] == 1 then
-            icon = getglobal(button:GetName());
+            icon = _G[button:GetName()];
             icon:SetNormalTexture(debuffTexture);
                         
-            debuffBorder = getglobal(button:GetName().."_Border");
+            debuffBorder = _G[button:GetName().."_Border"];
             debuffBorder:Show();
 			
 			if DHUD_Settings["debufftimer"] == 1 then
@@ -2645,18 +2639,18 @@ function DHUD:TargetAuras()
 			    
 	            if debufftimeLeft > 0 then
 	                color.r, color.g, color.b = self:Colorize("aura_player", debufftimeLeft / 20);
-					debuffTimeLeftText   = getglobal(button:GetName().."_TimeLeftText");
+					debuffTimeLeftText   = _G[button:GetName().."_TimeLeftText"];
 	                debuffTimeLeftText:SetText("|cff"..DHUD_DecToHex(color.r, color.g, color.b)..DHUD_FormatTime(debufftimeLeft));
 				else
-					debuffTimeLeftText   = getglobal(button:GetName().."_TimeLeftText");
+					debuffTimeLeftText   = _G[button:GetName().."_TimeLeftText"];
 	                debuffTimeLeftText:SetText("");
 	            end
 			else
-					debuffTimeLeftText   = getglobal(button:GetName().."_TimeLeftText");
+					debuffTimeLeftText   = _G[button:GetName().."_TimeLeftText"];
 					debuffTimeLeftText:SetText("");
 			end
 				
-            debuffText   = getglobal(button:GetName().."_Text");
+            debuffText   = _G[button:GetName().."_Text"];
             if debuffApplication <= 0 then
                 debuffText:SetText("");
             elseif debuffApplication > 1 then
@@ -2691,17 +2685,17 @@ function DHUD:PlayerAuras()
 	end
     
     -- Buffs
-    if DHUD_Settings["showplayerbuffs"] == 1 and getglobal(buffframe .. "1"):IsVisible() then
+    if DHUD_Settings["showplayerbuffs"] == 1 and _G[buffframe .. "1"]:IsVisible() then
         for i = 1, countbd do
             -- WotLK GetPlayerBuff changed to UnitBuff
-			if (not mcinvehicle or mcinvehicle == 0) then
+			if (not self.mcinvehicle or self.mcinvehicle == 0) then
 				--show debuffs
 				if DHUD_Settings["playerdebuffs"] == 1 and i>40 then
 					buffI, _, pbtexture, pbcount, _, _, pbtimeLeft  = UnitDebuff( "player", i-40, self.playerbufffilter );
 				else
 					buffI, _, pbtexture, pbcount, _, _, pbtimeLeft  = UnitBuff( "player", i, self.playerbufffilter );
 				end
-           	elseif mcinvehicle == 1 then
+           	elseif self.mcinvehicle == 1 then
 				--show debuffs
 				if DHUD_Settings["playerdebuffs"] == 1 and i>40 then
 					buffI, _, pbtexture, pbcount, _, _, pbtimeLeft  = UnitDebuff( "pet", i-40, self.playerbufffilter );
@@ -2722,19 +2716,19 @@ function DHUD:PlayerAuras()
 					color.r, color.g, color.b = self:Colorize("aura_player", pbtimeLeft / 20);
 				end
 
-                button = getglobal(buffframe..j);
+                button = _G[buffframe..j];
                 button.hasdebuff = nil;
                 button.unit = "player";
                 button.id = i;
                 
-                icon       = getglobal(button:GetName());
+                icon       = _G[button:GetName()];
                 icon:SetNormalTexture(pbtexture);
                 
-                buffBorder = getglobal(button:GetName().."_Border");
+                buffBorder = _G[button:GetName().."_Border"];
                 buffBorder:SetVertexColor(color.r, color.g, color.b);
                 buffBorder:Show();
                 
-                buffText   = getglobal(button:GetName().."_Text");
+                buffText   = _G[button:GetName().."_Text"];
 				if pbtimeLeft > 0 then
 				    buffText:SetText("|cff"..DHUD_DecToHex(color.r, color.g, color.b)..DHUD_FormatTime(pbtimeLeft));
 				else
@@ -2742,10 +2736,10 @@ function DHUD:PlayerAuras()
 				end
                 
 				if (pbcount > 1) then
-					buffCountText   = getglobal(button:GetName().."_CountText");
+					buffCountText   = _G[button:GetName().."_CountText"];
 	                buffCountText:SetText("|cff"..DHUD_DecToHex(1, 1, 1)..pbcount);
 				else
-					buffCountText   = getglobal(button:GetName().."_CountText");
+					buffCountText   = _G[button:GetName().."_CountText"];
 	                buffCountText:SetText("");
 				end
                 button:Show();
@@ -2764,7 +2758,7 @@ function DHUD:PlayerAuras()
 
     -- hide the buttons not used
     for j = j, 24 do
-        button = getglobal(buffframe..j);
+        button = _G[buffframe..j];
         button.hasdebuff = nil;
         button.unit = "player";
         button.id = j;
@@ -2786,34 +2780,34 @@ function DHUD:MCUpdatePlayerEnergy()
     -- Lasttime = Current time
     -- lasttime = time;
     
-	local frame = getglobal("DHUD_PlayerMana_Text");
+	local frame = _G["DHUD_PlayerMana_Text"];
     
-    local font = getglobal("DHUD_PlayerMana_Text".."_Text");
+    local font = _G["DHUD_PlayerMana_Text".."_Text"];
     
     local text  = frame.text;
     -- mcplenergy = mcplenergy + 1;
 	local mcplenergy = 0;
 	local maxplenergytmp = 0;
 	--vehicle support
-	if mcinvehicle == 1 then 
-		mcplenergy = UnitMana("pet");
-		maxplenergytmp = mcplmaxenergy;
-		mcplmaxenergy = UnitManaMax("pet");
-		if mcplmaxenergy==0 then
-			mcplmaxenergy=100
+	if self.mcinvehicle == 1 then 
+		mcplenergy = UnitPower("pet");
+		maxplenergytmp = self.mcplmaxenergy;
+		self.mcplmaxenergy = UnitPowerMax("pet");
+		if self.mcplmaxenergy==0 then
+			self.mcplmaxenergy=100
 		end
 	else
-		mcplenergy = UnitMana("player");
+		mcplenergy = UnitPower("player");
 	end
-    if (mcplenergy>mcplmaxenergy) then
-		mcplenergy=mcplmaxenergy;
+    if (mcplenergy>self.mcplmaxenergy) then
+		mcplenergy=self.mcplmaxenergy;
     end
 
     -- Update Bar
-	if mcplmaxenergy == 0 then
+	if self.mcplmaxenergy == 0 then
 		value = 0;
 	else
-	    value = tonumber(mcplenergy/mcplmaxenergy);
+	    value = tonumber(mcplenergy/self.mcplmaxenergy);
 	end
     local bar  = self.text2bar["DHUD_PlayerMana_Text"];
     self.bar_values[bar] = value;
@@ -2832,44 +2826,44 @@ function DHUD:MCUpdatePlayerEnergy()
     text = DHUD:gsub(text, '</color>', '|r');
     text = DHUD:gsub(text, '<color>', '|cff');
     text = DHUD:gsub(text, '<mp_percent>', value.."%%");
-	text = DHUD:gsub(text, '<mp_max>', mcplmaxenergy);
+	text = DHUD:gsub(text, '<mp_max>', self.mcplmaxenergy);
     -- text = string.gsub(text, "  "," ");
     -- text = string.gsub(text,"(^%s+)","");
     -- text = string.gsub(text,"(%s+$)","");
     font:SetText(text);
     -- end
-	if mcinvehicle == 1 then
-		mcplmaxenergy = maxplenergytmp;
+	if self.mcinvehicle == 1 then
+		self.mcplmaxenergy = maxplenergytmp;
 	end
 end
 
 -- ######MADCAT: UpdatePetEnergy smoothly
 function DHUD:MCUpdatePetEnergy()    
-	local frame = getglobal("DHUD_PetMana_Text");
-    local font = getglobal("DHUD_PetMana_Text".."_Text");
+	local frame = _G["DHUD_PetMana_Text"];
+    local font = _G["DHUD_PetMana_Text".."_Text"];
     
     local text  = frame.text;
 	
 	local mcpetenergy = 0;
 	local maxpetenergytmp = 0;
 	--vehicle support
-	if mcinvehicle == 1 then 
-		mcpetenergy = UnitMana("player");
-		maxpetenergytmp = mcpetmaxenergy;
-		mcpetmaxenergy = UnitManaMax("player");
+	if self.mcinvehicle == 1 then 
+		mcpetenergy = UnitPower("player");
+		maxpetenergytmp = self.mcpetmaxenergy;
+		self.mcpetmaxenergy = UnitPowerMax("player");
 	else
-		mcpetenergy = UnitMana("pet");
+		mcpetenergy = UnitPower("pet");
 	end
     
-    if (mcpetenergy>mcpetmaxenergy) then
-		mcpetenergy=mcpetmaxenergy;
+    if (mcpetenergy>self.mcpetmaxenergy) then
+		mcpetenergy=self.mcpetmaxenergy;
     end
 
     -- Update Bar
-	if mcpetmaxenergy == 0 then
+	if self.mcpetmaxenergy == 0 then
 		value = 0;
 	else
-	    value = tonumber(mcpetenergy/mcpetmaxenergy);
+	    value = tonumber(mcpetenergy/self.mcpetmaxenergy);
 	end
 	
     local bar  = self.text2bar["DHUD_PetMana_Text"];
@@ -2889,14 +2883,14 @@ function DHUD:MCUpdatePetEnergy()
     text = DHUD:gsub(text, '</color>', '|r');
     text = DHUD:gsub(text, '<color>', '|cff');
     text = DHUD:gsub(text, '<mp_percent>', value.."%%");
-	text = DHUD:gsub(text, '<mp_max>', mcpetmaxenergy);	
+	text = DHUD:gsub(text, '<mp_max>', self.mcpetmaxenergy);	
     -- text = string.gsub(text, "  "," ");
     -- text = string.gsub(text,"(^%s+)","");
     -- text = string.gsub(text,"(%s+$)","");
     font:SetText(text);
     -- end
-	if mcinvehicle == 1 then
-		mcpetmaxenergy = maxpetenergytmp;
+	if self.mcinvehicle == 1 then
+		self.mcpetmaxenergy = maxpetenergytmp;
 	end
 end
 
@@ -2917,39 +2911,39 @@ function DHUD:MCDKRunes()
 		--end
 		if start > 0 then
 	        color.r, color.g, color.b = self:Colorize("aura_player", start / 20);			
-			startText = getglobal("DHUD_Rune".. i .. "_Text_Text");
+			startText = _G["DHUD_Rune".. i .. "_Text_Text"];
 			startText:SetText("|cff"..DHUD_DecToHex(color.r, color.g, color.b)..DHUD_FormatTime(start));
 			runeType = GetRuneType(i);
 			
-			--local runetexture = getglobal("DHUD_Rune"..i.."_Texture");
+			--local runetexture = _G["DHUD_Rune"..i.."_Texture"];
 		    --runetexture:SetTexture( "Interface\\PlayerFrame\\UI-PlayerFrame-Deathknight-Death" );
 			
 			--change texture for rune if needed
-			if not (runeType == getglobal("mcdkrune"..i)) then
+			if not (runeType == _G["mcdkrune"..i]) then
 				if i == 1 then
-					mcdkrune1=runeType;
+					self.mcdkrune1=runeType;
 				elseif i == 2 then
-					mcdkrune2=runeType;
+					self.mcdkrune2=runeType;
 				elseif i == 3 then
-					mcdkrune3=runeType;
+					self.mcdkrune3=runeType;
 				elseif i == 4 then
-					mcdkrune4=runeType;
+					self.mcdkrune4=runeType;
 				elseif i == 5 then
-					mcdkrune5=runeType;
+					self.mcdkrune5=runeType;
 				elseif i == 6 then
-					mcdkrune6=runeType;
+					self.mcdkrune6=runeType;
 				end
 				if runeType == 1 then
-					local runetexture = getglobal("DHUD_Rune"..i.."_Texture");
+					local runetexture = _G["DHUD_Rune"..i.."_Texture"];
 		            runetexture:SetTexture( "Interface\\PlayerFrame\\UI-PlayerFrame-Deathknight-Blood" );
 				elseif runeType == 2 then
-					local runetexture = getglobal("DHUD_Rune"..i.."_Texture");
+					local runetexture = _G["DHUD_Rune"..i.."_Texture"];
 		            runetexture:SetTexture( "Interface\\PlayerFrame\\UI-PlayerFrame-Deathknight-Unholy" );
 				elseif runeType == 3 then
-					local runetexture = getglobal("DHUD_Rune"..i.."_Texture");
+					local runetexture = _G["DHUD_Rune"..i.."_Texture"];
 		            runetexture:SetTexture( "Interface\\PlayerFrame\\UI-PlayerFrame-Deathknight-Frost" );
 				elseif runeType == 4 then
-					local runetexture = getglobal("DHUD_Rune"..i.."_Texture");
+					local runetexture = _G["DHUD_Rune"..i.."_Texture"];
 		            runetexture:SetTexture( "Interface\\PlayerFrame\\UI-PlayerFrame-Deathknight-Death" );
 				end
 			end
@@ -2959,18 +2953,80 @@ function DHUD:MCDKRunes()
 			--2 : RUNETYPE_CHROMATIC 
 			--3 : RUNETYPE_FROST 
 			--4 : RUNETYPE_DEATH
-			--startText = getglobal("DHUD_PlayerHealth_Text_Text");
+			--startText = _G["DHUD_PlayerHealth_Text_Text"];
 			--("|cff"..DHUD_DecToHex(color.r, color.g, color.b)..DHUD_FormatTime(start));
 			--startText:SetFont( self.defaultfont, 14, "OUTLINE");
 			--self:print("|cff"..DHUD_DecToHex(color.r, color.g, color.b)..DHUD_FormatTime(start));
 		else
-			startText = getglobal("DHUD_Rune".. i .. "_Text_Text");
+			startText = _G["DHUD_Rune".. i .. "_Text_Text"];
 	        startText:SetText("");
 	    end
 	end		
 end
 
-	
+-- ######MADCAT: Pally Holly Power
+function DHUD:MCPallyHollyPower()
+	if (self.CastingAlpha == 0) then
+		return;
+	end
+	local points;
+	if (not self.mcinvehicle or self.mcinvehicle == 0) then
+		points = UnitPower("player", 9);
+	else
+		if (self.mcpallymovedcp == 1) then
+			local point, frame, relative, x, y = DHUD_Combo4:GetPoint();
+			local epoint, eframe, erelative, ex, ey = DHUD_Combo2:GetPoint();
+			DHUD_Combo4:SetPoint(epoint, eframe, erelative, ex, ey);
+			DHUD_Combo2:SetPoint(point, frame, relative, x, y);
+			point, frame, relative, x, y = DHUD_Combo5:GetPoint();
+			epoint, eframe, erelative, ex, ey = DHUD_Combo3:GetPoint();
+			DHUD_Combo5:SetPoint(epoint, eframe, erelative, ex, ey);
+			DHUD_Combo3:SetPoint(point, frame, relative, x, y);
+			self.mcpallymovedcp = 0;
+		end
+		return;
+	end
+	if points == 0 then
+        DHUD_Combo1:Hide();
+        DHUD_Combo2:Hide();
+        DHUD_Combo3:Hide();
+        DHUD_Combo4:Hide();
+        DHUD_Combo5:Hide();
+    else
+		-- exchange combo point position, so red, yellow and green points are placed nearby
+		if (self.mcpallymovedcp == 0) then
+			local point, frame, relative, x, y = DHUD_Combo4:GetPoint();
+			local epoint, eframe, erelative, ex, ey = DHUD_Combo2:GetPoint();
+			DHUD_Combo4:SetPoint(epoint, eframe, erelative, ex, ey);
+			DHUD_Combo2:SetPoint(point, frame, relative, x, y);
+			point, frame, relative, x, y = DHUD_Combo5:GetPoint();
+			epoint, eframe, erelative, ex, ey = DHUD_Combo3:GetPoint();
+			DHUD_Combo5:SetPoint(epoint, eframe, erelative, ex, ey);
+			DHUD_Combo3:SetPoint(point, frame, relative, x, y);
+			self.mcpallymovedcp = 1;
+			
+		end
+		if points == 1 then
+			DHUD_Combo1:Show();
+			DHUD_Combo2:Hide();
+			DHUD_Combo3:Hide();
+			DHUD_Combo4:Hide();
+			DHUD_Combo5:Hide();       
+		elseif points == 2 then
+			DHUD_Combo1:Show();
+			DHUD_Combo2:Hide();
+			DHUD_Combo3:Hide();
+			DHUD_Combo4:Show();
+			DHUD_Combo5:Hide();        
+		elseif points == 3 then
+			DHUD_Combo1:Show();
+			DHUD_Combo2:Hide();
+			DHUD_Combo3:Hide();
+			DHUD_Combo4:Show();
+			DHUD_Combo5:Show();
+		end
+	end
+end	
 
 
 -- is unit npc?
@@ -2996,7 +3052,7 @@ function DHUD:UpdateValues(frame,set)
     local value;
 	
 	--vehicle support
-	if mcinvehicle == 1 then
+	if self.mcinvehicle == 1 then
 		if (frame == "DHUD_PetHealth_Text") then
 			frame = "DHUD_PlayerHealth_Text";
 		elseif (frame == "DHUD_PlayerHealth_Text") then
@@ -3011,12 +3067,12 @@ function DHUD:UpdateValues(frame,set)
     local bar  = self.text2bar[frame];
 	local unit = self.name2unit[bar];
     local typ  = self.name2typ[bar];
-    local ref  = getglobal(frame.. "_Text");    
+    local ref  = _G[frame.. "_Text"];    
     self.PetneedMana   = nil;
     self.PetneedHealth = nil;
     
 	--vehicle support
-	if mcinvehicle == 1 then
+	if self.mcinvehicle == 1 then
 		if (unit == "player") then
 			unit = "pet";
 		elseif (unit == "pet") then
@@ -3040,13 +3096,13 @@ function DHUD:UpdateValues(frame,set)
 		
 			--TODO: to increase perfomance  save functions results to variables instead of calling then 5 times
 			--3.1 if mana > max - set percent to 100
-			--self:print("UnitMana: " .. UnitMana(unit) .. " UnitManaMax: " .. UnitManaMax(unit));
-			if UnitManaMax(unit)==0 then
+			--self:print("UnitPower: " .. UnitPower(unit) .. " UnitPowerMax: " .. UnitPowerMax(unit));
+			if UnitPowerMax(unit)==0 then
 				value = 0;
-			elseif UnitMana(unit)>UnitManaMax(unit) then
+			elseif UnitPower(unit)>UnitPowerMax(unit) then
 				value = 1;
 			else
-			    value = tonumber(UnitMana(unit)/UnitManaMax(unit));
+			    value = tonumber(UnitPower(unit)/UnitPowerMax(unit));
 			end
 	    end
 	else
@@ -3056,7 +3112,7 @@ function DHUD:UpdateValues(frame,set)
 	--self:print("Frame: " .. frame .. " Unit:" .. unit .. " Value: " .. value);
 	
 	--vehicle support
-	if mcinvehicle == 1 then
+	if self.mcinvehicle == 1 then
 		if (frame == "DHUD_PlayerHealth_Text" or frame == "DHUD_PetHealth_Text") then
 			local updating = 0;
 			if frame == "DHUD_PetHealth_Text" then
@@ -3064,8 +3120,8 @@ function DHUD:UpdateValues(frame,set)
 				unit = "pet";
 				updating = 1;
 			end
-			local text = getglobal(frame).text;
-			local font = getglobal(frame.."_Text");
+			local text = _G[frame].text;
+			local font = _G[frame.."_Text"];
 			
 			local health = UnitHealth(unit);
             local healthmax = UnitHealthMax(unit);
@@ -3079,7 +3135,7 @@ function DHUD:UpdateValues(frame,set)
                 text = DHUD:gsub(text, '<color_hp>', "|cffffffff" );
             end
 			
-			--self:print("Health: " .. health .. " mcinvehicle = " .. mcinvehicle);	
+			--self:print("Health: " .. health .. " self.mcinvehicle = " .. self.mcinvehicle);	
 			--text = DHUD:gsub(text, '<color_hp>', "|cff"..color);
 			percent = math.floor(percent * 100);
 			text = DHUD:gsub(text, '<hp_value>', health);
@@ -3091,8 +3147,8 @@ function DHUD:UpdateValues(frame,set)
 			
 			if (DHUD_Settings["showpet"] == 1) then
 				unit = "player";
-				text = getglobal("DHUD_PetHealth_Text").text;
-				font = getglobal("DHUD_PetHealth_Text".."_Text");
+				text = _G["DHUD_PetHealth_Text"].text;
+				font = _G["DHUD_PetHealth_Text".."_Text"];
 				
 				health = UnitHealth(unit);
 	            healthmax = UnitHealthMax(unit);
@@ -3106,7 +3162,7 @@ function DHUD:UpdateValues(frame,set)
 	                text = DHUD:gsub(text, '<color_hp>', "|cffffffff" );
 	            end
 				
-				--self:print("Health: " .. health .. " mcinvehicle = " .. mcinvehicle);	
+				--self:print("Health: " .. health .. " self.mcinvehicle = " .. self.mcinvehicle);	
 				--text = DHUD:gsub(text, '<color_hp>', "|cff"..color);
 				percent = math.floor(percent * 100);
 				text = DHUD:gsub(text, '<hp_value>', health);
@@ -3141,9 +3197,9 @@ function DHUD:UpdateValues(frame,set)
     end
         
     -- Druidbar support
-    if unit == "pet" and typ == "mana" and DruidBarKey and self.player_class == "DRUID" then
+    if unit == "pet" and typ == "mana" and self.player_class == "DRUID" then
        if UnitPowerType("player") ~= 0 then
-           value = tonumber( DruidBarKey.keepthemana / DruidBarKey.maxmana );
+           value = tonumber( UnitPower("player",0) / UnitPowerMax("player",0) );
            if math.floor(value * 100) == 100 then
                self.PetneedMana = nil;
            else
@@ -3251,7 +3307,7 @@ function DHUD:ChangeBackgroundTexture()
                     self.has_target_health = nil;
                 end
                 -- check mana
-                if UnitManaMax("target") > 0 then 
+                if UnitPowerMax("target") > 0 then 
                     self.has_target_mana = 1;
                 else
                     self.has_target_mana = nil;
@@ -3271,14 +3327,14 @@ function DHUD:ChangeBackgroundTexture()
                     self.has_pet_health = 1;
                 end
     
-                if UnitManaMax("pet") > 0 then 
+                if UnitPowerMax("pet") > 0 then 
                     self.has_pet_mana = 1;
                 end              
             end
         end
         
         -- check druidbar
-        if DruidBarKey and self.player_class == "DRUID" then
+        if self.player_class == "DRUID" then
             if UnitPowerType("player") ~= 0 then
                 self.has_pet_mana = 1;
             else
@@ -3292,45 +3348,45 @@ function DHUD:ChangeBackgroundTexture()
         if self.has_target_health then what = what.."_th"; end
         if self.has_target_mana   then what = what.."_tm"; end
 		-- Create DHUD Background for enemyes that can cast
-		if not (self.has_target_mana) and mctargetcancast == 1 and self.has_target_health then what = what.."_tm"; end
+		if not (self.has_target_mana) and self.mctargetcancast == 1 and self.has_target_health then what = what.."_tm"; end
 		
         
         local texture,x0,x1,y0,y1;
         if type(self.C_textures["l_"..what]) == "table" then
             texture,x0,x1,y0,y1 = unpack( self.C_textures["l_"..what] );
-            getglobal("DHUD_LeftFrame_Texture"):SetTexture(texture);
-            getglobal("DHUD_LeftFrame_Texture"):SetTexCoord(x0,x1,y0,y1);
+            _G["DHUD_LeftFrame_Texture"]:SetTexture(texture);
+            _G["DHUD_LeftFrame_Texture"]:SetTexCoord(x0,x1,y0,y1);
         else
             self:print("Please report MADCAT this String: "..what);
         end
         
         if type(self.C_textures["l_"..what]) == "table" then
             texture,x0,x1,y0,y1 = unpack( self.C_textures["r_"..what] );
-            getglobal("DHUD_RightFrame_Texture"):SetTexture(texture);
-            getglobal("DHUD_RightFrame_Texture"):SetTexCoord(x0,x1,y0,y1);
+            _G["DHUD_RightFrame_Texture"]:SetTexture(texture);
+            _G["DHUD_RightFrame_Texture"]:SetTexCoord(x0,x1,y0,y1);
         else
             self:print("Please report MADCAT this String: "..what);
         end        
     end
     
     if UnitIsDeadOrGhost("player") then
-        getglobal("DHUD_PlayerHealth_Text"):Hide();
-        getglobal("DHUD_PlayerMana_Text"):Hide();
-        getglobal("DHUD_PetHealth_Text"):Hide();
-        getglobal("DHUD_PetMana_Text"):Hide();
-        getglobal("DHUD_RightFrame_Texture"):Hide();
-        getglobal("DHUD_LeftFrame_Texture"):Hide();
+        _G["DHUD_PlayerHealth_Text"]:Hide();
+        _G["DHUD_PlayerMana_Text"]:Hide();
+        _G["DHUD_PetHealth_Text"]:Hide();
+        _G["DHUD_PetMana_Text"]:Hide();
+        _G["DHUD_RightFrame_Texture"]:Hide();
+        _G["DHUD_LeftFrame_Texture"]:Hide();
     else
-        getglobal("DHUD_PlayerHealth_Text"):Show();
-        getglobal("DHUD_PlayerMana_Text"):Show();
-        getglobal("DHUD_PetHealth_Text"):Show();
-        getglobal("DHUD_PetMana_Text"):Show();
+        _G["DHUD_PlayerHealth_Text"]:Show();
+        _G["DHUD_PlayerMana_Text"]:Show();
+        _G["DHUD_PetHealth_Text"]:Show();
+        _G["DHUD_PetMana_Text"]:Show();
         if DHUD_Settings["barborders"] == 1 then
-            getglobal("DHUD_RightFrame_Texture"):Show();
-            getglobal("DHUD_LeftFrame_Texture"):Show();
+            _G["DHUD_RightFrame_Texture"]:Show();
+            _G["DHUD_LeftFrame_Texture"]:Show();
         else
-            getglobal("DHUD_RightFrame_Texture"):Hide();
-            getglobal("DHUD_LeftFrame_Texture"):Hide();        
+            _G["DHUD_RightFrame_Texture"]:Hide();
+            _G["DHUD_LeftFrame_Texture"]:Hide();        
         end
     end  
     
@@ -3344,11 +3400,11 @@ function DHUD:ChangeBackgroundTexture()
             tex = "DHUD_TargetRare";
         end
         local texture,x0,x1,y0,y1 = unpack( self.C_textures[tex] );
-        getglobal("DHUD_TargetElite_Texture"):SetTexture(texture);
-        getglobal("DHUD_TargetElite_Texture"):SetTexCoord(x0,x1,y0,y1);
-        getglobal("DHUD_TargetElite"):Show();
+        _G["DHUD_TargetElite_Texture"]:SetTexture(texture);
+        _G["DHUD_TargetElite_Texture"]:SetTexCoord(x0,x1,y0,y1);
+        _G["DHUD_TargetElite"]:Show();
     else
-        getglobal("DHUD_TargetElite"):Hide();
+        _G["DHUD_TargetElite"]:Hide();
     end
     
     -- update Player Pvp
@@ -3396,66 +3452,72 @@ function DHUD:setAlpha(mode)
     self:printd("Alphamode: "..mode);
 
     for k, v in pairs(self.alpha_textures) do
-        local texture = getglobal(v);
+        local texture = _G[v];
         texture:SetAlpha(DHUD_Settings[mode]);
-    end	
+    end
     self.CastingAlpha = DHUD_Settings[mode];
     
     -- hide player text when alpha = 0 
     if DHUD_Settings[mode] == 0 then
-        getglobal("DHUD_PlayerHealth_Text"):Hide();
-        getglobal("DHUD_PlayerMana_Text"):Hide();
-        getglobal("DHUD_PetHealth_Text"):Hide();
-        getglobal("DHUD_PetMana_Text"):Hide();
-        getglobal("DHUD_PlayerBuff1"):Hide();
-        getglobal("DHUD_PlayerBuff2"):Hide();
-        getglobal("DHUD_PlayerBuff3"):Hide();
-        getglobal("DHUD_PlayerBuff4"):Hide();
-        getglobal("DHUD_PlayerBuff5"):Hide();
-        getglobal("DHUD_PlayerBuff6"):Hide();
-        getglobal("DHUD_PlayerBuff7"):Hide();
-        getglobal("DHUD_PlayerBuff8"):Hide();
-        getglobal("DHUD_PlayerBuff9"):Hide();
-        getglobal("DHUD_PlayerBuff10"):Hide();
-        getglobal("DHUD_PlayerBuff11"):Hide();
-        getglobal("DHUD_PlayerBuff12"):Hide();
-        getglobal("DHUD_PlayerBuff13"):Hide();
-        getglobal("DHUD_PlayerBuff14"):Hide();
-        getglobal("DHUD_PlayerBuff15"):Hide();
-        getglobal("DHUD_PlayerBuff16"):Hide();
-		getglobal("DHUD_Rune1_Text"):Hide();
-		getglobal("DHUD_Rune2_Text"):Hide();
-		getglobal("DHUD_Rune3_Text"):Hide();
-		getglobal("DHUD_Rune4_Text"):Hide();
-		getglobal("DHUD_Rune5_Text"):Hide();
-		getglobal("DHUD_Rune6_Text"):Hide();
+		_G["DHUD_PlayerHealth_Text"]:Hide();
+        _G["DHUD_PlayerMana_Text"]:Hide();
+        _G["DHUD_PetHealth_Text"]:Hide();
+        _G["DHUD_PetMana_Text"]:Hide();
+        _G["DHUD_PlayerBuff1"]:Hide();
+        _G["DHUD_PlayerBuff2"]:Hide();
+        _G["DHUD_PlayerBuff3"]:Hide();
+        _G["DHUD_PlayerBuff4"]:Hide();
+        _G["DHUD_PlayerBuff5"]:Hide();
+        _G["DHUD_PlayerBuff6"]:Hide();
+        _G["DHUD_PlayerBuff7"]:Hide();
+        _G["DHUD_PlayerBuff8"]:Hide();
+        _G["DHUD_PlayerBuff9"]:Hide();
+        _G["DHUD_PlayerBuff10"]:Hide();
+        _G["DHUD_PlayerBuff11"]:Hide();
+        _G["DHUD_PlayerBuff12"]:Hide();
+        _G["DHUD_PlayerBuff13"]:Hide();
+        _G["DHUD_PlayerBuff14"]:Hide();
+        _G["DHUD_PlayerBuff15"]:Hide();
+        _G["DHUD_PlayerBuff16"]:Hide();
+		_G["DHUD_Rune1_Text"]:Hide();
+		_G["DHUD_Rune2_Text"]:Hide();
+		_G["DHUD_Rune3_Text"]:Hide();
+		_G["DHUD_Rune4_Text"]:Hide();
+		_G["DHUD_Rune5_Text"]:Hide();
+		_G["DHUD_Rune6_Text"]:Hide();
+		_G["DHUD_Combo1"]:Hide();
+		_G["DHUD_Combo2"]:Hide();
+		_G["DHUD_Combo3"]:Hide();
+		_G["DHUD_Combo4"]:Hide();
+		_G["DHUD_Combo5"]:Hide();
     elseif not UnitIsDeadOrGhost("player") then
-        getglobal("DHUD_PlayerHealth_Text"):Show();
-        getglobal("DHUD_PlayerMana_Text"):Show();  
-        getglobal("DHUD_PetHealth_Text"):Show();
-        getglobal("DHUD_PetMana_Text"):Show(); 
-        getglobal("DHUD_PlayerBuff1"):Show();
-        getglobal("DHUD_PlayerBuff2"):Show();
-        getglobal("DHUD_PlayerBuff3"):Show();
-        getglobal("DHUD_PlayerBuff4"):Show();
-        getglobal("DHUD_PlayerBuff5"):Show();
-        getglobal("DHUD_PlayerBuff6"):Show();
-        getglobal("DHUD_PlayerBuff7"):Show();
-        getglobal("DHUD_PlayerBuff8"):Show();
-        getglobal("DHUD_PlayerBuff9"):Show();
-        getglobal("DHUD_PlayerBuff10"):Show();
-        getglobal("DHUD_PlayerBuff11"):Show();
-        getglobal("DHUD_PlayerBuff12"):Show();
-        getglobal("DHUD_PlayerBuff13"):Show();
-        getglobal("DHUD_PlayerBuff14"):Show();
-        getglobal("DHUD_PlayerBuff15"):Show();
-        getglobal("DHUD_PlayerBuff16"):Show();
-		getglobal("DHUD_Rune1_Text"):Show();
-		getglobal("DHUD_Rune2_Text"):Show();
-		getglobal("DHUD_Rune3_Text"):Show();
-		getglobal("DHUD_Rune4_Text"):Show();
-		getglobal("DHUD_Rune5_Text"):Show();
-		getglobal("DHUD_Rune6_Text"):Show();
+        _G["DHUD_PlayerHealth_Text"]:Show();
+        _G["DHUD_PlayerMana_Text"]:Show();  
+        _G["DHUD_PetHealth_Text"]:Show();
+        _G["DHUD_PetMana_Text"]:Show(); 
+        _G["DHUD_PlayerBuff1"]:Show();
+        _G["DHUD_PlayerBuff2"]:Show();
+        _G["DHUD_PlayerBuff3"]:Show();
+        _G["DHUD_PlayerBuff4"]:Show();
+        _G["DHUD_PlayerBuff5"]:Show();
+        _G["DHUD_PlayerBuff6"]:Show();
+        _G["DHUD_PlayerBuff7"]:Show();
+        _G["DHUD_PlayerBuff8"]:Show();
+        _G["DHUD_PlayerBuff9"]:Show();
+        _G["DHUD_PlayerBuff10"]:Show();
+        _G["DHUD_PlayerBuff11"]:Show();
+        _G["DHUD_PlayerBuff12"]:Show();
+        _G["DHUD_PlayerBuff13"]:Show();
+        _G["DHUD_PlayerBuff14"]:Show();
+        _G["DHUD_PlayerBuff15"]:Show();
+        _G["DHUD_PlayerBuff16"]:Show();
+		_G["DHUD_Rune1_Text"]:Show();
+		_G["DHUD_Rune2_Text"]:Show();
+		_G["DHUD_Rune3_Text"]:Show();
+		_G["DHUD_Rune4_Text"]:Show();
+		_G["DHUD_Rune5_Text"]:Show();
+		_G["DHUD_Rune6_Text"]:Show();
+		self:UpdateCombos();
     end 
 end
 
@@ -3515,22 +3577,22 @@ end
 -- resting status
 function DHUD:updateStatus()
     if self.inCombat and DHUD_Settings["showcombaticon"] == 1 then
-        getglobal("DHUD_PlayerInCombat"):Show();
+        _G["DHUD_PlayerInCombat"]:Show();
         return;
     else
-        getglobal("DHUD_PlayerInCombat"):Hide();
+        _G["DHUD_PlayerInCombat"]:Hide();
     end
     
     if IsResting() and DHUD_Settings["showresticon"] == 1 and not UnitIsDeadOrGhost("player") then
-        getglobal("DHUD_PlayerResting"):Show();
+        _G["DHUD_PlayerResting"]:Show();
     else
-        getglobal("DHUD_PlayerResting"):Hide();
+        _G["DHUD_PlayerResting"]:Hide();
     end
 end
 
 -- raid icon
 function DHUD:updateRaidIcon()
-    local tex = getglobal("DHUD_RaidIcon_Texture");
+    local tex = _G["DHUD_RaidIcon_Texture"];
     local texture = nil;
     
     if DHUD_Settings["showraidicon"] == 1 and UnitExists("target") then
@@ -3543,19 +3605,19 @@ function DHUD:updateRaidIcon()
         if texture then
             tex:SetTexture(texture);
             tex:SetTexCoord(x0,x1,y0,y1);
-            getglobal("DHUD_RaidIcon"):Show();
+            _G["DHUD_RaidIcon"]:Show();
         else
-            getglobal("DHUD_RaidIcon"):Hide();
+            _G["DHUD_RaidIcon"]:Hide();
         end
     else
-        getglobal("DHUD_RaidIcon"):Hide();
+        _G["DHUD_RaidIcon"]:Hide();
     end
 end
 
 
 -- pvp status
 function DHUD:updatePlayerPvP()    
-    local tex = getglobal("DHUD_PlayerPvP_Texture");
+    local tex = _G["DHUD_PlayerPvP_Texture"];
     local texture = nil;
     if DHUD_Settings["showplayerpvpicon"] == 1 and not UnitIsDeadOrGhost("player") then
         if UnitIsPVPFreeForAll("player")  then
@@ -3571,18 +3633,18 @@ function DHUD:updatePlayerPvP()
         if texture then
             tex:SetTexture(texture);
             tex:SetTexCoord(x0,x1,y0,y1);
-            getglobal("DHUD_PlayerPvP"):Show();
+            _G["DHUD_PlayerPvP"]:Show();
         else
-            getglobal("DHUD_PlayerPvP"):Hide();
+            _G["DHUD_PlayerPvP"]:Hide();
         end
     else
-        getglobal("DHUD_PlayerPvP"):Hide();
+        _G["DHUD_PlayerPvP"]:Hide();
     end
 end
 
 -- pvp icon target
 function DHUD:updateTargetPvP()    
-    local tex = getglobal("DHUD_TargetPvP_Texture");
+    local tex = _G["DHUD_TargetPvP_Texture"];
     local texture = nil;
     local x0,x1,y0,y1;
     if DHUD_Settings["showtargetpvpicon"] == 1 and not self:TargetIsNPC() and DHUD_Settings["showtarget"] == 1 then
@@ -3599,12 +3661,12 @@ function DHUD:updateTargetPvP()
         if texture then
             tex:SetTexture(texture);
             tex:SetTexCoord(x0,x1,y0,y1);
-            getglobal("DHUD_TargetPvP"):Show();
+            _G["DHUD_TargetPvP"]:Show();
         else
-            getglobal("DHUD_TargetPvP"):Hide();
+            _G["DHUD_TargetPvP"]:Hide();
         end
     else
-        getglobal("DHUD_TargetPvP"):Hide();
+        _G["DHUD_TargetPvP"]:Hide();
     end
 end
 
@@ -3624,15 +3686,15 @@ function DHUD:updatePetIcon()
         end
         
         if texture then
-            local tex = getglobal("DHUD_PetHappy_Texture");
+            local tex = _G["DHUD_PetHappy_Texture"];
             tex:SetTexture(texture);
             tex:SetTexCoord(x0,x1,y0,y1);	
-            getglobal("DHUD_PetHappy"):Show();
+            _G["DHUD_PetHappy"]:Show();
         else
-            getglobal("DHUD_PetHappy"):Hide();
+            _G["DHUD_PetHappy"]:Hide();
         end
     else
-        getglobal("DHUD_PetHappy"):Hide();
+        _G["DHUD_PetHappy"]:Hide();
     end
 end
 
