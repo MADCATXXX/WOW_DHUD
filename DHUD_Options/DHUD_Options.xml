@@ -1457,9 +1457,15 @@
                                 <Offset><AbsDimension x="0" y="-25"/></Offset>
                         </Anchor></Anchors>
                     </CheckButton>
+					<!-- checkbox priestspheres -->
+					<CheckButton name="DHUD_Check_priestspheres" inherits="DHUD_Check_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Check_warlockshards">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                        </Anchor></Anchors>
+                    </CheckButton>
 					<!-- checkbox playerdebuffs -->
 					<CheckButton name="DHUD_Check_playerdebuffs" inherits="DHUD_Check_Template">
-                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Check_warlockshards">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Check_priestspheres">
                                 <Offset><AbsDimension x="0" y="-25"/></Offset>
                         </Anchor></Anchors>
                     </CheckButton>

@@ -1,3 +1,9 @@
+changelog 1.5.50000e MADCAT revision32:
+-reduced error spam when there are not enough buff frames
+-Added support for up to 10 combopoints, scale function for points 6 to 10 is not finished yet
+-Recolored combo points for pally power
+-added track for priest spheres
+
 changelog 1.5.50000d MADCAT revision31:
 -fixed CastGlyph() error in glyphs interface, thanks to Priss2035
 

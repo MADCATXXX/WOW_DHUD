@@ -1,10 +1,10 @@
 --[[-----------------------------------------------------------------------------------
 Drathals HUD (c) 2006 by Markus Inger / Drathal / Silberklinge / Silbersegen
-DHUD modification for WotLK and Cataclysm by MADCAT
+DHUD modification for WotLK, Cataclysm and MoP by MADCAT
 -----------------------------------------------------------------------------------]]--
 
 -- Init Vars --
-DHUD_VERSION    = "Version: 1.5.50000d";
+DHUD_VERSION    = "Version: 1.5.50000e";
 DHUD_TEXT_EMPTY = "";
 DHUD_TEXT_HP2   = "<color_hp><hp_value></color>";
 DHUD_TEXT_HP3   = "<color_hp><hp_value></color>/<hp_max>";
@@ -66,7 +66,8 @@ DHUD = {
 	mcdkrune4		  = 2,
 	mcdkrune5		  = 3,
 	mcdkrune6		  = 3,
-	mccpmoved		  = 0,
+	mccpconsumed	  = 5,
+	mccpstored		  = 0,
     -- mcplenergy     = 0,
     --
     playerbufffilter  = "HELPFUL",
@@ -277,6 +278,7 @@ DHUD = {
 				["dkrunes"]			   = 1,
 				["pallyhollypower"]    = 1,
 				["warlockshards"]      = 1,
+				["priestspheres"]      = 1,
 				["playerdebuffs"]	   = 0,
 				["playerdebuffscolorize"] = 1,
                 ["animatebars"]        = 1,
@@ -444,6 +446,9 @@ function DHUD:OnEvent(event, arg1, arg2, arg3)
 	--self:print("MainEvent: "..event);
 	--if (arg1) then
 	--	self:print("arg1: "..arg1);
+	--end
+	--if (arg2) then
+	--	self:print("arg2: "..arg2);
 	--end
 	
     -- debug
@@ -615,6 +620,9 @@ function DHUD:OnEvent(event, arg1, arg2, arg3)
         self:TargetAuras();
     -- update Combopoints
     elseif event == "UNIT_COMBO_POINTS" then
+		--self:print("UNIT_COMBO_POINTS: " .. arg1 .. ", " .. arg2);-- .. ", " .. arg3);
+		-- store current number of combo points
+		self.mccpstored = GetComboPoints(self.mcMainTrackTarget,"target");
         self:UpdateCombos();
     -- Combat / Regen / Attack check
     elseif event == "PLAYER_ENTER_COMBAT" then
@@ -1371,6 +1379,11 @@ function DHUD:OnUpdate(elapsed)
 	if self.player_class == "WARLOCK" and DHUD_Settings["warlockshards"] == 1 then
 		self:MCWarlockShards();
 	end
+	
+	--Update Priest Spheres, CPU consuming
+	if self.player_class == "PRIEST" and DHUD_Settings["priestspheres"] == 1 then
+		self:MCPriestSpheres();
+	end
 end
 
 -- register Events
@@ -1731,16 +1744,12 @@ function DHUD:init()
 	
 	--scale combopoints
 	if DHUD_Settings["scalecp"]	then--and not (DHUD_Settings["scalecp"]==1) then
-		--scale cp
-		DHUD_Combo1:SetScale(DHUD_Settings["scalecp"] or 1);
-		DHUD_Combo2:SetScale(DHUD_Settings["scalecp"] or 1);
-		DHUD_Combo3:SetScale(DHUD_Settings["scalecp"] or 1);
-		DHUD_Combo4:SetScale(DHUD_Settings["scalecp"] or 1);
-		DHUD_Combo5:SetScale(DHUD_Settings["scalecp"] or 1);
 		local i;
-		for i=1,5,1 do
+		for i=1,10,1 do
 			local typ, point, frame, relative, x, y, width, height = unpack( self.C_frames["DHUD_Combo"..i] );
 			local ref = _G["DHUD_Combo"..i];
+			--scale cp
+			ref:SetScale(DHUD_Settings["scalecp"] or 1);
 			local x2;
 			--x2=(1-DHUD_Settings["scalecp"])*(1/(1+0.5*(i-1)))*20*(1/DHUD_Settings["scalecp"]);
 			x2=(1-DHUD_Settings["scalecp"])*(1/(1+0.5*(i-2)*(i-1)*(i-3)))*20*(1/DHUD_Settings["scalecp"]);
@@ -2608,47 +2617,58 @@ function DHUD:SetBarHeight(bar,p)
     texture:Show();
 end;
 
+-- universal function to draw required amount of combopoints
+-- @param points number of combo points to draw
+-- @param consumedMax number of maximum combo points that can be consumed by player, used for recolor
+-- @param stored defines if combopoints are stored on another mob, this value used to change alpha of combopoints
+function DHUD:DrawComboPoints(points, consumedMax, stored)
+	local i;
+	-- recolor combo points for new maximum
+	if self.mccpconsumed ~= consumedMax then
+		self.mccpconsumed = consumedMax;
+		local texture1 = unpack( self.C_textures["DHUD_Combo1"] );
+		local texture4 = unpack( self.C_textures["DHUD_Combo4"] );
+		local texture5 = unpack( self.C_textures["DHUD_Combo5"] );
+		for i = 1, 10 do
+			local comboFrameTexture = _G["DHUD_Combo" .. i .. "_Texture"];
+			if (i >= consumedMax) then
+				comboFrameTexture:SetTexture( texture5 );
+			elseif (i == consumedMax - 1) then
+				comboFrameTexture:SetTexture( texture4 );
+			elseif (i < consumedMax - 1) then
+				comboFrameTexture:SetTexture( texture1 );
+			end
+		end
+	end
+	-- show stored combo points by different alpha
+	local cpAlpha;
+	if (stored == 1) then
+		cpAlpha = 0.5;
+	else
+		cpAlpha = 1;
+	end;
+	-- redraw required number of combopoints
+	for i = 1, 10 do
+		local comboFrame = _G["DHUD_Combo" .. i];
+		if (i <= points) then
+			comboFrame:Show();
+			comboFrame:SetAlpha(cpAlpha);
+		else
+			comboFrame:Hide();
+		end
+	end
+end;
+
 -- show / hide combopoints
 function DHUD:UpdateCombos()
-	local points = GetComboPoints(self.mcMainTrackTarget,"target")
+	local points = GetComboPoints(self.mcMainTrackTarget,"target");
 	--self:print("Points: " .. points);
-	if points == 0 then 
-        DHUD_Combo1:Hide();
-        DHUD_Combo2:Hide();
-        DHUD_Combo3:Hide();
-        DHUD_Combo4:Hide();
-        DHUD_Combo5:Hide();
-    elseif points == 1 then
-        DHUD_Combo1:Show();
-        DHUD_Combo2:Hide();
-        DHUD_Combo3:Hide();
-        DHUD_Combo4:Hide();
-        DHUD_Combo5:Hide();       
-    elseif points == 2 then
-        DHUD_Combo1:Show();
-        DHUD_Combo2:Show();
-        DHUD_Combo3:Hide();
-        DHUD_Combo4:Hide();
-        DHUD_Combo5:Hide();        
-    elseif points == 3 then
-        DHUD_Combo1:Show();
-        DHUD_Combo2:Show();
-        DHUD_Combo3:Show();
-        DHUD_Combo4:Hide();
-        DHUD_Combo5:Hide();        
-    elseif points == 4 then
-        DHUD_Combo1:Show();
-        DHUD_Combo2:Show();
-        DHUD_Combo3:Show();
-        DHUD_Combo4:Show();
-        DHUD_Combo5:Hide();        
-    elseif points == 5 then
-        DHUD_Combo1:Show();
-        DHUD_Combo2:Show();
-        DHUD_Combo3:Show();
-        DHUD_Combo4:Show();
-        DHUD_Combo5:Show();       
-    end
+	-- track combo points for previous target
+	if points == 0 then
+		DHUD:DrawComboPoints(self.mccpstored, 5, 1);
+	else
+		DHUD:DrawComboPoints(points, 5, 0);
+	end
 end
 
 -- update target Auras
@@ -3145,43 +3165,7 @@ function DHUD:MCPallyHollyPower()
 	else
 		return;
 	end
-	if points == 0 then 
-        DHUD_Combo1:Hide();
-        DHUD_Combo2:Hide();
-        DHUD_Combo3:Hide();
-        DHUD_Combo4:Hide();
-        DHUD_Combo5:Hide();
-    elseif points == 1 then
-        DHUD_Combo1:Show();
-        DHUD_Combo2:Hide();
-        DHUD_Combo3:Hide();
-        DHUD_Combo4:Hide();
-        DHUD_Combo5:Hide();       
-    elseif points == 2 then
-        DHUD_Combo1:Show();
-        DHUD_Combo2:Show();
-        DHUD_Combo3:Hide();
-        DHUD_Combo4:Hide();
-        DHUD_Combo5:Hide();        
-    elseif points == 3 then
-        DHUD_Combo1:Show();
-        DHUD_Combo2:Show();
-        DHUD_Combo3:Show();
-        DHUD_Combo4:Hide();
-        DHUD_Combo5:Hide();        
-    elseif points == 4 then
-        DHUD_Combo1:Show();
-        DHUD_Combo2:Show();
-        DHUD_Combo3:Show();
-        DHUD_Combo4:Show();
-        DHUD_Combo5:Hide();        
-    elseif points == 5 then
-        DHUD_Combo1:Show();
-        DHUD_Combo2:Show();
-        DHUD_Combo3:Show();
-        DHUD_Combo4:Show();
-        DHUD_Combo5:Show();       
-    end
+	DHUD:DrawComboPoints(points, 3, 0);
 end
 
 -- ######MADCAT: Warlock Shards
@@ -3193,62 +3177,24 @@ function DHUD:MCWarlockShards()
 	if (not self.mcinvehicle or self.mcinvehicle == 0) then
 		points = UnitPower("player", 7);
 	else
-		if (self.mccpmoved == 1) then
-			local point, frame, relative, x, y = DHUD_Combo4:GetPoint();
-			local epoint, eframe, erelative, ex, ey = DHUD_Combo2:GetPoint();
-			DHUD_Combo4:SetPoint(epoint, eframe, erelative, ex, ey);
-			DHUD_Combo2:SetPoint(point, frame, relative, x, y);
-			point, frame, relative, x, y = DHUD_Combo5:GetPoint();
-			epoint, eframe, erelative, ex, ey = DHUD_Combo3:GetPoint();
-			DHUD_Combo5:SetPoint(epoint, eframe, erelative, ex, ey);
-			DHUD_Combo3:SetPoint(point, frame, relative, x, y);
-			self.mccpmoved = 0;
-		end
 		return;
 	end
-	if points == 0 then
-        DHUD_Combo1:Hide();
-        DHUD_Combo2:Hide();
-        DHUD_Combo3:Hide();
-        DHUD_Combo4:Hide();
-        DHUD_Combo5:Hide();
-    else
-		-- exchange combo point position, so red, yellow and green points are placed nearby
-		if (self.mccpmoved == 0) then
-			local point, frame, relative, x, y = DHUD_Combo4:GetPoint();
-			local epoint, eframe, erelative, ex, ey = DHUD_Combo2:GetPoint();
-			DHUD_Combo4:SetPoint(epoint, eframe, erelative, ex, ey);
-			DHUD_Combo2:SetPoint(point, frame, relative, x, y);
-			point, frame, relative, x, y = DHUD_Combo5:GetPoint();
-			epoint, eframe, erelative, ex, ey = DHUD_Combo3:GetPoint();
-			DHUD_Combo5:SetPoint(epoint, eframe, erelative, ex, ey);
-			DHUD_Combo3:SetPoint(point, frame, relative, x, y);
-			self.mccpmoved = 1;
-			
-		end
-		if points == 1 then
-			DHUD_Combo1:Show();
-			DHUD_Combo2:Hide();
-			DHUD_Combo3:Hide();
-			DHUD_Combo4:Hide();
-			DHUD_Combo5:Hide();       
-		elseif points == 2 then
-			DHUD_Combo1:Show();
-			DHUD_Combo2:Hide();
-			DHUD_Combo3:Hide();
-			DHUD_Combo4:Show();
-			DHUD_Combo5:Hide();        
-		elseif points == 3 then
-			DHUD_Combo1:Show();
-			DHUD_Combo2:Hide();
-			DHUD_Combo3:Hide();
-			DHUD_Combo4:Show();
-			DHUD_Combo5:Show();
-		end
-	end
+	DHUD:DrawComboPoints(points, 3, 0);
 end
 
-
+-- ######MADCAT: Priest spheres
+function DHUD:MCPriestSpheres()
+	if (self.CastingAlpha == 0) then
+		return;
+	end
+	local points;
+	if (not self.mcinvehicle or self.mcinvehicle == 0) then
+		points = UnitPower("Player", 13);
+	else
+		return;
+	end
+	DHUD:DrawComboPoints(points, 3, 0);
+end
 
 -- is unit npc?
 function DHUD:TargetIsNPC()
@@ -3731,6 +3677,11 @@ function DHUD:setAlpha(mode)
 		_G["DHUD_Combo3"]:Hide();
 		_G["DHUD_Combo4"]:Hide();
 		_G["DHUD_Combo5"]:Hide();
+		_G["DHUD_Combo6"]:Hide();
+		_G["DHUD_Combo7"]:Hide();
+		_G["DHUD_Combo8"]:Hide();
+		_G["DHUD_Combo9"]:Hide();
+		_G["DHUD_Combo10"]:Hide();
     elseif not UnitIsDeadOrGhost("player") then
         _G["DHUD_PlayerHealth_Text"]:Show();
         _G["DHUD_PlayerMana_Text"]:Show();  
