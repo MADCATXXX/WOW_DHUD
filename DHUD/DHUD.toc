@@ -2,10 +2,10 @@
 ## Interface: 60000
 ## Notes: Head-Up Display with all possible information about player and it's target
 ## Title: Drathals HUD
-## Version: v2.0.60000.49
+## Version: v2.0.60000.50
 ## SavedVariables: DHUDODB3
 ## SavedVariablesPerCharacter: DHUD_SavedVars
-## X-Curse-Packaged-Version: DHUDv2060000_49
+## X-Curse-Packaged-Version: DHUDv2060000_50
 ## X-Curse-Project-ID: dhud-3_0
 ## X-Curse-Project-Name: DHUD for 5.0
 ## X-Curse-Repository-ID: wow/dhud-3_0/mainline

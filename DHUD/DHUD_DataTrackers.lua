@@ -1737,7 +1737,18 @@ end
 
 --- process custom timer tracker data change
 function DHUDTimersTracker:onUpdateCustomTracker(e)
-	
+	local timersGroup = e.timersGroup;
+	-- iterate over timer group timers
+	self:findSourceTimersBegin(timersGroup);
+	local indexBegin = self.sourceInfo[1];
+	local numTimers = self.sourceInfo[2];
+	local indexLast = indexBegin + numTimers - 1;
+	for i = indexBegin, indexLast, 1 do
+		timer = self.timers[i];
+		timer[10] = timer[1] ~= DHUDCustomTimerTracker.TIMER_TYPE_CUSTOM_CREATED; -- set iterating flag, for timer to be not deleted
+	end
+	self:findSourceTimersEnd(timersGroup); -- this will force an update
+	self:processDataChanged();
 end
 
 --- add custom tracker for better timers tracking
@@ -1746,7 +1757,7 @@ function DHUDTimersTracker:addCustomTracker(customTracker, timersGroup)
 	if (customTracker ~= nil) then
 		local customTrackerInfo = { customTracker, timersGroup };
 		table.insert(self.customTrackers, customTrackerInfo);
-		customTracker:addEventListener(DHUDDataTrackerEvent.EVENT_DATA_TIMERS_UPDATED, self, self.onUpdateCustomTracker);
+		customTracker:addEventListener(DHUDDataTrackerEvent.EVENT_DATA_CHANGED, self, self.onUpdateCustomTracker);
 	end
 end
 
@@ -1762,7 +1773,7 @@ function DHUDTimersTracker:removeCustomTracker(customTracker, timersGroup)
 				break;
 			end
 		end
-		customTracker:removeEventListener(DHUDDataTrackerEvent.EVENT_DATA_TIMERS_UPDATED, self, self.onUpdateCustomTracker);
+		customTracker:removeEventListener(DHUDDataTrackerEvent.EVENT_DATA_CHANGED, self, self.onUpdateCustomTracker);
 	end
 end
 
@@ -1792,6 +1803,8 @@ end
 
 --- Base class for tracking of custom timer, e.g. rogue's bandits guile
 DHUDCustomTimerTracker = MCCreateSubClass(DHUDDataTracker, {
+	-- defeines timer that was created customly
+	TIMER_TYPE_CUSTOM_CREATED = 2147483648,
 	-- define if tracking by this class is allowed
 	STATIC_trackingAllowed = true,
 	-- timer id's to change
@@ -1819,8 +1832,6 @@ end
 function DHUDCustomTimerTracker:constructor()
 	-- init tables
 	self.timerIdsToUpdate = { };
-	-- custom events
-	self.eventDataTimersChanged = DHUDDataTrackerEvent:new(DHUDDataTrackerEvent.EVENT_DATA_TIMERS_UPDATED, self);
 	-- call super constructor
 	DHUDDataTracker.constructor(self);
 end
@@ -1835,7 +1846,9 @@ end
 -- @param id of the timer
 -- @return default timer
 function DHUDCustomTimerTracker:createDefaultTimer(id)
-	return self.timersTracker:findTimerByIdOnly(id, true, false);
+	local timer = self.timersTracker:findTimerByIdOnly(id, true, false);
+	timer[1] = DHUDCustomTimerTracker.TIMER_TYPE_CUSTOM_CREATED;
+	return timer;
 end
 
 --- Update timer with custom data
@@ -1872,7 +1885,7 @@ end
 
 -- allow timer tracking
 function DHUDCustomTimerTracker:allowTimerTracking(allow)
-	print("isExists " .. MCTableToString(self.isExists) .. ", allowed " .. MCTableToString(self.STATIC_trackingAllowed) .. ", timersTracker " .. (timersTracker ~= nil and "true" or "false") .. " = allow " .. MCTableToString(allow));
+	--print("isExists " .. MCTableToString(self.isExists) .. ", allowed " .. MCTableToString(self.STATIC_trackingAllowed) .. ", timersTracker " .. (timersTracker ~= nil and "true" or "false") .. " = allow " .. MCTableToString(allow));
 	if (self.trackingAllowed == allow or self.timersTracker == nil) then
 		return;
 	end
@@ -1907,7 +1920,7 @@ function DHUDCustomTimerTracker:attachToTimersTrackerIfAllowed(timersTracker, ti
 	end
 	self.timersTracker = timersTracker;
 	self.timersGroup = timersGroup;
-	self.eventDataTimersChanged.timersGroup = timersGroup;
+	self.eventDataChanged.timersGroup = timersGroup;
 	-- listen for settings change
 	if (timersTracker ~= nil) then
 		DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "misc_useCustomAurasTrackers", self, functionOnSettingChange);
@@ -4573,6 +4586,8 @@ DHUDDataTrackers = {
 			SINISTER_STRIKE_SPELL_ID = 1752,
 			-- data about bandits guile ability { name, rank, icon, castTime, minRange, maxRange }
 			banditsGuileSpellData = nil,
+			-- combat events frame to listen for combat events
+			combatEventsFrame = nil,
 			-- current stack count
 			stacks = 1,
 			-- current bandits guile state (0 - white, 3 - red)
@@ -4589,14 +4604,21 @@ DHUDDataTrackers = {
 		--- Initialize bandits guile tracking
 		function DHUDBanditsGuileTracker:init()
 			local tracker = self;
+			-- create combat event frame
+			self.combatEventsFrame = MCCreateBlizzCombatEventFrame();
+			-- update vars
 			self.timerIdsToUpdate = self.BANDITS_GUILE_PROGRESS_SPELL_IDS;
 			self.banditsGuileSpellData = trackingHelper:getSpellData(self.BANDITS_GUILE_SPELL_ID);
 			-- process units max health points change event
-			function self.eventsFrame:UNIT_SPELLCAST_SUCCEEDED(unitId, spell, rank, lineId, spellId)
-				if (tracker.unitId ~= unitId) then
+			function self.combatEventsFrame:SPELL_DAMAGE(timestamp, hideCaster, sourceGUID, ...)
+				--print("SPELL_INTERRUPT sourceName " .. MCTableToString(sourceName) .. ", destName " .. MCTableToString(destName) .. ", spellSchool " .. MCTableToString(spellSchool) .. ", extraSchool " .. MCTableToString(extraSchool));
+				if (sourceGUID ~= trackingHelper.guids[tracker.unitId]) then
 					return;
 				end
-				if (tracker.SINISTER_STRIKE_SPELL_ID ~= spellId) then
+				--print("SPELL_DAMAGE " .. MCTableToString({ ... }));
+				local spellId = select(8, ...);
+				local multistrike = select(21, ...);
+				if (multistrike == true or tracker.SINISTER_STRIKE_SPELL_ID ~= spellId) then
 					return;
 				end
 				tracker.stacks = tracker.stacks + 1;
@@ -4651,13 +4673,13 @@ DHUDDataTrackers = {
 		--- Start tracking data
 		function DHUDBanditsGuileTracker:startTracking()
 			--print("banditsGuile start");
-			self.eventsFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED");
+			self.combatEventsFrame:RegisterEvent("SPELL_DAMAGE");
 		end
 
 		--- Stop tracking data
 		function DHUDBanditsGuileTracker:stopTracking()
 			--print("banditsGuile stop");
-			self.eventsFrame:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED");
+			self.combatEventsFrame:UnregisterEvent("SPELL_DAMAGE");
 		end
 
 		--- Update all data for current unitId
