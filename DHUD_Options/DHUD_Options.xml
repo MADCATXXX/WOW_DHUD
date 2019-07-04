@@ -1023,13 +1023,20 @@
                             </Anchor>
                         </Anchors>
                      </Frame>
+					 <Frame name="DHUD_Colorbox_focus_player" inherits="DHUD_Colorbox_Template">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Colorbox_runic_power_player" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="0" y="-20"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                     </Frame>
 
                     <!-- ................... -->
                     <!-- Header colorspet    -->
                     <!-- ................... -->
                     <Frame name="DHUD_Header_colorspet" inherits="DHUD_HeaderTemplate">
                         <Scripts><OnLoad>
-                                DHUDO_Header_OnLoad(self, 10,-195);
+                                DHUDO_Header_OnLoad(self, 10,-215);
                         </OnLoad></Scripts>
                     </Frame>
 
@@ -1062,7 +1069,7 @@
                     <!-- ................... -->
                     <Frame name="DHUD_Header_colorstarget" inherits="DHUD_HeaderTemplate">
                         <Scripts><OnLoad>
-                                DHUDO_Header_OnLoad(self, 10,-285);
+                                DHUDO_Header_OnLoad(self, 10,-305);
                         </OnLoad></Scripts>
                     </Frame>
 
@@ -1127,7 +1134,7 @@
                     <!-- ................... -->
                     <Frame name="DHUD_Header_colorsother" inherits="DHUD_HeaderTemplate">
                         <Scripts><OnLoad>
-                                DHUDO_Header_OnLoad(self, 10,-445);
+                                DHUDO_Header_OnLoad(self, 10,-465);
                         </OnLoad></Scripts>
                     </Frame>
 
@@ -1188,7 +1195,7 @@
                         </Anchors>
             			<Scripts>
             				<OnLoad>
-            				    getglobal(self:GetName().."Text"):SetText("|cff88ff88DHUD Bubbles|r (Hitpoints Left - Mana Right)");
+            				    getglobal(self:GetName().."Text"):SetText("|cff88ff88DHUD 1|r (Hitpoints Left - Mana Right)");
             				    if DHUD:GetConfig("layouttyp") == "DHUD_Standard_Layout" then
             				        DHUD_RADIO_layout1:SetChecked(1);
             				    else
@@ -1206,7 +1213,7 @@
                         </Anchors>
             			<Scripts>
             				<OnLoad>
-            				    getglobal(self:GetName().."Text"):SetText("|cff88ff88DHUD Bubbles|r (Player Left - Target Right)");
+            				    getglobal(self:GetName().."Text"):SetText("|cff88ff88DHUD 2|r (Player Left - Target Right)");
             				    if DHUD:GetConfig("layouttyp") == "DHUD_PlayerLeft_Layout" then
             				        DHUD_RADIO_layout2:SetChecked(1);
             				    else
@@ -1224,7 +1231,7 @@
                         </Anchors>
             			<Scripts>
             				<OnLoad>
-            				    getglobal(self:GetName().."Text"):SetText("|cff88ff88DHUD Layout1|r (Mirror Player Buff, ComboPoints/Runes)");
+            				    getglobal(self:GetName().."Text"):SetText("|cff88ff88DHUD 1 Mirror|r (Mirror Player Buff, ComboPoints/Runes)");
             				    if DHUD:GetConfig("layouttyp") == "DHUD_StandardMirror_Layout" then
             				        DHUD_RADIO_layout3:SetChecked(1);
             				    else
@@ -1242,7 +1249,7 @@
                         </Anchors>
             			<Scripts>
             				<OnLoad>
-            				    getglobal(self:GetName().."Text"):SetText("|cff88ff88DHUD Layout2|r (Mirror Player Buff, ComboPoints/Runes)");
+            				    getglobal(self:GetName().."Text"):SetText("|cff88ff88DHUD 2 Mirror|r (Mirror Player Buff, ComboPoints/Runes)");
             				    if DHUD:GetConfig("layouttyp") == "DHUD_PlayerLeftMirror_Layout" then
             				        DHUD_RADIO_layout4:SetChecked(1);
             				    else
@@ -1250,6 +1257,104 @@
             				    end
             				</OnLoad>
             				<OnClick>DHUD_RadioButton_OnClick( self:GetID() )</OnClick>
+            			</Scripts>
+            		</CheckButton>
+					<!-- ................... -->
+                    <!-- Header Texture      -->
+                    <!-- ................... -->
+					<Frame name="DHUD_Header_textureset" inherits="DHUD_HeaderTemplate">
+                        <Scripts><OnLoad>
+                                DHUDO_Header_OnLoad(self, 10,-200);
+                        </OnLoad></Scripts>
+                    </Frame>
+					<CheckButton name="DHUD_RADIO_texture1" inherits="DHUD_RadioButtonTemplate" id="1">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Header_texturesetText" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="10" y="-35"/></Offset>
+                            </Anchor>
+                        </Anchors>
+            			<Scripts>
+            				<OnLoad>
+            				    getglobal(self:GetName().."Text"):SetText("|cff88ff88DHUD Texture 1|r (Plain)");
+            				    if DHUD:GetConfig("textureset") == 1 then
+            				        DHUD_RADIO_texture1:SetChecked(1);
+            				    else
+            				        DHUD_RADIO_texture1:SetChecked(nil);
+            				    end
+            				</OnLoad>
+            				<OnClick>DHUD_RadioTextureButton_OnClick( self:GetID() )</OnClick>
+            			</Scripts>
+            		</CheckButton>
+            		<CheckButton name="DHUD_RADIO_texture2" inherits="DHUD_RadioButtonTemplate" id="2">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_RADIO_texture1" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                            </Anchor>
+                        </Anchors>
+            			<Scripts>
+            				<OnLoad>
+            				    getglobal(self:GetName().."Text"):SetText("|cff88ff88DHUD Texture 2|r (Bubbles)");
+            				    if DHUD:GetConfig("textureset") == 2 then
+            				        DHUD_RADIO_texture2:SetChecked(1);
+            				    else
+            				        DHUD_RADIO_texture2:SetChecked(nil);
+            				    end
+            				</OnLoad>
+            				<OnClick>DHUD_RadioTextureButton_OnClick( self:GetID() )</OnClick>
+            			</Scripts>
+            		</CheckButton>
+					<CheckButton name="DHUD_RADIO_texture3" inherits="DHUD_RadioButtonTemplate" id="3">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_RADIO_texture2" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                            </Anchor>
+                        </Anchors>
+            			<Scripts>
+            				<OnLoad>
+            				    getglobal(self:GetName().."Text"):SetText("|cff88ff88DHUD Texture 3|r (Brick)");
+            				    if DHUD:GetConfig("textureset") == 3 then
+            				        DHUD_RADIO_texture3:SetChecked(1);
+            				    else
+            				        DHUD_RADIO_texture3:SetChecked(nil);
+            				    end
+            				</OnLoad>
+            				<OnClick>DHUD_RadioTextureButton_OnClick( self:GetID() )</OnClick>
+            			</Scripts>
+            		</CheckButton>
+					<CheckButton name="DHUD_RADIO_texture4" inherits="DHUD_RadioButtonTemplate" id="4">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_RADIO_texture3" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                            </Anchor>
+                        </Anchors>
+            			<Scripts>
+            				<OnLoad>
+            				    getglobal(self:GetName().."Text"):SetText("|cff88ff88DHUD Texture 4|r (Rough)");
+            				    if DHUD:GetConfig("textureset") == 4 then
+            				        DHUD_RADIO_texture4:SetChecked(1);
+            				    else
+            				        DHUD_RADIO_texture4:SetChecked(nil);
+            				    end
+            				</OnLoad>
+            				<OnClick>DHUD_RadioTextureButton_OnClick( self:GetID() )</OnClick>
+            			</Scripts>
+            		</CheckButton>
+					<CheckButton name="DHUD_RADIO_texture5" inherits="DHUD_RadioButtonTemplate" id="5">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_RADIO_texture4" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                            </Anchor>
+                        </Anchors>
+            			<Scripts>
+            				<OnLoad>
+            				    getglobal(self:GetName().."Text"):SetText("|cff88ff88DHUD Texture 5|r (Fog)");
+            				    if DHUD:GetConfig("textureset") == 5 then
+            				        DHUD_RADIO_texture5:SetChecked(1);
+            				    else
+            				        DHUD_RADIO_texture5:SetChecked(nil);
+            				    end
+            				</OnLoad>
+            				<OnClick>DHUD_RadioTextureButton_OnClick( self:GetID() )</OnClick>
             			</Scripts>
             		</CheckButton>
 
@@ -1310,9 +1415,21 @@
                                 <Offset><AbsDimension x="0" y="-25"/></Offset>
                         </Anchor></Anchors>
                     </CheckButton>
+					<!-- checkbox pallyhollypower -->
+					<CheckButton name="DHUD_Check_warlockshards" inherits="DHUD_Check_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Check_pallyhollypower">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                        </Anchor></Anchors>
+                    </CheckButton>
 					<!-- checkbox playerdebuffs -->
 					<CheckButton name="DHUD_Check_playerdebuffs" inherits="DHUD_Check_Template">
-                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Check_pallyhollypower">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Check_warlockshards">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                        </Anchor></Anchors>
+                    </CheckButton>
+					<!-- checkbox playerdebuffscolorize -->
+					<CheckButton name="DHUD_Check_playerdebuffscolorize" inherits="DHUD_Check_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Check_playerdebuffs">
                                 <Offset><AbsDimension x="0" y="-25"/></Offset>
                         </Anchor></Anchors>
                     </CheckButton>
@@ -1322,7 +1439,7 @@
                     <!-- ................... -->
                     <Frame name="DHUD_Header_madcat2scale" inherits="DHUD_HeaderTemplate">
                         <Scripts><OnLoad>
-                                DHUDO_Header_OnLoad(self, 10,-290);
+                                DHUDO_Header_OnLoad(self, 10,-340);
                         </OnLoad></Scripts>
                     </Frame>
 

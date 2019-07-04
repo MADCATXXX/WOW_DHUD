@@ -4,7 +4,7 @@ DHUD modification for WotLK and Cataclysm by MADCAT
 -----------------------------------------------------------------------------------]]--
 
 -- Init Vars --
-DHUD_VERSION    = "Version: 1.5.40000e";
+DHUD_VERSION    = "Version: 1.5.40000f";
 DHUD_TEXT_EMPTY = "";
 DHUD_TEXT_HP2   = "<color_hp><hp_value></color>";
 DHUD_TEXT_HP3   = "<color_hp><hp_value></color>/<hp_max>";
@@ -62,7 +62,7 @@ DHUD = {
 	mcdkrune4		  = 2,
 	mcdkrune5		  = 3,
 	mcdkrune6		  = 3,
-	mcpallymovedcp    = 0,
+	mccpmoved    = 0,
     -- mcplenergy     = 0,
     --
     playerbufffilter  = "HELPFUL",
@@ -195,6 +195,8 @@ DHUD = {
 --                    "DHUD_PlayerBuff15",
 --                    "DHUD_PlayerBuff16",
     },
+	
+	frames_have_texture_set = { "DHUD_PlayerHealth_Bar", "DHUD_PlayerMana_Bar", "DHUD_TargetHealth_Bar", "DHUD_TargetMana_Bar", "DHUD_PetHealth_Bar", "DHUD_PetMana_Bar"},
                          
     -- reaction Colors
     ReacColors    = { "ff0000","ffff00","55ff55","8888ff","008800","cccccc" }, 
@@ -247,6 +249,7 @@ DHUD = {
     Config_default = {
                 ["version"]            = DHUD_VERSION,
                 ["layouttyp"]          = "DHUD_Standard_Layout",
+				["textureset"]		   = 2,
 
                 ["combatalpha"]        = 0.8,
                 ["oocalpha"]           = 0,
@@ -269,7 +272,9 @@ DHUD = {
 				["debufftimer"]		   = 0,
 				["dkrunes"]			   = 1,
 				["pallyhollypower"]    = 1,
+				["warlockshards"]      = 1,
 				["playerdebuffs"]	   = 0,
+				["playerdebuffscolorize"] = 1,
                 ["animatebars"]        = 1,
                 ["barborders"]         = 1,
                 ["showauras"]          = 1,
@@ -358,6 +363,10 @@ DHUD = {
                 ["colors"]             = {
                                         aura_player   = { "ffffff", "ffffff", "eeeeee" },
 										debuffaura_player   = { "FFFF00", "FFFF00", "FFFF00" },
+										debuffmagic   = { "3397ff", "3397ff", "3397ff" },
+										debuffcurse   = { "9900ff", "9900ff", "9900ff" },
+										debuffdisease = { "996400", "996400", "996400" },
+										debuffpoison  = { "009700", "009700", "009700" },
                                         health_player = { "00FF00", "FFFF00", "FF0000" }, --
                                         health_target = { "00aa00", "aaaa00", "aa0000" }, --
                                         health_pet    = { "00FF00", "FFFF00", "FF0000" }, --
@@ -370,6 +379,7 @@ DHUD = {
                                         energy_target = { "aaaa00", "aaaa00", "aaaa00" }, --
 										runic_power_player  = { "004060", "004060", "004060" }, --
 										runic_power_target  = { "004060", "004060", "004060" }, --
+										focus_player  = { "aa4400", "aa4400", "aa4400" }, --
                                         focus_target  = { "aa4400", "aa4400", "aa4400" }, --
                                         focus_pet     = { "aa4400", "aa4400", "aa4400" }, --
                                         castbar       = { "00FF00", "88FF00", "FFFF00" }, --
@@ -1341,6 +1351,11 @@ function DHUD:OnUpdate(elapsed)
 	if self.player_class == "PALADIN" and DHUD_Settings["pallyhollypower"] == 1 then
 		self:MCPallyHollyPower();
 	end
+	
+	--Update Warlock Shards, CPU consuming
+	if self.player_class == "WARLOCK" and DHUD_Settings["warlockshards"] == 1 then
+		self:MCWarlockShards();
+	end
 end
 
 -- register Events
@@ -1368,6 +1383,7 @@ function DHUD:setLayout()
     self.C_names         = DHUD_Layouts[self.C_curLayout]["DHUD_names"];
     self.defaultfont     = DHUD_Layouts[self.C_curLayout]["defaultfont"];
     self.defaultfont_num = DHUD_Layouts[self.C_curLayout]["defaultfont_num"];
+	self:ChangeTextureSet();
 end
 
 -- Setup DHUD --
@@ -1701,7 +1717,7 @@ function DHUD:init()
 			end]]--
 			ref:SetPoint(point, frame , relative, x + x2, y);
 		end
-		self.mcpallymovedcp = 0;
+		self.mccpmoved = 0;
 	end
 	
 	
@@ -1931,8 +1947,10 @@ function DHUD:transform(name)
         ref:EnableMouse(false);
         ref:Show();
 
-    elseif typ == "Bar" then    
+    elseif typ == "Bar" then
         local texture,x0,x1,y0,y1 = unpack( self.C_textures[name] );
+		--print("transform " .. name);
+		--print("transform " .. texture);
         local ref = _G[name];
         ref:ClearAllPoints();
         ref:SetPoint(point, frame , relative, x, y);
@@ -2080,7 +2098,11 @@ function DHUD:transform(name)
                 if (not frame:IsVisible()) then return; end
                 if DHUD_Settings["showauratips"] == 0 then return; end
                 GameTooltip:SetOwner(frame, "ANCHOR_BOTTOMRIGHT");
-                GameTooltip:SetUnitBuff("player",frame.id);
+				if frame.hasdebuff == 1 then
+                    GameTooltip:SetUnitDebuff("player", frame.id);
+                else
+                    GameTooltip:SetUnitBuff("player", frame.id);
+                end
             end );
  
          ref:SetScript("OnLeave", function() 
@@ -2091,7 +2113,21 @@ function DHUD:transform(name)
         ref:Show();
         
     end
-end    
+end
+
+-- Frame texture change
+function DHUD:ChangeTextureSet()
+	for _, value in pairs(self.frames_have_texture_set) do
+		local path, v2, v3, v4, v5, changed = unpack( self.C_textures[value] );
+		if (changed ~= 1) then
+			path = path .. DHUD_Settings["textureset"];
+			changed = 1;
+		else
+			path = string.sub(path, 0, string.len(path) - 1) .. DHUD_Settings["textureset"];
+		end
+		self.C_textures[value] = {path, v2, v3, v4, v5, changed};
+	end
+end
     
 -- Frame Creator
 function DHUD:createFrame(name)
@@ -2361,7 +2397,11 @@ function DHUD:createFrame(name)
                 if (not frame:IsVisible()) then return; end
                 if DHUD_Settings["showauratips"] == 0 then return; end
                 GameTooltip:SetOwner(frame, "ANCHOR_BOTTOMRIGHT");
-                GameTooltip:SetUnitBuff("player",frame.id);
+                if frame.hasdebuff == 1 then
+                    GameTooltip:SetUnitDebuff("player", frame.id);
+                else
+                    GameTooltip:SetUnitBuff("player", frame.id);
+                end
             end );
  
          ref:SetScript("OnLeave", function() 
@@ -2501,7 +2541,10 @@ function DHUD:SetBarHeight(bar,p)
 
     -- Textur Settings laden
     local typ, point, frame, relative, x, y, width, height = unpack( self.C_frames[bar] );
-    local texname,x0,x1,y0,y1 = unpack(self.C_textures[bar]);        
+    local texname,x0,x1,y0,y1 = unpack(self.C_textures[bar]);
+	if (self:TableContains(self.frames_have_texture_set, bar)) then
+		texname = string.sub(texname, 0, string.len(texname) - 1);
+	end
     local tex_height, tex_gap_top, tex_gap_bottom = unpack(self.C_tClips[texname]);
         
     -- offsets setzen wenn Balken nicht die ganze höhe ausfüllt
@@ -2669,7 +2712,7 @@ end
 -- update player Auras
 function DHUD:PlayerAuras()
 
-    local i, icon, button, pbtimeLeft, pbtexture, pbcount;
+    local i, icon, button, pbtimeLeft, pbtexture, pbcount, pbtype;
     --local pbrank, pbdebuffType, pbduration;
     local j = 1;
     local buffText;
@@ -2691,16 +2734,16 @@ function DHUD:PlayerAuras()
 			if (not self.mcinvehicle or self.mcinvehicle == 0) then
 				--show debuffs
 				if DHUD_Settings["playerdebuffs"] == 1 and i>40 then
-					buffI, _, pbtexture, pbcount, _, _, pbtimeLeft  = UnitDebuff( "player", i-40, self.playerbufffilter );
+					buffI, _, pbtexture, pbcount, pbtype, _, pbtimeLeft  = UnitDebuff( "player", i-40, self.playerbufffilter );
 				else
-					buffI, _, pbtexture, pbcount, _, _, pbtimeLeft  = UnitBuff( "player", i, self.playerbufffilter );
+					buffI, _, pbtexture, pbcount, pbtype, _, pbtimeLeft  = UnitBuff( "player", i, self.playerbufffilter );
 				end
            	elseif self.mcinvehicle == 1 then
 				--show debuffs
 				if DHUD_Settings["playerdebuffs"] == 1 and i>40 then
-					buffI, _, pbtexture, pbcount, _, _, pbtimeLeft  = UnitDebuff( "pet", i-40, self.playerbufffilter );
+					buffI, _, pbtexture, pbcount, pbtype, _, pbtimeLeft  = UnitDebuff( "pet", i-40, self.playerbufffilter );
 				else
-					buffI, _, pbtexture, pbcount, _, _, pbtimeLeft  = UnitBuff( "pet", i, self.playerbufffilter );
+					buffI, _, pbtexture, pbcount, pbtype, _, pbtimeLeft  = UnitBuff( "pet", i, self.playerbufffilter );
 				end
 			end
 			
@@ -2710,16 +2753,30 @@ function DHUD:PlayerAuras()
 			pbtimeLeft = pbtimeLeft - GetTime();
 		            
             if (pbtimeLeft > 0 and pbtimeLeft < DHUD_Settings["playerbufftimefilter"]) or (DHUD_Settings["buffswithcharges"]==1 and pbcount>1) then
+				button = _G[buffframe..j];
+				
                 if DHUD_Settings["playerdebuffs"] == 1 and i>40 then
 					color.r, color.g, color.b = self:Colorize("debuffaura_player", pbtimeLeft / 20);
+					if DHUD_Settings["playerdebuffscolorize"] == 1 then
+						if (pbtype == "Magic")  then
+							color.r, color.g, color.b = self:Colorize("debuffmagic", pbtimeLeft / 20);
+						elseif (pbtype == "Disease")  then
+							color.r, color.g, color.b = self:Colorize("debuffdisease", pbtimeLeft / 20);
+						elseif (pbtype == "Poison")  then
+							color.r, color.g, color.b = self:Colorize("debuffpoison", pbtimeLeft / 20);
+						elseif (pbtype == "Curse")  then
+							color.r, color.g, color.b = self:Colorize("debuffcurse", pbtimeLeft / 20);
+						end
+					end
+					button.hasdebuff = 1;
+					button.id = i-40;
 				else
 					color.r, color.g, color.b = self:Colorize("aura_player", pbtimeLeft / 20);
+					button.hasdebuff = nil;
+					button.id = i;
 				end
-
-                button = _G[buffframe..j];
-                button.hasdebuff = nil;
+               
                 button.unit = "player";
-                button.id = i;
                 
                 icon       = _G[button:GetName()];
                 icon:SetNormalTexture(pbtexture);
@@ -2973,7 +3030,7 @@ function DHUD:MCPallyHollyPower()
 	if (not self.mcinvehicle or self.mcinvehicle == 0) then
 		points = UnitPower("player", 9);
 	else
-		if (self.mcpallymovedcp == 1) then
+		if (self.mccpmoved == 1) then
 			local point, frame, relative, x, y = DHUD_Combo4:GetPoint();
 			local epoint, eframe, erelative, ex, ey = DHUD_Combo2:GetPoint();
 			DHUD_Combo4:SetPoint(epoint, eframe, erelative, ex, ey);
@@ -2982,7 +3039,7 @@ function DHUD:MCPallyHollyPower()
 			epoint, eframe, erelative, ex, ey = DHUD_Combo3:GetPoint();
 			DHUD_Combo5:SetPoint(epoint, eframe, erelative, ex, ey);
 			DHUD_Combo3:SetPoint(point, frame, relative, x, y);
-			self.mcpallymovedcp = 0;
+			self.mccpmoved = 0;
 		end
 		return;
 	end
@@ -2994,7 +3051,7 @@ function DHUD:MCPallyHollyPower()
         DHUD_Combo5:Hide();
     else
 		-- exchange combo point position, so red, yellow and green points are placed nearby
-		if (self.mcpallymovedcp == 0) then
+		if (self.mccpmoved == 0) then
 			local point, frame, relative, x, y = DHUD_Combo4:GetPoint();
 			local epoint, eframe, erelative, ex, ey = DHUD_Combo2:GetPoint();
 			DHUD_Combo4:SetPoint(epoint, eframe, erelative, ex, ey);
@@ -3003,7 +3060,7 @@ function DHUD:MCPallyHollyPower()
 			epoint, eframe, erelative, ex, ey = DHUD_Combo3:GetPoint();
 			DHUD_Combo5:SetPoint(epoint, eframe, erelative, ex, ey);
 			DHUD_Combo3:SetPoint(point, frame, relative, x, y);
-			self.mcpallymovedcp = 1;
+			self.mccpmoved = 1;
 			
 		end
 		if points == 1 then
@@ -3026,7 +3083,72 @@ function DHUD:MCPallyHollyPower()
 			DHUD_Combo5:Show();
 		end
 	end
-end	
+end
+
+-- ######MADCAT: Warlock Shards
+function DHUD:MCWarlockShards()
+	if (self.CastingAlpha == 0) then
+		return;
+	end
+	local points;
+	if (not self.mcinvehicle or self.mcinvehicle == 0) then
+		points = UnitPower("player", 7);
+	else
+		if (self.mccpmoved == 1) then
+			local point, frame, relative, x, y = DHUD_Combo4:GetPoint();
+			local epoint, eframe, erelative, ex, ey = DHUD_Combo2:GetPoint();
+			DHUD_Combo4:SetPoint(epoint, eframe, erelative, ex, ey);
+			DHUD_Combo2:SetPoint(point, frame, relative, x, y);
+			point, frame, relative, x, y = DHUD_Combo5:GetPoint();
+			epoint, eframe, erelative, ex, ey = DHUD_Combo3:GetPoint();
+			DHUD_Combo5:SetPoint(epoint, eframe, erelative, ex, ey);
+			DHUD_Combo3:SetPoint(point, frame, relative, x, y);
+			self.mccpmoved = 0;
+		end
+		return;
+	end
+	if points == 0 then
+        DHUD_Combo1:Hide();
+        DHUD_Combo2:Hide();
+        DHUD_Combo3:Hide();
+        DHUD_Combo4:Hide();
+        DHUD_Combo5:Hide();
+    else
+		-- exchange combo point position, so red, yellow and green points are placed nearby
+		if (self.mccpmoved == 0) then
+			local point, frame, relative, x, y = DHUD_Combo4:GetPoint();
+			local epoint, eframe, erelative, ex, ey = DHUD_Combo2:GetPoint();
+			DHUD_Combo4:SetPoint(epoint, eframe, erelative, ex, ey);
+			DHUD_Combo2:SetPoint(point, frame, relative, x, y);
+			point, frame, relative, x, y = DHUD_Combo5:GetPoint();
+			epoint, eframe, erelative, ex, ey = DHUD_Combo3:GetPoint();
+			DHUD_Combo5:SetPoint(epoint, eframe, erelative, ex, ey);
+			DHUD_Combo3:SetPoint(point, frame, relative, x, y);
+			self.mccpmoved = 1;
+			
+		end
+		if points == 1 then
+			DHUD_Combo1:Show();
+			DHUD_Combo2:Hide();
+			DHUD_Combo3:Hide();
+			DHUD_Combo4:Hide();
+			DHUD_Combo5:Hide();       
+		elseif points == 2 then
+			DHUD_Combo1:Show();
+			DHUD_Combo2:Hide();
+			DHUD_Combo3:Hide();
+			DHUD_Combo4:Show();
+			DHUD_Combo5:Hide();        
+		elseif points == 3 then
+			DHUD_Combo1:Show();
+			DHUD_Combo2:Hide();
+			DHUD_Combo3:Hide();
+			DHUD_Combo4:Show();
+			DHUD_Combo5:Show();
+		end
+	end
+end
+
 
 
 -- is unit npc?
@@ -3868,6 +3990,16 @@ end
 -- get config value
 function DHUD:GetConfig(key)
     return DHUD_Settings[key] or nil;
+end
+
+-- does table contain a value?
+function DHUD:TableContains(tableobj, element)
+  for _, value in pairs(tableobj) do
+    if value == element then
+      return true
+    end
+  end
+  return false
 end
 
 -- range command

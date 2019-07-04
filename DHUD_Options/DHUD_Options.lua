@@ -3,7 +3,7 @@ DHUDDROPDOWNSELECTED = "";
 
 --Ace3 Profile Support
 local AppName = "DHUDO"
-local VERSION = AppName .. "v 1.5.40000e"
+local VERSION = AppName .. "v 1.5.40000f"
 
 local AceConfig = LibStub("AceConfig-3.0")
 local AceDBOptions = LibStub("AceDBOptions-3.0")
@@ -18,6 +18,7 @@ local defaults = {
 				["dhudsettingloaded"]  = false,
                 ["version"]            = DHUD_VERSION,
                 ["layouttyp"]          = "DHUD_Standard_Layout",
+				["textureset"]		   = 2,
 
                 ["combatalpha"]        = 0.8,
                 ["oocalpha"]           = 0,
@@ -40,7 +41,9 @@ local defaults = {
 				["debufftimer"]		   = 0,
 				["dkrunes"]			   = 1,
 				["pallyhollypower"]    = 1,
+				["warlockshards"]      = 1,
 				["playerdebuffs"]	   = 0,
+				["playerdebuffscolorize"] = 1,
                 ["animatebars"]        = 1,
                 ["barborders"]         = 1,
                 ["showauras"]          = 1,
@@ -128,6 +131,10 @@ local defaults = {
                 ["colors"]             = {
                                         aura_player   = { "ffffff", "ffffff", "eeeeee" },
 										debuffaura_player   = { "FFFF00", "FFFF00", "FFFF00" },
+										debuffmagic   = { "3397ff", "3397ff", "3397ff" },
+										debuffcurse   = { "9900ff", "9900ff", "9900ff" },
+										debuffdisease = { "996400", "996400", "996400" },
+										debuffpoison  = { "009700", "009700", "009700" },
                                         health_player = { "00FF00", "FFFF00", "FF0000" }, --
                                         health_target = { "00aa00", "aaaa00", "aa0000" }, --
                                         health_pet    = { "00FF00", "FFFF00", "FF0000" }, --
@@ -140,6 +147,7 @@ local defaults = {
                                         energy_target = { "aaaa00", "aaaa00", "aaaa00" }, --
 										runic_power_player  = { "004060", "004060", "004060" }, --
 										runic_power_target  = { "004060", "004060", "004060" }, --
+										focus_player  = { "aa4400", "aa4400", "aa4400" }, --
                                         focus_target  = { "aa4400", "aa4400", "aa4400" }, --
                                         focus_pet     = { "aa4400", "aa4400", "aa4400" }, --
                                         castbar       = { "00FF00", "88FF00", "FFFF00" }, --
@@ -408,6 +416,27 @@ function DHUD_RadioButton_OnClick(index)
 		DHUD_RADIO_layout4:SetChecked(1);
 		DHUD:transformFrames("DHUD_PlayerLeftMirror_Layout");
 	end
+end
+
+function DHUD_RadioTextureButton_OnClick(index)
+	DHUD_RADIO_texture1:SetChecked(nil);
+	DHUD_RADIO_texture2:SetChecked(nil);
+	DHUD_RADIO_texture3:SetChecked(nil);
+	DHUD_RADIO_texture4:SetChecked(nil);
+	DHUD_RADIO_texture5:SetChecked(nil);
+	if index == 1 then
+		DHUD_RADIO_texture1:SetChecked(1);
+	elseif index == 2 then
+		DHUD_RADIO_texture2:SetChecked(1);
+	elseif index == 3 then
+		DHUD_RADIO_texture3:SetChecked(1);
+	elseif index == 4 then
+		DHUD_RADIO_texture4:SetChecked(1);
+	elseif index == 5 then
+		DHUD_RADIO_texture5:SetChecked(1);
+	end
+	DHUD:SetConfig( "textureset", index );
+	DHUD:transformFrames(DHUD_Settings["layouttyp"]);
 end
 
 

@@ -1,3 +1,10 @@
+changelog 1.5.40000f MADCAT revision24:
+-added option to change color of hunters focus resource (player)
+-added tracking for warlock shards
+-fixed player debuff tooltips
+-added option to colorize player debuffs according to debuff type
+-added option to select texture in layout panel
+
 changelog 1.5.40000e MADCAT revision23:
 -fixed ace3 library loading if it's already loaded
 -added curse client support
