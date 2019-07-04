@@ -4,7 +4,7 @@ DHUD modification for WotLK and Cataclysm by MADCAT
 -----------------------------------------------------------------------------------]]--
 
 -- Init Vars --
-DHUD_VERSION    = "Version: 1.5.50000a";
+DHUD_VERSION    = "Version: 1.5.50000b";
 DHUD_TEXT_EMPTY = "";
 DHUD_TEXT_HP2   = "<color_hp><hp_value></color>";
 DHUD_TEXT_HP3   = "<color_hp><hp_value></color>/<hp_max>";
@@ -1104,13 +1104,13 @@ function DHUD:OnUpdate(elapsed)
 	-- update speed
     self.update_elapsed = self.update_elapsed + elapsed;
     if self.update_elapsed < 0.3 then
-        self.update_elapsed = 0;
+		--self.update_elapsed = 0;
         return;
     end
-
+	
     if self.issetup ~= 2 then return; end
     if self.isinit  ~= 2 then return; end
-                
+    
     -- animate bars
     if DHUD_Settings["animatebars"] == 1 then
         self:Animate("DHUD_PlayerHealth_Bar");
@@ -1127,7 +1127,7 @@ function DHUD:OnUpdate(elapsed)
             self:Animate("DHUD_PetMana_Bar");
         end
     end
-
+	
 	
 	-- castingbar
     if DHUD_Settings["castingbar"] == 1 then
@@ -1348,6 +1348,7 @@ function DHUD:OnUpdate(elapsed)
 	-- Update Target Debuffs
 	self:TargetPlayerDebuff();
 	
+	
 	--UpdateDebuffTimers,CPU consuming.
 	if DHUD_Settings["debufftimer"] == 1 and self.Target == 1 then
 		self:TargetAuras();
@@ -1516,8 +1517,6 @@ function DHUD:init()
     self:updateTargetPvP();
     --self:updatePetIcon();
     
-	self:print("font " .. self.defaultfont);
-	self:print("font2 " .. self.defaultfont_num);
     -- set font
     DHUD_Castdelay_Text_Text:SetFont(self.defaultfont_num, DHUD_Settings["fontsizecastdelay"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["castdelayoutline"] ]);
     DHUD_Casttime_Text_Text:SetFont(self.defaultfont_num, DHUD_Settings["fontsizecasttime"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["castdelayoutline"] ]);
@@ -2840,7 +2839,7 @@ function DHUD:PlayerAuras()
             end
         end
     end
-
+	
     -- hide the buttons not used
     for j = j, 24 do
         button = _G[buffframe..j];

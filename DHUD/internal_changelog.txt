@@ -1,3 +1,6 @@
+changelog 1.5.50000b MADCAT revision29:
+-fixed bug with initialization on some characters
+
 changelog 1.5.50000a MADCAT revision28:
 -toc update
 -fixed lua errors
