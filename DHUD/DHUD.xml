@@ -9,10 +9,11 @@
 				DHUD:OnLoad();
 			</OnLoad>
 			<OnEvent>
+				local arg1, arg2, arg3 = ...;
 			    DHUD:OnEvent(event, arg1, arg2, arg3);
 			</OnEvent>
 			<OnUpdate>
-                DHUD:OnUpdate();
+                DHUD:OnUpdate(elapsed);
 			</OnUpdate>
 		</Scripts>
 	</Frame>
@@ -31,7 +32,7 @@
         </Anchors>
         <Scripts>
             <OnLoad>
-                UIDropDownMenu_Initialize(this, DHUD_Target_DropDown_Initialize, "MENU");
+                UIDropDownMenu_Initialize(DHUD_Target_DropDown, DHUD_Target_DropDown_Initialize, "MENU");
             </OnLoad>
         </Scripts>
     </Frame>
@@ -50,7 +51,7 @@
         </Anchors>
         <Scripts>
             <OnLoad>
-                UIDropDownMenu_Initialize(this, DHUD_Player_DropDown_Initialize, "MENU");
+                UIDropDownMenu_Initialize(DHUD_Player_DropDown, DHUD_Player_DropDown_Initialize, "MENU");
             </OnLoad>
         </Scripts>
     </Frame>	

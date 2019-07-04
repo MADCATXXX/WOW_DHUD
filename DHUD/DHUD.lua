@@ -4,7 +4,7 @@ DHUD modification for WotLK Beta by MADCAT
 -----------------------------------------------------------------------------------]]--
 
 -- Init Vars --
-DHUD_VERSION    = "Version: 1.5.30200a";
+DHUD_VERSION    = "Version: 1.5.40000a";
 DHUD_TEXT_EMPTY = "";
 DHUD_TEXT_HP2   = "<color_hp><hp_value></color>";
 DHUD_TEXT_HP3   = "<color_hp><hp_value></color>/<hp_max>";
@@ -405,7 +405,7 @@ function DHUD:firstload()
 end
 
 -- OnEvent --
-function DHUD:OnEvent()
+function DHUD:OnEvent(event, arg1, arg2, arg3)
 
 	-- MADCAT debug
 	--if event == "UNIT_ENTERED_VEHICLE" or event == "UNIT_EXITED_VEHICLE" or event == "UNIT_ENTERING_VEHICLE" or event == "VEHICLE_PASSENGERS_CHANGED" or event == "COMPANION_UPDATE" then
@@ -521,7 +521,7 @@ function DHUD:OnEvent()
             self:UpdateValues("DHUD_PetHealth_Text");
         end
 		--do not update alpha if cast complete
-        if not(this.enemyfadeOut) and not(this.fadeOut) then
+        if not(getglobal("DHUD_EnemyCasting_Bar").enemyfadeOut) and not(getglobal("DHUD_Casting_Bar").fadeOut) then
 			self:updateAlpha();
 		end
     -- update MANA Bars, UNIT_ENERGYMAX, UNIT_MANAMAX, UNIT_FOCUSMAX, UNIT_RAGEMAX   removed
@@ -554,7 +554,7 @@ function DHUD:OnEvent()
         end
 		
         --do not update alpha if cast complete
-		if not(this.enemyfadeOut) and not(this.fadeOut) then
+		if not(getglobal("DHUD_EnemyCasting_Bar").enemyfadeOut) and not(getglobal("DHUD_Casting_Bar").fadeOut) then
 			self:updateAlpha();
 		end
     -- update self Auras
@@ -567,7 +567,7 @@ function DHUD:OnEvent()
         self:UpdateValues("DHUD_PetMana_Text");
         self:ChangeBackgroundTexture();
 		--do not update alpha if cast complete
-		if not(this.enemyfadeOut) and not(this.fadeOut) then
+		if not(getglobal("DHUD_EnemyCasting_Bar").enemyfadeOut) and not(getglobal("DHUD_Casting_Bar").fadeOut) then
 			self:updateAlpha();
 		end
         self:PlayerAuras();
@@ -644,19 +644,21 @@ function DHUD:OnEvent()
     
     -- castbar events
     if DHUD_Settings["castingbar"] == 1 then
+		local frame = getglobal("DHUD_Casting_Bar");
         -- start spellcast
         if (event == "UNIT_SPELLCAST_START") and (arg1 == "player") then
             spell, rank, displayName, icon, startTime, endTime, isTradeSkill = UnitCastingInfo(arg1);
+			
             self.spellname  = spell;
-            this.startTime  = startTime / 1000;
-            this.maxValue   = endTime / 1000;
-            this.holdTime   = 0;
-            this.casting    = 1;
-            this.delay      = 0;
-            this.channeling = nil;
-            this.fadeOut    = nil;
-            this.flash      = nil;
-            this.duration   = floor( ( endTime - startTime ) / 100 ) / 10;
+            frame.startTime  = startTime / 1000;
+            frame.maxValue   = endTime / 1000;
+            frame.holdTime   = 0;
+            frame.casting    = 1;
+            frame.delay      = 0;
+            frame.channeling = nil;
+            frame.fadeOut    = nil;
+            frame.flash      = nil;
+            frame.duration   = floor( ( endTime - startTime ) / 100 ) / 10;
             self.Casting    = true;
             self:updateAlpha();
             DHUD_Casttime_Text:SetAlpha(1);
@@ -678,20 +680,20 @@ function DHUD:OnEvent()
                 DHUD_Casting_Bar:Hide();
             end
             if (DHUD_Casting_Bar:IsShown()) then
-                if ( event == "UNIT_SPELLCAST_STOP" and this.casting ) then
-                    this.casting    = nil;
-                    this.channeling = nil;
-                    this.flash      = 1;
-                    this.fadeOut    = 1;
+                if ( event == "UNIT_SPELLCAST_STOP" and frame.casting ) then
+                    frame.casting    = nil;
+                    frame.channeling = nil;
+                    frame.flash      = 1;
+                    frame.fadeOut    = 1;
                     DHUD_Casting_Bar_Texture:SetVertexColor(0, 1, 0);
                     self:SetBarHeight("DHUD_Casting_Bar",1);
                     DHUD_Flash_Bar:SetAlpha(0);
                     DHUD_Flash_Bar:Show();
-                  elseif  ( event == "UNIT_SPELLCAST_CHANNEL_STOP" and this.channeling ) then
-                    this.casting    = nil;
-                    this.channeling = nil;
-                    this.flash      = nil;
-                    this.fadeOut    = 1;
+                  elseif  ( event == "UNIT_SPELLCAST_CHANNEL_STOP" and frame.channeling ) then
+                    frame.casting    = nil;
+                    frame.channeling = nil;
+                    frame.flash      = nil;
+                    frame.fadeOut    = 1;
                     self.Casting    = nil;
                     self:updateAlpha();
                     self:SetBarHeight("DHUD_Casting_Bar",0);
@@ -704,14 +706,14 @@ function DHUD:OnEvent()
             end
         -- failed
         elseif (event == "UNIT_SPELLCAST_FAILED" or event == "UNIT_SPELLCAST_INTERRUPTED") and (arg1 == "player") then
-            if (DHUD_Casting_Bar:IsShown() and not this.fadeOut ) then
+            if (DHUD_Casting_Bar:IsShown() and not frame.fadeOut ) then
                 DHUD_Casting_Bar_Texture:SetVertexColor(1, 0, 0);
                 self:SetBarHeight("DHUD_Casting_Bar",1);
-                this.casting    = nil;
-                this.channeling = nil;
-                this.fadeOut    = 1;
-                this.flash      = nil;
-                this.holdTime = GetTime() + CASTING_BAR_HOLD_TIME;
+                frame.casting    = nil;
+                frame.channeling = nil;
+                frame.fadeOut    = 1;
+                frame.flash      = nil;
+                frame.holdTime = GetTime() + CASTING_BAR_HOLD_TIME;
                 DHUD_Flash_Bar:Hide();
                 DHUD_Flash_Bar:SetAlpha(0);
 				--Spell Name and Texture
@@ -725,38 +727,38 @@ function DHUD:OnEvent()
             if(DHUD_Casting_Bar:IsShown()) then
                 spell, rank, displayName, icon, startTime, endTime, isTradeSkill = UnitCastingInfo(arg1);
                 if endTime then
-					delay = endTime / 1000 - this.maxValue;
+					delay = endTime / 1000 - frame.maxValue;
 				else
 					delay = 0;
 				end
-                this.startTime = this.startTime + delay;
-                this.maxValue  = this.maxValue + delay;
-                this.delay     = this.delay + delay;
+                frame.startTime = frame.startTime + delay;
+                frame.maxValue  = frame.maxValue + delay;
+                frame.delay     = frame.delay + delay;
                 
                 local time = GetTime();
 				--fixes attempt to work with nil value endtime
-				if (not this.endTime) then
-					this.endTime=time
+				if (not frame.endTime) then
+					frame.endTime=time
 				end
 				
-                if (time > this.endTime) then
-                    time = this.endTime
+                if (time > frame.endTime) then
+                    time = frame.endTime
                 end
             end		
         -- channel start
         elseif (event == "UNIT_SPELLCAST_CHANNEL_START") and (arg1 == "player") then
             spell, rank, displayName, icon, startTime, endTime, isTradeSkill = UnitChannelInfo(arg1);
             self.spellname  = spell;
-            this.maxValue   = 1;
-            this.startTime  = startTime / 1000;
-            this.endTime    = endTime / 1000;
-            this.duration   = string.format( "%.1f", (endTime - startTime) / 1000);
-            this.holdTime   = 0;
-            this.casting    = nil;
-            this.channeling = 1;
-            this.flash      = nil;
-            this.fadeOut    = nil;
-            this.delay      = 0;
+            frame.maxValue   = 1;
+            frame.startTime  = startTime / 1000;
+            frame.endTime    = endTime / 1000;
+            frame.duration   = string.format( "%.1f", (endTime - startTime) / 1000);
+            frame.holdTime   = 0;
+            frame.casting    = nil;
+            frame.channeling = 1;
+            frame.flash      = nil;
+            frame.fadeOut    = nil;
+            frame.delay      = 0;
             self.Casting    = true;
             self:SetBarHeight("DHUD_Casting_Bar",1);
             DHUD_Casting_Bar_Texture:SetVertexColor(self:Colorize("channelbar",0));
@@ -768,39 +770,40 @@ function DHUD:OnEvent()
         -- channel update
         elseif (event == "UNIT_SPELLCAST_CHANNEL_UPDATE") and (arg1 == "player") then
             if arg1 == 0 then
-                this.channeling = nil;
+                frame.channeling = nil;
             elseif (DHUD_Casting_Bar:IsShown()) then
                 spell, rank, displayName, icon, startTime, endTime, isTradeSkill = UnitCastingInfo(arg1);
-                local origDuration = this.endTime - this.startTime
-                local elapsedTime = GetTime() - this.startTime;
---                this.delay = (origDuration - elapsedTime) - (arg1/1000);
---                this.endTime = GetTime() + (arg1 / 1000);
+                local origDuration = frame.endTime - frame.startTime
+                local elapsedTime = GetTime() - frame.startTime;
+--                frame.delay = (origDuration - elapsedTime) - (arg1/1000);
+--                frame.endTime = GetTime() + (arg1 / 1000);
                 -- hack
                 if endTime == nil then
                     endTime = 0;
                 end
-                this.endTime = endTime / 1000;
-                this.delay = this.endTime - this.startTime + (endTime / 1000);
+                frame.endTime = endTime / 1000;
+                frame.delay = frame.endTime - frame.startTime + (endTime / 1000);
             end
         end
 	
    end
 	-- MADCAT Enemy castbar events
     if DHUD_Settings["enemycastingbar"] == 1 then
+		local frame = getglobal("DHUD_EnemyCasting_Bar");
         --self:print("MainEvent: "..event);
 		-- start spellcast
 		if (event == "UNIT_SPELLCAST_START") and (arg1 == "target") then
             enemyspell, enemyrank, enemydisplayName, enemyicon, enemystartTime, enemyendTime, enemyisTradeSkill = UnitCastingInfo(arg1);
             self.enemyspellname  = enemyspell;
-            this.enemystartTime  = enemystartTime / 1000;
-            this.enemymaxValue   = enemyendTime / 1000;
-            this.enemyholdTime   = 0;
-            this.enemycasting    = 1;
-            this.enemydelay      = 0;
-            this.enemychanneling = nil;
-            this.enemyfadeOut    = nil;
-            this.enemyflash      = nil;
-            this.enemyduration   = floor( ( enemyendTime - enemystartTime ) / 100 ) / 10;
+            frame.enemystartTime  = enemystartTime / 1000;
+            frame.enemymaxValue   = enemyendTime / 1000;
+            frame.enemyholdTime   = 0;
+            frame.enemycasting    = 1;
+            frame.enemydelay      = 0;
+            frame.enemychanneling = nil;
+            frame.enemyfadeOut    = nil;
+            frame.enemyflash      = nil;
+            frame.enemyduration   = floor( ( enemyendTime - enemystartTime ) / 100 ) / 10;
             self.mcenemycasting    = true;
             self:updateAlpha();
             DHUD_EnemyCasttime_Text:SetAlpha(1);
@@ -835,20 +838,20 @@ function DHUD:OnEvent()
                 DHUD_EnemyCasting_Bar:Hide();
             end
             if (DHUD_EnemyCasting_Bar:IsShown()) then
-                if ( event == "UNIT_SPELLCAST_STOP" and this.enemycasting ) then
-                    this.enemycasting    = nil;
-                    this.enemychanneling = nil;
-                    this.enemyflash      = 1;
-                    this.enemyfadeOut    = 1;
+                if ( event == "UNIT_SPELLCAST_STOP" and frame.enemycasting ) then
+                    frame.enemycasting    = nil;
+                    frame.enemychanneling = nil;
+                    frame.enemyflash      = 1;
+                    frame.enemyfadeOut    = 1;
                     DHUD_EnemyCasting_Bar_Texture:SetVertexColor(0, 1, 0);
                     self:SetBarHeight("DHUD_EnemyCasting_Bar",1);
                     DHUD_EnemyFlash_Bar:SetAlpha(0);
                     DHUD_EnemyFlash_Bar:Show();
-                  elseif  ( event == "UNIT_SPELLCAST_CHANNEL_STOP" and this.enemychanneling ) then
-                    this.enemycasting    = nil;
-                    this.enemychanneling = nil;
-                    this.enemyflash      = nil;
-                    this.enemyfadeOut    = 1;
+                  elseif  ( event == "UNIT_SPELLCAST_CHANNEL_STOP" and frame.enemychanneling ) then
+                    frame.enemycasting    = nil;
+                    frame.enemychanneling = nil;
+                    frame.enemyflash      = nil;
+                    frame.enemyfadeOut    = 1;
                     self.mcenemycasting    = nil;
                     self:updateAlpha();
                     self:SetBarHeight("DHUD_EnemyCasting_Bar",0);
@@ -863,14 +866,14 @@ function DHUD:OnEvent()
             end
         -- failed
         elseif (event == "UNIT_SPELLCAST_FAILED" or event == "UNIT_SPELLCAST_INTERRUPTED") and (arg1 == "target") then
-            if (DHUD_EnemyCasting_Bar:IsShown() and not this.enemyfadeOut ) then
+            if (DHUD_EnemyCasting_Bar:IsShown() and not frame.enemyfadeOut ) then
                 DHUD_EnemyCasting_Bar_Texture:SetVertexColor(1, 0, 0);
                 self:SetBarHeight("DHUD_EnemyCasting_Bar",1);
-                this.enemycasting    = nil;
-                this.enemychanneling = nil;
-                this.enemyfadeOut    = 1;
-                this.enemyflash      = nil;
-                this.enemyholdTime = GetTime() + CASTING_BAR_HOLD_TIME;
+                frame.enemycasting    = nil;
+                frame.enemychanneling = nil;
+                frame.enemyfadeOut    = 1;
+                frame.enemyflash      = nil;
+                frame.enemyholdTime = GetTime() + CASTING_BAR_HOLD_TIME;
                 DHUD_EnemyFlash_Bar:Hide();
                 DHUD_EnemyFlash_Bar:SetAlpha(0);
 				--Change enemy spellname text to interrupted
@@ -882,35 +885,35 @@ function DHUD:OnEvent()
 			--self:print("MainEvent: "..event);
             if(DHUD_EnemyCasting_Bar:IsShown()) then
                 enemyspell, enemyrank, enemydisplayName, enemyicon, enemystartTime, enemyendTime, enemyisTradeSkill = UnitCastingInfo(arg1);
-                enemydelay = enemyendTime / 1000 - this.enemymaxValue;
-                this.enemystartTime = this.enemystartTime + enemydelay;
-                this.enemymaxValue  = this.enemymaxValue + enemydelay;
-                this.enemydelay     = this.enemydelay + enemydelay;
+                enemydelay = enemyendTime / 1000 - frame.enemymaxValue;
+                frame.enemystartTime = frame.enemystartTime + enemydelay;
+                frame.enemymaxValue  = frame.enemymaxValue + enemydelay;
+                frame.enemydelay     = frame.enemydelay + enemydelay;
                 
                 local time = GetTime();
 				--fixes attempt to work with nil value enemyendtime
-				if (not this.enemyendTime) then
-					this.enemyendTime=time
+				if (not frame.enemyendTime) then
+					frame.enemyendTime=time
 				end
 				
-                if (time > this.enemyendTime) then
-                    time = this.enemyendTime
+                if (time > frame.enemyendTime) then
+                    time = frame.enemyendTime
                 end
             end		
         -- channel start
         elseif (event == "UNIT_SPELLCAST_CHANNEL_START") and (arg1 == "target") then
             enemyspell, enemyrank, enemydisplayName, enemyicon, enemystartTime, enemyendTime, enemyisTradeSkill = UnitChannelInfo(arg1);
             self.enemyspellname  = enemyspell;
-            this.enemymaxValue   = 1;
-            this.enemystartTime  = enemystartTime / 1000;
-            this.enemyendTime    = enemyendTime / 1000;
-            this.enemyduration   = string.format( "%.1f", (enemyendTime - enemystartTime) / 1000);
-            this.enemyholdTime   = 0;
-            this.enemycasting    = nil;
-            this.enemychanneling = 1;
-            this.enemyflash      = nil;
-            this.enemyfadeOut    = nil;
-            this.enemydelay      = 0;
+            frame.enemymaxValue   = 1;
+            frame.enemystartTime  = enemystartTime / 1000;
+            frame.enemyendTime    = enemyendTime / 1000;
+            frame.enemyduration   = string.format( "%.1f", (enemyendTime - enemystartTime) / 1000);
+            frame.enemyholdTime   = 0;
+            frame.enemycasting    = nil;
+            frame.enemychanneling = 1;
+            frame.enemyflash      = nil;
+            frame.enemyfadeOut    = nil;
+            frame.enemydelay      = 0;
             self.enemyCasting    = true;
             self:SetBarHeight("DHUD_EnemyCasting_Bar",1);
             DHUD_EnemyCasting_Bar_Texture:SetVertexColor(self:Colorize("channelbar",0));
@@ -933,19 +936,19 @@ function DHUD:OnEvent()
         -- channel update
         elseif (event == "UNIT_SPELLCAST_CHANNEL_UPDATE") and (arg1 == "target") then
             if arg1 == 0 then
-                this.enemychanneling = nil;
+                frame.enemychanneling = nil;
             elseif (DHUD_EnemyCasting_Bar:IsShown()) then
                 enemyspell, enemyrank, enemydisplayName, enemyicon, enemystartTime, enemyendTime, enemyisTradeSkill = UnitCastingInfo(arg1);
-                local origDuration = this.enemyendTime - this.enemystartTime
-                local elapsedTime = GetTime() - this.enemystartTime;
---                this.delay = (origDuration - elapsedTime) - (arg1/1000);
---                this.endTime = GetTime() + (arg1 / 1000);
+                local origDuration = frame.enemyendTime - frame.enemystartTime
+                local elapsedTime = GetTime() - frame.enemystartTime;
+--                frame.delay = (origDuration - elapsedTime) - (arg1/1000);
+--                frame.endTime = GetTime() + (arg1 / 1000);
                 -- hack
                 if enemyendTime == nil then
                     enemyendTime = 0;
                 end
-                this.enemyendTime = enemyendTime / 1000;
-                this.enemydelay = this.enemyendTime - this.enemystartTime + (enemyendTime / 1000);
+                frame.enemyendTime = enemyendTime / 1000;
+                frame.enemydelay = frame.enemyendTime - frame.enemystartTime + (enemyendTime / 1000);
             end
         end
 	end
@@ -979,24 +982,23 @@ function DHUD:initTextfield(ref,name)
             ref:RegisterEvent("UNIT_PET");
             ref:RegisterEvent("PLAYER_PET_CHANGED");
         end
-        ref:SetScript("OnEvent", function() DHUD:TextOnEvent(); end );
+        ref:SetScript("OnEvent", function(frame, event, arg1, arg2, arg3) DHUD:TextOnEvent(frame, event, arg1, arg2, arg3); end);
     end
 end
 
 -- events for vars
-function DHUD:TextOnEvent()
+function DHUD:TextOnEvent(frame, event, arg1, arg2, arg3)
 
-        
-    if this.unit == arg1 or 
+    if frame.unit == arg1 or 
         event == "PLAYER_ENTERING_WORLD" or  
-        --( event == "PLAYER_TARGET_CHANGED" and this.unit == "target" ) or 
-        ( event == "PLAYER_TARGET_CHANGED" and this.unit == "target" ) or 
+        --( event == "PLAYER_TARGET_CHANGED" and frame.unit == "target" ) or 
+        ( event == "PLAYER_TARGET_CHANGED" and frame.unit == "target" ) or 
         ( event == "UNIT_TARGET" ) or
-        ( (event == "UNIT_PET" or event == "PLAYER_PET_CHANGED") and this.unit == "pet" ) then 
-        self:doText( this:GetName() );    
+        ( (event == "UNIT_PET" or event == "PLAYER_PET_CHANGED") and frame.unit == "pet" ) then 
+        self:doText( frame:GetName() );    
     end
     
---    if this.unit == arg1 and event == "UNIT_TARGET" then
+--    if frame.unit == arg1 and event == "UNIT_TARGET" then
 --        self:doText( "DHUD_TargetTarget_Text" );
 --    end
 end
@@ -1004,37 +1006,38 @@ end
 -- set Textbox
 function DHUD:doText(name)
     local font = getglobal(name.."_Text");
+	local frame = getglobal(name);
 
     -- hide npc / target / pet ?
-    if this.unit == "target" and DHUD_Settings["shownpc"] == 0 and self:TargetIsNPC() then 
+    if frame.unit == "target" and DHUD_Settings["shownpc"] == 0 and self:TargetIsNPC() then 
         font:SetText(" ");
         return; 
     end
-    if this.unit == "target" and DHUD_Settings["showtarget"] == 0 then 
+    if frame.unit == "target" and DHUD_Settings["showtarget"] == 0 then 
         font:SetText(" ");
         return; 
     end
-    if this.unit == "pet" and DHUD_Settings["showpet"] == 0 then 
+    if frame.unit == "pet" and DHUD_Settings["showpet"] == 0 then 
         font:SetText(" ");
         return; 
     end
-    if this.unit == "targettarget" and DHUD_Settings["shownpc"] == 0 and self:TargetIsNPC() then
+    if frame.unit == "targettarget" and DHUD_Settings["shownpc"] == 0 and self:TargetIsNPC() then
         font:SetText(" ");
         return;
     end
-    if this.unit == "targettarget" and DHUD_Settings["showtargettarget"] == 0 then
+    if frame.unit == "targettarget" and DHUD_Settings["showtargettarget"] == 0 then
         font:SetText(" ");
         return;
     end
-    if this.unit == "targettarget" and UnitExists("targettarget") == nil then
+    if frame.unit == "targettarget" and UnitExists("targettarget") == nil then
         font:SetText(" ");
         return;
     end
     
-    local text  = this.text;
-    local htext = this.text;
-    for var, bol in pairs(this.vars) do
-        text  = DHUD_variables[var].func(text,this.unit);
+    local text  = frame.text;
+    local htext = frame.text;
+    for var, bol in pairs(frame.vars) do
+        text  = DHUD_variables[var].func(text,frame.unit);
         htext = self:gsub(htext, var, DHUD_variables[var].hideval);
     end
 
@@ -1051,7 +1054,7 @@ function DHUD:doText(name)
     local frame = getglobal(name);
     local w = font:GetStringWidth() + 10;
     font:SetWidth(w);
-    frame:SetWidth(w);  
+    frame:SetWidth(w); 
 end
                     
 -- trigger all textevents
@@ -1070,17 +1073,17 @@ end
 
 -- fake text event
 function DHUD:triggerTextEvent(p)
-    this.unit = getglobal(p).unit;
-    this.vars = getglobal(p).vars;
-    this.text = getglobal(p).text;
+    --frame.unit = getglobal(p).unit;
+    --frame.vars = getglobal(p).vars;
+    --frame.text = getglobal(p).text;
     self:doText(p);
 end
 
 -- OnUpdate --
-function DHUD:OnUpdate()    
+function DHUD:OnUpdate(elapsed)    
     
 	-- update speed
-    self.update_elapsed = self.update_elapsed + arg1;
+    self.update_elapsed = self.update_elapsed + elapsed;
     if self.update_elapsed < 0.3 then
         self.update_elapsed = 0;
         return;
@@ -1106,17 +1109,19 @@ function DHUD:OnUpdate()
         end
     end
 
+	
 	-- castingbar
     if DHUD_Settings["castingbar"] == 1 then
+		local frame = getglobal("DHUD_Casting_Bar");
         -- casting
-        if this.casting then
+        if frame.casting then
             local time = GetTime();
-            if (time > this.maxValue) then
-                time = this.maxValue
+            if (time > frame.maxValue) then
+                time = frame.maxValue
             end
             
             DHUD_Flash_Bar:Hide();
-            local v = (time - this.startTime) / (this.maxValue - this.startTime);
+            local v = (time - frame.startTime) / (frame.maxValue - frame.startTime);
             
             if DHUD_Settings["reversecasting"] == 1 then
                 self:SetBarHeight("DHUD_Casting_Bar", 1-v );
@@ -1126,56 +1131,56 @@ function DHUD:OnUpdate()
                 DHUD_Casting_Bar_Texture:SetVertexColor(self:Colorize("castbar",v));       
             end
             
-            self.casting_time_del = string.format( "-%.1f", this.delay );
-            self.casting_time_rev = string.format( "%.1f", this.maxValue - time );
-            self.casting_time     = string.format( "%.1f", (time + this.delay) - this.startTime );
+            self.casting_time_del = string.format( "-%.1f", frame.delay );
+            self.casting_time_rev = string.format( "%.1f", frame.maxValue - time );
+            self.casting_time     = string.format( "%.1f", (time + frame.delay) - frame.startTime );
             self:triggerTextEvent("DHUD_Casttime_Text");
             self:triggerTextEvent("DHUD_Castdelay_Text");
                         
         -- channeling
-        elseif this.channeling then
+        elseif frame.channeling then
             local time = GetTime();
-            if (time > this.endTime) then
-                time = this.endTime
+            if (time > frame.endTime) then
+                time = frame.endTime
             end
             
-            local barValue = this.startTime + (this.endTime - time);
-            local sparkPosition = (barValue - this.startTime) / (this.endTime - this.startTime);
+            local barValue = frame.startTime + (frame.endTime - time);
+            local sparkPosition = (barValue - frame.startTime) / (frame.endTime - frame.startTime);
             DHUD_Flash_Bar:Hide();
             
             self:SetBarHeight("DHUD_Casting_Bar", sparkPosition );
-            DHUD_Casting_Bar_Texture:SetVertexColor(self:Colorize("channelbar",(barValue - this.startTime) / (this.endTime - this.startTime)));
+            DHUD_Casting_Bar_Texture:SetVertexColor(self:Colorize("channelbar",(barValue - frame.startTime) / (frame.endTime - frame.startTime)));
 
-            self.casting_time_del = string.format( "+%.1f", this.delay );
-            self.casting_time     = string.format( " %.1f", (time + this.delay) - this.startTime );
-            self.casting_time_rev = string.format( "%.1f", this.duration -((time + this.delay) - this.startTime) );
+            self.casting_time_del = string.format( "+%.1f", frame.delay );
+            self.casting_time     = string.format( " %.1f", (time + frame.delay) - frame.startTime );
+            self.casting_time_rev = string.format( "%.1f", frame.duration -((time + frame.delay) - frame.startTime) );
             self:triggerTextEvent("DHUD_Casttime_Text");
             self:triggerTextEvent("DHUD_Castdelay_Text");
             
-            if (time == this.endTime) then
-                this.channeling = nil;
-                this.casting    = nil;
-                this.fadeOut    = 1;
-                this.flash      = nil;
+            if (time == frame.endTime) then
+                frame.channeling = nil;
+                frame.casting    = nil;
+                frame.fadeOut    = 1;
+                frame.flash      = nil;
                 self.Casting    = nil;  
                 self:SetBarHeight("DHUD_Casting_Bar", 0 );
                 self:updateAlpha();
             end
         -- hold
-        elseif this.holdTime and GetTime() < this.holdTime then
+        elseif frame.holdTime and GetTime() < frame.holdTime then
     
         -- flash
-        elseif this.flash then
+        elseif frame.flash then
             local alpha = DHUD_Flash_Bar:GetAlpha() + CASTING_BAR_FLASH_STEP;
             if alpha < 1 and DHUD_Settings["reversecasting"] == 0 then
                 DHUD_Flash_Bar:SetAlpha(alpha);
             else
-                this.flash = nil;
+                frame.flash = nil;
                 DHUD_Flash_Bar:SetAlpha(0);
                 DHUD_Flash_Bar:Hide();
             end
         -- fade
-        elseif this.fadeOut then
+        elseif frame.fadeOut then
 			local alpha = DHUD_Casting_Bar:GetAlpha() - CASTING_BAR_ALPHA_STEP;
             if alpha > 0 and DHUD_Settings["reversecasting"] == 0 then
                 DHUD_Casting_Bar:SetAlpha(alpha);
@@ -1186,7 +1191,7 @@ function DHUD:OnUpdate()
 					DHUD_CB_Text:SetAlpha(alpha);
 				end
             else
-                this.fadeOut = nil;
+                frame.fadeOut = nil;
                 DHUD_Casting_Bar:Hide();
                 DHUD_Casting_Bar:SetAlpha(0);
                 self.Casting = nil;
@@ -1210,15 +1215,16 @@ function DHUD:OnUpdate()
 	
 	    -- MADCAT enemy castingbar
     if DHUD_Settings["enemycastingbar"] == 1 then
+		local frame = getglobal("DHUD_EnemyCasting_Bar");
         -- casting
-        if this.enemycasting then
+        if frame.enemycasting then
             local enemytime = GetTime();
-            if (enemytime > this.enemymaxValue) then
-                enemytime = this.enemymaxValue
+            if (enemytime > frame.enemymaxValue) then
+                enemytime = frame.enemymaxValue
             end
             
             DHUD_EnemyFlash_Bar:Hide();
-            local v = (enemytime - this.enemystartTime) / (this.enemymaxValue - this.enemystartTime);
+            local v = (enemytime - frame.enemystartTime) / (frame.enemymaxValue - frame.enemystartTime);
             
             if DHUD_Settings["reversecasting"] == 1 then
                 self:SetBarHeight("DHUD_EnemyCasting_Bar", 1-v );
@@ -1228,56 +1234,56 @@ function DHUD:OnUpdate()
                 DHUD_EnemyCasting_Bar_Texture:SetVertexColor(self:Colorize("castbar",v));       
             end
             
-            self.enemycasting_time_del = string.format( "-%.1f", this.enemydelay );
-            self.enemycasting_time_rev = string.format( "%.1f", this.enemymaxValue - enemytime );
-            self.enemycasting_time     = string.format( "%.1f", (enemytime + this.enemydelay) - this.enemystartTime );
+            self.enemycasting_time_del = string.format( "-%.1f", frame.enemydelay );
+            self.enemycasting_time_rev = string.format( "%.1f", frame.enemymaxValue - enemytime );
+            self.enemycasting_time     = string.format( "%.1f", (enemytime + frame.enemydelay) - frame.enemystartTime );
             self:triggerTextEvent("DHUD_EnemyCasttime_Text");
             self:triggerTextEvent("DHUD_EnemyCastdelay_Text");
                         
         -- channeling
-        elseif this.enemychanneling then
+        elseif frame.enemychanneling then
             local enemytime = GetTime();
-            if (enemytime > this.enemyendTime) then
-                enemytime = this.enemyendTime
+            if (enemytime > frame.enemyendTime) then
+                enemytime = frame.enemyendTime
             end
             
-            local enemybarValue = this.enemystartTime + (this.enemyendTime - enemytime);
-            local enemysparkPosition = (enemybarValue - this.enemystartTime) / (this.enemyendTime - this.enemystartTime);
+            local enemybarValue = frame.enemystartTime + (frame.enemyendTime - enemytime);
+            local enemysparkPosition = (enemybarValue - frame.enemystartTime) / (frame.enemyendTime - frame.enemystartTime);
             DHUD_EnemyFlash_Bar:Hide();
             
             self:SetBarHeight("DHUD_EnemyCasting_Bar", enemysparkPosition );
-            DHUD_EnemyCasting_Bar_Texture:SetVertexColor(self:Colorize("channelbar",(enemybarValue - this.enemystartTime) / (this.enemyendTime - this.enemystartTime)));
+            DHUD_EnemyCasting_Bar_Texture:SetVertexColor(self:Colorize("channelbar",(enemybarValue - frame.enemystartTime) / (frame.enemyendTime - frame.enemystartTime)));
 
-            self.enemycasting_time_del = string.format( "+%.1f", this.enemydelay );
-            self.enemycasting_time     = string.format( " %.1f", (enemytime + this.enemydelay) - this.enemystartTime );
-            self.enemycasting_time_rev = string.format( "%.1f", this.enemyduration -((enemytime + this.enemydelay) - this.enemystartTime) );
+            self.enemycasting_time_del = string.format( "+%.1f", frame.enemydelay );
+            self.enemycasting_time     = string.format( " %.1f", (enemytime + frame.enemydelay) - frame.enemystartTime );
+            self.enemycasting_time_rev = string.format( "%.1f", frame.enemyduration -((enemytime + frame.enemydelay) - frame.enemystartTime) );
             self:triggerTextEvent("DHUD_EnemyCasttime_Text");
             self:triggerTextEvent("DHUD_EnemyCastdelay_Text");
             
-            if (enemytime == this.enemyendTime) then
-                this.enemychanneling = nil;
-                this.enemycasting    = nil;
-                this.enemyfadeOut    = 1;
-                this.enemyflash      = nil;
+            if (enemytime == frame.enemyendTime) then
+                frame.enemychanneling = nil;
+                frame.enemycasting    = nil;
+                frame.enemyfadeOut    = 1;
+                frame.enemyflash      = nil;
                 self.mcenemycasting    = nil;  
                 self:SetBarHeight("DHUD_EnemyCasting_Bar", 0 );
                 self:updateAlpha();
             end
         -- hold
-        elseif this.enemyholdTime and GetTime() < this.enemyholdTime then
+        elseif frame.enemyholdTime and GetTime() < frame.enemyholdTime then
     
         -- flash
-        elseif this.enemyflash then
+        elseif frame.enemyflash then
             local enemyalpha = DHUD_EnemyFlash_Bar:GetAlpha() + CASTING_BAR_FLASH_STEP;
             if enemyalpha < 1 and DHUD_Settings["reversecasting"] == 0 then
                 DHUD_EnemyFlash_Bar:SetAlpha(enemyalpha);
             else
-                this.enemyflash = nil;
+                frame.enemyflash = nil;
                 DHUD_EnemyFlash_Bar:SetAlpha(0);
                 DHUD_EnemyFlash_Bar:Hide();
             end
         -- fade
-        elseif this.enemyfadeOut then
+        elseif frame.enemyfadeOut then
 			local enemyalpha = DHUD_EnemyCasting_Bar:GetAlpha() - CASTING_BAR_ALPHA_STEP;
 			--self:print("enemyalpha: ".. enemyalpha);
             if enemyalpha > 0 and DHUD_Settings["reversecasting"] == 0 then
@@ -1287,7 +1293,7 @@ function DHUD:OnUpdate()
 				DHUD_EnemyCB_Texture:SetAlpha(enemyalpha);
 				DHUD_EnemyCB_Text:SetAlpha(enemyalpha);
             else
-                this.enemyfadeOut = nil;
+                frame.enemyfadeOut = nil;
                 DHUD_EnemyCasting_Bar:Hide();
                 DHUD_EnemyCasting_Bar:SetAlpha(0);
                 self.mcenemycasting = nil;
@@ -1707,7 +1713,8 @@ function DHUD:init()
 	
 	
     -- init castbar
-    this.endTime = 0;
+	local frame = getglobal("DHUD_Casting_Bar");
+    frame.endTime = 0;
     
     -- pos frames
     self:PositionFrame("DHUD_Main");
@@ -1790,15 +1797,16 @@ function DHUD:TargetChanged()
     end
     
 	 if DHUD_Settings["enemycastingbar"] == 1 then
+		local frame = getglobal("DHUD_EnemyCasting_Bar");
 		--Remove Enemy CastBar if target Changed
-		if (DHUD_EnemyCasting_Bar:IsShown() and not this.enemyfadeOut ) then
+		if (DHUD_EnemyCasting_Bar:IsShown() and not(frame.enemyfadeOut) ) then
 	                DHUD_EnemyCasting_Bar_Texture:SetVertexColor(1, 0, 0);
 	                self:SetBarHeight("DHUD_EnemyCasting_Bar",1);
-	                this.enemycasting    = nil;
-	                this.enemychanneling = nil;
-	                this.enemyfadeOut    = 1;
-	                this.enemyflash      = nil;
-	                this.enemyholdTime = GetTime();
+	                frame.enemycasting    = nil;
+	                frame.enemychanneling = nil;
+	                frame.enemyfadeOut    = 1;
+	                frame.enemyflash      = nil;
+	                frame.enemyholdTime = GetTime();
 	                DHUD_EnemyFlash_Bar:Hide();
 	                DHUD_EnemyFlash_Bar:SetAlpha(0);
 					self:SetBarHeight("DHUD_EnemyCasting_Bar", 0 );
@@ -2027,14 +2035,14 @@ function DHUD:transform(name)
         ref:SetFrameLevel(self.frame_level);
         ref:SetParent(frame);
         
-        ref:SetScript("OnEnter", function() 
-                if (not this:IsVisible()) then return; end
+        ref:SetScript("OnEnter", function(frame) 
+                if (not frame:IsVisible()) then return; end
                 if DHUD_Settings["showauratips"] == 0 then return; end
-                GameTooltip:SetOwner(this, "ANCHOR_BOTTOMRIGHT");
-                if this.hasdebuff == 1 then
-                    GameTooltip:SetUnitDebuff(this.unit, this.id);
+                GameTooltip:SetOwner(frame, "ANCHOR_BOTTOMRIGHT");
+                if frame.hasdebuff == 1 then
+                    GameTooltip:SetUnitDebuff(frame.unit, frame.id);
                 else
-                    GameTooltip:SetUnitBuff(this.unit, this.id);
+                    GameTooltip:SetUnitBuff(frame.unit, frame.id);
                 end
             end );
  
@@ -2075,11 +2083,11 @@ function DHUD:transform(name)
         ref:SetFrameLevel(self.frame_level);
         ref:SetParent(frame);
         
-        ref:SetScript("OnEnter", function() 
-                if (not this:IsVisible()) then return; end
+        ref:SetScript("OnEnter", function(frame) 
+                if (not frame:IsVisible()) then return; end
                 if DHUD_Settings["showauratips"] == 0 then return; end
-                GameTooltip:SetOwner(this, "ANCHOR_BOTTOMRIGHT");
-                GameTooltip:SetUnitBuff("player",this.id);
+                GameTooltip:SetOwner(frame, "ANCHOR_BOTTOMRIGHT");
+                GameTooltip:SetUnitBuff("player",frame.id);
             end );
  
          ref:SetScript("OnLeave", function() 
@@ -2189,7 +2197,29 @@ function DHUD:createFrame(name)
         ref:SetFrameLevel(self.frame_level);
         ref:SetParent(frame);
         ref:EnableMouse(false);
-        ref:Show();            
+        ref:Show();
+		
+		if (name == "DHUD_Casting_Bar") then
+			ref.startTime  = 0;
+            ref.maxValue   = 0;
+            ref.holdTime   = 0;
+            ref.casting    = nil;
+            ref.delay      = 0;
+            ref.channeling = nil;
+            ref.fadeOut    = nil;
+            ref.flash      = nil;
+            ref.duration   = 0;
+		elseif (name == "DHUD_EnemyCasting_Bar") then
+			ref.enemystartTime  = 0;
+            ref.enemymaxValue   = 0;
+            ref.enemyholdTime   = 0;
+            ref.enemycasting    = nul;
+            ref.enemydelay      = 0;
+            ref.enemychanneling = nil;
+            ref.enemyfadeOut    = nil;
+            ref.enemyflash      = nil;
+            ref.enemyduration   = 0;
+		end
     -- set text
     elseif typ == "Text" then
         ref = CreateFrame("Button", name, getglobal(frame));
@@ -2275,14 +2305,14 @@ function DHUD:createFrame(name)
         ref:SetParent(frame);
         
 
-        ref:SetScript("OnEnter", function() 
-                if (not this:IsVisible()) then return; end
+        ref:SetScript("OnEnter", function(frame) 
+                if (not frame:IsVisible()) then return; end
                 if DHUD_Settings["showauratips"] == 0 then return; end
-                GameTooltip:SetOwner(this, "ANCHOR_BOTTOMRIGHT");
-                if this.hasdebuff == 1 then
-                    GameTooltip:SetUnitDebuff(this.unit, this.id);
+                GameTooltip:SetOwner(frame, "ANCHOR_BOTTOMRIGHT");
+                if frame.hasdebuff == 1 then
+                    GameTooltip:SetUnitDebuff(frame.unit, frame.id);
                 else
-                    GameTooltip:SetUnitBuff(this.unit, this.id);
+                    GameTooltip:SetUnitBuff(frame.unit, frame.id);
                 end
             end );
 
@@ -2334,11 +2364,11 @@ function DHUD:createFrame(name)
         --ref:SetFrameLevel(self.frame_level);
         ref:SetParent(frame);
         
-        ref:SetScript("OnEnter", function() 
-                if (not this:IsVisible()) then return; end
+        ref:SetScript("OnEnter", function(frame) 
+                if (not frame:IsVisible()) then return; end
                 if DHUD_Settings["showauratips"] == 0 then return; end
-                GameTooltip:SetOwner(this, "ANCHOR_BOTTOMRIGHT");
-                GameTooltip:SetUnitBuff("player",this.id);
+                GameTooltip:SetOwner(frame, "ANCHOR_BOTTOMRIGHT");
+                GameTooltip:SetUnitBuff("player",frame.id);
             end );
  
          ref:SetScript("OnLeave", function() 
@@ -2756,13 +2786,12 @@ function DHUD:MCUpdatePlayerEnergy()
     -- if (time - lasttime >= 0.1) then
     -- Lasttime = Current time
     -- lasttime = time;
-    this.unit = getglobal("DHUD_PlayerMana_Text").unit;
-    this.vars = getglobal("DHUD_PlayerMana_Text").vars;
-    this.text = getglobal("DHUD_PlayerMana_Text").text;
+    
+	local frame = getglobal("DHUD_PlayerMana_Text");
     
     local font = getglobal("DHUD_PlayerMana_Text".."_Text");
     
-    local text  = this.text;
+    local text  = frame.text;
     -- mcplenergy = mcplenergy + 1;
 	local mcplenergy = 0;
 	local maxplenergytmp = 0;
@@ -2797,7 +2826,7 @@ function DHUD:MCUpdatePlayerEnergy()
     
     -- Set text
     value = math.floor(value * 100);
-    local typunit = DHUD:getTypUnit(this.unit,"mana");
+    local typunit = DHUD:getTypUnit(frame.unit,"mana");
     local color = DHUD_DecToHex(DHUD:Colorize(typunit,100));
     text = DHUD:gsub(text, '<color_mp>', "|cff"..color);
     text = DHUD:gsub(text, '<mp_value>', mcplenergy);
@@ -2816,14 +2845,11 @@ function DHUD:MCUpdatePlayerEnergy()
 end
 
 -- ######MADCAT: UpdatePetEnergy smoothly
-function DHUD:MCUpdatePetEnergy()
-    this.unit = getglobal("DHUD_PetMana_Text").unit;
-    this.vars = getglobal("DHUD_PetMana_Text").vars;
-    this.text = getglobal("DHUD_PetMana_Text").text;
-    
+function DHUD:MCUpdatePetEnergy()    
+	local frame = getglobal("DHUD_PetMana_Text");
     local font = getglobal("DHUD_PetMana_Text".."_Text");
     
-    local text  = this.text;
+    local text  = frame.text;
 	
 	local mcpetenergy = 0;
 	local maxpetenergytmp = 0;
@@ -2857,7 +2883,7 @@ function DHUD:MCUpdatePetEnergy()
     
     -- Set text
     value = math.floor(value * 100);
-    local typunit = DHUD:getTypUnit(this.unit,"mana");
+    local typunit = DHUD:getTypUnit(frame.unit,"mana");
     local color = DHUD_DecToHex(DHUD:Colorize(typunit,100));
     text = DHUD:gsub(text, '<color_mp>', "|cff"..color);
     text = DHUD:gsub(text, '<mp_value>', mcpetenergy);
@@ -3644,13 +3670,13 @@ function DHUD_Target_DropDown_Initialize()
     end
     
     if menu then
-        UnitPopup_ShowMenu( DHUD_Target_DropDown, menu, "target" );
+        --UnitPopup_ShowMenu( DHUD_Target_DropDown, menu, "target" );
     end
 end
 
 -- player dropdown
 function DHUD_Player_DropDown_Initialize()
-    UnitPopup_ShowMenu( DHUD_Player_DropDown, "SELF", "player" );
+    --UnitPopup_ShowMenu( DHUD_Player_DropDown, "SELF", "player" );
 end
 
 -- print Debug --

@@ -3,7 +3,7 @@ DHUDDROPDOWNSELECTED = "";
 
 --Ace3 Profile Support
 local AppName = "DHUDO"
-local VERSION = AppName .. "v 1.5.30200a"
+local VERSION = AppName .. "v 1.5.40000a"
 
 local AceConfig = LibStub("AceConfig-3.0")
 local AceDBOptions = LibStub("AceDBOptions-3.0")

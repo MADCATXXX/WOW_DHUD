@@ -10,3 +10,11 @@ TODO(revision12-15):
 \/ : Show target Guild in <> - Already done.
 \/ : Show player debuffs along with buffs
 \/ : blizz combopoint hide
+TODO(revision18+):
+X  : Hide blizz DK Runes on hiding players frame.
+X  : Add option to hide party frame.
+X  : Add option to show shaman's totems similiar to rogue combopoints.
+X  : Edit info on the addon web-page.
+X  : Option to hide combo-points.
+X  : Decrease addon CPU usage.
+X  : Check layout option to work after multiply relogs.

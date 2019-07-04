@@ -1,3 +1,14 @@
+changelog 1.5.40000a MADCAT revision19:
+-updated addon to work with Cataclysm
+-minimap icon and options are currently not working
+
+changelog 1.5.30300a MADCAT revision18:
+-update TOC file and TODO list for Cataclysm
+
+Changelog 1.5.30200a MADCAT Revision17:
+-fixed GetDifficultyColor(level); error. 
+-updated TOC file.
+
 changelog 1.5.30100c MADCAT revision16:
 -fixed SetTexCoord() error. Maximum Unit Health can be 0 in blizzard's opinion :)
 
