@@ -1,11 +1,16 @@
 ## Interface: 40000
-## Title: Drathals HUD [|cffffffffv1.5.40000d|r]
+## Title: Drathals HUD [|cffffffffv1.5.40000e|r]
 ## Author: MADCAT, Markus Inger (Drathal/Silberklinge), Howie (Caeryn)
-## Version: v1.5.40000d
+## Version: v1.5.40000e
 ## Notes: Drathals HUD. 
 ## SavedVariables: DHUDODB3
 ## SavedVariablesPerCharacter: DHUD_Settings
-## OptionalDeps: myAddOns, DruidBar
+## OptionalDeps: myAddOns
+## X-Curse-Packaged-Version: DHUDv1540000e
+## X-Curse-Project-Name: DHUD for 4.0
+## X-Curse-Project-ID: dhud-3_0
+## X-Curse-Repository-ID: wow/dhud-3_0/mainline
+
 localization.lua
 MyMinimapButton.lua
 layout\DHUD_Layout.lua

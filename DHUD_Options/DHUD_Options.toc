@@ -1,11 +1,19 @@
 ## Interface: 40000
-## Title: Drathals HUD Options [|cffffffffv1.5.40000d|r]
+## Title: Drathals HUD Options [|cffffffffv1.5.40000e|r]
 ## Author: MADCAT, Markus Inger (Drathal/Silberklinge), Howie (Caeryn)
-## Version: v1.5.40000d
+## Version: v1.5.40000e
 ## Notes: Drathals HUD Options.
 ## Dependencies: DHUD
 ## LoadOnDemand: 1
+## X-Curse-Packaged-Version: DHUDv1540000e
+## X-Curse-Project-Name: DHUD for 4.0
+## X-Curse-Project-ID: dhud-3_0
+## X-Curse-Repository-ID: wow/dhud-3_0/mainline
+
+#@no-lib-strip@
 embeds.xml
+#@end-no-lib-strip@
+
 localization.lua
 ..\..\FrameXML\Fonts.xml
 ..\..\FrameXML\UIDropDownMenuTemplates.xml

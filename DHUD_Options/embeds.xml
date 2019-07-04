@@ -16,6 +16,5 @@
 <Include file="libs\AceComm-3.0\AceComm-3.0.xml"/>
 <Include file="libs\AceTab-3.0\AceTab-3.0.xml"/>
 <Include file="libs\AceSerializer-3.0\AceSerializer-3.0.xml"/>
-<Script file="libs\Ace3.lua"/>
 
 </Ui>
