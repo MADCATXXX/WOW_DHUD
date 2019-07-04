@@ -1,0 +1,77 @@
+;This file was created by Graph (http://www.padowan.dk)
+;Do not change this file from other programs.
+[Graph]
+Version = 4.4.2.543
+MinVersion = 2.5
+OS = Windows NT 6.2 
+
+[Axes]
+xMin = 34.5289701758921
+xMax = 35.8211865537375
+xTickUnit = 0.2
+xGridUnit = 0.2
+yMin = -117.77099741854
+yMax = -116.478781040695
+yTickUnit = 0.2
+yGridUnit = 0.2
+AxesColor = clBlue
+GridColor = 0x00FF9999
+ShowLegend = 1
+Radian = 1
+
+[PointSeries1]
+FillColor = clRed
+LineColor = clBlue
+Size = 5
+Style = 0
+LineStyle = 0
+Interpolation = 1
+LabelPosition = 1
+PointCount = 5
+Points = 35,128-9;50,128-61;56,0;51,128-188;35,128-245;
+LegendText = Series 1
+
+[Func1]
+FuncType = 1
+x = 140 * cos(t)-84
+y = 222 * sin(t)
+From = -10
+To = 10
+Steps = 1000
+Color = clRed
+
+[Func2]
+FuncType = 1
+x = 200 * cos(t) - 144
+y = 262 * sin(t)
+From = -10
+To = 10
+Steps = 1000
+Color = clLime
+
+[Func3]
+FuncType = 1
+x = 300 * cos(t) - 244
+y = 320 * sin(t)
+From = -10
+To = 10
+Steps = 1000
+Color = clBlue
+
+[Func4]
+FuncType = 1
+x = 336 * cos(t) - 280
+y = 336 * sin(t)
+From = -10
+To = 10
+Steps = 1000
+Color = clFuchsia
+
+[Data]
+TextLabelCount = 0
+FuncCount = 4
+PointSeriesCount = 1
+ShadeCount = 0
+RelationCount = 0
+OleObjectCount = 0
+

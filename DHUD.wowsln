@@ -1,0 +1,21 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# WowAddOnStudio Solution File, Format Version 11.00
+Project("{E6E1D386-69D8-4755-9E61-0950293915FC}") = "DHUD", "DHUD\DHUD.wowproj", "{2B4A5EE3-D838-4DA5-92E1-19E026AE268C}"
+EndProject
+Project("{E6E1D386-69D8-4755-9E61-0950293915FC}") = "DHUD_Options", "DHUD_Options\DHUD_Options.wowproj", "{BDEE3F9C-3F5B-489F-B70E-E0F39F67EF0E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Default|Any CPU = Default|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2B4A5EE3-D838-4DA5-92E1-19E026AE268C}.Default|Any CPU.ActiveCfg = Default|Any CPU
+		{2B4A5EE3-D838-4DA5-92E1-19E026AE268C}.Default|Any CPU.Build.0 = Default|Any CPU
+		{BDEE3F9C-3F5B-489F-B70E-E0F39F67EF0E}.Default|Any CPU.ActiveCfg = Default|Any CPU
+		{BDEE3F9C-3F5B-489F-B70E-E0F39F67EF0E}.Default|Any CPU.Build.0 = Default|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
