@@ -4,7 +4,7 @@ DHUD modification for WotLK and Cataclysm by MADCAT
 -----------------------------------------------------------------------------------]]--
 
 -- Init Vars --
-DHUD_VERSION    = "Version: 1.5.50000b";
+DHUD_VERSION    = "Version: 1.5.50000c";
 DHUD_TEXT_EMPTY = "";
 DHUD_TEXT_HP2   = "<color_hp><hp_value></color>";
 DHUD_TEXT_HP3   = "<color_hp><hp_value></color>/<hp_max>";
@@ -3140,59 +3140,45 @@ function DHUD:MCPallyHollyPower()
 	if (not self.mcinvehicle or self.mcinvehicle == 0) then
 		points = UnitPower("player", 9);
 	else
-		if (self.mccpmoved == 1) then
-			local point, frame, relative, x, y = DHUD_Combo4:GetPoint();
-			local epoint, eframe, erelative, ex, ey = DHUD_Combo2:GetPoint();
-			DHUD_Combo4:SetPoint(epoint, eframe, erelative, ex, ey);
-			DHUD_Combo2:SetPoint(point, frame, relative, x, y);
-			point, frame, relative, x, y = DHUD_Combo5:GetPoint();
-			epoint, eframe, erelative, ex, ey = DHUD_Combo3:GetPoint();
-			DHUD_Combo5:SetPoint(epoint, eframe, erelative, ex, ey);
-			DHUD_Combo3:SetPoint(point, frame, relative, x, y);
-			self.mccpmoved = 0;
-		end
 		return;
 	end
-	if points == 0 then
+	if points == 0 then 
         DHUD_Combo1:Hide();
         DHUD_Combo2:Hide();
         DHUD_Combo3:Hide();
         DHUD_Combo4:Hide();
         DHUD_Combo5:Hide();
-    else
-		-- exchange combo point position, so red, yellow and green points are placed nearby
-		if (self.mccpmoved == 0) then
-			local point, frame, relative, x, y = DHUD_Combo4:GetPoint();
-			local epoint, eframe, erelative, ex, ey = DHUD_Combo2:GetPoint();
-			DHUD_Combo4:SetPoint(epoint, eframe, erelative, ex, ey);
-			DHUD_Combo2:SetPoint(point, frame, relative, x, y);
-			point, frame, relative, x, y = DHUD_Combo5:GetPoint();
-			epoint, eframe, erelative, ex, ey = DHUD_Combo3:GetPoint();
-			DHUD_Combo5:SetPoint(epoint, eframe, erelative, ex, ey);
-			DHUD_Combo3:SetPoint(point, frame, relative, x, y);
-			self.mccpmoved = 1;
-			
-		end
-		if points == 1 then
-			DHUD_Combo1:Show();
-			DHUD_Combo2:Hide();
-			DHUD_Combo3:Hide();
-			DHUD_Combo4:Hide();
-			DHUD_Combo5:Hide();       
-		elseif points == 2 then
-			DHUD_Combo1:Show();
-			DHUD_Combo2:Hide();
-			DHUD_Combo3:Hide();
-			DHUD_Combo4:Show();
-			DHUD_Combo5:Hide();        
-		elseif points == 3 then
-			DHUD_Combo1:Show();
-			DHUD_Combo2:Hide();
-			DHUD_Combo3:Hide();
-			DHUD_Combo4:Show();
-			DHUD_Combo5:Show();
-		end
-	end
+    elseif points == 1 then
+        DHUD_Combo1:Show();
+        DHUD_Combo2:Hide();
+        DHUD_Combo3:Hide();
+        DHUD_Combo4:Hide();
+        DHUD_Combo5:Hide();       
+    elseif points == 2 then
+        DHUD_Combo1:Show();
+        DHUD_Combo2:Show();
+        DHUD_Combo3:Hide();
+        DHUD_Combo4:Hide();
+        DHUD_Combo5:Hide();        
+    elseif points == 3 then
+        DHUD_Combo1:Show();
+        DHUD_Combo2:Show();
+        DHUD_Combo3:Show();
+        DHUD_Combo4:Hide();
+        DHUD_Combo5:Hide();        
+    elseif points == 4 then
+        DHUD_Combo1:Show();
+        DHUD_Combo2:Show();
+        DHUD_Combo3:Show();
+        DHUD_Combo4:Show();
+        DHUD_Combo5:Hide();        
+    elseif points == 5 then
+        DHUD_Combo1:Show();
+        DHUD_Combo2:Show();
+        DHUD_Combo3:Show();
+        DHUD_Combo4:Show();
+        DHUD_Combo5:Show();       
+    end
 end
 
 -- ######MADCAT: Warlock Shards
