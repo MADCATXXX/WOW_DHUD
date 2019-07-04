@@ -3,7 +3,7 @@ DHUDDROPDOWNSELECTED = "";
 
 --Ace3 Profile Support
 local AppName = "DHUDO"
-local VERSION = AppName .. "v 1.5.40000g"
+local VERSION = AppName .. "v 1.5.40100a"
 
 local AceConfig = LibStub("AceConfig-3.0")
 local AceDBOptions = LibStub("AceDBOptions-3.0")
@@ -404,18 +404,32 @@ function DHUD_RadioButton_OnClick(index)
 	DHUD_RADIO_layout2:SetChecked(nil);
 	DHUD_RADIO_layout3:SetChecked(nil);
 	DHUD_RADIO_layout4:SetChecked(nil);
+	DHUD_RADIO_layout5:SetChecked(nil);
+	DHUD_RADIO_layout6:SetChecked(nil);
 	if index == 1 then
 		DHUD_RADIO_layout1:SetChecked(1);
+		db["layouttyp"] = "DHUD_Standard_Layout";
 		DHUD:transformFrames("DHUD_Standard_Layout");
 	elseif index == 2 then
 		DHUD_RADIO_layout2:SetChecked(1);
+		db["layouttyp"] = "DHUD_PlayerLeft_Layout";
 		DHUD:transformFrames("DHUD_PlayerLeft_Layout");
 	elseif index == 3 then
 		DHUD_RADIO_layout3:SetChecked(1);
+		db["layouttyp"] = "DHUD_StandardMirror_Layout";
 		DHUD:transformFrames("DHUD_StandardMirror_Layout");
 	elseif index == 4 then
 		DHUD_RADIO_layout4:SetChecked(1);
+		db["layouttyp"] = "DHUD_PlayerLeftMirror_Layout";
 		DHUD:transformFrames("DHUD_PlayerLeftMirror_Layout");
+	elseif index == 5 then
+		DHUD_RADIO_layout5:SetChecked(1);
+		db["layouttyp"] = "DHUD_StandardPTD_Layout";
+		DHUD:transformFrames("DHUD_StandardPTD_Layout");
+	elseif index == 6 then
+		DHUD_RADIO_layout6:SetChecked(1);
+		db["layouttyp"] = "DHUD_PlayerLeftPTD_Layout";
+		DHUD:transformFrames("DHUD_PlayerLeftPTD_Layout");
 	end
 end
 
@@ -437,6 +451,7 @@ function DHUD_RadioTextureButton_OnClick(index)
 		DHUD_RADIO_texture5:SetChecked(1);
 	end
 	DHUD:SetConfig( "textureset", index );
+	db["textureset"] = index;
 	DHUD:transformFrames(DHUD_Settings["layouttyp"]);
 end
 

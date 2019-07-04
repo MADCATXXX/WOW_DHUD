@@ -1,5 +1,5 @@
-## Interface: 40000
-## X-Curse-Packaged-Version: Release-r971
+## Interface: 40100
+## X-Curse-Packaged-Version: Release-r1025
 ## X-Curse-Project-Name: Ace3
 ## X-Curse-Project-ID: ace3
 ## X-Curse-Repository-ID: wow/ace3/mainline

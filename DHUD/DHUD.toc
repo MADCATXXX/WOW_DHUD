@@ -1,12 +1,12 @@
-## Interface: 40000
+## Interface: 40100
 ## Title: Drathals HUD
 ## Author: MADCAT, Markus Inger (Drathal/Silberklinge), Howie (Caeryn)
-## Version: v1.5.40000g
+## Version: v1.5.40100a
 ## Notes: Drathals HUD. 
 ## SavedVariables: DHUDODB3
 ## SavedVariablesPerCharacter: DHUD_Settings
 ## OptionalDeps: myAddOns
-## X-Curse-Packaged-Version: DHUDv1540000g
+## X-Curse-Packaged-Version: DHUDv1540100a
 ## X-Curse-Project-Name: DHUD for 4.0
 ## X-Curse-Project-ID: dhud-3_0
 ## X-Curse-Repository-ID: wow/dhud-3_0/mainline
@@ -17,6 +17,8 @@ layout\DHUD_Layout.lua
 layout\DHUD_Layout_2.lua
 layout\DHUD_Layout_3.lua
 layout\DHUD_Layout_4.lua
+layout\DHUD_Layout_5.lua
+layout\DHUD_Layout_6.lua
 DHUD_Commands.lua
 DHUD_Vars.lua
 DHUD_Misc.lua

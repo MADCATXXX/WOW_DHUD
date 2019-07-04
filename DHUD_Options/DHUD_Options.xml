@@ -1259,12 +1259,48 @@
             				<OnClick>DHUD_RadioButton_OnClick( self:GetID() )</OnClick>
             			</Scripts>
             		</CheckButton>
+					<CheckButton name="DHUD_RADIO_layout5" inherits="DHUD_RadioButtonTemplate" id="5">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_RADIO_layout4" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                            </Anchor>
+                        </Anchors>
+            			<Scripts>
+            				<OnLoad>
+            				    getglobal(self:GetName().."Text"):SetText("|cff88ff88DHUD 1 TPD|r (Target Player Debuffs Outside)");
+            				    if DHUD:GetConfig("layouttyp") == "DHUD_StandardPTD_Layout" then
+            				        DHUD_RADIO_layout5:SetChecked(1);
+            				    else
+            				        DHUD_RADIO_layout5:SetChecked(nil);
+            				    end
+            				</OnLoad>
+            				<OnClick>DHUD_RadioButton_OnClick( self:GetID() )</OnClick>
+            			</Scripts>
+            		</CheckButton>
+					<CheckButton name="DHUD_RADIO_layout6" inherits="DHUD_RadioButtonTemplate" id="6">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_RADIO_layout5" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                            </Anchor>
+                        </Anchors>
+            			<Scripts>
+            				<OnLoad>
+            				    getglobal(self:GetName().."Text"):SetText("|cff88ff88DHUD 2 TPD|r (Target Player Debuffs Outside)");
+            				    if DHUD:GetConfig("layouttyp") == "DHUD_PlayerLeftPTD_Layout" then
+            				        DHUD_RADIO_layout6:SetChecked(1);
+            				    else
+            				        DHUD_RADIO_layout6:SetChecked(nil);
+            				    end
+            				</OnLoad>
+            				<OnClick>DHUD_RadioButton_OnClick( self:GetID() )</OnClick>
+            			</Scripts>
+            		</CheckButton>
 					<!-- ................... -->
                     <!-- Header Texture      -->
                     <!-- ................... -->
 					<Frame name="DHUD_Header_textureset" inherits="DHUD_HeaderTemplate">
                         <Scripts><OnLoad>
-                                DHUDO_Header_OnLoad(self, 10,-200);
+                                DHUDO_Header_OnLoad(self, 10,-260);
                         </OnLoad></Scripts>
                     </Frame>
 					<CheckButton name="DHUD_RADIO_texture1" inherits="DHUD_RadioButtonTemplate" id="1">

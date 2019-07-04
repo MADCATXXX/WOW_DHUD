@@ -4,7 +4,7 @@ DHUD modification for WotLK and Cataclysm by MADCAT
 -----------------------------------------------------------------------------------]]--
 
 -- Init Vars --
-DHUD_VERSION    = "Version: 1.5.40000g";
+DHUD_VERSION    = "Version: 1.5.40100a";
 DHUD_TEXT_EMPTY = "";
 DHUD_TEXT_HP2   = "<color_hp><hp_value></color>";
 DHUD_TEXT_HP3   = "<color_hp><hp_value></color>/<hp_max>";
@@ -112,7 +112,7 @@ DHUD = {
     },
     
     -- powertypes
-    powertypes    = { "mana", "rage", "focus", "energy", "happiness", "runes", "runic_power" },
+    powertypes    = { "mana", "rage", "focus", "energy", "runes", "runic_power" },
                   
     -- font outlines
     Outline       = { "", "OUTLINE", "THICKOUTLINE" },
@@ -171,7 +171,7 @@ DHUD = {
 					"DHUD_EnemyCB_Texture",
 					"DHUD_CB_Texture",
                     "DHUD_TargetElite",
-                    "DHUD_PetHappy",
+                    --"DHUD_PetHappy",
 					"DHUD_Rune1",
 					"DHUD_Rune2",
 					"DHUD_Rune3",
@@ -653,10 +653,10 @@ function DHUD:OnEvent(event, arg1, arg2, arg3)
         self:UpdateValues("DHUD_PetHealth_Text", 1 );
         self:UpdateValues("DHUD_PetMana_Text", 1 );
         self:ChangeBackgroundTexture();
-        self:updatePetIcon();
+        --self:updatePetIcon();
         self:updateAlpha();
-    elseif event == "UNIT_POWER" and arg1 == "pet" then
-        self:updatePetIcon();
+    --elseif event == "UNIT_POWER" and arg1 == "pet" then
+    --    self:updatePetIcon();
 	end
 	
     if self.issetup ~= 2 then return; end
@@ -1514,7 +1514,7 @@ function DHUD:init()
     self:updateRaidIcon();
     self:updatePlayerPvP();
     self:updateTargetPvP();
-    self:updatePetIcon();
+    --self:updatePetIcon();
     
     -- set font
     DHUD_Castdelay_Text_Text:SetFont(self.defaultfont_num, DHUD_Settings["fontsizecastdelay"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["castdelayoutline"] ]);
@@ -1572,6 +1572,10 @@ function DHUD:init()
     DHUD_TargetDeBuff6_Text:SetFont( self.defaultfont, DHUD_Settings["fontsizeplayerbuff"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["playerbuffoutline"] ]);
     DHUD_TargetDeBuff7_Text:SetFont( self.defaultfont, DHUD_Settings["fontsizeplayerbuff"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["playerbuffoutline"] ]);
     DHUD_TargetDeBuff8_Text:SetFont( self.defaultfont, DHUD_Settings["fontsizeplayerbuff"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["playerbuffoutline"] ]);
+	DHUD_TargetDeBuff9_Text:SetFont( self.defaultfont, DHUD_Settings["fontsizeplayerbuff"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["playerbuffoutline"] ]);
+	DHUD_TargetDeBuff10_Text:SetFont( self.defaultfont, DHUD_Settings["fontsizeplayerbuff"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["playerbuffoutline"] ]);
+	DHUD_TargetDeBuff11_Text:SetFont( self.defaultfont, DHUD_Settings["fontsizeplayerbuff"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["playerbuffoutline"] ]);
+	DHUD_TargetDeBuff12_Text:SetFont( self.defaultfont, DHUD_Settings["fontsizeplayerbuff"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["playerbuffoutline"] ]);
       
     -- Hide Blizz Target Frame
     if DHUD_Settings["btarget"] == 0 then
@@ -1906,7 +1910,7 @@ end
 
 -- Transform Frames
 function DHUD:transformFrames(layout)
-    if layout == "DHUD_Standard_Layout" or layout == "DHUD_PlayerLeft_Layout" or layout == "DHUD_StandardMirror_Layout" or layout == "DHUD_PlayerLeftMirror_Layout" then
+    if layout == "DHUD_Standard_Layout" or layout == "DHUD_PlayerLeft_Layout" or layout == "DHUD_StandardMirror_Layout" or layout == "DHUD_PlayerLeftMirror_Layout" or layout == "DHUD_StandardPTD_Layout" or layout == "DHUD_PlayerLeftPTD_Layout" then
         self:SetConfig( "layouttyp", layout );
         self:setLayout();
     
@@ -2907,8 +2911,8 @@ function DHUD:TargetPlayerDebuff()
                 button:Show();
                 
                 -- limited number of buff slots
-                if j == 8 then
-                    self:print("You have reached the target debuff limit. Contact MADCAT and ask for more buff slots");
+                if j == 12 then
+                    self:print("You have reached the target debuff limit. Contact MADCAT and ask for more debuff slots");
                     break;
                 else
                     j = j + 1;
@@ -2919,7 +2923,7 @@ function DHUD:TargetPlayerDebuff()
     end
 
     -- hide the buttons not used
-    for j = j, 8 do
+    for j = j, 12 do
         button = _G[buffframe..j];
         button.hasdebuff = 1;
         button.unit = "target";
@@ -3722,6 +3726,10 @@ function DHUD:setAlpha(mode)
         _G["DHUD_TargetDeBuff6"]:Hide();
         _G["DHUD_TargetDeBuff7"]:Hide();
         _G["DHUD_TargetDeBuff8"]:Hide();
+		_G["DHUD_TargetDeBuff9"]:Hide();
+		_G["DHUD_TargetDeBuff10"]:Hide();
+		_G["DHUD_TargetDeBuff11"]:Hide();
+		_G["DHUD_TargetDeBuff12"]:Hide();
 		_G["DHUD_Rune1_Text"]:Hide();
 		_G["DHUD_Rune2_Text"]:Hide();
 		_G["DHUD_Rune3_Text"]:Hide();
@@ -3770,6 +3778,10 @@ function DHUD:setAlpha(mode)
         _G["DHUD_TargetDeBuff6"]:Show();
         _G["DHUD_TargetDeBuff7"]:Show();
         _G["DHUD_TargetDeBuff8"]:Show();
+		_G["DHUD_TargetDeBuff9"]:Show();
+		_G["DHUD_TargetDeBuff10"]:Show();
+		_G["DHUD_TargetDeBuff11"]:Show();
+		_G["DHUD_TargetDeBuff12"]:Show();
 		_G["DHUD_Rune1_Text"]:Show();
 		_G["DHUD_Rune2_Text"]:Show();
 		_G["DHUD_Rune3_Text"]:Show();
