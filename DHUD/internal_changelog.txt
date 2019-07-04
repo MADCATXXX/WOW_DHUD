@@ -1,3 +1,6 @@
+changelog 1.5.30100a MADCAT revision14:
+-quick update to fix 3.1 error for NPC that have no mana
+
 changelog 1.5.30000k MADCAT Revision13:
 -fixed getTypUnit error(hellicopter in Howling Fjord) caused by blizzard function returning UnitPowerType=-1, there is no such power type :).
 -added mirror layouts to standart layouts for those who want DK_Runes on the right side, etc...

@@ -4,7 +4,7 @@ DHUD modification for WotLK Beta by MADCAT
 -----------------------------------------------------------------------------------]]--
 
 -- Init Vars --
-DHUD_VERSION    = "Version: 1.5.30000k";
+DHUD_VERSION    = "Version: 1.5.30100a";
 DHUD_TEXT_EMPTY = "";
 DHUD_TEXT_HP2   = "<color_hp><hp_value></color>";
 DHUD_TEXT_HP3   = "<color_hp><hp_value></color>/<hp_max>";
@@ -720,7 +720,11 @@ function DHUD:OnEvent()
         elseif (event == "UNIT_SPELLCAST_DELAYED") and (arg1 == "player") then
             if(DHUD_Casting_Bar:IsShown()) then
                 spell, rank, displayName, icon, startTime, endTime, isTradeSkill = UnitCastingInfo(arg1);
-                delay = endTime / 1000 - this.maxValue;
+                if endTime then
+					delay = endTime / 1000 - this.maxValue;
+				else
+					delay = 0;
+				end
                 this.startTime = this.startTime + delay;
                 this.maxValue  = this.maxValue + delay;
                 this.delay     = this.delay + delay;
@@ -2447,6 +2451,7 @@ function DHUD:SetBarHeight(bar,p)
     local bottom = 1-tex_gap_bottom_p;
     top = top  - ((tex_gap_top_p+tex_gap_bottom_p)*(1-p));
     texture:SetHeight(h);
+	--self:print("x0: ".. x0 .. " x1: " .. x1 .. " top: " .. top .. " bottom: " .. bottom .. " t_g_t_p: " .. tex_gap_top_p .. " t_g_b_p:" .. tex_gap_bottom_p .. " p: " .. p .. " bar: " .. bar);
     texture:SetTexCoord(x0, x1, top, bottom );
     texture:SetPoint(point, getglobal(frame), relative, x, tex_gap_bottom);
     texture:Show();
@@ -2928,7 +2933,12 @@ function DHUD:UpdateValues(frame,set)
 	    if typ == "health" then
 			value = tonumber(UnitHealth(unit)/UnitHealthMax(unit));
 	    else
-	        value = tonumber(UnitMana(unit)/UnitManaMax(unit));
+			--self:print("UnitMana: " .. UnitMana(unit) .. " UnitManaMax: " .. UnitManaMax(unit));
+			if UnitManaMax(unit)==0 then
+				value = 0;
+			else
+			    value = tonumber(UnitMana(unit)/UnitManaMax(unit));
+			end
 	    end
 	else
 		value = 0;
