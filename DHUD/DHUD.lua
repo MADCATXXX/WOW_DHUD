@@ -4,7 +4,7 @@ DHUD modification for WotLK Beta by MADCAT
 -----------------------------------------------------------------------------------]]--
 
 -- Init Vars --
-DHUD_VERSION    = "Version: 1.5.30000i";
+DHUD_VERSION    = "Version: 1.5.30000j";
 DHUD_TEXT_EMPTY = "";
 DHUD_TEXT_HP2   = "<color_hp><hp_value></color>";
 DHUD_TEXT_HP3   = "<color_hp><hp_value></color>/<hp_max>";
@@ -55,6 +55,13 @@ DHUD = {
     mcpetmaxenergy    = 0,
 	mcenemycasting	  = nil,
 	mcinvehicle		  = nil,
+	mctargetcancast	  = nil,
+	mcdkrune1		  = 1,
+	mcdkrune2		  = 1,
+	mcdkrune3		  = 2,
+	mcdkrune4		  = 2,
+	mcdkrune5		  = 3,
+	mcdkrune6		  = 3,
     -- mcplenergy     = 0,
     --
     playerbufffilter  = "HELPFUL",
@@ -163,6 +170,12 @@ DHUD = {
 					"DHUD_CB_Texture",
                     "DHUD_TargetElite",
                     "DHUD_PetHappy",
+					"DHUD_Rune1",
+					"DHUD_Rune2",
+					"DHUD_Rune3",
+					"DHUD_Rune4",
+					"DHUD_Rune5",
+					"DHUD_Rune6",
                     -- "DHUD_RaidIcon",
 --                    "DHUD_PlayerBuff1",
 --                    "DHUD_PlayerBuff2",
@@ -217,8 +230,14 @@ DHUD = {
                     DHUD_PetMana_Text      = { "petmanatextx"       , "petmanatexty"          }, 
                     DHUD_Casttime_Text     = { "casttextx"          , "casttexty"             },
                     DHUD_Castdelay_Text    = { "delaytextx"         , "delaytexty"            },
-					DHUD_EnemyCasttime_Text     = { "enemycasttextx"          , "enemycasttexty"             },
-                    DHUD_EnemyCastdelay_Text    = { "enemydelaytextx"         , "enemydelaytexty"            },
+					DHUD_EnemyCasttime_Text  = { "enemycasttextx"          , "enemycasttexty"    },
+                    DHUD_EnemyCastdelay_Text = { "enemydelaytextx"         , "enemydelaytexty"   },
+					DHUD_Rune1_Text		   = { "rune1textx"         , "rune1texty"            },
+					DHUD_Rune2_Text		   = { "rune2textx"         , "rune2texty"            },
+					DHUD_Rune3_Text		   = { "rune3textx"         , "rune3texty"            },
+					DHUD_Rune4_Text		   = { "rune4textx"         , "rune4texty"            },
+					DHUD_Rune5_Text		   = { "rune5textx"         , "rune5texty"            },
+					DHUD_Rune6_Text		   = { "rune6textx"         , "rune6texty"            },
     },
                    
     -- default settings                
@@ -243,6 +262,7 @@ DHUD = {
                 ["showeliteicon"]      = 1, 
 				["showraidicon"]	   = 1,
 				["debufftimer"]		   = 0,
+				["dkrunes"]			   = 1,
                 ["animatebars"]        = 1,
                 ["barborders"]         = 1,
                 ["showauras"]          = 1,
@@ -251,6 +271,7 @@ DHUD = {
                 ["castingbar"]         = 1,
 				["enemycastingbar"]	   = 1,
 				["castingbarinfo"]	   = 0,
+				["buffswithcharges"]   = 1,
                 ["reversecasting"]     = 0,
                 ["shownpc"]            = 1,
                 ["showtarget"]         = 1,
@@ -275,7 +296,13 @@ DHUD = {
                 ["DHUD_PetMana_Text"]      = "<color_mp><mp_value></color>",
                 ["DHUD_Target_Text"]       = "<color_level><level><elite></color> <color_reaction><name></color> [<color_class><class><type><pet><npc></color>] <pvp>",
                 ["DHUD_TargetTarget_Text"] = "<color_level><level><elite></color> <color_reaction><name></color> [<color_class><class><type><pet><npc></color>] <pvp>",
-                                
+				["DHUD_Rune1_Text"]		   = "<color>ffff00<Rune1CD></color>",
+				["DHUD_Rune2_Text"]		   = "<color>ffff00<Rune1CD></color>",
+				["DHUD_Rune3_Text"]		   = "<color>ffff00<Rune1CD></color>",
+				["DHUD_Rune4_Text"]		   = "<color>ffff00<Rune1CD></color>",
+				["DHUD_Rune5_Text"]		   = "<color>ffff00<Rune1CD></color>",
+				["DHUD_Rune6_Text"]		   = "<color>ffff00<Rune1CD></color>",
+				
                 ["playerhpoutline"]     = 1,
                 ["playermanaoutline"]   = 1,
                 ["targethpoutline"]     = 1,
@@ -386,8 +413,8 @@ function DHUD:OnEvent()
 	
     -- debug
     self:printd("MainEvent: "..event);
-
-    -- init HUD
+	
+	-- init HUD
     if event == "VARIABLES_LOADED" then    
         self.vars_loaded = 1;
         self:firstload();
@@ -480,7 +507,10 @@ function DHUD:OnEvent()
         elseif arg1 == "pet" then
             self:UpdateValues("DHUD_PetHealth_Text");
         end
-        self:updateAlpha();
+		--do not update alpha if cast complete
+        if not(this.enemyfadeOut) and not(this.fadeOut) then
+			self:updateAlpha();
+		end
     -- update MANA Bars, UNIT_ENERGYMAX, UNIT_MANAMAX, UNIT_FOCUSMAX, UNIT_RAGEMAX   removed
     elseif ( event == "UNIT_MANA" or 
              event == "UNIT_FOCUS" or
@@ -490,6 +520,8 @@ function DHUD:OnEvent()
         if arg1 == "player" then
             self:UpdateValues("DHUD_PlayerMana_Text");
             mcplmaxenergy = UnitManaMax("player");
+			
+			
 		-- mcplenergy = UnitMana("player");
         elseif arg1 == "target" then
             self:UpdateValues("DHUD_TargetMana_Text");
@@ -507,8 +539,11 @@ function DHUD:OnEvent()
             self:triggerTextEvent("DHUD_PlayerMana_Text");
             self:triggerTextEvent("DHUD_PetMana_Text");
         end
-        
-        self:updateAlpha();
+		
+        --do not update alpha if cast complete
+		if not(this.enemyfadeOut) and not(this.fadeOut) then
+			self:updateAlpha();
+		end
     -- update self Auras
     -- elseif event == "PLAYER_AURAS_CHANGED" then
     elseif (event == "UNIT_AURA" and arg1 == "player") then
@@ -518,7 +553,10 @@ function DHUD:OnEvent()
         self:UpdateValues("DHUD_PlayerHealth_Text");
         self:UpdateValues("DHUD_PetMana_Text");
         self:ChangeBackgroundTexture();
-        self:updateAlpha();
+		--do not update alpha if cast complete
+		if not(this.enemyfadeOut) and not(this.fadeOut) then
+			self:updateAlpha();
+		end
         self:PlayerAuras();
     -- target changed   
     elseif event == "PLAYER_TARGET_CHANGED" then  
@@ -754,6 +792,9 @@ function DHUD:OnEvent()
 			getglobal("DHUD_EnemyCB_Texture"):Show();
 			DHUD_EnemyCB_Text:SetAlpha(1);
 			self:triggerTextEvent("DHUD_EnemyCB_Text");
+			--Show texture under cast bar if target has no mana
+			mctargetcancast=1;
+			self:ChangeBackgroundTexture(); 
         -- stop 
         elseif ( event == "UNIT_SPELLCAST_STOP" or event == "UNIT_SPELLCAST_CHANNEL_STOP") and (arg1 == "target") then
             if (not DHUD_EnemyCasting_Bar:IsVisible()) then
@@ -843,6 +884,17 @@ function DHUD:OnEvent()
             DHUD_EnemyCastdelay_Text:SetAlpha(1);
             DHUD_EnemyCasting_Bar:Show();
             DHUD_EnemyFlash_Bar:Hide();
+			
+			--Enemy Spell Name and Texture
+			local ecasticon = getglobal("DHUD_EnemyCB_Texture_Texture");
+            ecasticon:SetTexture( enemyicon );
+			getglobal("DHUD_EnemyCB_Texture"):Show();
+			DHUD_EnemyCB_Text:SetAlpha(1);
+			self:triggerTextEvent("DHUD_EnemyCB_Text");
+			
+			--Show texture under cast bar if target has no mana
+			mctargetcancast=1;
+			self:ChangeBackgroundTexture(); 
         -- channel update
         elseif (event == "UNIT_SPELLCAST_CHANNEL_UPDATE") and (arg1 == "target") then
             if arg1 == 0 then
@@ -1192,6 +1244,7 @@ function DHUD:OnUpdate()
         -- fade
         elseif this.enemyfadeOut then
 			local enemyalpha = DHUD_EnemyCasting_Bar:GetAlpha() - CASTING_BAR_ALPHA_STEP;
+			--self:print("enemyalpha: ".. enemyalpha);
             if enemyalpha > 0 and DHUD_Settings["reversecasting"] == 0 then
                 DHUD_EnemyCasting_Bar:SetAlpha(enemyalpha);
                 DHUD_EnemyCasttime_Text:SetAlpha(enemyalpha);
@@ -1223,9 +1276,11 @@ function DHUD:OnUpdate()
     -- Self writed function
     self:MCUpdatePlayerEnergy();
     
-    -- MADCAT pet energy update
+    -- MADCAT pet energy update, messed up condition a little
 	if (DHUD_Settings["showpet"] == 1) and (self.has_pet_mana == 1 or mcinvehicle == 1) then
+	if (not(DruidBarKey) and not(self.player_class == "DRUID")) or mcinvehicle == 1 then
     	self:MCUpdatePetEnergy();
+	end
     end
     --
     self:PlayerAuras();
@@ -1234,6 +1289,11 @@ function DHUD:OnUpdate()
 	if DHUD_Settings["debufftimer"] == 1 and self.Target == 1 then
 		self:TargetAuras();
 	end	
+	
+	--Update DK runes, CPU consuming.
+	if self.player_class == "DEATHKNIGHT" and DHUD_Settings["dkrunes"] == 1 then
+		self:MCDKRunes();
+	end
 end
 
 -- register Events
@@ -1320,6 +1380,12 @@ function DHUD:prepareColors()
         local color2 = {};
         local h0, h1, h2;  
         h0, h1, h2 = unpack(DHUD_Settings["colors"][k]);
+		--mcdebug
+		--[[if h0 or h1 or h2 then
+			self:print("h0: ".. h0 .. " h1: " .. h1 .. " h2: " .. h2 .. " k: " .. k);
+		else
+			self:print("h0: ".."nill" .. " h1: " .. "nill" .. " h2: " .. "nill" .. " k: " .. k);
+		end]]--
         color0.r , color0.g , color0.b = unpack(DHUD_HexToDec(h0));
         color1.r , color1.g , color1.b = unpack(DHUD_HexToDec(h1));
         color2.r , color2.g , color2.b = unpack(DHUD_HexToDec(h2));
@@ -1383,7 +1449,14 @@ function DHUD:init()
     DHUD_PetMana_Text_Text:SetFont(self.defaultfont_num, DHUD_Settings["fontsizepet"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["petmanaoutline"] ]);
     DHUD_Target_Text_Text:SetFont(self.defaultfont, DHUD_Settings["fontsizetargetname"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["targetoutline"] ]);
     DHUD_TargetTarget_Text_Text:SetFont(self.defaultfont, DHUD_Settings["fontsizetargettargetname"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["targettargetoutline"] ]);
-    
+    DHUD_Rune1_Text_Text:SetFont( self.defaultfont, DHUD_Settings["fontsizeplayerbuff"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["playerbuffoutline"] ]);
+	DHUD_Rune2_Text_Text:SetFont( self.defaultfont, DHUD_Settings["fontsizeplayerbuff"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["playerbuffoutline"] ]);
+	DHUD_Rune3_Text_Text:SetFont( self.defaultfont, DHUD_Settings["fontsizeplayerbuff"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["playerbuffoutline"] ]);
+	DHUD_Rune4_Text_Text:SetFont( self.defaultfont, DHUD_Settings["fontsizeplayerbuff"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["playerbuffoutline"] ]);
+	DHUD_Rune5_Text_Text:SetFont( self.defaultfont, DHUD_Settings["fontsizeplayerbuff"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["playerbuffoutline"] ]);
+	DHUD_Rune6_Text_Text:SetFont( self.defaultfont, DHUD_Settings["fontsizeplayerbuff"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["playerbuffoutline"] ]);
+	
+	
     -- player buffs
     DHUD_PlayerBuff1_Text:SetFont( self.defaultfont, DHUD_Settings["fontsizeplayerbuff"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["playerbuffoutline"] ]);
     DHUD_PlayerBuff2_Text:SetFont( self.defaultfont, DHUD_Settings["fontsizeplayerbuff"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["playerbuffoutline"] ]);
@@ -1520,6 +1593,7 @@ function DHUD:init()
     DHUD_Casting_Bar:Hide();
     DHUD_Flash_Bar:Hide();
 	
+	--enemycastbar
 	DHUD_EnemyFlash_Bar:SetAlpha(0);
     DHUD_EnemyCasting_Bar:SetAlpha(0);
     DHUD_EnemyCasting_Bar:Hide();
@@ -1530,7 +1604,31 @@ function DHUD:init()
 	getglobal("DHUD_CB_Texture"):Hide();
 	self.spellname = nil;
 	self:triggerTextEvent("DHUD_CB_Text");
-    
+	
+	--dk runes
+    if (not (self.player_class == "DEATHKNIGHT")) or DHUD_Settings["dkrunes"] == 0 then
+		getglobal("DHUD_Rune1"):Hide();	
+		getglobal("DHUD_Rune2"):Hide();	
+		getglobal("DHUD_Rune3"):Hide();	
+		getglobal("DHUD_Rune4"):Hide();	
+		getglobal("DHUD_Rune5"):Hide();	
+		getglobal("DHUD_Rune6"):Hide();
+	else
+		getglobal("DHUD_Rune1"):Show();
+		getglobal("DHUD_Rune2"):Show();
+		getglobal("DHUD_Rune3"):Show();
+		getglobal("DHUD_Rune4"):Show();
+		getglobal("DHUD_Rune5"):Show();
+		getglobal("DHUD_Rune6"):Show();
+		self:triggerTextEvent("DHUD_Rune1_Text");
+		self:triggerTextEvent("DHUD_Rune2_Text");
+		self:triggerTextEvent("DHUD_Rune3_Text");
+		self:triggerTextEvent("DHUD_Rune4_Text");
+		self:triggerTextEvent("DHUD_Rune5_Text");
+		self:triggerTextEvent("DHUD_Rune6_Text");
+	end
+	
+	
     -- init castbar
     this.endTime = 0;
     
@@ -1631,6 +1729,8 @@ function DHUD:TargetChanged()
 		self.enemyspellname = nil;
 		self:triggerTextEvent("DHUD_EnemyCB_Text");
 		getglobal("DHUD_EnemyCB_Texture"):Hide();
+		--remove texture
+		mctargetcancast=nil;
 	end
 	
     self:UpdateCombos();
@@ -2427,13 +2527,21 @@ function DHUD:TargetAuras()
 			if DHUD_Settings["debufftimer"] == 1 then
 				local color = {};
 				local debuffTimeLeftText
+				--self:print("debufftimeLeft: " .. debufftimeLeft);
 	            debufftimeLeft = debufftimeLeft - GetTime();
+				--self:print("debufftimeLeft2: " .. debufftimeLeft);
 			    
 	            if debufftimeLeft > 0 then
 	                color.r, color.g, color.b = self:Colorize("aura_player", debufftimeLeft / 20);
 					debuffTimeLeftText   = getglobal(button:GetName().."_TimeLeftText");
 	                debuffTimeLeftText:SetText("|cff"..DHUD_DecToHex(color.r, color.g, color.b)..DHUD_FormatTime(debufftimeLeft));
+				else
+					debuffTimeLeftText   = getglobal(button:GetName().."_TimeLeftText");
+	                debuffTimeLeftText:SetText("");
 	            end
+			else
+					debuffTimeLeftText   = getglobal(button:GetName().."_TimeLeftText");
+					debuffTimeLeftText:SetText("");
 			end
 				
             debuffText   = getglobal(button:GetName().."_Text");
@@ -2478,7 +2586,7 @@ function DHUD:PlayerAuras()
 		else 
 		pbtimeLeft = pbtimeLeft - GetTime();
 		            
-            if pbtimeLeft > 0 and pbtimeLeft < DHUD_Settings["playerbufftimefilter"] then
+            if (pbtimeLeft > 0 and pbtimeLeft < DHUD_Settings["playerbufftimefilter"]) or (DHUD_Settings["buffswithcharges"]==1 and pbcount>1) then
                 color.r, color.g, color.b = self:Colorize("aura_player", pbtimeLeft / 20);
 
                 button = getglobal(buffframe..j);
@@ -2494,7 +2602,11 @@ function DHUD:PlayerAuras()
                 buffBorder:Show();
                 
                 buffText   = getglobal(button:GetName().."_Text");
-                buffText:SetText("|cff"..DHUD_DecToHex(color.r, color.g, color.b)..DHUD_FormatTime(pbtimeLeft));
+				if pbtimeLeft > 0 then
+				    buffText:SetText("|cff"..DHUD_DecToHex(color.r, color.g, color.b)..DHUD_FormatTime(pbtimeLeft));
+				else
+					buffText:SetText("");
+				end
                 
 				if (pbcount > 1) then
 					buffCountText   = getglobal(button:GetName().."_CountText");
@@ -2650,6 +2762,75 @@ function DHUD:MCUpdatePetEnergy()
 	end
 end
 
+-- ######MADCAT: DK Runes CD
+function DHUD:MCDKRunes()
+	local i, start, duration, runeReady, runeType;
+	local startText, startText2;
+	local color = {};
+	for i = 1, 6 do
+		start, duration, runeReady = GetRuneCooldown(i);
+		if start > 0 then
+			start = duration - (GetTime() - start);
+		end
+		
+		--self:print("RuneID: " .. i .. " CD: ".. start.. " duration: ".. duration..  " runeType: " .. runeType);
+		--if runeReady==1 then 
+		--	self:print("RuneID: " .. i .. " ready");
+		--end
+		if start > 0 then
+	        color.r, color.g, color.b = self:Colorize("aura_player", start / 20);			
+			startText = getglobal("DHUD_Rune".. i .. "_Text_Text");
+			startText:SetText("|cff"..DHUD_DecToHex(color.r, color.g, color.b)..DHUD_FormatTime(start));
+			runeType = GetRuneType(i);
+			
+			--local runetexture = getglobal("DHUD_Rune"..i.."_Texture");
+		    --runetexture:SetTexture( "Interface\\PlayerFrame\\UI-PlayerFrame-Deathknight-Death" );
+			
+			--change texture for rune if needed
+			if not (runeType == getglobal("mcdkrune"..i)) then
+				if i == 1 then
+					mcdkrune1=runeType;
+				elseif i == 2 then
+					mcdkrune2=runeType;
+				elseif i == 3 then
+					mcdkrune3=runeType;
+				elseif i == 4 then
+					mcdkrune4=runeType;
+				elseif i == 5 then
+					mcdkrune5=runeType;
+				elseif i == 6 then
+					mcdkrune6=runeType;
+				end
+				if runeType == 1 then
+					local runetexture = getglobal("DHUD_Rune"..i.."_Texture");
+		            runetexture:SetTexture( "Interface\\PlayerFrame\\UI-PlayerFrame-Deathknight-Blood" );
+				elseif runeType == 2 then
+					local runetexture = getglobal("DHUD_Rune"..i.."_Texture");
+		            runetexture:SetTexture( "Interface\\PlayerFrame\\UI-PlayerFrame-Deathknight-Unholy" );
+				elseif runeType == 3 then
+					local runetexture = getglobal("DHUD_Rune"..i.."_Texture");
+		            runetexture:SetTexture( "Interface\\PlayerFrame\\UI-PlayerFrame-Deathknight-Frost" );
+				elseif runeType == 4 then
+					local runetexture = getglobal("DHUD_Rune"..i.."_Texture");
+		            runetexture:SetTexture( "Interface\\PlayerFrame\\UI-PlayerFrame-Deathknight-Death" );
+				end
+			end
+			--local runeid = math.floor((i+1)/2);
+			--self:print("runeid: " .. runeid .. " i: " .. i);
+			--1 : RUNETYPE_BLOOD 
+			--2 : RUNETYPE_CHROMATIC 
+			--3 : RUNETYPE_FROST 
+			--4 : RUNETYPE_DEATH
+			--startText = getglobal("DHUD_PlayerHealth_Text_Text");
+			--("|cff"..DHUD_DecToHex(color.r, color.g, color.b)..DHUD_FormatTime(start));
+			--startText:SetFont( self.defaultfont, 14, "OUTLINE");
+			--self:print("|cff"..DHUD_DecToHex(color.r, color.g, color.b)..DHUD_FormatTime(start));
+		else
+			startText = getglobal("DHUD_Rune".. i .. "_Text_Text");
+	        startText:SetText("");
+	    end
+	end		
+end
 
 	
 
@@ -2953,6 +3134,8 @@ function DHUD:ChangeBackgroundTexture()
         if self.has_pet_mana      then what = what.."_em"; end
         if self.has_target_health then what = what.."_th"; end
         if self.has_target_mana   then what = what.."_tm"; end
+		if not (self.has_target_mana) and mctargetcancast == 1 then what = what.."_tm"; end
+		
         
         local texture,x0,x1,y0,y1;
         if type(self.C_textures["l_"..what]) == "table" then
@@ -2960,7 +3143,7 @@ function DHUD:ChangeBackgroundTexture()
             getglobal("DHUD_LeftFrame_Texture"):SetTexture(texture);
             getglobal("DHUD_LeftFrame_Texture"):SetTexCoord(x0,x1,y0,y1);
         else
-            self:print("Please report Caeryn this String: "..what);
+            self:print("Please report MADCAT this String: "..what);
         end
         
         if type(self.C_textures["l_"..what]) == "table" then
@@ -2968,7 +3151,7 @@ function DHUD:ChangeBackgroundTexture()
             getglobal("DHUD_RightFrame_Texture"):SetTexture(texture);
             getglobal("DHUD_RightFrame_Texture"):SetTexCoord(x0,x1,y0,y1);
         else
-            self:print("Please report Caeryn this String: "..what);
+            self:print("Please report MADCAT this String: "..what);
         end        
     end
     
@@ -3082,6 +3265,12 @@ function DHUD:setAlpha(mode)
         getglobal("DHUD_PlayerBuff14"):Hide();
         getglobal("DHUD_PlayerBuff15"):Hide();
         getglobal("DHUD_PlayerBuff16"):Hide();
+		getglobal("DHUD_Rune1_Text"):Hide();
+		getglobal("DHUD_Rune2_Text"):Hide();
+		getglobal("DHUD_Rune3_Text"):Hide();
+		getglobal("DHUD_Rune4_Text"):Hide();
+		getglobal("DHUD_Rune5_Text"):Hide();
+		getglobal("DHUD_Rune6_Text"):Hide();
     elseif not UnitIsDeadOrGhost("player") then
         getglobal("DHUD_PlayerHealth_Text"):Show();
         getglobal("DHUD_PlayerMana_Text"):Show();  
@@ -3103,6 +3292,12 @@ function DHUD:setAlpha(mode)
         getglobal("DHUD_PlayerBuff14"):Show();
         getglobal("DHUD_PlayerBuff15"):Show();
         getglobal("DHUD_PlayerBuff16"):Show();
+		getglobal("DHUD_Rune1_Text"):Show();
+		getglobal("DHUD_Rune2_Text"):Show();
+		getglobal("DHUD_Rune3_Text"):Show();
+		getglobal("DHUD_Rune4_Text"):Show();
+		getglobal("DHUD_Rune5_Text"):Show();
+		getglobal("DHUD_Rune6_Text"):Show();
     end 
 end
 

@@ -1,3 +1,16 @@
+Changelog 1.5.30000j MADCAT Revision12:
+-added option to show buffs with charges
+-fixed some background textures, it should fix "DHUD: Please report MadCat this String: ph_pm_eh_th_tm" message
+-some people reported about error when logging in with druid character. It's caused by corrupted saved variables file. To fix it go to "setting window->profiles->[reset profile]", then choose your settings. If it doesn't solve the problem please report it to me.
+-clicking on minimap icon won't reset it's position for the next logins anymore. However if you change minimap position after clicking on minimap icon new position won't be saved.
+-If mob can cast but have no mana DHUD will change texture, so the cast won't be showed on blank space.
+-Enemy Channeling spells now show information about them.
+-fixed enemy cast bar to no longer flash for long amounts of time.
+-fixed druidbar not showing info if ShowPet option enabled.
+-fixed debuff timer to not show random numbers when debuff have no expire time. Also there will be no text if you turn it off during the game.
+-added option to show DK Runes. Report any errors you will encouter.
+
+
 Changelog 1.5.30000i MADCAT Revision11:
 -increased player buff slots limit to 24.
 -fixed Death Knight regen alpha bug.

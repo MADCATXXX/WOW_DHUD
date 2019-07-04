@@ -3,7 +3,7 @@ DHUDDROPDOWNSELECTED = "";
 
 --Ace3 Profile Support
 local AppName = "DHUDO"
-local VERSION = AppName .. "v 1.5.30000i"
+local VERSION = AppName .. "v 1.5.30000j"
 
 local AceConfig = LibStub("AceConfig-3.0")
 local AceDBOptions = LibStub("AceDBOptions-3.0")
@@ -36,6 +36,7 @@ local defaults = {
                 ["showeliteicon"]      = 1, 
 				["showraidicon"]	   = 1,
 				["debufftimer"]		   = 0,
+				["dkrunes"]			   = 1,
                 ["animatebars"]        = 1,
                 ["barborders"]         = 1,
                 ["showauras"]          = 1,
@@ -44,6 +45,7 @@ local defaults = {
                 ["castingbar"]         = 1,
 				["enemycastingbar"]	   = 1,
 				["castingbarinfo"]	   = 0,
+				["buffswithcharges"]   = 1,
                 ["reversecasting"]     = 0,
                 ["shownpc"]            = 1,
                 ["showtarget"]         = 1,
@@ -67,6 +69,12 @@ local defaults = {
                 ["DHUD_PetMana_Text"]      = "<color_mp><mp_value></color>",
                 ["DHUD_Target_Text"]       = "<color_level><level><elite></color> <color_reaction><name></color> [<color_class><class><type><pet><npc></color>] <pvp>",
                 ["DHUD_TargetTarget_Text"] = "<color_level><level><elite></color> <color_reaction><name></color> [<color_class><class><type><pet><npc></color>] <pvp>",
+				["DHUD_Rune1_Text"]		   = "<color>ffff00<Rune1CD></color>",
+				["DHUD_Rune2_Text"]		   = "<color>ffff00<Rune1CD></color>",
+				["DHUD_Rune3_Text"]		   = "<color>ffff00<Rune1CD></color>",
+				["DHUD_Rune4_Text"]		   = "<color>ffff00<Rune1CD></color>",
+				["DHUD_Rune5_Text"]		   = "<color>ffff00<Rune1CD></color>",
+				["DHUD_Rune6_Text"]		   = "<color>ffff00<Rune1CD></color>",
                                 
                 ["playerhpoutline"]     = 1,
                 ["playermanaoutline"]   = 1,
@@ -167,6 +175,9 @@ function DHUDO:DHUDODBLOAD()
 		db.dhudsettingloaded = true
 		DHUDO:LoadDHUDSettingsToDB()
 	end
+	for k, v in pairs(DHUD_Settings["mmb"]) do
+        db["mmb"][k] = DHUD_Settings["mmb"][k];
+    end
 	DHUDO:applySettings()
 end
 

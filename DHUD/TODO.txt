@@ -1,0 +1,8 @@
+TODO:
+\/ : DK regen alpha - turn off text.
+\/ : Set debuff timers to nill on turn off.
+\/ : DK RUNES
+\/ : Report string... ph_pm_eh_th_tm -- player health, player mana, pet health, target health, target mana.
+\/ : ECB flash.
+\/ : Buffs with charges.
+\/ : Druid bar support.

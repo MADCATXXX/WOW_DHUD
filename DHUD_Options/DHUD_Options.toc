@@ -1,8 +1,8 @@
 ## Interface: 30000
-## Title: Drathals HUD Options [|cffffffffv1.5.30000i|r]
+## Title: Drathals HUD Options [|cffffffffv1.5.30000j|r]
 ## Author: Markus Inger (Drathal/Silberklinge), Howie (Caeryn)
 ## Maintained By: Mad Cat
-## Version: v1.5.30000i
+## Version: v1.5.30000j
 ## Notes: Drathals HUD Options.
 ## Dependencies: DHUD
 ## LoadOnDemand: 1

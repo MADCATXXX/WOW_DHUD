@@ -26,6 +26,13 @@ DHUD_Layouts.DHUD_PlayerLeft_Layout = {
         ["DHUD_Combo3"]           = { "Interface\\AddOns\\DHUD\\layout\\c3"     , 0 , 1 , 0 , 1 },
         ["DHUD_Combo4"]           = { "Interface\\AddOns\\DHUD\\layout\\c4"     , 0 , 1 , 0 , 1 },
         ["DHUD_Combo5"]           = { "Interface\\AddOns\\DHUD\\layout\\c5"     , 0 , 1 , 0 , 1 },
+		
+		["DHUD_Rune1"]            = { "Interface\\PlayerFrame\\UI-PlayerFrame-Deathknight-Blood"     , 0 , 1 , 0 , 1 },
+		["DHUD_Rune2"]            = { "Interface\\PlayerFrame\\UI-PlayerFrame-Deathknight-Blood"     , 0 , 1 , 0 , 1 },
+		["DHUD_Rune5"]            = { "Interface\\PlayerFrame\\UI-PlayerFrame-Deathknight-Frost"     , 0 , 1 , 0 , 1 },
+		["DHUD_Rune6"]            = { "Interface\\PlayerFrame\\UI-PlayerFrame-Deathknight-Frost"     , 0 , 1 , 0 , 1 },
+		["DHUD_Rune3"]            = { "Interface\\PlayerFrame\\UI-PlayerFrame-Deathknight-Unholy"     , 0 , 1 , 0 , 1 },
+		["DHUD_Rune4"]            = { "Interface\\PlayerFrame\\UI-PlayerFrame-Deathknight-Unholy"     , 0 , 1 , 0 , 1 },
         
         ["l_ph_pm"]               = { "Interface\\AddOns\\DHUD\\layout\\bg_21"   , 0 , 1 , 0 , 1 },
         ["r_ph_pm"]               = { "Interface\\AddOns\\DHUD\\layout\\bg_0"    , 1 , 0 , 0 , 1 },
@@ -46,13 +53,13 @@ DHUD_Layouts.DHUD_PlayerLeft_Layout = {
         ["r_ph_pm_em_th"]         = { "Interface\\AddOns\\DHUD\\layout\\bg_2"    , 1 , 0 , 0 , 1 },
 
         ["l_ph_pm_eh_th"]         = { "Interface\\AddOns\\DHUD\\layout\\bg_21pp" , 0 , 1 , 0 , 1 },
-        ["r_ph_pm_eh_th"]         = { "Interface\\AddOns\\DHUD\\layout\\bg_1"    , 1 , 0 , 0 , 1 },
+        ["r_ph_pm_eh_th"]         = { "Interface\\AddOns\\DHUD\\layout\\bg_2"    , 1 , 0 , 0 , 1 },
         
         ["l_ph_pm_th_tm"]         = { "Interface\\AddOns\\DHUD\\layout\\bg_21"   , 0 , 1 , 0 , 1 },
         ["r_ph_pm_th_tm"]         = { "Interface\\AddOns\\DHUD\\layout\\bg_21"   , 1 , 0 , 0 , 1 },
 
-        ["l_ph_pm_eh_th"]         = { "Interface\\AddOns\\DHUD\\layout\\bg_21"   , 0 , 1 , 0 , 1 },
-        ["r_ph_pm_eh_th"]         = { "Interface\\AddOns\\DHUD\\layout\\bg_2"    , 1 , 0 , 0 , 1 },
+        --["l_ph_pm_eh_th"]         = { "Interface\\AddOns\\DHUD\\layout\\bg_21pp"   , 0 , 1 , 0 , 1 },
+        --["r_ph_pm_eh_th"]         = { "Interface\\AddOns\\DHUD\\layout\\bg_2"    , 1 , 0 , 0 , 1 },
                 
         ["l_ph_pm_em_th_tm"]      = { "Interface\\AddOns\\DHUD\\layout\\bg_21p"  , 0 , 1 , 0 , 1 },
         ["r_ph_pm_em_th_tm"]      = { "Interface\\AddOns\\DHUD\\layout\\bg_21"   , 1 , 0 , 0 , 1 },
@@ -62,6 +69,9 @@ DHUD_Layouts.DHUD_PlayerLeft_Layout = {
                 
         ["l_ph_pm_eh_em_th_tm"]   = { "Interface\\AddOns\\DHUD\\layout\\bg_21pp" , 0 , 1 , 0 , 1 },
         ["r_ph_pm_eh_em_th_tm"]   = { "Interface\\AddOns\\DHUD\\layout\\bg_21"   , 1 , 0 , 0 , 1 },
+		
+		["l_ph_pm_eh_th_tm"]  	  = { "Interface\\AddOns\\DHUD\\layout\\bg_21pp" , 0 , 1 , 0 , 1 },
+        ["r_ph_pm_eh_th_tm"]  	  = { "Interface\\AddOns\\DHUD\\layout\\bg_21"   , 1 , 0 , 0 , 1 },
                               
         ["DHUD_LeftFrame"]        = { "Interface\\AddOns\\DHUD\\layout\\bg_21p" , 0 , 1 , 0 , 1 },
         ["DHUD_RightFrame"]       = { "Interface\\AddOns\\DHUD\\layout\\bg_21p" , 1 , 0 , 0 , 1 },
@@ -119,6 +129,19 @@ DHUD_Layouts.DHUD_PlayerLeft_Layout = {
         ["DHUD_Combo5"]            = { "Texture"    , "BOTTOM" , "DHUD_RightFrame"    , "BOTTOM"  , 13  , 80   , 20  , 20 },
         ["DHUD_Target_Text"]       = { "Text"       , "BOTTOM" , "DHUD_Main"         , "BOTTOM"  , 0    , -45  , 200 , 14 },
         ["DHUD_TargetTarget_Text"] = { "Text"       , "BOTTOM" , "DHUD_Main"         , "BOTTOM"  , 0    , -65  , 200 , 14 },
+		
+		["DHUD_Rune1"]             = { "Texture"    , "BOTTOM" , "DHUD_RightFrame"    , "BOTTOM"  , 12    , 0    , 30  , 30 },
+        ["DHUD_Rune2"]             = { "Texture"    , "BOTTOM" , "DHUD_RightFrame"    , "BOTTOM"  , 19   , 30   , 30  , 30 },
+        ["DHUD_Rune5"]             = { "Texture"    , "BOTTOM" , "DHUD_RightFrame"    , "BOTTOM"  , 24   , 60   , 30  , 30 },
+        ["DHUD_Rune6"]             = { "Texture"    , "BOTTOM" , "DHUD_RightFrame"    , "BOTTOM"  , 26  , 90   , 30  , 30 },
+        ["DHUD_Rune3"]             = { "Texture"    , "BOTTOM" , "DHUD_RightFrame"    , "BOTTOM"  , 26  , 120  , 30  , 30 },
+		["DHUD_Rune4"]             = { "Texture"    , "BOTTOM" , "DHUD_RightFrame"    , "BOTTOM"  , 24  , 150  , 30  , 30 },
+        ["DHUD_Rune1_Text"] 	   = { "Text"       , "BOTTOM" , "DHUD_RightFrame"    , "BOTTOM"  , 12  , 9    , 200 , 14 },
+		["DHUD_Rune2_Text"] 	   = { "Text"       , "BOTTOM" , "DHUD_RightFrame"    , "BOTTOM"  , 19  , 39   , 100 , 14 },
+		["DHUD_Rune5_Text"] 	   = { "Text"       , "BOTTOM" , "DHUD_RightFrame"    , "BOTTOM"  , 24  , 69   , 100 , 14 },
+		["DHUD_Rune6_Text"] 	   = { "Text"       , "BOTTOM" , "DHUD_RightFrame"    , "BOTTOM"  , 26  , 99   , 100 , 14 },
+		["DHUD_Rune3_Text"] 	   = { "Text"       , "BOTTOM" , "DHUD_RightFrame"    , "BOTTOM"  , 26  , 129  , 100 , 14 },
+		["DHUD_Rune4_Text"] 	   = { "Text"       , "BOTTOM" , "DHUD_RightFrame"    , "BOTTOM"  , 24  , 159  , 100 , 14 },
         
         ["DHUD_PlayerHealth_Text"] = { "Text"       , "BOTTOM" , "DHUD_LeftFrame"    , "BOTTOM"  , 80   , -16    , 200 , 14 },
         ["DHUD_PlayerMana_Text"]   = { "Text"       , "BOTTOM" , "DHUD_LeftFrame"   , "BOTTOM"  , 95  , 2    , 200 , 14 },
@@ -275,6 +298,18 @@ DHUD_Layouts.DHUD_PlayerLeft_Layout = {
         "DHUD_Combo3",
         "DHUD_Combo4",
         "DHUD_Combo5",
+		"DHUD_Rune1",
+		"DHUD_Rune2",
+		"DHUD_Rune3",
+		"DHUD_Rune4",
+		"DHUD_Rune5",
+		"DHUD_Rune6",
+		"DHUD_Rune1_Text",
+		"DHUD_Rune2_Text",
+		"DHUD_Rune3_Text",
+		"DHUD_Rune4_Text",
+		"DHUD_Rune5_Text",
+		"DHUD_Rune6_Text",
         "DHUD_Target_Text",
         "DHUD_TargetTarget_Text",
         "DHUD_PlayerHealth_Text",
