@@ -2026,6 +2026,7 @@ function DHUDSpecificPowerTracker:updatePower()
 	else
 		power = UnitPower(self.unitId, self.resourceType);
 	end
+	--print("power is " .. power);
 	self:setAmount(power);
 end
 

@@ -784,6 +784,7 @@ function DHUDColorizeTools:init()
 	-- energy
 	self:processSetting(self.COLOR_ID_TYPE_ENERGY + self.COLOR_ID_UNIT_SELF, "colors_player_energy");
 	self:processSetting(self.COLOR_ID_TYPE_ENERGY + self.COLOR_ID_UNIT_TARGET, "colors_target_energy");
+	self:processSetting(self.COLOR_ID_TYPE_ENERGY + self.COLOR_ID_UNIT_PET, "colors_pet_energy");
 	-- runic power
 	self:processSetting(self.COLOR_ID_TYPE_RUNIC_POWER + self.COLOR_ID_UNIT_SELF, "colors_player_runicPower");
 	self:processSetting(self.COLOR_ID_TYPE_RUNIC_POWER + self.COLOR_ID_UNIT_TARGET, "colors_target_runicPower");
@@ -2143,19 +2144,28 @@ end
 -- @return created frame
 function DHUDGUI:createDropDownMenu(name, onInit)
 	local frame = CreateFrame("Frame", name, UIParent, "UIDropDownMenuTemplate");
+	frame:Hide();
 	frame:SetPoint("TOP", 0, 0);
 	frame:SetWidth(160);
 	frame:SetHeight(160);
-	-- initialize, init function is called immediatly but it will throw error, do not invoke passed function first time
-	UIDropDownMenu_Initialize(frame, function(frame)
-		if (frame.inited) then
+	-- initialize dropdown only after showing frame to reduce tainting issues with blizzard code
+	frame:SetScript("OnShow", function(frame)
+		-- clear on show function
+		frame:SetScript("OnShow", nil);
+		-- initialize
+		UIDropDownMenu_Initialize(frame, function(frame)
 			onInit(frame);
-		end
-	end, "MENU");
-	frame.inited = true;
+		end, "MENU");
+	end);
 	-- save to table
 	self.dropdownMenus[name] = frame;
 	return frame;
+end
+
+--- Toggle dropdown menu specified, argument list is the same as blizzard one (do not use it manually, as it's not part of this class!)
+function DHUDGUI.ToggleDropDownMenu(level, value, dropDownFrame, anchorName, xOffset, yOffset, menuList, button, autoHideDelay)
+	dropDownFrame:Show();
+	ToggleDropDownMenu(level, value, dropDownFrame, anchorName, xOffset, yOffset, menuList, button, autoHideDelay);
 end
 
 --- Initialize player dropdown list (do not use it manually, as it's not part of this class!)
@@ -2167,7 +2177,7 @@ end
 --- Initialize target dropdown list (do not use it manually, as it's not part of this class!)
 -- @param frame reference to dropdown frame
 function DHUDGUI.initDropDownMenuTarget(frame)
-	local menu;
+	local menu, raidId;
 	-- check if enemy
 	if (UnitIsEnemy("target", "player")) then
 		menu = "TARGET";
@@ -2175,18 +2185,22 @@ function DHUDGUI.initDropDownMenuTarget(frame)
 		-- check if self
 		if (UnitIsUnit("target", "player")) then
 			menu = "SELF";
+		-- check if vehicle
+		elseif (UnitIsUnit("target", "vehicle")) then
+			menu = "VEHICLE";
 		-- check if pet
 		elseif (UnitIsUnit("target", "pet")) then
 			menu = "PET";
 		-- check if player
 		elseif (UnitIsPlayer("target")) then
 			-- check if raid player
-			if (UnitInRaid("target")) then
+			raidId = UnitInRaid("target");
+			if (raidId) then
 				menu = "RAID_PLAYER";
 			-- check if party player
 			elseif (UnitInParty("target")) then
 				menu = "PARTY";
-			-- unit is friendly player
+			-- unit is player
 			else
 				menu = "PLAYER";
 			end
@@ -2195,7 +2209,7 @@ function DHUDGUI.initDropDownMenuTarget(frame)
 			menu = "TARGET";
 		end
 	end
-	UnitPopup_ShowMenu(frame, menu, "target");
+	UnitPopup_ShowMenu(frame, menu, "target", nil, raidId);
 end
 
 --- Set text to text field, updating text field width and it's frame (do not use it manually, as it's not part of this class!)
@@ -4970,7 +4984,7 @@ end
 -- @param frame frame that was clicked on
 function DHUDUnitInfoManager:toggleUnitTextDropdown(frame)
 	if (self:getTrackedUnitId() == "target") then
-		ToggleDropDownMenu(1, nil, DHUD_DropDown_TargetMenu, frame, 25, 10); 
+		DHUDGUI.ToggleDropDownMenu(1, nil, DHUD_DropDown_TargetMenu, frame, 25, 10); 
 	end
 end
 

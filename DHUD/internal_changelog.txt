@@ -1,9 +1,21 @@
+changelog 2.0.50400.42:
+-fixed vehicle power update for some vehicles (plants vs zombies)?
+-blizzard power auras scale?
+-added visual settings for previous command line options?
+
+changelog 2.0.50400.41:
+-toc update
+-target and self drop down menus will now initialize on-demand to reduce possibility of tainting blizzard code (never saw a taint after that)
+-added setting to hide "not enough energy" and simmiliar errors (currently only command line)
+-added setting that contains code to be executed when logging-in, changing camera max. distance, etc. (currently only command line)
+-added color setting for pet energy (dk ghouls) (currently only command line)
+
 changelog 2.0.50300.40:
 -Reverse cast bar animation settings is now handled by the addon
--Fixed issue with timers disappearring at certain conditions
+-Fixed issue with timers disappearing at certain conditions
 -Fixed exception in cooldowns update function when teleporting on some system
--Fixed vehicle bars not showing for certain vehicles?
--Castbar should properly display cast time at the end of animation
+-Fixed vehicle bars not showing for certain vehicles
+-Castbar should display proper cast time at the end of animation
 
 changelog 2.0.50300.39:
 -Fixed exception when copying profile with custom layout from character with different class

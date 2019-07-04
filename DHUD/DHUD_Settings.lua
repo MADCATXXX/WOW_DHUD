@@ -286,6 +286,8 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				["mana"] = { { "00FFFF", "0000FF", "FF00FF" }, 3 },
 				-- allows to change color of pet focus on bars
 				["focus"] = { { "aa4400", "aa4400", "aa4400" }, 3 },
+				-- allows to change color of pet energy on bars
+				["energy"] = { { "FFFF00", "FFFF00", "FFFF00" }, 3 },
 			}, 1 },
 			-- list with colors to visualize self castbars
 			["selfCastbar"] = { {
@@ -479,6 +481,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				19263, -- Hunter: Deterrence, prevents all damage to target
 				45438, -- Mage: Ice block, prevents all damage to target
 				122464, -- Monk: Dematerialize, causes all abilities to miss
+				47585, -- Priest: Dispersion, reduces damage by 90%
 			}, 5 },
 			-- allows to not show auras from this list, regardless of time or charges
 			["targetAurasBlackList"] = { { }, 5 },
@@ -798,6 +801,13 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			["storeComboPoints"] = { true, 0 },
 			-- allows to show DHUD icon on minimap
 			["minimapIcon"] = { true, 0 },
+		}, 1 },
+		-- service settings that do not affect dhud addon but may contain interesting settings that are provided by some other addons
+		["service"] = { {
+			-- allows to change level of ui errors, 0 - all errors shown, 1 - ui errors hidden, 2 - ui error frame is hidden (including quest messages)
+			["uiErrorFilter"] = { 0, 0, { range = { 0, 2, 1 } } },
+			-- lua code to be executed when addon is loaded, can be used to increase camera max distance and set other things
+			["luaStartUp"] = { "", 0 },
 		}, 1 },
 	},
 	-- settings table in following format: setting = value
@@ -1851,6 +1861,10 @@ DHUDNonAddonSettingsHandler = {
 	SETTING_NAME_BLIZZARD_CASTBAR = "blizzardFrames_castingFrame",
 	-- name of the setting that changes alpha of SpellActivationOverlayFrame
 	SETTING_NAME_BLIZZARD_SPELL_ACTIVATION_ALPHA = "blizzardFrames_spellActivationFrameAlpha",
+	-- name of the setting that changes level of ui errors filtering
+	SETTING_NAME_SERVICE_UI_ERROR_FILTER = "service_uiErrorFilter",
+	-- name of the setting that contains code to be executed on start up
+	SETTING_NAME_SERVICE_LUA_START_UP = "service_luaStartUp",
 }
 
 -- value of the setting has changed
@@ -1890,16 +1904,25 @@ function DHUDNonAddonSettingsHandler:onBlizzardSpellActivationFrameAlphaChange(e
 	SpellActivationOverlayFrame:SetAlpha(val);
 end
 
+-- value of the setting has changed
+function DHUDNonAddonSettingsHandler:onServiceUIErrorLevelChange(e)
+	local val = DHUDSettings:getValue(self.SETTING_NAME_SERVICE_UI_ERROR_FILTER);
+	self:changeServiceUIErrorFiltering(val);
+end
+
 --- initialize non addon specific settings handler
 function DHUDNonAddonSettingsHandler:init()
 	local playerFrameVisible = DHUDSettings:getValue(self.SETTING_NAME_BLIZZARD_PLAYER);
 	local targetFrameVisible = DHUDSettings:getValue(self.SETTING_NAME_BLIZZARD_TARGET);
 	local castbarFrameVisible = DHUDSettings:getValue(self.SETTING_NAME_BLIZZARD_CASTBAR);
+	local uiErrorsLevel = DHUDSettings:getValue(self.SETTING_NAME_SERVICE_UI_ERROR_FILTER);
+	local luaStartUp = DHUDSettings:getValue(self.SETTING_NAME_SERVICE_LUA_START_UP);
 	-- listen to events
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. self.SETTING_NAME_BLIZZARD_PLAYER, self, self.onBlizzardPlayerFrameChange);
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. self.SETTING_NAME_BLIZZARD_TARGET, self, self.onBlizzardTargetFrameChange);
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. self.SETTING_NAME_BLIZZARD_CASTBAR, self, self.onBlizzardCastbarFrameChange);
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. self.SETTING_NAME_BLIZZARD_SPELL_ACTIVATION_ALPHA, self, self.onBlizzardSpellActivationFrameAlphaChange);
+	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. self.SETTING_NAME_SERVICE_UI_ERROR_FILTER, self, self.onServiceUIErrorLevelChange);
 	self:onBlizzardSpellActivationFrameAlphaChange(nil);
 	-- hide frames if required
 	if (not playerFrameVisible) then
@@ -1910,6 +1933,13 @@ function DHUDNonAddonSettingsHandler:init()
 	end
 	if (not castbarFrameVisible) then
 		self:hideBlizzardCastingFrame();
+	end
+	-- process service settings if required
+	if (uiErrorsLevel ~= 0) then
+		self:changeServiceUIErrorFiltering(uiErrorsLevel);
+	end
+	if (luaStartUp ~= "") then
+		self:processLuaStartUpCode(luaStartUp);
 	end
 end
 
@@ -2029,3 +2059,33 @@ function DHUDNonAddonSettingsHandler:hideBlizzardTargetFrame()
 	ComboFrame:Hide();
 end
 
+--- Function to filter ui error messages of blizzard interface
+-- @param level level of ui error filtering, 0 - all errors shown, 1 - ui errors hidden, 2 - ui error frame is hidden (including quest messages)
+function DHUDNonAddonSettingsHandler:changeServiceUIErrorFiltering(level)
+	if (level == 0) then
+		UIErrorsFrame:RegisterEvent("UI_ERROR_MESSAGE");
+		UIErrorsFrame:Show();
+	elseif (level == 1) then
+		UIErrorsFrame:UnregisterEvent("UI_ERROR_MESSAGE");
+		UIErrorsFrame:Show();
+	elseif (level == 2) then
+		UIErrorsFrame:UnregisterEvent("UI_ERROR_MESSAGE");
+		UIErrorsFrame:Hide();
+	end
+end
+
+--- Function to process lua start up code
+-- @param code code to be executed on startup
+function DHUDNonAddonSettingsHandler:processLuaStartUpCode(code)
+	local functionOnTimerTick = function(self, e)
+		DHUDDataTrackers.helper:removeEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE_FREQUENT, self, functionOnTimerTick);
+		local evalFunc, error = loadstring(code, "DHUD onLoad text input");
+		if (evalFunc ~= nil) then
+			evalFunc();
+		else
+			DHUDMain:print("Lua start up code contains errors: " .. error);
+		end
+	end
+	-- execute function on first timer tick to not break initialization if code contains errors
+	DHUDDataTrackers.helper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE_FREQUENT, self, functionOnTimerTick);
+end

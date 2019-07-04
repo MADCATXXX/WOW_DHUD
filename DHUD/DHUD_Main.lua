@@ -28,6 +28,7 @@
 -- Shadow/Glow Special Effect: http://www.wowinterface.com/downloads/info18479-rSetBackdrop.html#info
 -- Range and direction: http://www.curse.com/addons/wow/direction-arrow , http://www.curse.com/addons/wow/range-display , GetMapInfo(), GetPlayerMapPosition(unitId)
 -- arrow graphics http://www.wowinterface.com/downloads/info7032-TomTom.html
+-- specializations GetArenaOpponentSpec ("ARENA_OPPONENT_UPDATE"), GetInspectSpecialization ("INSPECT_READY" ?), GetBattlefieldScore ("UPDATE_BATTLEFIELD_SCORE")
 
 ----------
 -- Code --
@@ -128,7 +129,7 @@ function DHUDMain:createMinimapButton()
 		end,
 		right = function() -- right click
 			-- level - Nesting level of this dropdown. value - Value of the dropdown item (if level > 1). dropDownFrame - The frame to toggle (not its name!). This object should be derived from UIDropDownMenuTemplate. anchorName - Sets the relativeTo member of this frame. xOffset - Sets the x offset. yOffset - Sets the y offset.
-			ToggleDropDownMenu(1, nil, DHUD_DropDown_PlayerMenu, "DHUDMinimapButton", 25, 10); 
+			DHUDGUI.ToggleDropDownMenu(1, nil, DHUD_DropDown_PlayerMenu, "DHUDMinimapButton", 25, 10); 
 		end,
 		tooltip = "Left click: DHUD Options\nRight click: Player Menu",
 		enabled = true, -- minimap button is enabled by default, saved vars will be used later
