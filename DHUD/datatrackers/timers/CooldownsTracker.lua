@@ -19,6 +19,11 @@ local trackingHelper = DHUDDataTrackingHelper;
 
 --- Class to track unit cooldowns
 DHUDCooldownsTracker = MCCreateSubClass(DHUDTimersTracker, {
+	-- List of spells that should not be tracked, regardless of actual value (e.g. guild bank cd)
+	SPELLIDS_GENERALBOOK_EXCLUDE = {
+		83958,						-- Guild bank
+		125439,						-- resurrect battle pets
+	};
 	-- mask for the type, that specifies that cooldown is associated with spell
 	TIMER_TYPE_MASK_SPELL			= 1,
 	-- mask for the type, that specifies that cooldown is associated with item
@@ -260,6 +265,62 @@ function DHUDCooldownsTracker:updateSpellCooldowns()
 					timer[6] = spellData[1]; -- name
 					timer[7] = cooldownCharges; -- stacks
 					timer[8] = spellData[3]; -- texture
+				end
+			end
+		end
+		-- main spell tab info (racials, artifacts, etc...)
+		bookName, bookTexture, bookOffset, bookNumSpells = GetSpellTabInfo(1); -- 1 is always generic spell book
+		n = bookOffset + bookNumSpells - 1;
+		local generalSpellName, generalSpellSubName;
+		-- iterate over spell book
+		for i = bookOffset, n, 1 do
+			-- get spell info
+			spellType, spellId = GetSpellBookItemInfo(i, BOOKTYPE_SPELL);
+			-- only process spells
+			if (spellId ~= nil) then
+				generalSpellName, generalSpellSubName = GetSpellBookItemName(i, BOOKTYPE_SPELL);
+				if (generalSpellName ~= nil) then -- spell data may not be yet available to WoW Client
+					spellData = trackingHelper:getSpellData(spellId, true);
+					-- check spells with charges
+					charges, maxCharges, startTime, duration = GetSpellCharges(spellData[1]);
+					if (charges ~= nil and (maxCharges - charges) > 0) then
+						cooldownCharges = (maxCharges - charges);
+					else -- check usual cooldown
+						startTime, duration, enable = GetSpellCooldown(i, BOOKTYPE_SPELL);
+						cooldownCharges = 1;
+					end
+					-- valid cooldown?
+					if (startTime ~= nil and duration > 1.5) then
+						-- iterate over blacklist spellids
+						local validSpell = true;
+						for i, v in ipairs(self.SPELLIDS_GENERALBOOK_EXCLUDE) do
+							--print("compare spelldId " .. MCTableToString(spellId) .. ", to " .. MCTableToString(v) .. " " .. MCTableToString((v == spellId)));
+							if (v == spellId) then
+								validSpell = false;
+								break;
+							end
+						end
+						-- not blacklisted?
+						if (validSpell == true) then
+							--print("filling spelldId " .. MCTableToString(spellId) .. ", spelltype " .. MCTableToString(generalSpellSubName) .. ", bookname " .. bookName .. ", name " .. MCTableToString(spellData[1]) .. ", texture " .. MCTableToString(spellData[3]));
+							cooldownId = cooldownId + 1;
+							timer = self:findTimer(cooldownId, spellId);
+							-- degroup timers if their duration has changed, for spells like "Death from above"
+							if (timer[13] ~= nil and timer[3] ~= duration) then
+								timer[12] = nil;
+								timer[13] = nil;
+							end
+							-- fill timer info, { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder }
+							timer[1] = self.TIMER_TYPE_MASK_SPELL + self.TIMER_TYPE_MASK_ACTIVE; -- type
+							timer[2] = startTime + duration - timerMs; -- timeLeft
+							timer[3] = duration; -- duration
+							timer[4] = spellId; -- id
+							timer[5] = spellId; -- tooltipId
+							timer[6] = spellData[1]; -- name
+							timer[7] = cooldownCharges; -- stacks
+							timer[8] = spellData[3]; -- texture
+						end
+					end
 				end
 			end
 		end
