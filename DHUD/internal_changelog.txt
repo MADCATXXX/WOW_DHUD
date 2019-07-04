@@ -1,3 +1,12 @@
+Changelog 1.5.30000i MADCAT Revision11:
+-increased player buff slots limit to 24.
+-fixed Death Knight regen alpha bug.
+-changed how vehicles are shown. Vehicle combopoints are shown instead of player combopoints(good for Malygos fight and Borean Tundra daily), vehicle health and mana are shown as player health and mana bars. Your current health in vehicle are shown as pet health. You can turn off pet bar in options if you don't need it. Also VehicleAuras are shown while you are in vehicle.
+-Added raid icons. They are now shown near PvP status icon.
+-Player Auras now show it's stack.
+-Added debuff timers for target. It may increase you CPU usage if turned on.
+
+
 Changelog 1.5.30000h MADCAT Revision10:
 -fixed maximum player mana issue on update
 -added ace3 profiles support, in order to save or load profile you should load DHUD_Options addon(as it is "load on demand" you should click on the minimap icon). Your current character settings will be loaded to profile on first load.

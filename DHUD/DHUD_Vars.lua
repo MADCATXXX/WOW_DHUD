@@ -165,14 +165,22 @@ DHUD_variables = {
                 text = DHUD:gsub(text, '<hp_percent>', percent.."%%");
                 return text;
             end,
-      events  = { "UNIT_HEALTH", "UNIT_MAXHEALTH" },
+      events  = { "UNIT_HEALTH", "UNIT_MAXHEALTH", "UNIT_EXITED_VEHICLE" },
       hideval = "0%%", 
    },
    
    ["<hp_value>"] = { 
        func = function(text, unit)
                 local h;
-                
+                --vehicle support
+				--if DHUD.mcinvehicle == 1 then
+				--	if (unit == "player") then
+				--		unit = "pet";
+				--	elseif (unit == "pet") then
+				--		unit = "player";
+				--	end
+				--end
+				
                 if unit == "target" then
                     h = UnitHealth(unit);
                 else
@@ -186,7 +194,7 @@ DHUD_variables = {
                 text = DHUD:gsub(text, '<hp_value>', h);
                 return text;
             end,
-      events  = { "UNIT_HEALTH", "UNIT_MAXHEALTH" },
+      events  = { "UNIT_HEALTH", "UNIT_MAXHEALTH", "UNIT_EXITED_VEHICLE" },
       hideval = "0", 
    },
    
@@ -207,7 +215,7 @@ DHUD_variables = {
                 text = DHUD:gsub(text, '<hp_max>', h);
                 return text;
             end,
-      events  = { "UNIT_HEALTH", "UNIT_MAXHEALTH" },
+      events  = { "UNIT_HEALTH", "UNIT_MAXHEALTH", "UNIT_EXITED_VEHICLE" },
       hideval = "0", 
    },
    
@@ -238,7 +246,7 @@ DHUD_variables = {
                 text = DHUD:gsub(text, '<hp_diff>', d);
                 return text;
             end,
-      events  = { "UNIT_HEALTH", "UNIT_MAXHEALTH" },
+      events  = { "UNIT_HEALTH", "UNIT_MAXHEALTH", "UNIT_EXITED_VEHICLE" },
       hideval = "", 
    },
    
@@ -255,7 +263,7 @@ DHUD_variables = {
                 text = DHUD:gsub(text, '<mp_percent>', percent.."%%");
                 return text;
             end,
-      events  = { "UNIT_MANA","UNIT_MAXMANA","UNIT_FOCUS","UNIT_FOCUSMAX","UNIT_RAGE","UNIT_RAGEMAX","UNIT_ENERGY","UNIT_ENERGYMAX","UNIT_DISPLAYPOWER" },
+      events  = { "UNIT_MANA","UNIT_FOCUS","UNIT_RAGE","UNIT_ENERGY","UNIT_DISPLAYPOWER", "UNIT_RUNIC_POWER" },
       hideval = "0%%", 
   },
   
@@ -265,7 +273,7 @@ DHUD_variables = {
                 text = DHUD:gsub(text, '<mp_value>', m);
                 return text;
             end,
-      events  = { "UNIT_MANA","UNIT_MAXMANA","UNIT_FOCUS","UNIT_FOCUSMAX","UNIT_RAGE","UNIT_RAGEMAX","UNIT_ENERGY","UNIT_ENERGYMAX","UNIT_DISPLAYPOWER" },
+      events  = { "UNIT_MANA","UNIT_FOCUS","UNIT_RAGE","UNIT_ENERGY","UNIT_DISPLAYPOWER", "UNIT_RUNIC_POWER" },
       hideval = "0", 
   },
   
@@ -280,7 +288,7 @@ DHUD_variables = {
                 text = DHUD:gsub(text, '<mp_value_druid>', dm);
                 return text;
             end,
-      events  = { "UNIT_MANA","UNIT_MAXMANA","UNIT_FOCUS","UNIT_FOCUSMAX","UNIT_RAGE","UNIT_RAGEMAX","UNIT_ENERGY","UNIT_ENERGYMAX","UNIT_DISPLAYPOWER","UPDATE_SHAPESHIFT_FORMS" },
+      events  = { "UNIT_MANA","UNIT_FOCUS","UNIT_RAGE","UNIT_ENERGY","UNIT_DISPLAYPOWER","UPDATE_SHAPESHIFT_FORMS", "UNIT_RUNIC_POWER" },
       hideval = "", 
   },  
   
@@ -295,7 +303,7 @@ DHUD_variables = {
                 text = DHUD:gsub(text, '<mp_max_druid>', dm);
                 return text;
             end,
-      events  = { "UNIT_MANA","UNIT_MAXMANA","UNIT_FOCUS","UNIT_FOCUSMAX","UNIT_RAGE","UNIT_RAGEMAX","UNIT_ENERGY","UNIT_ENERGYMAX","UNIT_DISPLAYPOWER","UPDATE_SHAPESHIFT_FORMS" },
+      events  = { "UNIT_MANA","UNIT_FOCUS","UNIT_RAGE","UNIT_ENERGY","UNIT_DISPLAYPOWER","UPDATE_SHAPESHIFT_FORMS", "UNIT_RUNIC_POWER" },
       hideval = "", 
   }, 
 
@@ -310,7 +318,7 @@ DHUD_variables = {
                 text = DHUD:gsub(text, '<mp_percent_druid>', dm);
                 return text;
             end,
-      events  = { "UNIT_MANA","UNIT_MAXMANA","UNIT_FOCUS","UNIT_FOCUSMAX","UNIT_RAGE","UNIT_RAGEMAX","UNIT_ENERGY","UNIT_ENERGYMAX","UNIT_DISPLAYPOWER","UPDATE_SHAPESHIFT_FORMS" },
+      events  = { "UNIT_MANA","UNIT_FOCUS","UNIT_RAGE","UNIT_ENERGY","UNIT_DISPLAYPOWER","UPDATE_SHAPESHIFT_FORMS","UNIT_RUNIC_POWER" },
       hideval = "", 
   }, 
       
@@ -320,7 +328,7 @@ DHUD_variables = {
                 text = DHUD:gsub(text, '<mp_max>', m);
                 return text;
             end,
-      events  = { "UNIT_MANA","UNIT_MAXMANA","UNIT_FOCUS","UNIT_FOCUSMAX","UNIT_RAGE","UNIT_RAGEMAX","UNIT_ENERGY","UNIT_ENERGYMAX","UNIT_DISPLAYPOWER" },
+      events  = { "UNIT_MANA","UNIT_FOCUS","UNIT_RAGE","UNIT_ENERGY","UNIT_DISPLAYPOWER", "UNIT_RUNIC_POWER" },
       hideval = "0", 
   },
   
@@ -336,7 +344,8 @@ DHUD_variables = {
                 text = DHUD:gsub(text, '<mp_diff>', m);
                 return text;
             end,
-      events  = { "UNIT_MANA","UNIT_MAXMANA","UNIT_FOCUS","UNIT_FOCUSMAX","UNIT_RAGE","UNIT_RAGEMAX","UNIT_ENERGY","UNIT_ENERGYMAX","UNIT_DISPLAYPOWER" },
+			--"UNIT_MAXMANA", "UNIT_FOCUSMAX", "UNIT_RAGEMAX", "UNIT_ENERGYMAX", removed
+      events  = { "UNIT_MANA","UNIT_FOCUS","UNIT_RAGE","UNIT_ENERGY","UNIT_DISPLAYPOWER", "UNIT_RUNIC_POWER" },
       hideval = "", 
   },
   
@@ -489,7 +498,8 @@ DHUD_variables = {
 			text = DHUD:gsub(text, '<combopoints>', value);
 			return text;
 		end,
-		events = {"PLAYER_COMBO_POINTS"},
+		-- "PLAYER_COMBO_POINTS" changed to "UNIT_COMBO_POINTS"
+		events = {"UNIT_COMBO_POINTS"},
         hideval = "", 
  
     },
@@ -559,7 +569,7 @@ DHUD_variables = {
                 end
                 return text;
             end,
-      events  = { "UNIT_HEALTH", "UNIT_MAXHEALTH" },
+      events  = { "UNIT_HEALTH", "UNIT_MAXHEALTH", "UNIT_EXITED_VEHICLE" },
       hideval = "|cffffffff", 
   },
    ["<color_mp>"] = { 
@@ -595,7 +605,8 @@ DHUD_variables = {
                 end
                 return text;
             end,
-      events  = { "UNIT_MANA","UNIT_MAXMANA","UNIT_FOCUS","UNIT_FOCUSMAX","UNIT_RAGE","UNIT_RAGEMAX","UNIT_ENERGY","UNIT_ENERGYMAX" },
+			--"UNIT_MAXMANA", "UNIT_FOCUSMAX", "UNIT_RAGEMAX", "UNIT_ENERGYMAX", removed
+      events  = { "UNIT_MANA","UNIT_FOCUS","UNIT_RAGE","UNIT_ENERGY", "UNIT_RUNIC_POWER" },
       hideval = "|cffffffff", 
   },
     ["<guild>"] = { 

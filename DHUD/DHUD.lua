@@ -4,7 +4,7 @@ DHUD modification for WotLK Beta by MADCAT
 -----------------------------------------------------------------------------------]]--
 
 -- Init Vars --
-DHUD_VERSION    = "Version: 1.5.30000h";
+DHUD_VERSION    = "Version: 1.5.30000i";
 DHUD_TEXT_EMPTY = "";
 DHUD_TEXT_HP2   = "<color_hp><hp_value></color>";
 DHUD_TEXT_HP3   = "<color_hp><hp_value></color>/<hp_max>";
@@ -54,6 +54,7 @@ DHUD = {
     mcplmaxenergy     = 0,
     mcpetmaxenergy    = 0,
 	mcenemycasting	  = nil,
+	mcinvehicle		  = nil,
     -- mcplenergy     = 0,
     --
     playerbufffilter  = "HELPFUL",
@@ -162,7 +163,7 @@ DHUD = {
 					"DHUD_CB_Texture",
                     "DHUD_TargetElite",
                     "DHUD_PetHappy",
-                    "DHUD_RaidIcon",
+                    -- "DHUD_RaidIcon",
 --                    "DHUD_PlayerBuff1",
 --                    "DHUD_PlayerBuff2",
 --                    "DHUD_PlayerBuff3",
@@ -198,7 +199,7 @@ DHUD = {
                       "UNIT_SPELLCAST_CHANNEL_START","UNIT_SPELLCAST_CHANNEL_UPDATE","UNIT_SPELLCAST_DELAYED","UNIT_SPELLCAST_FAILED",
                       "UNIT_SPELLCAST_INTERRUPTED","UNIT_SPELLCAST_START","UNIT_SPELLCAST_STOP","UNIT_SPELLCAST_CHANNEL_STOP",
                       "PLAYER_UPDATE_RESTING","UNIT_PVP_UPDATE","PLAYER_PET_CHANGED","UNIT_PVP_STATUS","PLAYER_UNGHOST",
-                      "UNIT_HAPPINESS",
+                      "UNIT_HAPPINESS", "UNIT_ENTERED_VEHICLE", "UNIT_EXITED_VEHICLE", "VEHICLE_PASSENGERS_CHANGED" --, "COMPANION_UPDATE" , "UNIT_ENTERING_VEHICLE"
     },
 
     -- movable farme
@@ -240,6 +241,8 @@ DHUD = {
                 ["showtargetpvpicon"]  = 1,  
                 ["showpeticon"]        = 1, 
                 ["showeliteicon"]      = 1, 
+				["showraidicon"]	   = 1,
+				["debufftimer"]		   = 0,
                 ["animatebars"]        = 1,
                 ["barborders"]         = 1,
                 ["showauras"]          = 1,
@@ -370,9 +373,17 @@ end
 
 -- OnEvent --
 function DHUD:OnEvent()
-	-- MADCAT debug
-    -- self:print("MainEvent: "..event);
 
+	-- MADCAT debug
+	--if event == "UNIT_ENTERED_VEHICLE" or event == "UNIT_EXITED_VEHICLE" or event == "UNIT_ENTERING_VEHICLE" or event == "VEHICLE_PASSENGERS_CHANGED" or event == "COMPANION_UPDATE" then
+	--    if arg1 then
+	--	self:print("MainEvent: "..event .. " arg1: " .. arg1);
+	--	else
+	--		self:print("MainEvent: "..event .. " arg1: nill");
+	--	end
+	--end
+	--self:print("MainEvent: "..event);
+	
     -- debug
     self:printd("MainEvent: "..event);
 
@@ -382,12 +393,84 @@ function DHUD:OnEvent()
         self:firstload();
     -- zoning    
     elseif event == "PLAYER_ENTERING_WORLD" then
+		mcinvehicle = 0;
         self.enter = 1;
         if self:firstload() then return; end       
         if self.issetup ~= 2 then return; end
         if self.isinit  ~= 2 then return; end
         self:init();
-
+		self:UpdateValues("DHUD_PlayerHealth_Text");
+		self:triggerTextEvent("DHUD_PlayerHealth_Text");
+		
+	
+	--Vehicle support
+	elseif event == "UNIT_ENTERED_VEHICLE" then
+		if arg1 == "player" then
+			--self:print("MainEvent: "..event);
+			local hasUI = UnitHasVehicleUI("player")
+			if hasUI then
+				mcinvehicle = 1;
+			else
+				mcinvehicle = 0;
+			end			
+			self:UpdateValues("DHUD_PetHealth_Text");
+		end
+	elseif event == "UNIT_EXITED_VEHICLE" then
+		if arg1 == "player" then
+			--self:print("MainEvent: "..event);
+			mcinvehicle = 0;
+			if DHUD_Settings["animatebars"] == 1 then
+				DHUD_Settings["animatebars"] = 0;
+				self:UpdateValues("DHUD_PlayerHealth_Text");
+				self:UpdateValues("DHUD_PlayerMana_Text");
+				self:UpdateValues("DHUD_PetHealth_Text");
+				self:UpdateValues("DHUD_PetMana_Text");			
+				DHUD_Settings["animatebars"] = 1;
+			else
+				self:UpdateValues("DHUD_PlayerHealth_Text");
+			end
+			
+			local text = getglobal("DHUD_PetHealth_Text").text;
+			local font = getglobal("DHUD_PetHealth_Text".."_Text");
+			text = DHUD:gsub(text, '<color_hp>', "|cffffffff" );
+            text = DHUD:gsub(text, '<hp_value>', "");
+		    text = DHUD:gsub(text, '</color>', '|r');
+		    text = DHUD:gsub(text, '<color>', '|cff');
+		    text = DHUD:gsub(text, '<hp_percent>', "");
+			text = DHUD:gsub(text, '<hp_max>', "");	
+			font:SetText(text);
+		end
+	elseif event == "VEHICLE_PASSENGERS_CHANGED" then
+		local hasUI = UnitHasVehicleUI("player")
+		if hasUI then
+			mcinvehicle = 1;
+		else
+			mcinvehicle = 0;
+			if DHUD_Settings["animatebars"] == 1 then
+				DHUD_Settings["animatebars"] = 0;
+				self:UpdateValues("DHUD_PlayerHealth_Text");
+				self:UpdateValues("DHUD_PlayerMana_Text");
+				self:UpdateValues("DHUD_PetHealth_Text");
+				self:UpdateValues("DHUD_PetMana_Text");			
+				DHUD_Settings["animatebars"] = 1;
+			else
+				self:UpdateValues("DHUD_PlayerHealth_Text");
+			end
+			self:triggerTextEvent("DHUD_PlayerHealth_Text");
+			
+			local text = getglobal("DHUD_PetHealth_Text").text;
+			local font = getglobal("DHUD_PetHealth_Text".."_Text");
+			text = DHUD:gsub(text, '<color_hp>', "|cffffffff" );
+            text = DHUD:gsub(text, '<hp_value>', "");
+		    text = DHUD:gsub(text, '</color>', '|r');
+		    text = DHUD:gsub(text, '<color>', '|cff');
+		    text = DHUD:gsub(text, '<hp_percent>', "");
+			text = DHUD:gsub(text, '<hp_max>', "");	
+			font:SetText(text);
+		end			
+		self:UpdateValues("DHUD_PetHealth_Text");
+	
+	
     -- update HEALTH Bars, UNIT_HEALTHMAX removed  
     elseif ( event == "UNIT_HEALTH" ) then
         if arg1 == "player" then
@@ -410,9 +493,9 @@ function DHUD:OnEvent()
 		-- mcplenergy = UnitMana("player");
         elseif arg1 == "target" then
             self:UpdateValues("DHUD_TargetMana_Text");
-		if (event == "UNIT_RUNIC_POWER" ) then
-			self:triggerTextEvent("DHUD_TargetMana_Text");
-		end
+		--if (event == "UNIT_RUNIC_POWER" ) then
+			--self:triggerTextEvent("DHUD_TargetMana_Text");
+		--end
         elseif arg1 == "pet" then
             self:UpdateValues("DHUD_PetMana_Text");
 		mcpetmaxenergy = UnitManaMax("pet");
@@ -1141,11 +1224,16 @@ function DHUD:OnUpdate()
     self:MCUpdatePlayerEnergy();
     
     -- MADCAT pet energy update
-    if self.has_pet_mana == 1 then
+	if (DHUD_Settings["showpet"] == 1) and (self.has_pet_mana == 1 or mcinvehicle == 1) then
     	self:MCUpdatePetEnergy();
     end
     --
     self:PlayerAuras();
+	
+	--UpdateDebuffTimers,CPU consuming.
+	if DHUD_Settings["debufftimer"] == 1 and self.Target == 1 then
+		self:TargetAuras();
+	end	
 end
 
 -- register Events
@@ -1984,6 +2072,18 @@ function DHUD:createFrame(name)
         font:Show();
         font:ClearAllPoints();
         font:SetPoint(point, frame, relative,x, y);
+		
+		local font2 = ref:CreateFontString(name.."_TimeLeftText", "ARTWORK");
+        font2:SetFontObject(GameFontHighlightSmall);
+        font2:SetText("");
+        font2:SetJustifyH("LEFT");
+        font2:SetJustifyV("TOP");
+        font2:SetWidth(width+1);
+        font2:SetHeight(height-3);
+        font2:SetFont( self.defaultfont, width / 2.5, "OUTLINE");
+        font2:Show();
+        font2:ClearAllPoints();
+        font2:SetPoint(point, frame, relative,x, y);
         
         local bgt = ref:CreateTexture(name.."_Border","OVERLAY");
         bgt:SetTexture("Interface\\Buttons\\UI-Debuff-Border");
@@ -2032,6 +2132,16 @@ function DHUD:createFrame(name)
         font:SetJustifyV("CENTER");
         font:SetWidth(width*2);
         font:SetHeight(height);
+		
+		local font2 = ref:CreateFontString(name.."_CountText", "OVERLAY");
+        font2:ClearAllPoints();
+        font2:SetFontObject(GameFontHighlightSmall);
+        font2:SetPoint("CENTER", ref, "CENTER", 0,0);
+        font2:SetText("");
+        font2:SetJustifyH("RIGHT");
+        font2:SetJustifyV("BOTTOM");
+        font2:SetWidth(width*1.7);
+        font2:SetHeight(height*1.2);
         
         local bgt = ref:CreateTexture(name.."_Border","OVERLAY");
         bgt:SetTexture("Interface\\AddOns\\DHUD\\layout\\serenity0");
@@ -2206,8 +2316,15 @@ end;
 
 -- show / hide combopoints
 function DHUD:UpdateCombos()
-    local points = GetComboPoints("player","target")
-    if points == 0 then 
+	local points;
+	if (not mcinvehicle or mcinvehicle == 0) then
+		points = GetComboPoints("player","target")
+		--self:print("Points: " .. points);
+	elseif mcinvehicle == 1 then
+		points = GetComboPoints("pet","target")
+		--self:print("Points: " .. points);
+	end
+	if points == 0 then 
         DHUD_Combo1:Hide();
         DHUD_Combo2:Hide();
         DHUD_Combo3:Hide();
@@ -2293,7 +2410,7 @@ function DHUD:TargetAuras()
         
     -- DeBuffs
     for i = 1, 40 do
-        local debuffName, _, debuffTexture, debuffApplication = UnitDebuff("target", i);
+        local debuffName, _, debuffTexture, debuffApplication, _, _, debufftimeLeft = UnitDebuff("target", i);
         button = getglobal(debuffFrame..i);
         button.hasdebuff = 1;
         button.unit = "target";
@@ -2306,7 +2423,19 @@ function DHUD:TargetAuras()
                         
             debuffBorder = getglobal(button:GetName().."_Border");
             debuffBorder:Show();
-            
+			
+			if DHUD_Settings["debufftimer"] == 1 then
+				local color = {};
+				local debuffTimeLeftText
+	            debufftimeLeft = debufftimeLeft - GetTime();
+			    
+	            if debufftimeLeft > 0 then
+	                color.r, color.g, color.b = self:Colorize("aura_player", debufftimeLeft / 20);
+					debuffTimeLeftText   = getglobal(button:GetName().."_TimeLeftText");
+	                debuffTimeLeftText:SetText("|cff"..DHUD_DecToHex(color.r, color.g, color.b)..DHUD_FormatTime(debufftimeLeft));
+	            end
+			end
+				
             debuffText   = getglobal(button:GetName().."_Text");
             if debuffApplication <= 0 then
                 debuffText:SetText("");
@@ -2326,10 +2455,11 @@ end
 -- update player Auras
 function DHUD:PlayerAuras()
 
-    local i, icon, button, pbtimeLeft, pbtexture;
-    local pbrank, pbcount, pbdebuffType, pbduration;
+    local i, icon, button, pbtimeLeft, pbtexture, pbcount;
+    --local pbrank, pbdebuffType, pbduration;
     local j = 1;
     local buffText;
+	local buffCountText;
     local buffframe = "DHUD_PlayerBuff";
     local color = {};
     
@@ -2337,8 +2467,12 @@ function DHUD:PlayerAuras()
     if DHUD_Settings["showplayerbuffs"] == 1 and getglobal(buffframe .. "1"):IsVisible() then
         for i = 1, 40 do
             -- WotLK GetPlayerBuff changed to UnitBuff
-            buffI, pbrank, pbtexture, pbcount, pbdebuffType, pbduration, pbtimeLeft  = UnitBuff( "player", i, self.playerbufffilter );
-           	
+			if (not mcinvehicle or mcinvehicle == 0) then
+				buffI, _, pbtexture, pbcount, _, _, pbtimeLeft  = UnitBuff( "player", i, self.playerbufffilter );
+           	elseif mcinvehicle == 1 then
+				buffI, _, pbtexture, pbcount, _, _, pbtimeLeft  = UnitBuff( "pet", i, self.playerbufffilter );
+			end
+			
 		-- don't show empty frames
             if (buffI==nil) then pbtimeLeft=0; 
 		else 
@@ -2362,11 +2496,18 @@ function DHUD:PlayerAuras()
                 buffText   = getglobal(button:GetName().."_Text");
                 buffText:SetText("|cff"..DHUD_DecToHex(color.r, color.g, color.b)..DHUD_FormatTime(pbtimeLeft));
                 
+				if (pbcount > 1) then
+					buffCountText   = getglobal(button:GetName().."_CountText");
+	                buffCountText:SetText("|cff"..DHUD_DecToHex(1, 1, 1)..pbcount);
+				else
+					buffCountText   = getglobal(button:GetName().."_CountText");
+	                buffCountText:SetText("");
+				end
                 button:Show();
                 
                 -- limited number of buff slots
-                if j == 16 then
-                    self:print("You have reached the buff limit. Contact Caeryn and ask for more buff slots");
+                if j == 24 then
+                    self:print("You have reached the buff limit. Contact MADCAT and ask for more buff slots");
                     break;
                 else
                     j = j + 1;
@@ -2377,7 +2518,7 @@ function DHUD:PlayerAuras()
     end
 
     -- hide the buttons not used
-    for j = j, 16 do
+    for j = j, 24 do
         button = getglobal(buffframe..j);
         button.hasdebuff = nil;
         button.unit = "player";
@@ -2407,7 +2548,19 @@ function DHUD:MCUpdatePlayerEnergy()
     
     local text  = this.text;
     -- mcplenergy = mcplenergy + 1;
-    local mcplenergy = UnitMana("player");
+	local mcplenergy = 0;
+	local maxplenergytmp = 0;
+	--vehicle support
+	if mcinvehicle == 1 then 
+		mcplenergy = UnitMana("pet");
+		maxplenergytmp = mcplmaxenergy;
+		mcplmaxenergy = UnitManaMax("pet");
+		if mcplmaxenergy==0 then
+			mcplmaxenergy=100
+		end
+	else
+		mcplenergy = UnitMana("player");
+	end
     if (mcplenergy>mcplmaxenergy) then
 		mcplenergy=mcplmaxenergy;
     end
@@ -2437,6 +2590,9 @@ function DHUD:MCUpdatePlayerEnergy()
     -- text = string.gsub(text,"(%s+$)","");
     font:SetText(text);
     -- end
+	if mcinvehicle == 1 then
+		mcplmaxenergy = maxplenergytmp;
+	end
 end
 
 -- ######MADCAT: UpdatePetEnergy smoothly
@@ -2448,7 +2604,18 @@ function DHUD:MCUpdatePetEnergy()
     local font = getglobal("DHUD_PetMana_Text".."_Text");
     
     local text  = this.text;
-    local mcpetenergy = UnitMana("pet");
+	
+	local mcpetenergy = 0;
+	local maxpetenergytmp = 0;
+	--vehicle support
+	if mcinvehicle == 1 then 
+		mcpetenergy = UnitMana("player");
+		maxpetenergytmp = mcpetmaxenergy;
+		mcpetmaxenergy = UnitManaMax("player");
+	else
+		mcpetenergy = UnitMana("pet");
+	end
+    
     if (mcpetenergy>mcpetmaxenergy) then
 		mcpetenergy=mcpetmaxenergy;
     end
@@ -2478,6 +2645,9 @@ function DHUD:MCUpdatePetEnergy()
     -- text = string.gsub(text,"(%s+$)","");
     font:SetText(text);
     -- end
+	if mcinvehicle == 1 then
+		mcpetmaxenergy = maxpetenergytmp;
+	end
 end
 
 
@@ -2505,18 +2675,122 @@ end
 -- Update Values
 function DHUD:UpdateValues(frame,set)
     local value;
+	
+	--vehicle support
+	if mcinvehicle == 1 then
+		if (frame == "DHUD_PetHealth_Text") then
+			frame = "DHUD_PlayerHealth_Text";
+		elseif (frame == "DHUD_PlayerHealth_Text") then
+			frame = "DHUD_PetHealth_Text";
+		elseif (frame == "DHUD_PlayerMana_Text") then
+			frame = "DHUD_PetMana_Text";
+		elseif (frame == "DHUD_PetMana_Text") then
+			frame = "DHUD_PlayerMana_Text";
+		end
+	end
+	
     local bar  = self.text2bar[frame];
-    local unit = self.name2unit[bar];
+	local unit = self.name2unit[bar];
     local typ  = self.name2typ[bar];
     local ref  = getglobal(frame.. "_Text");    
     self.PetneedMana   = nil;
     self.PetneedHealth = nil;
-        
-    if typ == "health" then
-        value = tonumber(UnitHealth(unit)/UnitHealthMax(unit));
-    else
-        value = tonumber(UnitMana(unit)/UnitManaMax(unit));
-    end  
+    
+	--vehicle support
+	if mcinvehicle == 1 then
+		if (unit == "player") then
+			unit = "pet";
+		elseif (unit == "pet") then
+			unit = "player";
+		end
+	end
+	
+	if ( UnitExists(unit) ) then
+	    if typ == "health" then
+			value = tonumber(UnitHealth(unit)/UnitHealthMax(unit));
+	    else
+	        value = tonumber(UnitMana(unit)/UnitManaMax(unit));
+	    end
+	else
+		value = 0;
+	end 
+	
+	--self:print("Frame: " .. frame .. " Unit:" .. unit .. " Value: " .. value);
+	
+	--vehicle support
+	if mcinvehicle == 1 then
+		if (frame == "DHUD_PlayerHealth_Text" or frame == "DHUD_PetHealth_Text") then
+			local updating = 0;
+			if frame == "DHUD_PetHealth_Text" then
+				frame = "DHUD_PlayerHealth_Text";
+				unit = "pet";
+				updating = 1;
+			end
+			local text = getglobal(frame).text;
+			local font = getglobal(frame.."_Text");
+			
+			local health = UnitHealth(unit);
+            local healthmax = UnitHealthMax(unit);
+			local percent = 0; -- = health/healthmax;
+            if (healthmax > 0 and UnitExists(unit) ) then
+                percent = health/healthmax;
+                local typunit = DHUD:getTypUnit(unit,"health")
+                local color = DHUD_DecToHex(DHUD:Colorize(typunit,percent));
+                text = DHUD:gsub(text, '<color_hp>', "|cff"..color );
+            else
+                text = DHUD:gsub(text, '<color_hp>', "|cffffffff" );
+            end
+			
+			--self:print("Health: " .. health .. " mcinvehicle = " .. mcinvehicle);	
+			--text = DHUD:gsub(text, '<color_hp>', "|cff"..color);
+			percent = math.floor(percent * 100);
+			text = DHUD:gsub(text, '<hp_value>', health);
+		    text = DHUD:gsub(text, '</color>', '|r');
+		    text = DHUD:gsub(text, '<color>', '|cff');
+		    text = DHUD:gsub(text, '<hp_percent>', percent.."%%");
+			text = DHUD:gsub(text, '<hp_max>', healthmax);	
+			font:SetText(text);
+			
+			if (DHUD_Settings["showpet"] == 1) then
+				unit = "player";
+				text = getglobal("DHUD_PetHealth_Text").text;
+				font = getglobal("DHUD_PetHealth_Text".."_Text");
+				
+				health = UnitHealth(unit);
+	            healthmax = UnitHealthMax(unit);
+				percent = 0; -- = health/healthmax;
+	            if (healthmax > 0 and UnitExists(unit) ) then
+	                percent = health/healthmax;
+	                local typunit = DHUD:getTypUnit(unit,"health")
+	                local color = DHUD_DecToHex(DHUD:Colorize(typunit,percent));
+	                text = DHUD:gsub(text, '<color_hp>', "|cff"..color );
+	            else
+	                text = DHUD:gsub(text, '<color_hp>', "|cffffffff" );
+	            end
+				
+				--self:print("Health: " .. health .. " mcinvehicle = " .. mcinvehicle);	
+				--text = DHUD:gsub(text, '<color_hp>', "|cff"..color);
+				percent = math.floor(percent * 100);
+				text = DHUD:gsub(text, '<hp_value>', health);
+			    text = DHUD:gsub(text, '</color>', '|r');
+			    text = DHUD:gsub(text, '<color>', '|cff');
+			    text = DHUD:gsub(text, '<hp_percent>', percent.."%%");
+				text = DHUD:gsub(text, '<hp_max>', healthmax);	
+				font:SetText(text);
+			end
+			unit = "pet"
+			if updating == 1 then
+				updating = 0;
+				unit = "player"
+			end
+			
+		end
+		if (unit == "player") then
+			unit = "pet";
+		elseif (unit == "pet") then
+			unit = "player";
+		end
+	end
     
     -- hide pet?
     if unit == "pet" and DHUD_Settings["showpet"] == 0 then
@@ -2553,7 +2827,7 @@ function DHUD:UpdateValues(frame,set)
         end
     elseif typ == "mana" and unit == "player" then
         local type = self.powertypes[ UnitPowerType(unit)+1 ];
-        if type == "rage" then
+        if (type == "rage" or type == "runic_power") then
             if math.floor(value * 100) == 100 then
                 self.needMana = true;
             else
@@ -2582,7 +2856,7 @@ function DHUD:UpdateValues(frame,set)
     
     if DHUD_Settings["animatebars"] == 0 or set then
         self.bar_anim[bar] = value;
-        self:SetBarHeight(bar,value); 
+		self:SetBarHeight(bar,value); 
         self:SetBarColor(bar,value);
     end       
 end

@@ -186,6 +186,10 @@ DHUDO_locale.enemycastingbar         = "Enemy castbar";
 DHUDO_locale.enemycastingbar_tooltip = "Show enemy castbar";
 DHUDO_locale.castingbarinfo          = "Castbar info";
 DHUDO_locale.castingbarinfo_tooltip  = "Show Castbar info";
+DHUDO_locale.showraidicon			 = "Raid Icon";
+DHUDO_locale.showraidicon_tooltip    = "Show Raid Icon";
+DHUDO_locale.debufftimer			 = "Debuff Timer";
+DHUDO_locale.debufftimer_tooltip	 = "Show Debuff Timer. This option increase your CPU usage";
 
 
 DHUD_TEXTHELP = "|cff88ff88Available Tags:|r\n\n<spellname>\n<casttime>\n<casttime_remain>\n<casttime_delay>\n\n<hp_percent>\n<hp_value>\n<hp_max>\n<hp_diff>\n\n<mp_percent>\n<mp_value>\n<mp_max>\n<mp_diff>\n\n<mp_value_druid>\n<mp_max_druid>\n<mp_percent_druid>\n\n<name>\n<level>\n<elite>\n<type>\n<class>\n<pet>\n<npc>\n<faction>\n<combopoints>\n<pvp>\n<pvp_rank>\n<raidgroup>\n<guild>\n\n<color>ffffff\n</color>\n<color_level>\n<color_class>\n<color_reaction>";

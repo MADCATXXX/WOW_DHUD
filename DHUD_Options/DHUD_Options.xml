@@ -1221,6 +1221,18 @@
                                 <Offset><AbsDimension x="0" y="-25"/></Offset>
                         </Anchor></Anchors>
                     </CheckButton>
+					<!-- checkbox raidicon -->
+					<CheckButton name="DHUD_Check_showraidicon" inherits="DHUD_Check_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Check_castingbarinfo">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                        </Anchor></Anchors>
+                    </CheckButton>
+					<!-- checkbox raidicon -->
+					<CheckButton name="DHUD_Check_debufftimer" inherits="DHUD_Check_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Check_showraidicon">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                        </Anchor></Anchors>
+                    </CheckButton>
 				</Frames>
             </Frame>
 					
