@@ -159,15 +159,22 @@ function DHUDDataTrackerHelper:init()
 		if (unitId ~= "player") then
 			return;
 		end
+		--print("UNIT_ENTERED_VEHICLE");
+		-- force event rethrow, as VEHICLE_PASSENGERS_CHANGED set it at incorrect time
+		if (helper.isInVehicle) then
+			helper.isInVehicle = false;
+		end
 		helper:setIsInVehicle(UnitHasVehicleUI("player"));
 	end
 	function self.eventsFrame:UNIT_EXITED_VEHICLE(unitId)
 		if (unitId ~= "player") then
 			return;
 		end
+		--print("UNIT_EXITED_VEHICLE");
 		helper:setIsInVehicle(false);
 	end
 	function self.eventsFrame:VEHICLE_PASSENGERS_CHANGED()
+		--print("VEHICLE_PASSENGERS_CHANGED");
 		helper:setIsInVehicle(UnitHasVehicleUI("player"));
 	end
 	function self.eventsFrame:PLAYER_TARGET_CHANGED()
@@ -206,13 +213,13 @@ function DHUDDataTrackerHelper:init()
 		helper:setPlayerSpecialization(GetSpecialization());
 	end
 	function self.eventsFrame:PLAYER_ALIVE()
-		helper:setIsDead(UnitIsDeadOrGhost("player"));
+		helper:setIsDead(UnitIsDeadOrGhost("player") == 1);
 	end
 	function self.eventsFrame:PLAYER_DEAD()
-		helper:setIsDead(false);
+		helper:setIsDead(true);
 	end
 	function self.eventsFrame:PLAYER_UNGHOST()
-		helper:setIsDead(true);
+		helper:setIsDead(false);
 	end
 	function self.eventsFrame:PLAYER_UPDATE_RESTING()
 		helper:setIsResting(IsResting());
@@ -505,12 +512,16 @@ DHUDDataTracker = MCCreateSubClass(MADCATEventDispatcher, {
 	trackUnitId			= "",
 	-- defines if resource exists (should be shown in GUI), e.g. target health is not required without target
 	isExists			= true,
+	-- defines if datatracker resource is restricted only for certain player specializations
+	restrictedToPlayerSpecs = nil,
 	-- amount of tracked resource or number of buffs/debuffs/cooldowns, etc..
 	amount				= 0,
 	-- base amount of tracked resource (at which regeneration will stop, e.g. 0 rage or full mana)
 	amountBase			= 0,
 	-- defines if resource is currently regenerating (not equals to base)
 	isRegenerating		= false,
+	-- defines if resource can be regenerated
+	canRegenerate		= true,
 })
 
 --- Constructor of data tracker
@@ -586,12 +597,32 @@ end
 
 --- Check if this tracker data is exists
 function DHUDDataTracker:checkIsExists()
-	return (self.unitId ~= "");
+	if (self.unitId == "") then
+		return false;
+	end
+	-- check specs
+	if (self.restrictedToPlayerSpecs ~= nil) then
+		local spec = trackingHelper.playerSpecialization;
+		local isAvailableToSpec = false;
+		for i, v in ipairs(self.restrictedToPlayerSpecs) do
+			if (v == spec) then
+				isAvailableToSpec = true;
+				break;
+			end
+		end
+		if (not isAvailableToSpec) then
+			return false;
+		end
+	end
+	return true;
 end
 
 --- set amount variable
 function DHUDDataTracker:setAmount(amount)
-	if (self.amount == amount and (not self.isQueriedDataEvent)) then
+	if (self.amount == amount) then
+		if (self.isQueriedDataEvent) then
+			self:processDataChangedInstant();
+		end
 		return;
 	end
 	self.amount = amount;
@@ -639,7 +670,7 @@ function DHUDDataTracker:setIsRegenerating(isRegenerating)
 	if (self.isRegenerating == isRegenerating) then
 		return;
 	end
-	self.isRegenerating = isRegenerating;
+	self.isRegenerating = self.canRegenerate and isRegenerating;
 	self:dispatchEvent(self.eventRegenerationChanged);
 end
 
@@ -748,6 +779,20 @@ function DHUDDataTracker:prepareTargetChangeTracking()
 	--trackingHelper:removeEventListener(DHUDDataTrackerHelperEvent.EVENT_TARGET_UPDATED, self, self.onTargetEvent);
 end
 
+--- set tracker to be tracked only if player is specced to correspondig spec
+-- @param ... numbers of player specs
+function DHUDDataTracker:initPlayerSpecsOnly(...)
+	local tracker = self;
+	self.restrictedToPlayerSpecs = { ... };
+	-- player specialization changed
+	function self:onSpecializationEvent(e)
+		tracker:setIsExists(tracker:checkIsExists());
+	end
+	-- register to spec change event
+	trackingHelper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_SPECIALIZATION_CHANGED, self, self.onSpecializationEvent);
+	self:onSpecializationEvent(nil);
+end
+
 -----------------------------------
 -- Unit power tracker base class --
 -----------------------------------
@@ -764,12 +809,18 @@ DHUDPowerTracker = MCCreateSubClass(DHUDDataTracker, {
 	amountMaxDefault	= 0,
 	-- minumum amount of tracked resource, usually 0, currently in use only for Moonkin Eclipse power
 	amountMin			= 0,
+	-- percent of maximum to set minimum amount of tracked resource, usually 0, currently in use only for Moonkin Eclipse power
+	amountMinPercent	= 0,
 	-- extra amount of resource, can be set event if amount is not at max (e.g. Power word shield for health, or extra combo-points for anticipation talent)
 	amountExtra			= 0,
 	-- maximum extra amount of resource while it's in use (e.g. maximum amount of all shield on target until shield fades, needed for GUI), calculated when changing amountExtra
 	amountExtraMax		= 0,
 	-- base amount of resource at which regenerating stops, in percents
 	amountBasePercent	= 0,
+	-- set to track amount max events when unit become existant, data tracker should override startTrackingAmountMax and stopTrackingAmountMax
+	trackAmountMax		= false,
+	-- defines if maximum amount being tracked?
+	isTrackingAmountMax = false,
 	-- table with base percents for resource types, all unset resource types will be treated as 0
 	BASE_PERCENT_FOR_RESOURCE_TYPE = {
 		["MANA"]			= 1,
@@ -777,6 +828,10 @@ DHUDPowerTracker = MCCreateSubClass(DHUDDataTracker, {
 		["FOCUS"]			= 1,
 		["SOUL_SHARDS"]		= 1,
 		["DEMONIC_FURY"]	= 0.2,
+	},
+	-- table with min percents for resource types, all unset resource types will be treated as 0
+	MIN_PERCENT_FOR_RESOURCE_TYPE = {
+		["ECLIPSE"]			= -1,
 	},
 })
 
@@ -794,8 +849,57 @@ function DHUDPowerTracker:setAmountMax(amountMax)
 		return;
 	end
 	self.amountMax = amountMax;
-	self:processDataChanged();
 	self:setAmountBase(self.amountBasePercent * self.amountMax);
+	self:setAmountMin(self.amountMinPercent * self.amountMax);
+	self:processDataChanged();
+	self:setIsExists(self:checkIsExists());
+end
+
+--- Check if this tracker data is exists
+function DHUDPowerTracker:checkIsExists()
+	if (not DHUDDataTracker.checkIsExists(self)) then -- call super
+		if (self.trackAmountMax) then
+			self:changeAmountMaxTrackingState(false);
+		end
+		return false;
+	end
+	-- amount max tracking activated?
+	if (self.trackAmountMax) then
+		self:changeAmountMaxTrackingState(true);
+		self:updateAmountMax();
+		--print("checkIsExists " .. self.amountMax);
+		return (self.amountMax ~= 0); -- power maximum should not be equal to zero
+	end
+	return true;
+end
+
+--- Start tracking amountMax data, should be invoked only from changeTrackingState function!
+function DHUDPowerTracker:startTrackingAmountMax()
+	-- to be overriden by subclasses
+end
+
+--- Update maximum amount or resource, should be invoked only from changeTrackingState function!
+function DHUDPowerTracker:updateAmountMax()
+
+end
+
+--- Stop tracking amountMax data, should be invoked only from changeTrackingState function!
+function DHUDPowerTracker:stopTrackingAmountMax()
+	-- to be overriden by subclasses
+end
+
+--- Enable or disable tracking of maximum amount for this data tracker
+-- @param enable if true then this data tracker will begin to track data
+function DHUDPowerTracker:changeAmountMaxTrackingState(enable)
+	if (self.isTrackingAmountMax == enable) then
+		return;
+	end
+	self.isTrackingAmountMax = enable;
+	if (enable) then
+		self:startTrackingAmountMax();
+	else
+		self:stopTrackingAmountMax();
+	end
 end
 
 --- set amountBasePercent variable
@@ -816,6 +920,16 @@ function DHUDPowerTracker:setAmountMin(amountMin)
 	self:processDataChanged();
 end
 
+--- set amountMinPercent variable
+function DHUDPowerTracker:setAmountMinPercent(amountMinPercent)
+	--print("set amountMinPercent " .. MCTableToString(amountMinPercent));
+	if (self.amountMinPercent == amountMinPercent) then
+		return;
+	end
+	self.amountMinPercent = amountMinPercent;
+	self:setAmountMin(self.amountMinPercent * self.amountMax);
+end
+
 --- set amountExtra variable
 function DHUDPowerTracker:setAmountExtra(amountExtra)
 	if (self.amountExtra == amountExtra) then
@@ -834,7 +948,7 @@ end
 -- @param resourceType id of the resource type
 -- @param resourceTypeName name of the resource, used to improve performance, pass empty string to allow updates on every UNIT_POWER event
 function DHUDPowerTracker:setResourceType(resourceType, resourceTypeName)
-	if (self.resourceType == resourceType) then
+	if (self.resourceType == resourceType and self.resourceTypeString == resourceTypeName) then
 		return;
 	end
 	self.resourceType = resourceType;
@@ -842,6 +956,7 @@ function DHUDPowerTracker:setResourceType(resourceType, resourceTypeName)
 	self:dispatchEvent(self.eventResourceTypeChanged);
 	-- change base amount
 	self:setAmountBasePercent(self.BASE_PERCENT_FOR_RESOURCE_TYPE[self.resourceTypeString] or 0);
+	self:setAmountMinPercent(self.MIN_PERCENT_FOR_RESOURCE_TYPE[self.resourceTypeString] or 0);
 	-- update data
 	self:updateData();
 end
@@ -913,6 +1028,8 @@ function DHUDHealthTracker:init()
 	end
 	-- change base amount of health
 	self:setAmountBasePercent(1);
+	-- track maximum amount event if data tracker is not activated
+	self.trackAmountMax = true;
 end
 
 --- set noCreditForKill variable value
@@ -928,7 +1045,6 @@ end
 function DHUDHealthTracker:startTracking()
 	-- listen to game events
 	self.eventsFrame:RegisterEvent("UNIT_HEALTH");
-	self.eventsFrame:RegisterEvent("UNIT_MAXHEALTH");
 	self.eventsFrame:RegisterEvent("UNIT_HEAL_PREDICTION");
 	self.eventsFrame:RegisterEvent("UNIT_ABSORB_AMOUNT_CHANGED");
 	self.eventsFrame:RegisterEvent("UNIT_AURA");
@@ -941,13 +1057,27 @@ end
 function DHUDHealthTracker:stopTracking()
 	-- stop listening to game events
 	self.eventsFrame:UnregisterEvent("UNIT_HEALTH");
-	self.eventsFrame:UnregisterEvent("UNIT_MAXHEALTH");
 	self.eventsFrame:UnregisterEvent("UNIT_HEAL_PREDICTION");
 	self.eventsFrame:UnregisterEvent("UNIT_ABSORB_AMOUNT_CHANGED");
 	self.eventsFrame:UnregisterEvent("UNIT_AURA");
 	if (self.creditInfoTracker ~= nil) then
 		self.creditInfoTracker:removeEventListener(DHUDDataTrackerEvent.EVENT_DATA_CHANGED, self, self.updateTagging);
 	end
+end
+
+--- Start tracking amountMax data
+function DHUDHealthTracker:startTrackingAmountMax()
+	self.eventsFrame:RegisterEvent("UNIT_MAXHEALTH");
+end
+
+--- Update maximum amount or resource
+function DHUDHealthTracker:updateAmountMax()
+	self.eventsFrame:UNIT_MAXHEALTH(self.unitId);
+end
+
+--- Stop tracking amountMax data
+function DHUDHealthTracker:stopTrackingAmountMax()
+	self.eventsFrame:UnregisterEvent("UNIT_MAXHEALTH");
 end
 
 --- Update absorb amounts for unit
@@ -973,11 +1103,11 @@ function DHUDHealthTracker:updateAbsorbedHeal()
 	-- iterate over absorbing spellids
 	for i, v in ipairs(self.SPELLIDS_ABSORB_HEAL) do
 		--name, rank, icon, count, dispelType, duration, expires, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff, value1, value2, value3
-		local _, _, _, _, _, _, _, _, _, _, _, _, _, value1 = UnitDebuff(self.unitId, trackingHelper:getSpellName(v));
-		if (_ ~= nil) then
+		local value = select(15, UnitDebuff(self.unitId, trackingHelper:getSpellName(v)));
+		--[[if (UnitDebuff(self.unitId, trackingHelper:getSpellName(v)) ~= nil) then
 			print(MCTableToString({UnitDebuff(self.unitId, trackingHelper:getSpellName(v)) } ));
-		end
-		self.amountHealAbsorb = self.amountHealAbsorb + (value1 or 0);
+		end]]--
+		self.amountHealAbsorb = self.amountHealAbsorb + (value or 0);
 	end
 	-- dispatch event
 	if (before ~= self.amountHealAbsorb) then
@@ -987,12 +1117,14 @@ end
 
 --- Update health for unit
 function DHUDHealthTracker:updateHealth()
-	self:setAmount(UnitHealth(self.unitId));
+	--print("UnitHealth(self.unitId) " .. MCTableToString(UnitHealth(self.unitId)));
+	self:setAmount(UnitHealth(self.unitId) or 0);
 end
 
 --- Update maximum health for unit
 function DHUDHealthTracker:updateMaxHealth()
-	self:setAmountMax(UnitHealthMax(self.unitId));
+	--print("UnitHealthMax(self.unitId) " .. MCTableToString(UnitHealthMax(self.unitId)));
+	self:setAmountMax(UnitHealthMax(self.unitId) or 0);
 end
 
 --- Update unit tagging for unit
@@ -1492,6 +1624,8 @@ DHUDCooldownsTracker = MCCreateSubClass(DHUDTimersTracker, {
 	TIMER_TYPE_MASK_PASSIVE			= 8,
 	-- mask for the type, that specifies that cooldown was activated automatically and using rppm system
 	TIMER_TYPE_MASK_PASSIVE_RPPM	= 16,
+	-- cooldown of deathknight runes
+	DEATHKNIGHT_RUNE_COOLDOWN = 10,
 })
 
 --- Create new unit cooldowns tracker, unitId should be specified after constructor
@@ -1508,6 +1642,7 @@ function DHUDCooldownsTracker:init()
 	function self.eventsFrame:SPELL_UPDATE_COOLDOWN(unitId)
 		tracker:updateSpellCooldowns();
 		tracker:updateItemCooldowns();
+		tracker:updateActionBarCooldowns();
 	end
 	-- process item/slot cooldowns change event
 	function self.eventsFrame:ACTIONBAR_UPDATE_COOLDOWN()
@@ -1529,6 +1664,10 @@ function DHUDCooldownsTracker:onUpdateTime()
 	if (self:containsTimerWithNegativeDuration(1)) then
 		self:updateItemCooldowns();
 	end
+	-- update item cooldowns if required, wow doesn't throw event for cooldown end
+	if (self:containsTimerWithNegativeDuration(2)) then
+		self:updateActionBarCooldowns();
+	end
 	-- call super
 	DHUDTimersTracker.onUpdateTime(self);
 end
@@ -1541,25 +1680,51 @@ function DHUDCooldownsTracker:updateSpellCooldowns()
 	local spellType, spellId, spellData;
 	-- update item cooldowns
 	self:findSourceTimersBegin(0);
-	-- spell tab info
-	local bookName, bookTexture, bookOffset, bookNumSpells = GetSpellTabInfo(2); -- 2 is always main spell book for current spec
-	local n = bookOffset + bookNumSpells - 1;
-	-- iterate
-	for i = bookOffset, n, 1 do
-		startTime, duration, enable = GetSpellCooldown(i, BOOKTYPE_SPELL);
-		if (startTime ~= 0 and duration > 1.5) then
-			spellType, spellId = GetSpellBookItemInfo(i, BOOKTYPE_SPELL);
-			spellData = trackingHelper:getSpellData(spellId);
-			timer = self:findTimer(1, spellId);
-			-- fill timer info, { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder }
-			timer[1] = self.TIMER_TYPE_MASK_SPELL + self.TIMER_TYPE_MASK_ACTIVE; -- type
-			timer[2] = startTime + duration - timerMs; -- timeLeft
-			timer[3] = duration; -- duration
-			timer[4] = spellId; -- id
-			timer[5] = spellId; -- tooltipId
-			timer[6] = spellData[1]; -- name
-			timer[7] = 0; -- stacks
-			timer[8] = spellData[3]; -- texture
+	-- spell cooldowns are only required for player, not vehicle
+	if (self.unitId == "player") then
+		-- spell tab info
+		local bookName, bookTexture, bookOffset, bookNumSpells = GetSpellTabInfo(2); -- 2 is always main spell book for current spec
+		local n = bookOffset + bookNumSpells - 1;
+		-- iterate
+		if (trackingHelper.playerClass ~= "DEATHKNIGHT") then
+			for i = bookOffset, n, 1 do
+				startTime, duration, enable = GetSpellCooldown(i, BOOKTYPE_SPELL);
+				if (startTime ~= 0 and duration > 1.5) then
+					spellType, spellId = GetSpellBookItemInfo(i, BOOKTYPE_SPELL);
+					spellData = trackingHelper:getSpellData(spellId);
+					timer = self:findTimer(1, spellId);
+					-- fill timer info, { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder }
+					timer[1] = self.TIMER_TYPE_MASK_SPELL + self.TIMER_TYPE_MASK_ACTIVE; -- type
+					timer[2] = startTime + duration - timerMs; -- timeLeft
+					timer[3] = duration; -- duration
+					timer[4] = spellId; -- id
+					timer[5] = spellId; -- tooltipId
+					timer[6] = spellData[1]; -- name
+					timer[7] = 0; -- stacks
+					timer[8] = spellData[3]; -- texture
+				end
+			end
+		-- special cooldowns processing for deathknights
+		-- This is a hack to compensate for Blizzard's API reporting incorrect cooldown information for death knights.
+		-- Ignore cooldowns that are the same duration as a rune cooldown except for the abilities that truly have the same cooldown.
+		else
+			for i = bookOffset, n, 1 do
+				startTime, duration, enable = GetSpellCooldown(i, BOOKTYPE_SPELL);
+				if (startTime ~= 0 and duration > 1.5 and duration ~= self.DEATHKNIGHT_RUNE_COOLDOWN) then
+					spellType, spellId = GetSpellBookItemInfo(i, BOOKTYPE_SPELL);
+					spellData = trackingHelper:getSpellData(spellId);
+					timer = self:findTimer(1, spellId);
+					-- fill timer info, { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder }
+					timer[1] = self.TIMER_TYPE_MASK_SPELL + self.TIMER_TYPE_MASK_ACTIVE; -- type
+					timer[2] = startTime + duration - timerMs; -- timeLeft
+					timer[3] = duration; -- duration
+					timer[4] = spellId; -- id
+					timer[5] = spellId; -- tooltipId
+					timer[6] = spellData[1]; -- name
+					timer[7] = 0; -- stacks
+					timer[8] = spellData[3]; -- texture
+				end
+			end
 		end
 	end
 	-- stop
@@ -1578,22 +1743,25 @@ function DHUDCooldownsTracker:updateItemCooldowns()
 	local itemId, itemData;
 	-- update item cooldowns
 	self:findSourceTimersBegin(1);
-	-- iterate
-	for i = 1, 17, 1 do -- INVSLOT_HEAD, INVSLOT_OFFHAND, 1
-		startTime, duration, enable = GetInventoryItemCooldown(self.unitId, i);
-		if (startTime ~= 0 and duration > 1.5) then
-			itemId = GetInventoryItemID(self.unitId, i);
-			itemData = trackingHelper:getItemData(itemId);
-			timer = self:findTimer(1, itemId);
-			-- fill timer info, { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder }
-			timer[1] = self.TIMER_TYPE_MASK_ITEM + self.TIMER_TYPE_MASK_ACTIVE; -- type
-			timer[2] = startTime + duration - timerMs; -- timeLeft
-			timer[3] = duration; -- duration
-			timer[4] = itemId; -- id
-			timer[5] = i; -- tooltipId
-			timer[6] = itemData[1]; -- name
-			timer[7] = 0; -- stacks
-			timer[8] = itemData[10]; -- texture
+	-- item cooldowns are only required for player, not vehicle
+	if (self.unitId == "player") then
+		-- iterate
+		for i = 1, 17, 1 do -- INVSLOT_HEAD, INVSLOT_OFFHAND, 1
+			startTime, duration, enable = GetInventoryItemCooldown(self.unitId, i);
+			if (startTime ~= 0 and duration > 1.5) then
+				itemId = GetInventoryItemID(self.unitId, i);
+				itemData = trackingHelper:getItemData(itemId);
+				timer = self:findTimer(1, itemId);
+				-- fill timer info, { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder }
+				timer[1] = self.TIMER_TYPE_MASK_ITEM + self.TIMER_TYPE_MASK_ACTIVE; -- type
+				timer[2] = startTime + duration - timerMs; -- timeLeft
+				timer[3] = duration; -- duration
+				timer[4] = itemId; -- id
+				timer[5] = i; -- tooltipId
+				timer[6] = itemData[1]; -- name
+				timer[7] = 0; -- stacks
+				timer[8] = itemData[10]; -- texture
+			end
 		end
 	end
 	-- stop
@@ -1606,7 +1774,72 @@ end
 
 --- Update action bar cooldowns (such as ExtraButton or Vehicle Buttons)
 function DHUDCooldownsTracker:updateActionBarCooldowns()
-	-- TODO
+	local timerMs = trackingHelper.timerMs;
+	-- create variables
+	local startTime, duration, enable;
+	local actionType, actionSubType, spellId, spellData;
+	-- update action bar cooldowns
+	self:findSourceTimersBegin(2);
+	-- update extra action button spell cooldown ( /script print("id is " .. ActionButton_GetPagedID(ExtraActionButton1)) )
+	if (self.unitId == "player") then
+		-- iterate
+		for i = 169, 169, 1 do
+			startTime, duration, enable = GetActionCooldown(i);
+			if (startTime ~= 0 and duration > 1.5) then
+				actionType, spellId, actionSubType = GetActionInfo(i);
+				if (actionType == "spell") then
+					spellData = trackingHelper:getSpellData(spellId);
+					timer = self:findTimer(1, spellId);
+					-- fill timer info, { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder }
+					timer[1] = self.TIMER_TYPE_MASK_SPELL + self.TIMER_TYPE_MASK_ACTIVE; -- type
+					timer[2] = startTime + duration - timerMs; -- timeLeft
+					timer[3] = duration; -- duration
+					timer[4] = spellId; -- id
+					timer[5] = spellId; -- tooltipId
+					timer[6] = spellData[1]; -- name
+					timer[7] = 0; -- stacks
+					timer[8] = spellData[3]; -- texture
+				end
+			end
+		end
+	-- update vehicle cooldowns
+	elseif (self.unitId == "pet") then
+		-- iterate
+		for i = 133, 138, 1 do
+			startTime, duration, enable = GetActionCooldown(i);
+			if (startTime ~= 0 and duration > 1.5) then
+				actionType, spellId, actionSubType = GetActionInfo(i);
+				if (actionType == "spell") then
+					spellData = trackingHelper:getSpellData(spellId);
+					timer = self:findTimer(1, spellId);
+					-- fill timer info, { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder }
+					timer[1] = self.TIMER_TYPE_MASK_SPELL + self.TIMER_TYPE_MASK_ACTIVE; -- type
+					timer[2] = startTime + duration - timerMs; -- timeLeft
+					timer[3] = duration; -- duration
+					timer[4] = spellId; -- id
+					timer[5] = spellId; -- tooltipId
+					timer[6] = spellData[1]; -- name
+					timer[7] = 0; -- stacks
+					timer[8] = spellData[3]; -- texture
+				end
+			end
+		end
+	end
+	-- stop
+	self:findSourceTimersEnd(2);
+	-- updateTimers for other source groups
+	self:forceUpdateTimers();
+	-- dispatch event
+	self:processDataChanged();
+	-- debug
+	--[[for i=1, 10000 do -- Show all actions currently on cooldown
+		local start,duration,enable = GetActionCooldown(i)
+		if start > 0 and enable == 1 then
+			local actiontype, id, subtype = GetActionInfo(i)
+			local timeLeft = math.floor((start + duration) - GetTime())
+			print("Cooldown on " .. i .. " " .. MCTableToString(actiontype) .. "[" .. MCTableToString(subtype) .. "] " .. MCTableToString(name) .. " (" .. MCTableToString(timeLeft) .. " seconds left)");
+		end
+	end]]--
 end
 
 --- Update item internal cooldowns that are equipped by player (e.g. trinkets that was added before 5.2)
@@ -1623,6 +1856,7 @@ end
 function DHUDCooldownsTracker:updateData()
 	self:updateSpellCooldowns();
 	self:updateItemCooldowns();
+	self:updateActionBarCooldowns();
 end
 
 --- Start tracking data
@@ -1656,8 +1890,8 @@ end
 
 --- Base class to track unit specific resource, e.g. mana (actually it's subclasses will only set unitId to track and resource type)
 DHUDSpecificPowerTracker = MCCreateSubClass(DHUDPowerTracker, {
-	-- precision at which resource is tracked (can be used for soul shards, and embers)
-	precision			= 1,
+	-- precision at which resource is tracked (can be used for soul shards, and embers), number of digits after comma
+	precision			= 0,
 	-- if true than this resource will also be updated by onUpdate event when in regeneration state, this variable should not be changed during runtime!
 	updateFrequently	= true,
 })
@@ -1674,6 +1908,7 @@ function DHUDSpecificPowerTracker:init()
 	local tracker = self;
 	-- process units power points change event
 	function self.eventsFrame:UNIT_POWER(unitId, resourceTypeString)
+		--print("UNIT_POWER " .. MCTableToString(unitId) .. ", "  .. MCTableToString(resourceTypeString));
 		if (tracker.unitId ~= unitId) then
 			return;
 		end
@@ -1684,14 +1919,15 @@ function DHUDSpecificPowerTracker:init()
 	end
 	-- process units max power points change event
 	function self.eventsFrame:UNIT_MAXPOWER(unitId, resourceTypeString)
+		--print("UNIT_MAXPOWER " .. MCTableToString(unitId) .. ", "  .. MCTableToString(resourceTypeString) .. ", current " .. tracker.unitId);
 		if (tracker.unitId ~= unitId) then
 			return;
 		end
-		if (tracker.resourceTypeString ~= "" and tracker.resourceTypeString ~= resourceTypeString) then
-			return;
-		end
 		tracker:updateMaxPower();
+		--print("update max power to " .. MCTableToString(tracker.amountMax));
 	end
+	-- track maximum amount event if data tracker is not activated
+	self.trackAmountMax = true;
 end
 
 --- Game time updated, update unit power
@@ -1705,7 +1941,7 @@ end
 function DHUDSpecificPowerTracker:startTracking()
 	-- listen to game events
 	self.eventsFrame:RegisterEvent("UNIT_POWER");
-	self.eventsFrame:RegisterEvent("UNIT_MAXPOWER");
+	--print("self " .. self.trackUnitId .. " start amount data");
 	if (self.updateFrequently) then
 		trackingHelper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE, self, self.onUpdateTime);
 	end
@@ -1715,18 +1951,38 @@ end
 function DHUDSpecificPowerTracker:stopTracking()
 	-- stop listening to game events
 	self.eventsFrame:UnregisterEvent("UNIT_POWER");
-	self.eventsFrame:UnregisterEvent("UNIT_MAXPOWER");
+	--print("self " .. self.trackUnitId .. " stop amount data");
 	if (self.updateFrequently) then
 		trackingHelper:removeEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE, self, self.onUpdateTime);
 	end
 end
 
+--- Start tracking amountMax data
+function DHUDSpecificPowerTracker:startTrackingAmountMax()
+	self.eventsFrame:RegisterEvent("UNIT_MAXPOWER");
+	--print("self " .. self.trackUnitId .. " start amount max");
+end
+
+--- Update maximum amount or resource
+function DHUDSpecificPowerTracker:updateAmountMax()
+	self.eventsFrame:UNIT_MAXPOWER(self.unitId);
+	--print("self " .. self.trackUnitId .. " update amount max");
+end
+
+--- Stop tracking amountMax data
+function DHUDSpecificPowerTracker:stopTrackingAmountMax()
+	self.eventsFrame:UnregisterEvent("UNIT_MAXPOWER");
+	--print("self " .. self.trackUnitId .. " stop amount max");
+end
+
 --- Update power for unit
 function DHUDSpecificPowerTracker:updatePower()
 	local power;
-	if (self.precision ~= 1) then
+	if (self.precision ~= 0) then
 		power = UnitPower(self.unitId, self.resourceType, true);
-		power = power / self.precision;
+		--print("powerWithPrecision " .. power);
+		--print("powerWithoutPrecision " .. UnitPower(self.unitId, self.resourceType));
+		power = power / (10 ^ self.precision);
 	else
 		power = UnitPower(self.unitId, self.resourceType);
 	end
@@ -1738,7 +1994,7 @@ function DHUDSpecificPowerTracker:updateMaxPower()
 	local powerMax;
 	if (self.precision ~= 1) then
 		powerMax = UnitPowerMax(self.unitId, self.resourceType, true);
-		powerMax = powerMax / self.precision;
+		powerMax = powerMax / (10 ^ self.precision);
 	else
 		powerMax = UnitPowerMax(self.unitId, self.resourceType);
 	end
@@ -1751,15 +2007,6 @@ function DHUDSpecificPowerTracker:updateData()
 	self:updatePower();
 end
 
---- Check if this tracker data is exists
-function DHUDSpecificPowerTracker:checkIsExists()
-	if (not DHUDDataTracker.checkIsExists(self)) then -- call super
-		return false;
-	end
-	powerMax = UnitPowerMax(self.unitId, self.resourceType);
-	return (powerMax ~= 0); -- power maximum should be greater than zero
-end
-
 --- set tracking to be tracked only if resource is not main, should not be called if subclassed (this will override UNIT_DISPLAYPOWER event handling)
 function DHUDSpecificPowerTracker:initTrackIfNotMain()
 	local tracker = self;
@@ -1768,6 +2015,7 @@ function DHUDSpecificPowerTracker:initTrackIfNotMain()
 			return;
 		end
 		tracker:setIsExists(tracker:checkIsExists());
+		--print("not main display power changed, exists: " .. MCTableToString(tracker.isExists));
 	end
 	-- update check is exists function to also check unit power
 	function self:checkIsExists()
@@ -1775,6 +2023,7 @@ function DHUDSpecificPowerTracker:initTrackIfNotMain()
 			return false;
 		end
 		local powerType = UnitPowerType(self.unitId);
+		--print("not main checkIsExists, main powerType " .. MCTableToString(powerType) .. ", tracked " .. MCTableToString(self.resourceType));
 		return (powerType ~= self.resourceType);
 	end
 	-- register to display power event
@@ -1803,10 +2052,12 @@ function DHUDMainPowerTracker:init()
 	local tracker = self;
 	-- process units power points type change event
 	function self.eventsFrame:UNIT_DISPLAYPOWER(unitId)
+		--print("UNIT_DISPLAYPOWER " .. MCTableToString(unitId) .. ", "  .. MCTableToString(resourceTypeString) .. ", current " .. tracker.unitId);
 		if (tracker.unitId ~= unitId) then
 			return;
 		end
 		tracker:updatePowerType();
+		--print("update display power to " .. MCTableToString(tracker.resourceType) .. ", " .. MCTableToString(tracker.resourceTypeString));
 	end
 	-- call super
 	DHUDSpecificPowerTracker.init(self);
@@ -1818,20 +2069,22 @@ function DHUDMainPowerTracker:updatePowerType()
 	self:setResourceType(powerType, powerTypeString);
 end
 
---- Start tracking data
-function DHUDMainPowerTracker:startTracking()
-	-- listen to game events
+--- Start tracking amountMax data
+function DHUDMainPowerTracker:startTrackingAmountMax()
 	self.eventsFrame:RegisterEvent("UNIT_DISPLAYPOWER");
-	-- call super
-	DHUDSpecificPowerTracker.startTracking(self);
+	DHUDSpecificPowerTracker.startTrackingAmountMax(self); -- call super
 end
 
---- Stop tracking data
-function DHUDMainPowerTracker:stopTracking()
-	-- stop listening to game events
+--- Update maximum amount or resource
+function DHUDMainPowerTracker:updateAmountMax()
+	self.eventsFrame:UNIT_DISPLAYPOWER(self.unitId);
+	DHUDSpecificPowerTracker.updateAmountMax(self); -- call super
+end
+
+--- Stop tracking amountMax data
+function DHUDMainPowerTracker:stopTrackingAmountMax()
 	self.eventsFrame:UnregisterEvent("UNIT_DISPLAYPOWER");
-	-- call super
-	DHUDSpecificPowerTracker.stopTracking(self);
+	DHUDSpecificPowerTracker.stopTrackingAmountMax(self); -- call super
 end
 
 --- Update all data for current unitId
@@ -1839,15 +2092,6 @@ function DHUDMainPowerTracker:updateData()
 	self:updatePowerType();
 	-- call super
 	DHUDSpecificPowerTracker.updateData(self);
-end
-
---- Check if this tracker data is exists
-function DHUDMainPowerTracker:checkIsExists()
-	if (not DHUDDataTracker.checkIsExists(self)) then -- call super
-		return false;
-	end
-	powerMax = UnitPowerMax(self.unitId);
-	return (powerMax ~= 0); -- power maximum should be greater than zero
 end
 
 ----------------------------
@@ -1879,6 +2123,8 @@ DHUDSpellCastTracker = MCCreateSubClass(DHUDDataTracker, {
 	spellName			= "",
 	-- path to the texture associated with spell
 	spellTexture		= "",
+	-- spell is being cast right now
+	SPELL_FINISH_STATE_IS_CASTING = -1,
 	-- no spells were cast recently
 	SPELL_FINISH_STATE_NOT_CASTING = 0,
 	-- spell was interrupted by something, check interruptState variable for more info
@@ -1925,7 +2171,7 @@ function DHUDSpellCastTracker:init()
 			return;
 		end
 		--print("UNIT_SPELLCAST_STOP");
-		tracker:updateSpellCastStop(nil);
+		tracker:updateSpellCastStop();
 	end
 	-- process unit cast interrupted
 	function self.eventsFrame:UNIT_SPELLCAST_INTERRUPTED(unitId)
@@ -1933,7 +2179,15 @@ function DHUDSpellCastTracker:init()
 			return;
 		end
 		--print("UNIT_SPELLCAST_INTERRUPTED");
-		tracker:updateSpellCastStop(tracker.SPELL_FINISH_STATE_INTERRUPTED);
+		tracker:updateSpellCastStopReason(tracker.SPELL_FINISH_STATE_INTERRUPTED);
+	end
+	-- process unit cast interrupted
+	function self.eventsFrame:UNIT_SPELLCAST_SUCCEEDED(unitId)
+		if (tracker.unitId ~= unitId) then
+			return;
+		end
+		--print("UNIT_SPELLCAST_SUCCEEDED");
+		tracker:updateSpellCastStopReason(tracker.SPELL_FINISH_STATE_SUCCEDED);
 	end
 	-- process unit cast failed (channel on cooldown, etc., the cast was not even started)
 	function self.eventsFrame:UNIT_SPELLCAST_FAILED(unitId)
@@ -1941,7 +2195,7 @@ function DHUDSpellCastTracker:init()
 			return;
 		end
 		--print("UNIT_SPELLCAST_FAILED");
-		tracker:updateSpellCastStop(nil);
+		tracker:updateSpellCastStop();
 	end
 	-- process unit cast interruptible
 	function self.eventsFrame:UNIT_SPELLCAST_INTERRUPTIBLE(unitId)
@@ -1976,7 +2230,7 @@ function DHUDSpellCastTracker:init()
 		if (tracker.unitId ~= unitId) then
 			return;
 		end
-		tracker:updateSpellCastStop(nil);
+		tracker:updateSpellCastStop();
 	end
 	-- process unit channel update
 	function self.eventsFrame:UNIT_SPELLCAST_CHANNEL_UPDATE(unitId)
@@ -2030,6 +2284,7 @@ function DHUDSpellCastTracker:updateSpellCastStart()
 	self.isCasting = true;
 	self.isChannelSpell = false;
 	self:setIsRegenerating(true);
+	self.finishState = self.SPELL_FINISH_STATE_IS_CASTING;
 	-- update spell cast info
 	local timerMs = trackingHelper:getTimerMs();
 	local name, nameSubtext, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo(self.unitId);
@@ -2073,6 +2328,7 @@ function DHUDSpellCastTracker:updateSpellChannelStart()
 	self.isCasting = true;
 	self.isChannelSpell = true;
 	self:setIsRegenerating(true);
+	self.finishState = self.SPELL_FINISH_STATE_IS_CASTING;
 	-- update channel cast info
 	local timerMs = trackingHelper:getTimerMs();
 	local name, nameSubtext, text, texture, startTime, endTime, isTradeSkill, notInterruptible = UnitChannelInfo(self.unitId);
@@ -2116,15 +2372,18 @@ function DHUDSpellCastTracker:updateSpellInfoIsInterruptible(isInterruptible)
 	self:processDataChanged();
 end
 
+--- update stopping of spell cast reason
+-- @param reason reason spell casting is stopped
+function DHUDSpellCastTracker:updateSpellCastStopReason(reason)
+	self.finishState = reason;
+end
+
 --- update stopping of spell cast
--- @param reason reason spell casting is stopped, or nil if unsure and casting may continue
-function DHUDSpellCastTracker:updateSpellCastStop(reason)
-	local wasCasting = self.isCasting;
+function DHUDSpellCastTracker:updateSpellCastStop()
 	self.isCasting = false;
 	self:setIsRegenerating(false);
 	-- update spell info if any
-	if (reason) then
-		self.finishState = reason;
+	if (self.finishState ~= self.SPELL_FINISH_STATE_IS_CASTING) then
 		if (UnitCastingInfo(self.unitId) ~= nil) then
 			self:updateSpellCastStart();
 		elseif (UnitChannelInfo(self.unitId) ~= nil) then
@@ -2135,10 +2394,6 @@ function DHUDSpellCastTracker:updateSpellCastStop(reason)
 			self:updateSpellCastContinue();
 		elseif (UnitChannelInfo(self.unitId) ~= nil) then
 			self:updateSpellChannelContinue();
-		else
-			if (wasCasting) then
-				self.finishState = self.SPELL_FINISH_STATE_SUCCEDED; -- default finish state
-			end
 		end
 	end
 	-- process data change
@@ -2185,7 +2440,8 @@ end
 
 --- Update all data for current unitId
 function DHUDSpellCastTracker:updateData()
-	self:updateSpellCastStop(self.SPELL_FINISH_STATE_NOT_CASTING);
+	self:updateSpellCastStopReason(self.SPELL_FINISH_STATE_NOT_CASTING);
+	self:updateSpellCastStop();
 end
 
 --- set unitId variable
@@ -2709,7 +2965,7 @@ DHUDDataTrackers = {
 					trackingHelper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE_INFREQUENT, self, self.onStoredCPFadeTick);
 				end
 				-- set fade time to current + 30 sec
-				self.storedCPFadeTime = trackingHelper.timerMs + 30000;
+				self.storedCPFadeTime = trackingHelper.timerMs + 30.0;
 			end
 		end
 		
@@ -2719,6 +2975,7 @@ DHUDDataTrackers = {
 			if (trackingHelper.timerMs >= self.storedCPFadeTime) then
 				if (self.storedCPFadeTime ~= 0) then
 					self.storedCP = 0;
+					self:updateComboPoints(self:getComboPoints());
 				end
 				self.storedCPFadeTime = 0;
 			end
@@ -2740,6 +2997,9 @@ DHUDDataTrackers = {
 			local points = self:getComboPoints();
 			if (points > 0) then
 				self.storedCP = points;
+			else
+				-- start combo fade timer, no need to show them endlessly
+				self:onCombatState(nil);
 			end
 			self:updateComboPoints(points);
 		end
@@ -2951,7 +3211,7 @@ DHUDDataTrackers = {
 		function DHUDRunesTracker:updateRuneCooldowns()
 			local timerMs = trackingHelper.timerMs;
 			-- create vars
-			local allRunesReady = false;
+			local runesReady = 0;
 			local start, duration, runeReady;
 			-- update runes
 			for i = 1, 6, 1 do
@@ -2959,12 +3219,12 @@ DHUDDataTrackers = {
 				local rune = self.runes[i];
 				rune[2] = start + duration - timerMs;
 				-- update if rune is ready
-				allRunesReady = allRunesReady or runeReady;
+				runesReady = runesReady + (runeReady and 1 or 0);
 			end
 			-- update timeUpdateAt variable
 			self.timeUpdatedAt = timerMs;
 			-- check if all runes are ready
-			self:setIsRegenerating(not allRunesReady);
+			self:setIsRegenerating(runesReady ~= 6);
 			-- dispatch event
 			self:processDataChanged();
 		end
@@ -3042,9 +3302,11 @@ DHUDDataTrackers = {
 		-- Eclipse for moonkin form --
 		------------------------------
 		DRUID.selfEclipse = DHUDSpecificPowerTracker:new();
+		DRUID.selfEclipse.canRegenerate = false;
 		DRUID.selfEclipse:setResourceType(8, "ECLIPSE");
 		DRUID.selfEclipse:initPlayerNotInVehicleOrNoneUnitId();
-		DRUID.selfEclipse:initTrackIfNotMain();
+		DRUID.selfEclipse:initPlayerSpecsOnly(1);
+		DRUID.selfEclipse.updateFrequently = false;
 	end,
 	-- trackers that are used by monk
 	MONK = { },
@@ -3056,6 +3318,7 @@ DHUDDataTrackers = {
 		-------------------------------------
 		MONK.selfMana = DHUDSpecificPowerTracker:new();
 		MONK.selfMana:setResourceType(0, "MANA");
+		MONK.selfMana:initPlayerSpecsOnly(2);
 		MONK.selfMana:initPlayerNotInVehicleOrNoneUnitId();
 		MONK.selfMana:initTrackIfNotMain();
 		
@@ -3089,16 +3352,18 @@ DHUDDataTrackers = {
 		------------------
 		WARLOCK.selfSoulShards = DHUDSpecificPowerTracker:new();
 		WARLOCK.selfSoulShards:setResourceType(7, "SOUL_SHARDS");
+		WARLOCK.selfSoulShards:initPlayerSpecsOnly(1);
 		WARLOCK.selfSoulShards:initPlayerNotInVehicleOrNoneUnitId();
-		WARLOCK.selfSoulShards.precision = 3;
+		WARLOCK.selfSoulShards.precision = 2;
 		
 		--------------------
 		-- Burning embers --
 		--------------------
 		WARLOCK.selfBurningEmbers = DHUDSpecificPowerTracker:new();
 		WARLOCK.selfBurningEmbers:setResourceType(14, "BURNING_EMBERS");
+		WARLOCK.selfBurningEmbers:initPlayerSpecsOnly(3);
 		WARLOCK.selfBurningEmbers:initPlayerNotInVehicleOrNoneUnitId();
-		WARLOCK.selfBurningEmbers.precision = 2;
+		WARLOCK.selfBurningEmbers.precision = 1;
 		WARLOCK.selfBurningEmbers.updateFrequently = false;
 
 		------------------
@@ -3106,6 +3371,7 @@ DHUDDataTrackers = {
 		------------------
 		WARLOCK.selfDemonicFury = DHUDSpecificPowerTracker:new();
 		WARLOCK.selfDemonicFury:setResourceType(15, "DEMONIC_FURY");
+		WARLOCK.selfDemonicFury:initPlayerSpecsOnly(2);
 		WARLOCK.selfDemonicFury:initPlayerNotInVehicleOrNoneUnitId();
 	end,
 	-- trackers that are used by paladin
@@ -3119,6 +3385,7 @@ DHUDDataTrackers = {
 		PALADIN.selfHolyPower = DHUDSpecificPowerTracker:new();
 		PALADIN.selfHolyPower:setResourceType(9, "HOLY_POWER");
 		PALADIN.selfHolyPower:initPlayerNotInVehicleOrNoneUnitId();
+		PALADIN.selfHolyPower.updateFrequently = false;
 	end,
 	-- trackers that are used by priest
 	PRIEST = { },
@@ -3131,6 +3398,7 @@ DHUDDataTrackers = {
 		PRIEST.selfShadowOrbs = DHUDSpecificPowerTracker:new();
 		PRIEST.selfShadowOrbs:setResourceType(13, "SHADOW_ORBS");
 		PRIEST.selfShadowOrbs:initPlayerNotInVehicleOrNoneUnitId();
+		PRIEST.selfShadowOrbs.updateFrequently = false;
 	end,
 	-- reference to data helper
 	helper = nil,

@@ -46,10 +46,6 @@ end
 -- Settings --
 --------------
 
--- temprorary variable for saved vars
-DHUD_SAVED_VARS_TEMP = { ["scale_main"] = 0.8, ["scale_resource"] = 1.0, ["scale_spellCircles"] = 1.0, ["shortAurasOptions_targetAurasWhiteList"] = { {"CustomSpell1"}, {"spellName48792"} }, ["shortAurasOptions_aurasTimeLeftMax"] = 240,
-						["outlines_spellCirclesTime"] = 0, ["outlines_spellCirclesStacks"] = 0, ["shortAurasOptions_cooldownsBlackList"] = { {"<slot:10>"}, { } }, };
-
 --- Class to notify about settings change and manage saved vars (only difference is saved)
 DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 	-- type of the setting, that should be saved by value
@@ -77,7 +73,9 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			-- allows to show or hide blizzard target frame
 			["targetFrame"] = { true, 0 },
 			-- allows to show or hide blizzard casting frame
-			["castingFrame"] = { true, 0 },
+			["castingFrame"] = { false, 0 },
+			-- allows to change alpha of SpellActivationOverlayFrame
+			["spellActivationFrameAlpha"] = { 0.5, 0, { range = { 0, 1, 0.1 } } },
 		}, 1 },
 		-- allows to apply text outlines to the text frames
 		["outlines"] = { {
@@ -87,12 +85,16 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			["leftBigBar2"] = { 0, 0, { range = { 0, 2, 1 } } },
 			-- change outline of the text corresponding to inner left small bar
 			["leftSmallBar1"] = { 0, 0, { range = { 0, 2, 1 } } },
+			-- change outline of the text corresponding to outer left small bar
+			["leftSmallBar2"] = { 0, 0, { range = { 0, 2, 1 } } },
 			-- change outline of the text corresponding to inner right big bar
 			["rightBigBar1"] = { 0, 0, { range = { 0, 2, 1 } } },
 			-- change outline of the text corresponding to outer right big bar
 			["rightBigBar2"] = { 0, 0, { range = { 0, 2, 1 } } },
 			-- change outline of the text corresponding to inner right small bar
 			["rightSmallBar1"] = { 0, 0, { range = { 0, 2, 1 } } },
+			-- change outline of the text corresponding to outer right small bar
+			["rightSmallBar2"] = { 9, 0, { range = { 6, 30, 1 } } },
 			-- change outline of the text corresponding to target info
 			["targetInfo1"] = { 0, 0, { range = { 0, 2, 1 } } },
 			-- change outline of the text corresponding to target of target info
@@ -130,12 +132,16 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			["leftBigBar2"] = { 10, 0, { range = { 6, 30, 1 } } },
 			-- change text size of the text corresponding to inner left small bar
 			["leftSmallBar1"] = { 9, 0, { range = { 6, 30, 1 } } },
+			-- change text size of the text corresponding to outer left small bar
+			["leftSmallBar2"] = { 9, 0, { range = { 6, 30, 1 } } },
 			-- change text size of the text corresponding to inner right big bar
 			["rightBigBar1"] = { 10, 0, { range = { 6, 30, 1 } } },
 			-- change text size of the text corresponding to outer right big bar
 			["rightBigBar2"] = { 10, 0, { range = { 6, 30, 1 } } },
 			-- change text size of the text corresponding to inner right small bar
 			["rightSmallBar1"] = { 9, 0, { range = { 6, 30, 1 } } },
+			-- change text size of the text corresponding to outer right small bar
+			["rightSmallBar2"] = { 9, 0, { range = { 6, 30, 1 } } },
 			-- change text size of the text corresponding to target info
 			["targetInfo1"] = { 12, 0, { range = { 6, 30, 1 } } },
 			-- change text size of the text corresponding to target of target info
@@ -203,12 +209,16 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			["leftBigBar2"] = { { 0, 0 }, 3 },
 			-- change text position of the text corresponding to inner left small bar
 			["leftSmallBar1"] = { { 0, 0 }, 3 },
+			-- change text position of the text corresponding to outer left small bar
+			["leftSmallBar2"] = { { 0, 0 }, 3 },
 			-- change text position of the text corresponding to inner right big bar
 			["rightBigBar1"] = { { 0, 0 }, 3 },
 			-- change text position of the text corresponding to outer right big bar
 			["rightBigBar2"] = { { 0, 0 }, 3 },
 			-- change text position of the text corresponding to inner right small bar
 			["rightSmallBar1"] = { { 0, 0 }, 3 },
+			-- change text position of the text corresponding to outer right small bar
+			["rightSmallBar2"] = { { 0, 0 }, 3 },
 		}, 1 },
 		-- allows to change color when colorizing bars and spell icons
 		["colors"] = { {
@@ -229,11 +239,11 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				-- allows to change color of player energy on bars
 				["energy"] = { { "FFFF00", "FFFF00", "FFFF00" }, 3 },
 				-- allows to change color of player runic power on bars
-				["runicPower"] = { { "004060", "004060", "004060" }, 3 },
+				["runicPower"] = { { "0080c0", "0080c0", "0080c0" }, 3 },
 				-- allows to change color of player focus on bars
 				["focus"] = { { "aa4400", "aa4400", "aa4400" }, 3 },
 				-- allows to change color of player druid eclipse on bars
-				["eclipse"] = { { "00FFFF", "0000FF", "FF00FF" }, 3 },
+				["eclipse"] = { { "fcea1e", "d89d3f", "d29835", "ffffff", "4c80ba", "79c9ec", "d9ffff" }, 3 },
 				-- allows to change color of player druid eclipse on bars
 				["burningEmbers"] = { { "00FFFF", "0000FF", "FF00FF" }, 3 },
 				-- allows to change color of player druid eclipse on bars
@@ -339,12 +349,12 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				-- allows to change color of spell circle when it shows buff
 				["buff"] = { { "ffffff", "ffffff", "eeeeee" }, 3 },
 				-- allows to change color of spell circle when it shows debuff
-				["debuff"] = { { "FFFF00", "FFFF00", "FFFF00" }, 3 },
+				["debuff"] = { { "ffffff", "ffffff", "eeeeee" }, 3 },
 			}, 1 },
 			-- list with colors to visualize spell rectangles that are showing target auras
 			["targetAuras"] = { {
 				-- allows to change color of spell circle when it shows debuff
-				["buff"] = { { "FFFF00", "FFFF00", "FFFF00" }, 3 },
+				["buff"] = { { "ffffff", "ffffff", "eeeeee" }, 3 },
 				-- allows to change color of spell circle when it shows buff
 				["debuff"] = { { "ffffff", "ffffff", "eeeeee" }, 3 },
 			}, 1 },
@@ -458,6 +468,8 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			["playerAurasWhiteList"] = { { }, 5 },
 			-- allows to not show auras from this list, regardless of time or charges
 			["playerAurasBlackList"] = { { }, 5 },
+			-- allows to set priority for spell appearance in spell circles
+			["playerAurasPriorityList"] = { { }, 5 },
 			-- allows to show auras from this list, regardless of time or charges
 			["targetAurasWhiteList"] = { { -- druid symbiosis spells are named the same, no point in including them
 				48792, -- DK: Icebound Fortiture, prevents stuns on target
@@ -470,6 +482,8 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			}, 5 },
 			-- allows to not show auras from this list, regardless of time or charges
 			["targetAurasBlackList"] = { { }, 5 },
+			-- allows to set priority for spell appearance in spell circles
+			["targetAurasPriorityList"] = { { }, 5 },
 			-- minimum cooldown duration to be shown in short cooldowns
 			["cooldownsDurationMin"] = { 0, 0, { range = { 0, 3600, 1 } } },
 			-- maximum cooldown duration to be shown in short cooldowns
@@ -480,6 +494,8 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			["cooldownsWhiteList"] = { { }, 5 },
 			-- allows to not show cooldowns from this list, regardless of time
 			["cooldownsBlackList"] = { { }, 5 },
+			-- allows to set priority for spell appearance in spell circles
+			["cooldownsPriorityList"] = { { }, 5 },
 		}, 1 },
 		-- list with options for all auras
 		["aurasOptions"] = { {
@@ -502,19 +518,23 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 		-- what data to display on bars, not filled if not custom
 		["framesData"] = { {
 			-- layout to use, 0 = custom, all unset settings will be readed from layout specified
-			["layout"] = { 1, 0 },
+			["layout"] = { 1, 0, { range = { 1, 2, 1 } } },
 			-- what to show in inner left big bar
 			["leftBigBar1"] = { false, 7 },
 			-- what to show on outer left big bar
 			["leftBigBar2"] = { false, 7 },
 			-- what to show on inner left small bar
 			["leftSmallBar1"] = { false, 7 },
+			-- what to show on outer left small bar
+			["leftSmallBar2"] = { false, 7 },
 			-- what to show on inner right big bar
 			["rightBigBar1"] = { false, 7 },
 			-- what to show on outer right big bar
 			["rightBigBar2"] = { false, 7 },
 			-- what to show on inner right small bar
 			["rightSmallBar1"] = { false, 7 },
+			-- what to show on outer right small bar
+			["rightSmallBar2"] = { false, 7 },
 			-- what to show in inner left big cast bar
 			["leftBigCastBar1"] = { false, 7 },
 			-- what to show on outer left big cast bar
@@ -576,12 +596,16 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 					["leftBigBar2"] = { "targetHealth" },
 					-- what to show on inner left small bar
 					["leftSmallBar1"] = { "characterInVehicleHealth", "petHealth" },
+					-- what to show on outer left small bar
+					["leftSmallBar2"] = { },
 					-- what to show on inner right big bar
 					["rightBigBar1"] = { "playerPower" },
 					-- what to show on outer right big bar
 					["rightBigBar2"] = { "targetPower" },
 					-- what to show on inner right small bar
 					["rightSmallBar1"] = { "characterInVehiclePower", "petPower" },
+					-- what to show on outer right small bar
+					["rightSmallBar2"] = { },
 					-- what to show in inner left big cast bar
 					["leftBigCastBar1"] = { },
 					-- what to show on outer left big cast bar
@@ -619,7 +643,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				-- druid overrides
 				["DRUID"] = {
 					-- what to show on inner right small bar
-					["rightSmallBar1"] = { "characterInVehiclePower", "druidEclipse", "druidMana" },
+					["rightSmallBar1"] = { "characterInVehiclePower", "druidMana", "druidEclipse" },
 				},
 				-- druid overrides
 				["MONK"] = {
@@ -633,7 +657,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 					-- what to show on the left outer side info
 					["leftOuterSideInfo"] = { "warlockSoulShards", "playerComboPoints" },
 					-- what to show on inner right small bar
-					["rightSmallBar1"] = { "characterInVehiclePower", "warlockBurningEmbers", "warlockDemonicFury" },
+					["rightSmallBar1"] = { "characterInVehiclePower", "warlockBurningEmbers", "warlockDemonicFury", "petPower" },
 				},
 				-- paladin overrides
 				["PALADIN"] = {
@@ -649,6 +673,100 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				["DEATHKNIGHT"] = {
 					-- what to show on the left outer side info
 					["leftOuterSideInfo"] = { "deathKnightRunes", "playerComboPoints" },
+				},
+			},
+			-- layout that shows player on the left and target on the right
+			["layout2"] = {
+				{
+					-- what to show on inner left big bar
+					["leftBigBar1"] = { "playerPower" },
+					-- what to show on outer left big bar
+					["leftBigBar2"] = { "playerHealth" },
+					-- what to show on inner left small bar
+					["leftSmallBar1"] = { "characterInVehicleHealth", "petHealth" },
+					-- what to show on outer left small bar
+					["leftSmallBar2"] = { "characterInVehiclePower", "petPower" },
+					-- what to show on inner right big bar
+					["rightBigBar1"] = { "targetPower" },
+					-- what to show on outer right big bar
+					["rightBigBar2"] = { "targetHealth" },
+					-- what to show on inner right small bar
+					["rightSmallBar1"] = { },
+					-- what to show on outer right small bar
+					["rightSmallBar2"] = { },
+					-- what to show in inner left big cast bar
+					["leftBigCastBar1"] = { "playerCastBar" },
+					-- what to show on outer left big cast bar
+					["leftBigCastBar2"] = { },
+					-- what to show on inner right big cast bar
+					["rightBigCastBar1"] = { "targetCastBar" },
+					-- what to show on outer right big cast bar
+					["rightBigCastBar2"] = { },
+					-- what to show on the left outer side info
+					["leftOuterSideInfo"] = { "playerShortAuras" },
+					-- what to show on the left inner side info
+					["leftInnerSideInfo"] = { "targetShortAuras" },
+					-- what to show on the right outer side info
+					["rightOuterSideInfo"] = { "playerComboPoints" },
+					-- what to show on the right inner side info
+					["rightInnerSideInfo"] = { "playerCooldowns" },
+					-- what to show on the top unit info plate
+					["centerUnitInfo1"] =  { "targetInfo" },
+					-- what to show on the bottom unit info plate
+					["centerUnitInfo2"] =  { "targetOfTargetInfo" },
+					-- what to show on the left rectangle frames
+					["leftRectangles"] = { "targetBuffs" },
+					-- what to show on the right rectangle frames
+					["rightRectangles"] = { "targetDebuffs" },
+					-- position of icons
+					["iconPositions"] = {
+						-- position of dragon icon
+						["dragon"] = "RIGHT",
+						-- position of self state icons
+						["selfState"] = "LEFT",
+						-- position of target state icons
+						["targetState"] = "CENTER",
+					},
+				},
+				-- druid overrides
+				["DRUID"] = {
+					-- what to show on inner right small bar
+					["leftSmallBar1"] = { "characterInVehiclePower", "druidMana", "druidEclipse" },
+					-- what to show on outer left small bar
+					["leftSmallBar2"] = { "characterInVehicleHealth", "petHealth" },
+				},
+				-- druid overrides
+				["MONK"] = {
+					-- what to show on the left outer side info
+					["rightOuterSideInfo"] = { "monkChi", "playerComboPoints" },
+					-- what to show on inner right small bar
+					["leftSmallBar1"] = { "characterInVehiclePower", "monkMana" },
+					-- what to show on outer left small bar
+					["leftSmallBar2"] = { "characterInVehicleHealth", "petHealth" },
+				},
+				-- warlock overrides
+				["WARLOCK"] = {
+					-- what to show on the left outer side info
+					["rightOuterSideInfo"] = { "warlockSoulShards", "playerComboPoints" },
+					-- what to show on inner right small bar
+					["leftSmallBar1"] = { "characterInVehiclePower", "warlockBurningEmbers", "warlockDemonicFury", "petPower" },
+					-- what to show on outer left small bar
+					["leftSmallBar2"] = { "characterInVehicleHealth", "petHealth" },
+				},
+				-- paladin overrides
+				["PALADIN"] = {
+					-- what to show on the left outer side info
+					["rightOuterSideInfo"] = { "paladinHolyPower", "playerComboPoints" },
+				},
+				-- priest overrides
+				["PRIEST"] = {
+					-- what to show on the left outer side info
+					["rightOuterSideInfo"] = { "priestShadowOrbs", "playerComboPoints" },
+				},
+				-- death knight overrides
+				["DEATHKNIGHT"] = {
+					-- what to show on the left outer side info
+					["rightOuterSideInfo"] = { "deathKnightRunes", "playerComboPoints" },
 				},
 			},
 		}, 2 },
@@ -681,8 +799,8 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 	},
 	-- numeric version of the addon at which saved vars was saved last time
 	savedVarsVersion = 0,
-	-- represents nil array, required for dataSource settings
-	NILTABLE = { },
+	-- table name where additional saved vars are saved
+	SAVED_VARS_ADDITIONAL_TABLE_NAME = "_additional",
 })
 
 --- Custom getter to read frames data settings
@@ -729,6 +847,35 @@ function DHUDSettings:getFramesData(name)
 	end
 	value = table[lastName];
 	return value;
+end
+
+--- Custom setter to set frames layout setting
+function DHUDSettings:setFramesDataLayout(name, value)
+	local layoutData = self.default["layouts"][1];
+	-- layout not exists?
+	if (layoutData["layout" .. value] == nil) then
+		return;
+	end
+	-- set layout
+	self:setValueInternal(name, value);
+	-- set all frames data to default
+	local table = self.default["framesData"][1];
+	self:resetFramesDataSettings(table);
+end
+
+--- helper function for setFramesDataLayout to reset all frame data settings once layout has changed
+-- @param table table to reset setting in
+function DHUDSettings:resetFramesDataSettings(table)
+	for k, v in pairs(table) do
+		if (v[2] == self.SETTING_TYPE_CONTAINER) then
+			self:resetFramesDataSettings(v[1]);
+		else
+			local fullname = v[3].fullName;
+			if (fullname ~= "framesData_layout") then
+				self:setValueInternal(fullname, nil);
+			end
+		end
+	end
 end
 
 --- Custom getter to read unit texts settings
@@ -911,9 +1058,13 @@ function DHUDSettings:setValueInternal(name, value)
 		end
 	end
 	-- save saved var
-	DHUD_SAVED_VARS_TEMP[name] = valueForSavedVars;
+	self:getSavedVars()[name] = valueForSavedVars;
 	-- save
-	self.settings[name] = value;
+	if (valueForSavedVars) then
+		self.settings[name] = value;
+	else
+		self.settings[name] = tableOrigValue;
+	end
 	-- dispatch events
 	-- setting changed event
 	self.eventSettingChanged.setting = name;
@@ -1004,9 +1155,15 @@ function DHUDSettings:getValueDefaultTable(name)
 	local groups = { strsplit("_", name) };
 	-- first iteration
 	setting = self.default[groups[1]];
+	if (setting == nil) then
+		return nil;
+	end
 	-- iterate further
 	for i = 2, #groups, 1 do
 		setting = setting[1][groups[i]];
+		if (setting == nil) then
+			return nil;
+		end
 	end
 	return setting;
 end
@@ -1139,12 +1296,13 @@ end
 
 --- Process saved vars table and fill settings table with changes from it
 function DHUDSettings:processSavedVars()
+	local savedVars = self:getSavedVars();
 	-- read version
-	local version = DHUD_SAVED_VARS_TEMP["version"] or 0;
+	local version = savedVars["version"] or 0;
 	-- process saved vars
 	local defaultTable, settingType, settingDefaultValue, settingInfo;
 	-- iterate
-	for k, v in pairs(DHUD_SAVED_VARS_TEMP) do
+	for k, v in pairs(savedVars) do
 		-- get default table
 		defaultTable = self:getValueDefaultTable(k);
 		-- value exists?
@@ -1182,22 +1340,33 @@ function DHUDSettings:processSavedVars()
 					self.settings[k] = list;
 				end
 			end
+		-- setting no longer exists
+		else
+			-- remove unused setting
+			if (k ~= self.SAVED_VARS_ADDITIONAL_TABLE_NAME) then
+				savedVars[k] = nil;
+			end
 		end
 	end
 	-- save version
-	DHUD_SAVED_VARS_TEMP["version"] = DHUDMain.versionInt;
+	savedVars["version"] = DHUDMain.versionInt;
 end
 
 --- Initialize custom setters and getters
 function DHUDSettings:initCustomSettersAndGetters()
 	self.getters["framesData"] = self.getFramesData;
 	self.getters["unitTexts"] = self.getUnitTexts;
+	self.setters["framesData_layout"] = self.setFramesDataLayout;
 end
 
 --- Initialize settings hadler, addon saved variables are loaded at this moment
 function DHUDSettings:init()
 	-- construct event dispatcher
 	self:constructor();
+	-- create table with settings if none
+	if (not DHUD_SavedVars) then
+        DHUD_SavedVars = { };
+    end
 	-- create events
 	self.eventSettingChanged = DHUDSettingsEvent:new(DHUDSettingsEvent.EVENT_SETTING_CHANGED);
 	self.eventSpecificSettingChanged = DHUDSettingsEvent:new(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX);
@@ -1255,10 +1424,11 @@ end
 -- @param tableName name of the sub table, pass nil to get whole additional saved vars table
 -- @return table with additional saved vars
 function DHUDSettings:getAdditionalSavedVars(tableName)
-	local additional = DHUD_SAVED_VARS_TEMP["_additional"];
+	local savedVars = self:getSavedVars();
+	local additional = savedVars[self.SAVED_VARS_ADDITIONAL_TABLE_NAME];
 	if (additional == nil) then
 		additional = { };
-		DHUD_SAVED_VARS_TEMP["_additional"] = additional;
+		savedVars[self.SAVED_VARS_ADDITIONAL_TABLE_NAME] = additional;
 	end
 	if (tableName == nil) then
 		return additional;
@@ -1269,6 +1439,16 @@ function DHUDSettings:getAdditionalSavedVars(tableName)
 		additional[tableName] = subTable;
 	end
 	return subTable;
+end
+
+-- temprorary variable for saved vars
+DHUD_SAVED_VARS_TEMP = { ["scale_main"] = 0.8, ["scale_resource"] = 1.0, ["scale_spellCircles"] = 1.0, ["shortAurasOptions_targetAurasWhiteList"] = { {"CustomSpell1"}, {"spellName48792"} }, ["shortAurasOptions_aurasTimeLeftMax"] = 240,
+						["outlines_spellCirclesTime"] = 0, ["outlines_spellCirclesStacks"] = 0, ["shortAurasOptions_cooldownsBlackList"] = { {"<slot:10>"}, { } }, };
+
+--- get table with saved vars
+function DHUDSettings:getSavedVars()
+	--return DHUD_SAVED_VARS_TEMP;
+	return DHUD_SavedVars;
 end
 
 --------------------------
@@ -1387,6 +1567,7 @@ function DHUDTimersFilterHelperSettingsHandler.filterPlayerCooldowns(timer)
 	local self = DHUDTimersFilterHelperSettingsHandler;
 	local isItem = bit.band(timer[1], DHUDCooldownsTracker.TIMER_TYPE_MASK_ITEM) ~= 0;
 	--print("timer is " .. MCTableToString(timer));
+	--print("item black list " .. MCTableToString(self.blackListPlayerCooldowns["_slot"]) .. ", id " .. MCTableToString(timer[5]) .. ", isBlacklisted " .. MCTableToString(self.blackListPlayerCooldowns["_slot"][timer[5]] == true));
 	-- check blacklist
 	if (self.blackListPlayerCooldowns[timer[6]] == true or (isItem and self.blackListPlayerCooldowns["_slot"][timer[5]] == true)) then
 		return nil;
@@ -1448,6 +1629,7 @@ function DHUDTimersFilterHelperSettingsHandler:processItemSlotList(t)
 		local indexS, indexE = strfind(k, "<slot:.->", 0); -- search for "<slot:13>" text
 		if (indexS ~= nil) then
 			local slot = strsub(k, indexS + 6, indexE - 1);
+			slot = tonumber(slot); -- required as number
 			--print("found slot " .. slot);
 			slots[slot] = true;
 		end
@@ -1537,6 +1719,8 @@ DHUDNonAddonSettingsHandler = {
 	SETTING_NAME_BLIZZARD_TARGET = "blizzardFrames_targetFrame",
 	-- name of the setting that changes visibility of the castbar frame
 	SETTING_NAME_BLIZZARD_CASTBAR = "blizzardFrames_castingFrame",
+	-- name of the setting that changes alpha of SpellActivationOverlayFrame
+	SETTING_NAME_BLIZZARD_SPELL_ACTIVATION_ALPHA = "blizzardFrames_spellActivationFrameAlpha",
 }
 
 -- value of the setting has changed
@@ -1569,6 +1753,13 @@ function DHUDNonAddonSettingsHandler:onBlizzardCastbarFrameChange(e)
 	end
 end
 
+-- value of the setting has changed
+function DHUDNonAddonSettingsHandler:onBlizzardSpellActivationFrameAlphaChange(e)
+	local val = DHUDSettings:getValue(self.SETTING_NAME_BLIZZARD_SPELL_ACTIVATION_ALPHA);
+	-- reduce alpha of blizzard power auras
+	SpellActivationOverlayFrame:SetAlpha(val);
+end
+
 --- initialize non addon specific settings handler
 function DHUDNonAddonSettingsHandler:init()
 	local playerFrameVisible = DHUDSettings:getValue(self.SETTING_NAME_BLIZZARD_PLAYER);
@@ -1578,6 +1769,8 @@ function DHUDNonAddonSettingsHandler:init()
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. self.SETTING_NAME_BLIZZARD_PLAYER, self, self.onBlizzardPlayerFrameChange);
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. self.SETTING_NAME_BLIZZARD_TARGET, self, self.onBlizzardTargetFrameChange);
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. self.SETTING_NAME_BLIZZARD_CASTBAR, self, self.onBlizzardCastbarFrameChange);
+	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. self.SETTING_NAME_BLIZZARD_SPELL_ACTIVATION_ALPHA, self, self.onBlizzardSpellActivationFrameAlphaChange);
+	self:onBlizzardSpellActivationFrameAlphaChange(nil);
 	-- hide frames if required
 	if (not playerFrameVisible) then
 		self:hideBlizzardPlayerFrame();
@@ -1660,26 +1853,15 @@ end
 
 --- Function to hide blizzard casting frame
 function DHUDNonAddonSettingsHandler:hideBlizzardCastingFrame()
-	CastingBarFrame:RegisterEvent("UNIT_SPELLCAST_START");
-	CastingBarFrame:RegisterEvent("UNIT_SPELLCAST_STOP");
-	CastingBarFrame:RegisterEvent("UNIT_SPELLCAST_FAILED");
-	CastingBarFrame:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED");
-	CastingBarFrame:RegisterEvent("UNIT_SPELLCAST_DELAYED");
-	CastingBarFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START");
-	CastingBarFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE");
-	CastingBarFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP");
-end
-
---- Function to show blizzard target frame
-function DHUDNonAddonSettingsHandler:showBlizzardTargetFrame()
-	CastingBarFrame:RegisterEvent("UNIT_SPELLCAST_START");
-	CastingBarFrame:RegisterEvent("UNIT_SPELLCAST_STOP");
-	CastingBarFrame:RegisterEvent("UNIT_SPELLCAST_FAILED");
-	CastingBarFrame:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED");
-	CastingBarFrame:RegisterEvent("UNIT_SPELLCAST_DELAYED");
-	CastingBarFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START");
-	CastingBarFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE");
-	CastingBarFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP");
+	CastingBarFrame:UnregisterEvent("UNIT_SPELLCAST_START");
+	CastingBarFrame:UnregisterEvent("UNIT_SPELLCAST_STOP");
+	CastingBarFrame:UnregisterEvent("UNIT_SPELLCAST_FAILED");
+	CastingBarFrame:UnregisterEvent("UNIT_SPELLCAST_INTERRUPTED");
+	CastingBarFrame:UnregisterEvent("UNIT_SPELLCAST_DELAYED");
+	CastingBarFrame:UnregisterEvent("UNIT_SPELLCAST_CHANNEL_START");
+	CastingBarFrame:UnregisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE");
+	CastingBarFrame:UnregisterEvent("UNIT_SPELLCAST_CHANNEL_STOP");
+	CastingBarFrame:Hide();
 end
 
 --- Function to show blizzard target frame

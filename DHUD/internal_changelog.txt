@@ -1,3 +1,6 @@
+changelog 2.0.50300.35:
+-bug fixes
+
 changelog 2.0.50300.34:
 -Updated MyMinimapButton class from version 0.4 to version 1.0 and fixed code to work with MoP
 -Addon code have been rewriten and uses OOP design. Cpu and memory consumption is reduced

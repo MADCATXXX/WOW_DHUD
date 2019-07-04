@@ -26,13 +26,9 @@
 -- Trinket ICDS, RPPM, check: http://www.curse.com/addons/wow/extracd
 -- Shaman totems?
 -- blizzard interface menu?
+-- SpellActivationOverlayFrame ?
 -- Shadow/Glow Special Effect: http://www.wowinterface.com/downloads/info18479-rSetBackdrop.html#info
--- cast bar, layouts for all classes
--- measure performance
--- Bugs:
--- Icon persists after deselecting target
--- texts not hidden on death
--- SpellActivationOverlayFrame - change alpha
+-- layouts
 
 ----------
 -- Code --

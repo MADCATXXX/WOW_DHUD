@@ -280,6 +280,10 @@ function DHUDTextTools:formatNumber(number, limit, numberRef)
 	if (numChars <= limit) then
 		return format('%d', number);
 	end
+	-- 0 should be present as 0
+	if (number == 0) then
+		return "0";
+	end
 	local overLimit = numChars - limit;
 	local prefixToUse = floor((overLimit + 2) / 3);
 	local divideBy = 10 ^ (prefixToUse * 3);
@@ -532,28 +536,45 @@ DHUDColorizeTools = {
 		["target"] = 32768,
 		["pet"] = 65536,
 	},
+	-- if resource string will not exist in this table than class will query API for color
+	RESOURCE_POWER_TYPE_STRINGS = {
+		[0] = "MANA",
+		[1] = "RAGE",
+		[2] = "FOCUS",
+		[3] = "ENERGY",
+		[6] = "RUNIC_POWER",
+		[8] = "ECLIPSE",
+		[14] = "BURNING_EMBERS",
+		[15] = "DEMONIC_FURY",
+	}
 }
 
 --- Get color table for unit power specified
 -- @param unitId id of the unit
 -- @param unitPowerTypeId id of the power that is used by unit specified
+-- @param unitPowerTypeString name of the power that is used by unit specified, it will be checked to return correct color
 -- @return color table that is associated with unit specified
-function DHUDColorizeTools:getColorTableForPower(unitId, unitPowerTypeId)
+function DHUDColorizeTools:getColorTableForPower(unitId, unitPowerTypeId, unitPowerTypeString)
 	-- return default color table when there is no unit
 	if (unitId == nil) then
 		return self.colors_default;
 	end
-	local unitColorId = self.UNIT_ID_TO_COLOR_UNIT_ID[unitId] or 0;
-	local colors = self.colors_specified[unitPowerTypeId + unitColorId];
-	--print("requestsed colors for type " .. unitPowerTypeId .. ", unit " .. unitColorId .. " is: " .. MCTableToString(colors));
+	local colors;
+	local unitColorId;
+	if (self.RESOURCE_POWER_TYPE_STRINGS[unitPowerTypeId] == unitPowerTypeString) then
+		unitColorId = self.UNIT_ID_TO_COLOR_UNIT_ID[unitId] or 0;
+		colors = self.colors_specified[unitPowerTypeId + unitColorId];
+	end
+	--print("requestsed colors for type " .. MCTableToString(unitPowerTypeId) .. "(" .. MCTableToString(unitPowerTypeString) .. "), unit " .. MCTableToString(unitColorId) .. " is: " .. MCTableToString(colors));
 	-- color found?
 	if (colors ~= nil) then
 		return colors;
 	end
 	-- if color is not specified in settings, get it from API
 	local id, name, r, g, b = UnitPowerType(unitId);
+	--print("Unit Power Type " .. MCTableToString({ UnitPowerType(unitId) }));
 	-- cannot get color from api, return white
-	if (id ~= unitPowerTypeId) then
+	if (id ~= unitPowerTypeId or r == nil) then
 		r = 1;
 		g = 1;
 		b = 1;
@@ -581,15 +602,15 @@ end
 -- @param color1 color to be used when percent is equal to 1
 -- @return resulting color rgb table
 function DHUDColorizeTools:colorizePercentBetweenColors(percent, color0, color1)
-	if (percent <= 0) then
-		return color0;
-	elseif (percent >= 1) then
+	if (percent >= 1) then
 		return color1;
-	else
+	elseif (percent > 0) then
 		self.color_result[1] = color0[1] + (color1[1] - color0[1]) * percent;
 		self.color_result[2] = color0[2] + (color1[2] - color0[2]) * percent;
 		self.color_result[3] = color0[3] + (color1[3] - color0[3]) * percent;
 		return self.color_result;
+	else
+		return color0;
 	end
 end
 
@@ -598,28 +619,45 @@ end
 -- @param colorTable colorTable to use
 -- @return resulting color rgb table
 function DHUDColorizeTools:colorizePercentUsingTable(percent, colorTable)
-	local color0 = colorTable[1];
+	-- color table to colorize bat that can contain positive and negative numbers
+	if (#colorTable == 7) then
+		-- value below 0.2 percent
+		if (percent <= 0.2) then
+			return self:colorizePercentBetweenColors((0.2 - percent) / (0.2 - 0), colorTable[6], colorTable[7]);
+		-- value below 0.35 percent
+		elseif (percent <= 0.35) then
+			return self:colorizePercentBetweenColors((0.35 - percent) / (0.35 - 0.2), colorTable[5], colorTable[6]);
+		-- value below 0.50 percent
+		elseif (percent < 0.5) then
+			return self:colorizePercentBetweenColors(0, colorTable[5], colorTable[6]);
+		-- value equal to 0.50 percent
+		elseif (percent == 0.5) then
+			return self:colorizePercentBetweenColors(1, colorTable[4], colorTable[4]);
+		-- value equal to 0.65 percent
+		elseif (percent <= 0.65) then
+			return self:colorizePercentBetweenColors(0, colorTable[3], colorTable[2]);
+		-- value equal to 0.80 percent
+		elseif (percent <= 0.8) then
+			return self:colorizePercentBetweenColors((percent - 0.65) / (0.8 - 0.65), colorTable[3], colorTable[2]);
+		-- value below 1.0 percent, equal or greater
+		else
+			return self:colorizePercentBetweenColors((percent - 0.8) / (1 - 0.8), colorTable[2], colorTable[1]);
+		end
+	-- color table to colorize bat that can contain positive and negative numbers
+	elseif (#colorTable == 3) then
+		-- value below 0.3 percent
+		if (percent <= 0.3) then
+			return self:colorizePercentBetweenColors(0, colorTable[3], colorTable[2]);
+		-- value below 0.6 percent
+		elseif (percent <= 0.6) then
+			return self:colorizePercentBetweenColors((percent - 0.3) / (0.6 - 0.3), colorTable[3], colorTable[2]);
+		-- value below 1.0 percent, equal or greater
+		else
+			return self:colorizePercentBetweenColors((percent - 0.6) / (1 - 0.6), colorTable[2], colorTable[1]);
+		end
 	-- color table doesn't support colorizing by percent
-	if (#colorTable == 1) then
-		return self:colorizePercentBetweenColors(1, color0, color0);
-	end
-	local color1 = colorTable[2];
-	local color2 = colorTable[3];
-	-- treshold bounds
-	local threshold1 = 0.6;    
-	local threshold2 = 0.3;
-	-- value below 0.3 percent
-	if (percent <= threshold2) then
-		return self:colorizePercentBetweenColors(0, color2, color1);
-	-- value below 0.6 percent
-	elseif (percent <= threshold1) then
-		return self:colorizePercentBetweenColors((percent - threshold2) / (threshold1 - threshold2), color2, color1);
-	-- value below 1.0 percent
-	elseif (percent < 1) then
-		return self:colorizePercentBetweenColors((percent - threshold1) / (1 - threshold1), color1, color0);
-	-- value greater or equal to 1.0
 	else
-		return self:colorizePercentBetweenColors(1, color1, color0);
+		return self:colorizePercentBetweenColors(1, colorTable[1], colorTable[1]);
 	end
 end
 
@@ -916,6 +954,12 @@ end
 -- @param heightEnd height to end on
 -- @param colors color of bar
 function DHUDGUIBarAnimationHelper:updateBarHeightAndColor(index, heightBegin, heightEnd, colors)
+	-- special case for nil color (do not show bar)
+	if (colors == nil) then
+		heightBegin = 0;
+		heightEnd = 0;
+		colors = DHUDColorizeTools.colors_default[1];
+	end
 	-- get texture
 	local texture = self.group[index].texture;
 	-- read clipping info
@@ -1195,7 +1239,7 @@ function DHUDGUIBarAnimationHelper:updateToCurrentState()
 				heightEnd = 1.0;
 			end
 			--print("update bar " .. self.stateValuesInfo[i][1]);
-			self:updateBarHeightAndColor(index, heightBegin, heightEnd, self.colorizeFunction(self.colorizeFunctionSelf, self.stateValuesInfo[i][1], v / self.significantHeightCurrentAnimation));
+			self:updateBarHeightAndColor(index, heightBegin, heightEnd, self.colorizeFunction(self.colorizeFunctionSelf, self.stateValuesInfo[i][1], heightBegin / self.significantHeightCurrentAnimation, heightEnd / self.significantHeightCurrentAnimation));
 			heightBegin = heightEnd;
 			index = index + 1;
 		end
@@ -2317,6 +2361,15 @@ function DHUDGUI:createBarFrameSmallInnerLeft(index)
 	return frame;
 end
 
+--- Create left small outer bar
+-- @param index index of frame
+-- @return frame created
+function DHUDGUI:createBarFrameSmallOuterLeft(index)
+	local relative = self.positions["leftBars"];
+	local frame = self:createBarFrame("DHUD_Left_BarSmall2_" .. index, relative[1], relative[2], relative[3], relative[4], relative[5], relative[6], relative[7], "TexturePrefixBarS2");
+	return frame;
+end
+
 --- Create right big inner bar
 -- @param index index of frame
 -- @return frame created
@@ -2341,6 +2394,15 @@ end
 function DHUDGUI:createBarFrameSmallInnerRight(index)
 	local relative = self.positions["rightBars"];
 	local frame = self:createBarFrame("DHUD_Right_BarSmall1_" .. index, relative[1], relative[2], relative[3], relative[4], relative[5], relative[6], relative[7], "TexturePrefixBarS1", true);
+	return frame;
+end
+
+--- Create right small outer bar
+-- @param index index of frame
+-- @return frame created
+function DHUDGUI:createBarFrameSmallOuterRight(index)
+	local relative = self.positions["rightBars"];
+	local frame = self:createBarFrame("DHUD_Right_BarSmall2_" .. index, relative[1], relative[2], relative[3], relative[4], relative[5], relative[6], relative[7], "TexturePrefixBarS2", true);
 	return frame;
 end
 
@@ -2547,7 +2609,7 @@ end
 function DHUDGUI:repositionSpellCircleFramesSmallLeft(frame)
 	local group, indexBegin, indexEnd = self:repositionProcessParams(self.frameGroups.spellCirclesSmallLeft, frame);
 	local hasSmallBar = bit.band(self.backgroundLeft, self.BACKGROUND_BAR_SMALL1) ~= 0;
-	self:repositionCircleFramesAroundHud(group, indexBegin, indexEnd, 16 * self.scale[self.SCALE_SPELL_CIRCLES], -2, -DHUDEllipseMath.HUD_BAR_WIDTH - DHUDEllipseMath.HUD_SMALLBAR_WIDTH, true);
+	self:repositionCircleFramesAroundHud(group, indexBegin, indexEnd, 16 * self.scale[self.SCALE_SPELL_CIRCLES], -2, -DHUDEllipseMath.HUD_BAR_WIDTH - DHUDEllipseMath.HUD_SMALLBAR_WIDTH - (hasSmallBar and 3 or 0), true);
 end
 
 --- Create spell circle near right small bar
@@ -2563,7 +2625,7 @@ end
 function DHUDGUI:repositionSpellCircleFramesSmallRight(frame)
 	local group, indexBegin, indexEnd = self:repositionProcessParams(self.frameGroups.spellCirclesSmallRight, frame);
 	local hasSmallBar = bit.band(self.backgroundRight, self.BACKGROUND_BAR_SMALL1) ~= 0;
-	self:repositionCircleFramesAroundHud(group, indexBegin, indexEnd, 16 * self.scale[self.SCALE_SPELL_CIRCLES], -2, -DHUDEllipseMath.HUD_BAR_WIDTH - DHUDEllipseMath.HUD_SMALLBAR_WIDTH, false);
+	self:repositionCircleFramesAroundHud(group, indexBegin, indexEnd, 16 * self.scale[self.SCALE_SPELL_CIRCLES], -2, -DHUDEllipseMath.HUD_BAR_WIDTH - DHUDEllipseMath.HUD_SMALLBAR_WIDTH - (hasSmallBar and 3 or 0), false);
 end
 
 --- Create left spell rectangle near bottom text
@@ -3314,6 +3376,11 @@ function DHUDGUI:createFrames()
 	frame = self:createTextFrame("DHUD_Left_TextSmall1", "DHUD_Left_BarsBackground", "LEFT", "BOTTOM", 110 - 50, 19 + 7, 200, 14, "LEFT", "CENTER", "numeric");
 	group["text"] = frame;
 	group["helper"] = DHUDGUIBarAnimationHelper:new(group, "TexturePrefixBarS1", "leftBars");
+	-- create left small outer bar
+	group = self:createDynamicFrameGroup("leftSmallBar2", self.createBarFrameSmallOuterLeft, 10, self.frameGroups.bars, self.frameGroups.alphaFrames);
+	frame = self:createTextFrame("DHUD_Left_TextSmall2", "DHUD_Left_BarsBackground", "LEFT", "BOTTOM", 120 - 50, 34 + 7, 200, 14, "LEFT", "CENTER", "numeric");
+	group["text"] = frame;
+	group["helper"] = DHUDGUIBarAnimationHelper:new(group, "TexturePrefixBarS2", "leftBars");
 	-- create left big inner bar
 	group = self:createDynamicFrameGroup("rightBigBar1", self.createBarFrameBigInnerRight, 10, self.frameGroups.bars, self.frameGroups.alphaFrames);
 	frame = self:createTextFrame("DHUD_Right_TextBig1", "DHUD_Right_BarsBackground", "RIGHT", "BOTTOM", -95 + 50, 2 + 7, 200, 14, "RIGHT", "CENTER", "numeric");
@@ -3329,6 +3396,11 @@ function DHUDGUI:createFrames()
 	frame = self:createTextFrame("DHUD_Right_TextSmall1", "DHUD_Right_BarsBackground", "RIGHT", "BOTTOM", -110 + 50, 19 + 7, 200, 14, "RIGHT", "CENTER", "numeric");
 	group["text"] = frame;
 	group["helper"] = DHUDGUIBarAnimationHelper:new(group, "TexturePrefixBarS1", "rightBars");
+	-- create right small outer bar
+	group = self:createDynamicFrameGroup("rightSmallBar2", self.createBarFrameSmallOuterRight, 10, self.frameGroups.bars, self.frameGroups.alphaFrames);
+	frame = self:createTextFrame("DHUD_Right_TextSmall2", "DHUD_Right_BarsBackground", "RIGHT", "BOTTOM", -120 + 50, 34 + 7, 200, 14, "RIGHT", "CENTER", "numeric");
+	group["text"] = frame;
+	group["helper"] = DHUDGUIBarAnimationHelper:new(group, "TexturePrefixBarS2", "rightBars");
 	-- create target info text
 	frame = self:createUnitTextFrame("DHUD_Center_TextInfo1", "DHUD_UIParent", "BOTTOM", "BOTTOM", 0, -45, nil, 14, "CENTER", "CENTER");
 	-- create target2 info text
@@ -3417,9 +3489,11 @@ function DHUDGUI:init()
 	self:processFrameFontSizeSetting("scale_leftBigBar1", nil, nil, nil, nil, self.frames["DHUD_Left_TextBig1"]);
 	self:processFrameFontSizeSetting("scale_leftBigBar2", nil, nil, nil, nil, self.frames["DHUD_Left_TextBig2"]);
 	self:processFrameFontSizeSetting("scale_leftSmallBar1", nil, nil, nil, nil, self.frames["DHUD_Left_TextSmall1"]);
+	self:processFrameFontSizeSetting("scale_leftSmallBar2", nil, nil, nil, nil, self.frames["DHUD_Left_TextSmall2"]);
 	self:processFrameFontSizeSetting("scale_rightBigBar1", nil, nil, nil, nil, self.frames["DHUD_Right_TextBig1"]);
 	self:processFrameFontSizeSetting("scale_rightBigBar2", nil, nil, nil, nil, self.frames["DHUD_Right_TextBig2"]);
 	self:processFrameFontSizeSetting("scale_rightSmallBar1", nil, nil, nil, nil, self.frames["DHUD_Right_TextSmall1"]);
+	self:processFrameFontSizeSetting("scale_rightSmallBar2", nil, nil, nil, nil, self.frames["DHUD_Right_TextSmall2"]);
 	self:processFrameFontSizeSetting("scale_targetInfo1", nil, nil, nil, nil, self.frames["DHUD_Center_TextInfo1"]);
 	self:processFrameFontSizeSetting("scale_targetInfo2", nil, nil, nil, nil, self.frames["DHUD_Center_TextInfo2"]);
 	self:processFrameFontSizeSetting("scale_spellCirclesTime", nil, nil, "textFieldTime", self.frameGroups["spellCircles"], nil);
@@ -3434,9 +3508,11 @@ function DHUDGUI:init()
 	self:processFrameFontOutlineSetting("outlines_leftBigBar1", nil, nil, nil, self.frames["DHUD_Left_TextBig1"]);
 	self:processFrameFontOutlineSetting("outlines_leftBigBar2", nil, nil, nil, self.frames["DHUD_Left_TextBig2"]);
 	self:processFrameFontOutlineSetting("outlines_leftSmallBar1", nil, nil, nil, self.frames["DHUD_Left_TextSmall1"]);
+	self:processFrameFontOutlineSetting("outlines_leftSmallBar2", nil, nil, nil, self.frames["DHUD_Left_TextSmall2"]);
 	self:processFrameFontOutlineSetting("outlines_rightBigBar1", nil, nil, nil, self.frames["DHUD_Right_TextBig1"]);
 	self:processFrameFontOutlineSetting("outlines_rightBigBar2", nil, nil, nil, self.frames["DHUD_Right_TextBig2"]);
 	self:processFrameFontOutlineSetting("outlines_rightSmallBar1", nil, nil, nil, self.frames["DHUD_Right_TextSmall1"]);
+	self:processFrameFontOutlineSetting("outlines_rightSmallBar2", nil, nil, nil, self.frames["DHUD_Right_TextSmall2"]);
 	self:processFrameFontOutlineSetting("outlines_targetInfo1", nil, nil, nil, self.frames["DHUD_Center_TextInfo1"]);
 	self:processFrameFontOutlineSetting("outlines_targetInfo2", nil, nil, nil, self.frames["DHUD_Center_TextInfo2"]);
 	self:processFrameFontOutlineSetting("outlines_spellCirclesTime", nil, "textFieldTime", self.frameGroups["spellCircles"], nil);
@@ -3456,8 +3532,6 @@ function DHUDGUI:init()
 		frame = self.frameGroups.rightBigCastBar1[i];
 		frame = self.frameGroups.rightBigCastBar2[i];
 	end]]--
-	-- reduce alpha of blizzard power auras
-	SpellActivationOverlayFrame:SetAlpha(0.5);
 end
 
 ----------------------
@@ -3767,6 +3841,9 @@ DHUDGuiBarManager = MCCreateSubClass(DHUDGuiSlotManager, {
 	STATIC_showHealthHealAbsorb = true,
 	-- defines if health heal incoming should be visible in ui
 	STATIC_showHealthHealIncoming = true,
+	-- empty space for some powers
+	VALUE_TYPE_POWER_NONE = 0,
+	VALUE_INFO_POWER_NONE = { 0, 0 },
 	-- power points value and priority
 	VALUE_TYPE_POWER = 1,
 	VALUE_INFO_POWER = { 1, 1 },
@@ -3820,6 +3897,7 @@ function DHUDGuiBarManager:STATIC_init()
 	table.insert(self.VALUES_INFO_HEALTH, self.VALUE_INFO_HEALTH_ABSORB);
 	table.insert(self.VALUES_INFO_HEALTH, self.VALUE_INFO_HEALTH_SHIELD);
 	table.insert(self.VALUES_INFO_HEALTH, self.VALUE_INFO_HEALTH_HEAL_INCOMMING);
+	table.insert(self.VALUES_INFO_RESOURCES, self.VALUE_INFO_POWER_NONE);
 	table.insert(self.VALUES_INFO_RESOURCES, self.VALUE_INFO_POWER);
 	-- listen to settings change events
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "healthBarOptions_showShields", self, self.STATIC_onShowHealthShieldsSetting);
@@ -3865,24 +3943,47 @@ end
 
 --- Colorize bar according to value height
 -- @param valueType type of the value
--- @param valueHeight height of the value
-function DHUDGuiBarManager:colorizeBar(valueType, valueHeight)
+-- @param valueHeightBegin begin height of the value
+-- @param valueHeightEnd end height of the value
+function DHUDGuiBarManager:colorizeBar(valueType, valueHeightBegin, valueHeightEnd)
+	local valueHeight = valueHeightEnd - valueHeightBegin;
 	local colors;
-	-- get colors table
-	if (valueType == self.VALUE_TYPE_HEALTH) then
-		if (self.currentDataTracker.noCreditForKill) then
-			colors = DHUDColorizeTools:getColorTableForId(DHUDColorizeTools.COLOR_ID_TYPE_HEALTH_NOTTAPPED + self.unitColorId);
+	-- get colors table for health
+	if (self.valuesInfo == self.VALUES_INFO_HEALTH) then
+		if (valueType == self.VALUE_TYPE_HEALTH) then
+			if (self.currentDataTracker.noCreditForKill) then
+				colors = DHUDColorizeTools:getColorTableForId(DHUDColorizeTools.COLOR_ID_TYPE_HEALTH_NOTTAPPED + self.unitColorId);
+			else
+				colors = DHUDColorizeTools:getColorTableForId(DHUDColorizeTools.COLOR_ID_TYPE_HEALTH + self.unitColorId);
+			end
+		elseif (valueType == self.VALUE_TYPE_HEALTH_SHIELD) then
+			colors = DHUDColorizeTools:getColorTableForId(DHUDColorizeTools.COLOR_ID_TYPE_HEALTH_SHIELD + self.unitColorId);
+		elseif (valueType == self.VALUE_TYPE_HEALTH_ABSORB) then
+			colors = DHUDColorizeTools:getColorTableForId(DHUDColorizeTools.COLOR_ID_TYPE_HEALTH_ABSORB + self.unitColorId);
+		elseif (valueType == self.VALUE_TYPE_HEALTH_HEAL_INCOMMING) then
+			colors = DHUDColorizeTools:getColorTableForId(DHUDColorizeTools.COLOR_ID_TYPE_HEALTH_INCOMINGHEAL + self.unitColorId);
 		else
-			colors = DHUDColorizeTools:getColorTableForId(DHUDColorizeTools.COLOR_ID_TYPE_HEALTH + self.unitColorId);
+			colors = DHUDColorizeTools.colors_default;
 		end
-	elseif (valueType == self.VALUE_TYPE_HEALTH_SHIELD) then
-		colors = DHUDColorizeTools:getColorTableForId(DHUDColorizeTools.COLOR_ID_TYPE_HEALTH_SHIELD + self.unitColorId);
-	elseif (valueType == self.VALUE_TYPE_HEALTH_ABSORB) then
-		colors = DHUDColorizeTools:getColorTableForId(DHUDColorizeTools.COLOR_ID_TYPE_HEALTH_ABSORB + self.unitColorId);
-	elseif (valueType == self.VALUE_TYPE_HEALTH_HEAL_INCOMMING) then
-		colors = DHUDColorizeTools:getColorTableForId(DHUDColorizeTools.COLOR_ID_TYPE_HEALTH_INCOMINGHEAL + self.unitColorId);
-	elseif (valueType == self.VALUE_TYPE_POWER) then
-		colors = DHUDColorizeTools:getColorTableForPower(self.currentDataTracker.unitId, self.currentDataTracker.resourceType);
+	-- get colors table for power
+	elseif (self.valuesInfo == self.VALUES_INFO_RESOURCES) then
+		if (valueType == self.VALUE_TYPE_POWER) then
+			colors = DHUDColorizeTools:getColorTableForPower(self.currentDataTracker.unitId, self.currentDataTracker.resourceType, self.currentDataTracker.resourceTypeString);
+			-- update height
+			if (self.currentDataTracker.amountMin ~= 0) then
+				if (valueHeightBegin == 0.5) then
+					valueHeight = valueHeightEnd;
+				else
+					valueHeight = valueHeightBegin;
+				end
+				--print("valueHeightEnd " .. valueHeightEnd .. ", valueHeightBegin " .. valueHeightBegin .. ", valueHeight " .. valueHeight);
+			end
+		elseif (valueType == self.VALUE_TYPE_POWER_NONE) then
+			return nil;
+		else
+			colors = DHUDColorizeTools.colors_default;
+		end
+	-- unknown colors
 	else
 		colors = DHUDColorizeTools.colors_default;
 	end
@@ -3947,14 +4048,15 @@ end
 -- @param precision number of digits to use after comma, if not nil, than number will be printed as float
 -- @return text to be shown in gui
 function DHUDGuiBarManager:createTextAmountPercent(this, prefix, precision)
+	--local valueMax = this.currentDataTracker.amountMax;
 	local value = math.floor(this.currentDataTracker.amount * 100 / this.currentDataTracker.amountMax);
 	if (prefix ~= nil) then
 		if (value > 0) then
-			return prefix .. (precision and DHUDTextTools:formatNumberWithPrecision(value, precision) or DHUDTextTools:formatNumber(value, nil, valueMax));
+			return prefix .. (precision and DHUDTextTools:formatNumberWithPrecision(value, precision) or DHUDTextTools:formatNumber(value, nil, value));
 		end
 		return "";
 	end
-	return (precision and DHUDTextTools:formatNumberWithPrecision(value, precision) or DHUDTextTools:formatNumber(value, nil, valueMax));
+	return (precision and DHUDTextTools:formatNumberWithPrecision(value, precision) or DHUDTextTools:formatNumber(value, nil, value));
 end
 
 --- Create text that contains data amount extra, prefixed if specified
@@ -4013,15 +4115,27 @@ end
 -- @return text to be shown in gui
 function DHUDGuiBarManager:createTextColorizeAmountHealthStart(this)
 	local value = this.currentDataTracker.amount / this.currentDataTracker.amountMax;
-	return DHUDColorizeTools:colorToColorizeString(this:colorizeBar(this.VALUE_TYPE_HEALTH, value));
+	--print("colorizeHealth " .. MCTableToString(this:colorizeBar(this.VALUE_TYPE_HEALTH, 0, value)) .. ", value " .. MCTableToString(value));
+	return DHUDColorizeTools:colorToColorizeString(this:colorizeBar(this.VALUE_TYPE_HEALTH, 0, value));
 end
 
 --- Create text that will colorize text after it in amount color
 -- @param this reference to this bar manager (self is nil)
 -- @return text to be shown in gui
 function DHUDGuiBarManager:createTextColorizeAmountPowerStart(this)
-	local value = this.currentDataTracker.amount / this.currentDataTracker.amountMax;
-	return DHUDColorizeTools:colorToColorizeString(this:colorizeBar(this.VALUE_TYPE_POWER, 1));
+	local valueMin = this.currentDataTracker.amountMin;
+	if (valueMin == 0) then
+		return DHUDColorizeTools:colorToColorizeString(this:colorizeBar(this.VALUE_TYPE_POWER, 0, 1));
+	else
+		local value = this.currentDataTracker.amount;
+		if (value > 0) then
+			return DHUDColorizeTools:colorToColorizeString(this:colorizeBar(this.VALUE_TYPE_POWER, 0.5, 1));
+		elseif (value == 0) then
+			return DHUDColorizeTools:colorToColorizeString(this:colorizeBar(this.VALUE_TYPE_POWER, 0.5, 0.5));
+		else
+			return DHUDColorizeTools:colorToColorizeString(this:colorizeBar(this.VALUE_TYPE_POWER, 0, 0.5));
+		end
+	end
 end
 
 --- Create text that will colorize text after it in amount health shield color
@@ -4029,7 +4143,8 @@ end
 -- @return text to be shown in gui
 function DHUDGuiBarManager:createTextColorizeAmountHealthShieldStart(this)
 	local value = this:getHealthShield() / this.currentDataTracker.amountMax;
-	return DHUDColorizeTools:colorToColorizeString(this:colorizeBar(this.VALUE_TYPE_HEALTH_SHIELD, value));
+	--print("colorizeShield " .. MCTableToString(this:colorizeBar(this.VALUE_TYPE_HEALTH_SHIELD, 0, value)));
+	return DHUDColorizeTools:colorToColorizeString(this:colorizeBar(this.VALUE_TYPE_HEALTH_SHIELD, 0, value));
 end
 
 --- Create text that will colorize text after it in amount health shield color
@@ -4037,7 +4152,8 @@ end
 -- @return text to be shown in gui
 function DHUDGuiBarManager:createTextColorizeAmountHealthHealAbsorbStart(this)
 	local value = this:getHealthHealAbsorb() / this.currentDataTracker.amountMax;
-	return DHUDColorizeTools:colorToColorizeString(this:colorizeBar(this.VALUE_TYPE_HEALTH_ABSORB, value));
+	--print("colorizeAbsorbHeal " .. MCTableToString(this:colorizeBar(this.VALUE_TYPE_HEALTH_ABSORB, 0, value)));
+	return DHUDColorizeTools:colorToColorizeString(this:colorizeBar(this.VALUE_TYPE_HEALTH_ABSORB, 0, value));
 end
 
 --- Create text that will colorize text after it in amount health shield color
@@ -4045,7 +4161,8 @@ end
 -- @return text to be shown in gui
 function DHUDGuiBarManager:createTextColorizeAmountHealthHealIncomingStart(this)
 	local value = this:getHealthHealIncoming() / this.currentDataTracker.amountMax;
-	return DHUDColorizeTools:colorToColorizeString(this:colorizeBar(this.VALUE_TYPE_HEALTH_HEAL_INCOMMING, value));
+	--print("colorizeIncomingHeal " .. MCTableToString(this:colorizeBar(this.VALUE_TYPE_HEALTH_HEAL_INCOMMING, 0, value)));
+	return DHUDColorizeTools:colorToColorizeString(this:colorizeBar(this.VALUE_TYPE_HEALTH_HEAL_INCOMMING, 0, value));
 end
 
 --- Get health shield amount if settings allow this
@@ -4091,6 +4208,7 @@ function DHUDGuiBarManager:updateHealth()
 	-- update gui
 	self.helper:updateBar(self.valuesInfo, self.valuesHeight, heightSignificant);
 	-- update text
+	--print("update text " .. MCTableToString(DHUDSettings:getValue(self.textFormatSettingName)));
 	self.textField:DSetText(self.textFormatFunction());
 end
 
@@ -4098,9 +4216,23 @@ end
 function DHUDGuiBarManager:updatePower()
 	-- amount total
 	local amountTotal = self.currentDataTracker.amountMax;
+	local amountMin = self.currentDataTracker.amountMin;
 	local amount = self.currentDataTracker.amount;
 	-- update heights
-	self.valuesHeight[1] = amount / amountTotal;
+	if (amountMin == 0) then
+		self.valuesHeight[1] = 0;
+		self.valuesHeight[2] = (amount - amountMin) / (amountTotal - amountMin);
+	else
+		if (amount >= 0) then
+			self.valuesHeight[1] = -amountMin / (amountTotal - amountMin);
+			self.valuesHeight[2] = amount / (amountTotal - amountMin);
+		else
+			self.valuesHeight[1] = (amount - amountMin) / (amountTotal - amountMin);
+			self.valuesHeight[2] = -amount / (amountTotal - amountMin);
+		end
+		--print("amount " .. MCTableToString(amount - amountMin) .. ", max " .. MCTableToString(amountTotal - amountMin));
+		--print("self.valueHeight " .. MCTableToString(self.valuesHeight));
+	end
 	-- update gui
 	self.helper:updateBar(self.valuesInfo, self.valuesHeight, 1);
 	-- update text
@@ -4223,6 +4355,8 @@ DHUDSideInfoManager = MCCreateSubClass(DHUDGuiSlotManager, {
 	comboPointsColorOrder = nil,
 	-- defines if player short debuffs should be colorized
 	STATIC_colorizePlayerShortDebuffs = false,
+	-- defines if player combo-points should be shown in stored state
+	STATIC_storeComboPoints = false,
 	-- type of the timers to be shown in spell circles
 	timersType = 3,
 	-- reference to timers colorize function
@@ -4242,28 +4376,35 @@ DHUDSideInfoManager = MCCreateSubClass(DHUDGuiSlotManager, {
 	-- priest shadow orbs combo-point colors
 	COMBO_POINT_COLOR_PRIEST_SHADOW_ORBS = { "ComboCirclePurple", "ComboCirclePurple", "ComboCirclePurple" },
 	-- warlock soul shards combo-point colors
-	COMBO_POINT_COLOR_WARLOCK_SOUL_SHARDS = { "ComboCirclePurple", "ComboCirclePurple", "ComboCirclePurple" },
+	COMBO_POINT_COLOR_WARLOCK_SOUL_SHARDS = { "ComboCirclePurple", "ComboCirclePurple", "ComboCirclePurple", "ComboCirclePurple" },
 	-- monk chi combo-point colors
 	COMBO_POINT_COLOR_MONK_CHI = { "ComboCircleJadeGreen", "ComboCircleJadeGreen", "ComboCircleJadeGreen", "ComboCircleJadeGreen", "ComboCircleJadeGreen" },
 	-- list with rune type to texture name
 	RUNES_TYPE_TO_TEXTURE_NAME = {
-		["1"] = "BlizzardDeathKnightRuneBlood",
-		["2"] = "BlizzardDeathKnightRuneUnholy",
-		["3"] = "BlizzardDeathKnightRuneFrost",
-		["4"] = "BlizzardDeathKnightRuneDeath",
+		[1] = "BlizzardDeathKnightRuneBlood",
+		[2] = "BlizzardDeathKnightRuneUnholy",
+		[3] = "BlizzardDeathKnightRuneFrost",
+		[4] = "BlizzardDeathKnightRuneDeath",
 	},
 })
 
---- show health shield setting has changed
-function DHUDSideInfoManager:STATIC_onColorizePlayerDebuffs(e)
+--- colorize player debuffs setting has changed
+function DHUDSideInfoManager:STATIC_onColorizePlayerDebuffsSettingChange(e)
 	self.STATIC_colorizePlayerShortDebuffs = DHUDSettings:getValue("shortAurasOptions_colorizePlayerDebuffs");
+end
+
+--- show stored combopoints setting has changed
+function DHUDSideInfoManager:STATIC_onComboPointsStoreSettingChange(e)
+	self.STATIC_storeComboPoints = DHUDSettings:getValue("misc_storeComboPoints");
 end
 
 --- Initialize DHUDGuiBarManager static values
 function DHUDSideInfoManager:STATIC_init()
 	-- listen to settings change events
-	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "shortAurasOptions_colorizePlayerDebuffs", self, self.STATIC_onColorizePlayerDebuffs);
-	self:STATIC_onColorizePlayerDebuffs(nil);
+	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "shortAurasOptions_colorizePlayerDebuffs", self, self.STATIC_onColorizePlayerDebuffsSettingChange);
+	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "misc_storeComboPoints", self, self.STATIC_onComboPointsStoreSettingChange);
+	self:STATIC_onColorizePlayerDebuffsSettingChange(nil);
+	self:STATIC_onComboPointsStoreSettingChange(nil);
 end
 
 --- Create new side info manager
@@ -4462,7 +4603,7 @@ end
 function DHUDSideInfoManager:updateSpellCircles(timers)
 	timers = timers or self.currentDataTracker:filterTimers(self.currentDataTrackerHelperFunction, self.dataTrackersListSettingName, true);
 	self.currentGroup:setFramesShown(#timers);
-	self:setIsRegenerating(#timers > 0); -- update regeneration since results are filtered
+	local numTimersWithTime = 0;
 	-- update icons and times, { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder }
 	for i, v in ipairs(timers) do
 		local spellCircleFrame = self.currentGroup[i];
@@ -4472,12 +4613,19 @@ function DHUDSideInfoManager:updateSpellCircles(timers)
 		local color = self.timersColorizeFunc(self, v);
 		spellCircleFrame.border:SetVertexColor(color[1], color[2], color[3]);
 		-- update text
-		local time = (v[2] >= 0) and (DHUDColorizeTools:colorToColorizeString(color) .. DHUDTextTools:formatTime(v[2]) .. "|r") or "";
+		local time;
+		local withTime = (v[2] >= 0);
+		if (withTime) then
+			numTimersWithTime = numTimersWithTime + 1;
+			time = (DHUDColorizeTools:colorToColorizeString(color) .. DHUDTextTools:formatTime(v[2]) .. "|r");
+		else
+			time = "";
+		end
 		spellCircleFrame.textFieldTime:DSetText(time);
 		local stackText = (v[7] > 1) and (DHUDColorizeTools:colorToColorizeString(color) .. v[7] .. "|r") or "";
 		spellCircleFrame.textFieldCount:DSetText(stackText);
-		
 	end
+	self:setIsRegenerating(numTimersWithTime > 0); -- update regeneration since results are filtered
 end
 
 --- Function to update spell circle times
@@ -4503,20 +4651,21 @@ end
 function DHUDSideInfoManager:updateRunes()
 	local runesInfo = self.currentDataTracker.runes;
 	local frame;
-	for i, v in ipairs(runes) do
-		frame = self.group[i];
+	for i, v in ipairs(runesInfo) do
+		frame = self.currentGroup[i];
 		-- change texture
 		if (frame.runeType ~= v[1]) then
 			frame.runeType = v[1];
 			local texture = frame.texture;
 			local textureName = self.RUNES_TYPE_TO_TEXTURE_NAME[v[1]];
+			--print("TextureName " .. MCTableToString(textureName) .. ", v1 " .. MCTableToString(v));
 			-- get texture path and update frame
-			local path, x0, x1, y0, y1 = unpack(self.textures[textureName]);
+			local path, x0, x1, y0, y1 = unpack(DHUDGUI.textures[textureName]);
 			texture:SetTexture(path);
 			texture:SetTexCoord(x0, x1, y0, y1);
 		end
 		-- update time left
-		local time = (v[2] >= 0) and DHUDTextTools:formatTime(v[2]) or "*";
+		local time = (v[2] >= 0) and DHUDTextTools:formatTime(v[2]) or "";
 		frame.textFieldTime:DSetText(time);
 	end
 end
@@ -4525,10 +4674,10 @@ end
 function DHUDSideInfoManager:updateRunesTime()
 	local runesInfo = self.currentDataTracker.runes;
 	local frame;
-	for i, v in ipairs(runes) do
-		frame = self.group[i];
+	for i, v in ipairs(runesInfo) do
+		frame = self.currentGroup[i];
 		-- update time left
-		local time = (v[2] >= 0) and DHUDTextTools:formatTime(v[2]) or "*";
+		local time = (v[2] >= 0) and DHUDTextTools:formatTime(v[2]) or "";
 		frame.textFieldTime:DSetText(time);
 	end
 end
@@ -4536,6 +4685,9 @@ end
 --- Function to update combo-points data
 function DHUDSideInfoManager:updateComboPoints()
 	local amount = self.currentDataTracker.amount;
+	if ((not self.STATIC_storeComboPoints) and self.currentDataTracker.isStoredAmount) then
+		amount = 0;
+	end
 	local amountExtra = self.currentDataTracker.amountExtra;
 	local total = amount + amountExtra;
 	-- update colors
@@ -4552,7 +4704,7 @@ end
 
 --- Function to update general data that is displayed as combo-points
 function DHUDSideInfoManager:updateComboPointsGeneral()
-	local amount = self.currentDataTracker.amount;
+	local amount = floor(self.currentDataTracker.amount);
 	self.currentGroup:setFramesShown(amount);
 end
 
@@ -5212,6 +5364,16 @@ function DHUDIconsManager:onTargetDataChanged(e)
 	self.targetStateGroup.reposition(DHUDGUI);
 end
 
+-- target data no longer exists or started to exists
+function DHUDIconsManager:onTargetDataExistanceChanged(e)
+	local exists = self.targetInfoTracker.isExists;
+	-- hide frames if no data is available
+	if (not exists) then
+		self.targetDragonFrame:DHide();
+		self.targetStateGroup:setFramesShown(0);
+	end
+end
+
 --- Initialize side info manager
 -- @param spellRectanglesGroupName name of the group with spell circles to use
 -- @param settingName name of the setting that holds data trackers list
@@ -5225,6 +5387,7 @@ function DHUDIconsManager:init(selfPvPFrameName, selfStateFrameName, targetDrago
 	self.selfInfoTracker:addEventListener(DHUDDataTrackerEvent.EVENT_DATA_CHANGED, self, self.onSelfDataChanged);
 	self.targetInfoTracker = DHUDDataTrackers.ALL.targetInfo;
 	self.targetInfoTracker:addEventListener(DHUDDataTrackerEvent.EVENT_DATA_CHANGED, self, self.onTargetDataChanged);
+	self.targetInfoTracker:addEventListener(DHUDDataTrackerEvent.EVENT_EXISTANCE_CHANGED, self, self.onTargetDataExistanceChanged);
 	self:onSelfDataChanged(nil);
 	self:onTargetDataChanged(nil);
 end
@@ -5243,9 +5406,16 @@ DHUDCastBarManager = MCCreateSubClass(DHUDGuiSlotManager, {
 	isExists	= false,
 	-- id of the unit from DHUDColorizeTools constants
 	unitColorId = 0,
+	-- allows to show or hide player cast bar info
+	STATIC_showPlayerCastBarInfo = true,
 	-- map with functions that are available to output cast info to text
 	FUNCTIONS_MAP_CASTINFO = { },
 })
+
+--- Initialize DHUDGuiBarManager static values
+function DHUDCastBarManager:STATIC_onSelfCastBarInfoSettingChange(e)
+	self.STATIC_showPlayerCastBarInfo = DHUDSettings:getValue("misc_showPlayerCastBarInfo");
+end
 
 --- Initialize DHUDGuiBarManager static values
 function DHUDCastBarManager:STATIC_init()
@@ -5257,6 +5427,9 @@ function DHUDCastBarManager:STATIC_init()
 	self.FUNCTIONS_MAP_CASTINFO["time_total"] = self.createTextTimeTotal;
 	self.FUNCTIONS_MAP_CASTINFO["delay"] = self.createTextDelay;
 	self.FUNCTIONS_MAP_CASTINFO["spellname"] = self.createTextSpellName;
+	-- listen to settings
+	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "misc_showPlayerCastBarInfo", self, self.STATIC_onSelfCastBarInfoSettingChange);
+	self:STATIC_onSelfCastBarInfoSettingChange(nil);
 end
 
 --- Create new bar manager
@@ -5369,6 +5542,19 @@ function DHUDCastBarManager:getCurrentCastTime()
 	return self.currentDataTracker:getTimeProgress();
 end
 
+--- Change visibility of cast info frames
+-- @param visible defines if cast info frames should be visible
+function DHUDCastBarManager:changeCastInfoVisibility(visible)
+	if (visible) then
+		self.group[DHUDGUI.CASTBAR_GROUP_INDEX_SPELLNAME]:DShow(DHUDGUI.FRAME_VISIBLE_REASON_ENABLED);
+		self.group[DHUDGUI.CASTBAR_GROUP_INDEX_ICON]:DShow(DHUDGUI.FRAME_VISIBLE_REASON_ENABLED);
+	else
+		self.group[DHUDGUI.CASTBAR_GROUP_INDEX_SPELLNAME]:DHide(DHUDGUI.FRAME_VISIBLE_REASON_ENABLED);
+		self.group[DHUDGUI.CASTBAR_GROUP_INDEX_ICON]:DHide(DHUDGUI.FRAME_VISIBLE_REASON_ENABLED);
+	end
+end
+
+
 --- current data tracker data changed
 function DHUDCastBarManager:onDataChange(e)
 	-- check if atleast one cast was used
@@ -5413,12 +5599,15 @@ end
 
 --- new data tracker has been set for this slot, update if neccesary
 function DHUDCastBarManager:onDataTrackerChange(e)
+	self:changeCastInfoVisibility(true);
 	-- switch by unit type
 	if (self.currentDataTracker.trackUnitId == "player") then
 		self.unitColorId = DHUDColorizeTools.COLOR_ID_UNIT_SELF;
 		self:setTextFormatParamsForVariable("unitTexts_player_castTime", self.FUNCTIONS_MAP_CASTINFO, "textFormatTimeFunction");
 		self:setTextFormatParamsForVariable("unitTexts_player_castDelay", self.FUNCTIONS_MAP_CASTINFO, "textFormatDelayFunction");
 		self:setTextFormatParamsForVariable("unitTexts_player_castSpellName", self.FUNCTIONS_MAP_CASTINFO, "textFormatSpellNameFunction");
+		-- hide cast info if required
+		self:changeCastInfoVisibility(self.STATIC_showPlayerCastBarInfo);
 	else
 		self.unitColorId = DHUDColorizeTools.COLOR_ID_UNIT_TARGET;
 		self:setTextFormatParamsForVariable("unitTexts_target_castTime", self.FUNCTIONS_MAP_CASTINFO, "textFormatTimeFunction");
@@ -5445,6 +5634,11 @@ function DHUDCastBarManager:onExistanceChange()
 	DHUDGUIManager:onSlotExistanceStateChanged();
 end
 
+--- cast bar info setting changed, update
+function DHUDCastBarManager:onCastBarInfoSettingChange(e)
+	self:onDataTrackerChange(nil); -- this will cause to hide or show player cast bar info
+end
+
 --- Initialize cast bar manager
 -- @param groupName name of the group to use
 -- @param settingName name of the setting that holds data trackers list
@@ -5455,6 +5649,8 @@ function DHUDCastBarManager:init(groupName, settingName)
 	self.helper:init(self.colorizeCastBar, self.getCurrentCastTime, self);
 	-- initialize setting name
 	self:setDataTrackerListSetting(settingName);
+	-- track cast bar info setting change
+	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "misc_showPlayerCastBarInfo", self, self.onCastBarInfoSettingChange);
 	-- track color settings change
 	self:trackColorSettingsChanges();
 end
@@ -5486,12 +5682,16 @@ DHUDGUIManager = {
 	leftBigBar2			= nil,
 	-- manager of the left inner small bar
 	leftSmallBar1		= nil,
+	-- manager of the left outer small bar
+	leftSmallBar2		= nil,
 	-- manager of the right inner big bar
 	rightBigBar1		= nil,
 	-- manager of the right outer big bar
 	rightBigBar2		= nil,
-	-- manager of the left inner small bar
+	-- manager of the right inner small bar
 	rightSmallBar1		= nil,
+	-- manager of the right outer small bar
+	rightSmallBar2		= nil,
 	-- list with bar managers
 	barManagers			= nil,
 	-- manager of the left inner big cast bar
@@ -5552,10 +5752,12 @@ function DHUDGUIManager:init()
 	self.leftBigBar1 = DHUDGuiBarManager:new();
 	self.leftBigBar2 = DHUDGuiBarManager:new();
 	self.leftSmallBar1 = DHUDGuiBarManager:new();
+	self.leftSmallBar2 = DHUDGuiBarManager:new();
 	self.rightBigBar1 = DHUDGuiBarManager:new();
 	self.rightBigBar2 = DHUDGuiBarManager:new();
 	self.rightSmallBar1 = DHUDGuiBarManager:new();
-	self.barManagers = { self.leftBigBar1, self.leftBigBar2, self.leftSmallBar1, self.rightBigBar1, self.rightBigBar2, self.rightSmallBar1 };
+	self.rightSmallBar2 = DHUDGuiBarManager:new();
+	self.barManagers = { self.leftBigBar1, self.leftBigBar2, self.leftSmallBar1, self.leftSmallBar2, self.rightBigBar1, self.rightBigBar2, self.rightSmallBar1, self.rightSmallBar2 };
 	-- create cast bar managers
 	self.leftBigCastBar1 = DHUDCastBarManager:new();
 	self.leftBigCastBar2 = DHUDCastBarManager:new();
@@ -5596,9 +5798,11 @@ function DHUDGUIManager:init()
 	self.leftBigBar1:init("leftBigBar1", "framesData_leftBigBar1");
 	self.leftBigBar2:init("leftBigBar2", "framesData_leftBigBar2");
 	self.leftSmallBar1:init("leftSmallBar1", "framesData_leftSmallBar1");
+	self.leftSmallBar2:init("leftSmallBar2", "framesData_leftSmallBar2");
 	self.rightBigBar1:init("rightBigBar1", "framesData_rightBigBar1");
 	self.rightBigBar2:init("rightBigBar2", "framesData_rightBigBar2");
 	self.rightSmallBar1:init("rightSmallBar1", "framesData_rightSmallBar1");
+	self.rightSmallBar2:init("rightSmallBar2", "framesData_rightSmallBar2");
 	self.leftBigCastBar1:init("leftBigCastBar1", "framesData_leftBigCastBar1");
 	self.leftBigCastBar2:init("leftBigCastBar2", "framesData_leftBigCastBar2");
 	self.rightBigCastBar1:init("rightBigCastBar1", "framesData_rightBigCastBar1");
@@ -5772,9 +5976,13 @@ function DHUDGUIManager:onSlotExistanceStateChanged()
 	local backgroundLeft = 0;
 	backgroundLeft = bit.bor(backgroundLeft, (self.leftBigBar1:getIsExists() or self.leftBigCastBar1:getIsExists()) and DHUDGUI.BACKGROUND_BAR_BIG1 or 0);
 	backgroundLeft = bit.bor(backgroundLeft, (self.leftBigBar2:getIsExists() or self.leftBigCastBar2:getIsExists()) and DHUDGUI.BACKGROUND_BAR_BIG2 or 0);
+	backgroundLeft = bit.bor(backgroundLeft, (self.leftSmallBar1:getIsExists()) and DHUDGUI.BACKGROUND_BAR_SMALL1 or 0);
+	backgroundLeft = bit.bor(backgroundLeft, (self.leftSmallBar2:getIsExists()) and DHUDGUI.BACKGROUND_BAR_SMALL2 or 0);
 	local backgroundRight = 0;
 	backgroundRight = bit.bor(backgroundRight, (self.rightBigBar1:getIsExists() or self.rightBigCastBar1:getIsExists()) and DHUDGUI.BACKGROUND_BAR_BIG1 or 0);
 	backgroundRight = bit.bor(backgroundRight, (self.rightBigBar2:getIsExists() or self.rightBigCastBar2:getIsExists()) and DHUDGUI.BACKGROUND_BAR_BIG2 or 0);
+	backgroundRight = bit.bor(backgroundRight, (self.rightSmallBar1:getIsExists()) and DHUDGUI.BACKGROUND_BAR_SMALL1 or 0);
+	backgroundRight = bit.bor(backgroundRight, (self.rightSmallBar2:getIsExists()) and DHUDGUI.BACKGROUND_BAR_SMALL2 or 0);
 	-- update background
 	DHUDGUI:changeBarsBackground(backgroundLeft, backgroundRight);
 end
