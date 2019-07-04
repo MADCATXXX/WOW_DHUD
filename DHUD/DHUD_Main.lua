@@ -26,6 +26,8 @@
 -- Trinket ICDS, RPPM, check: http://www.curse.com/addons/wow/extracd
 -- Shaman totems?
 -- Shadow/Glow Special Effect: http://www.wowinterface.com/downloads/info18479-rSetBackdrop.html#info
+-- Range and direction: http://www.curse.com/addons/wow/direction-arrow , http://www.curse.com/addons/wow/range-display , GetMapInfo(), GetPlayerMapPosition(unitId)
+-- arrow graphics http://www.wowinterface.com/downloads/info7032-TomTom.html
 
 ----------
 -- Code --

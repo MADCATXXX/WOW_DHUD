@@ -143,6 +143,7 @@ function DHUDDataTrackerHelper:init()
 	self.eventsFrame:RegisterEvent("UNIT_ENTERED_VEHICLE");
 	self.eventsFrame:RegisterEvent("UNIT_EXITED_VEHICLE");
 	self.eventsFrame:RegisterEvent("VEHICLE_PASSENGERS_CHANGED");
+	self.eventsFrame:RegisterEvent("UPDATE_VEHICLE_ACTIONBAR");
 	self.eventsFrame:RegisterEvent("PLAYER_TARGET_CHANGED");
 	self.eventsFrame:RegisterEvent("UNIT_TARGET");
 	self.eventsFrame:RegisterEvent("UNIT_PET");
@@ -178,6 +179,10 @@ function DHUDDataTrackerHelper:init()
 	end
 	function self.eventsFrame:VEHICLE_PASSENGERS_CHANGED()
 		--print("VEHICLE_PASSENGERS_CHANGED");
+		helper:setIsInVehicle(UnitHasVehicleUI("player"));
+	end
+	function self.eventsFrame:UPDATE_VEHICLE_ACTIONBAR()
+		--print("UPDATE_VEHICLE_ACTIONBAR");
 		helper:setIsInVehicle(UnitHasVehicleUI("player"));
 	end
 	function self.eventsFrame:PLAYER_TARGET_CHANGED()
@@ -1251,8 +1256,9 @@ function DHUDTimersTracker:findTimer(sourceIndex, id)
 	--print("indexBegin " .. indexBegin .. ", numTimers " .. numTimers .. ", indexToCheck " .. indexToCheck);
 	local timer = self.timers[indexToCheck];
 	-- check timer at index
-	if (indexToCheck < indexBounds and timer[4] == id) then
+	if (indexToCheck < indexBounds and timer[4] == id and timer[10] ~= true) then
 		timer[10] = true; -- set iterating flag
+		--print("Timer " .. id .. ", sourceIndex " .. sourceIndex .. ", predictedIndex " ..  indexToCheck .. " was at predicted position");
 		return timer;
 	end
 	--print("findTimer indexBounds " .. indexBounds .. ", indexBegin " .. indexBegin .. ", numTimers " .. numTimers .. ",#timers " .. #self.timers);
@@ -1275,6 +1281,7 @@ function DHUDTimersTracker:findTimer(sourceIndex, id)
 				timer[10] = true; -- set iterating flag
 				-- update number of timers to skip to increase next search speed
 				self.sourceInfo[3] = i - indexBegin - sourceIndex;
+				--print("Timer " .. id .. ", sourceIndex " .. sourceIndex .. ", predictedIndex " ..  indexToCheck .. ", currentIndex " .. i .. " was not predicted, predict offset is " .. self.sourceInfo[3]);
 				return timer;
 			end
 		end
@@ -1290,13 +1297,14 @@ function DHUDTimersTracker:findTimer(sourceIndex, id)
 				timer[10] = true; -- set iterating flag
 				-- update number of timers to skip to increase next search speed
 				self.sourceInfo[3] = i - indexBegin - sourceIndex;
+				--print("Timer " .. id .. ", sourceIndex " .. sourceIndex .. ", predictedIndex " ..  indexToCheck .. ", currentIndex " .. i .. " was not predicted, predict offset is " .. self.sourceInfo[3]);
 				return timer;
 			end
 		end
 	end
 	-- timer not found, create new { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder }
 	timer = { 0, 0, 0, 0, 0, "", 0, "", true, true, 0 };
-	--print("insert timer AT " .. indexBounds);
+	--print("Timer " .. id .. ", sourceIndex " .. sourceIndex .. ", predictedIndex " ..  indexToCheck .. " was created at " .. indexBounds);
 	table.insert(self.timers, indexBounds, timer);
 	self.sourceInfo[2] = numTimers + 1;
 	return timer;
@@ -1337,6 +1345,7 @@ function DHUDTimersTracker:findSourceTimersBegin(sourceId)
 			i = i - 1;
 		end
 	end
+	--print("findTimer begin source " .. sourceId);
 	-- update numToSkipMinusOne
 	sourceInfo[3] = -1;
 	-- save found source info
@@ -1376,6 +1385,7 @@ function DHUDTimersTracker:findSourceTimersEnd(sourceId)
 		indexBegin = indexBegin + sourceInfo[2];
 		i = i + 1;
 	end
+	--print("findTimer end source " .. sourceId);
 end
 
 --- Updates timeUpdatedAt variable and timers for sources that wasn't updated, must be called after partial timers update
@@ -1719,7 +1729,7 @@ function DHUDCooldownsTracker:updateSpellCooldowns()
 		if (trackingHelper.playerClass ~= "DEATHKNIGHT") then
 			for i = bookOffset, n, 1 do
 				startTime, duration, enable = GetSpellCooldown(i, BOOKTYPE_SPELL);
-				if (startTime ~= 0 and duration > 1.5) then
+				if (startTime ~= nil and duration > 1.5) then
 					spellType, spellId = GetSpellBookItemInfo(i, BOOKTYPE_SPELL);
 					spellData = trackingHelper:getSpellData(spellId);
 					timer = self:findTimer(1, spellId);
@@ -1740,7 +1750,7 @@ function DHUDCooldownsTracker:updateSpellCooldowns()
 		else
 			for i = bookOffset, n, 1 do
 				startTime, duration, enable = GetSpellCooldown(i, BOOKTYPE_SPELL);
-				if (startTime ~= 0 and duration > 1.5 and duration ~= self.DEATHKNIGHT_RUNE_COOLDOWN) then
+				if (startTime ~= nil and duration > 1.5 and duration ~= self.DEATHKNIGHT_RUNE_COOLDOWN) then
 					spellType, spellId = GetSpellBookItemInfo(i, BOOKTYPE_SPELL);
 					spellData = trackingHelper:getSpellData(spellId);
 					timer = self:findTimer(1, spellId);
@@ -1778,7 +1788,7 @@ function DHUDCooldownsTracker:updateItemCooldowns()
 		-- iterate
 		for i = 1, 17, 1 do -- INVSLOT_HEAD, INVSLOT_OFFHAND, 1
 			startTime, duration, enable = GetInventoryItemCooldown(self.unitId, i);
-			if (startTime ~= 0 and duration > 1.5) then
+			if (startTime ~= nil and duration > 1.5) then
 				itemId = GetInventoryItemID(self.unitId, i);
 				itemData = trackingHelper:getItemData(itemId);
 				timer = self:findTimer(1, itemId);
@@ -1815,7 +1825,7 @@ function DHUDCooldownsTracker:updateActionBarCooldowns()
 		-- iterate
 		for i = 169, 169, 1 do
 			startTime, duration, enable = GetActionCooldown(i);
-			if (startTime ~= 0 and duration > 1.5) then
+			if (startTime ~= nil and duration > 1.5) then
 				actionType, spellId, actionSubType = GetActionInfo(i);
 				if (actionType == "spell") then
 					spellData = trackingHelper:getSpellData(spellId);
@@ -1837,7 +1847,7 @@ function DHUDCooldownsTracker:updateActionBarCooldowns()
 		-- iterate
 		for i = 133, 138, 1 do
 			startTime, duration, enable = GetActionCooldown(i);
-			if (startTime ~= 0 and duration > 1.5) then
+			if (startTime ~= nil and duration > 1.5) then
 				actionType, spellId, actionSubType = GetActionInfo(i);
 				if (actionType == "spell") then
 					spellData = trackingHelper:getSpellData(spellId);
@@ -2347,6 +2357,15 @@ function DHUDSpellCastTracker:updateSpellCastDelay()
 	self:processDataChanged();
 end
 
+--- update spell cast time
+function DHUDSpellCastTracker:updateSpellCastTime()
+	-- update time
+	local timerMs = trackingHelper:getTimerMs();
+	self.timeProgress = timerMs - self.timeStart;
+	-- process data change
+	self:processDataChanged();
+end
+
 --- update spell cast continue
 function DHUDSpellCastTracker:updateSpellCastContinue()
 	self.isCasting = true;
@@ -2391,6 +2410,15 @@ function DHUDSpellCastTracker:updateSpellChannelDelay()
 	self:processDataChanged();
 end
 
+--- update channel cast time
+function DHUDSpellCastTracker:updateSpellChannelTime()
+	-- update time
+	local timerMs = trackingHelper:getTimerMs();
+	self.timeProgress = self.timeStart + self.timeTotal - self.delay - timerMs;
+	-- process data change
+	self:processDataChanged();
+end
+
 --- update spell channel continue
 function DHUDSpellCastTracker:updateSpellChannelContinue()
 	self.isCasting = true;
@@ -2415,6 +2443,15 @@ end
 
 --- update stopping of spell cast
 function DHUDSpellCastTracker:updateSpellCastStop()
+	-- update spell cast time
+	if (self.isCasting) then
+		if (self.isChannelSpell) then
+			self:updateSpellChannelTime();
+		else
+			self:updateSpellCastTime();
+		end
+	end
+	-- update stop info
 	self.isCasting = false;
 	self:setIsRegenerating(false);
 	-- update spell info if any

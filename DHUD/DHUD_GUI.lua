@@ -1469,6 +1469,7 @@ function DHUDGUICastBarAnimationHelper:onUpdateTime(e)
 			heightPercent = 0;
 		end
 		local heightPercentDisplay = self.STATIC_reverseCastingBar and (1 - heightPercent) or heightPercent;
+		--print("heightPercentDisplay " .. heightPercentDisplay .. ", self.STATIC_reverseCastingBar " .. MCTableToString(self.STATIC_reverseCastingBar));
 		self:updateCastBarHeightAndColor(heightPercentDisplay, self.colorizeFunction(self.functionsSelfVar, heightPercent));
 	end
 	-- update additional animations
@@ -3555,6 +3556,7 @@ function DHUDGUI:init()
 	DHUDColorizeTools:init()
 	-- init animation helper
 	DHUDGUIBarAnimationHelper:STATIC_init()
+	DHUDGUICastBarAnimationHelper:STATIC_init();
 	-- initialize textures settings track
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "textures_barTexture", self, self.onTexturesSetting);
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "textures_barBackground", self, self.onBackgroundTextureSetting);
@@ -5663,6 +5665,7 @@ function DHUDCastBarManager:createTextTimeRemain(this)
 	else
 		value = this.currentDataTracker.timeProgress;
 	end
+	--print("timeRemain progress " .. this.currentDataTracker.timeProgress .. " total " .. this.currentDataTracker.timeTotal);
 	if (value < 0) then
 		value = 0;
 	end

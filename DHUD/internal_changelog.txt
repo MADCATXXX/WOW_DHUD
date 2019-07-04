@@ -1,21 +1,28 @@
+changelog 2.0.50300.40:
+-Reverse cast bar animation settings is now handled by the addon
+-Fixed issue with timers disappearring at certain conditions
+-Fixed exception in cooldowns update function when teleporting on some system
+-Fixed vehicle bars not showing for certain vehicles?
+-Castbar should properly display cast time at the end of animation
+
 changelog 2.0.50300.39:
--Fixed exception when copying profile with custom layout from charater with different class
+-Fixed exception when copying profile with custom layout from character with different class
 -Fixed exception on some systems during init in createBar function, need confirmation
--Fixed bug with combat state not updating when player encouters loading screen
+-Fixed bug with combat state not updating when player encounters loading screen
 -Unit elite icon is now updated when unit changes it's classification
 -Death-knight runes should no longer disappear when player enters vehicle or settings preview stops
 -Cast delay is now correctly displayed
--Fixed non-interruptable cast shield icon coordinates
+-Fixed non-interruptible cast shield icon coordinates
 -Resource bars will now hide when player is dead
 -Paladin holy power now colorizes circles in following order: red, orange, green, green, green
 -Added option to always show bar background texture under cast bars
--Added code to make bitwise operations using integer arithmetic (WoW return incorrect results for bitwise operations on Mac OS X), this should solve Mac issues, need confirmation, thanks TheSin for help with identifing the source of the problem
+-Added code to make bitwise operations using integer arithmetic (WoW return incorrect results for bitwise operations on Mac OS X), this should solve Mac issues, need confirmation, thanks TheSin for help with identifying the source of the problem
 
 changelog 2.0.50300.38:
 -Target short auras are now correctly shown when player is in vehicle
 -Fixed exception when hiding frames for dead state
--All data should now be correctly updated after player encouters loading screen
--Settings should now correctly aplly when changing profiles
+-All data should now be correctly updated after player encounters loading screen
+-Settings should now correctly apply when changing profiles
 -Icon settings are now handled by the addon
 -Target buffs and debuffs timers settings are now handled by the addon
 -Background texture setting is now handled by the addon
@@ -27,7 +34,7 @@ changelog 2.0.50300.38:
 -Health bar should no longer display wrong health percent when shield is active, but display shields setting is off
 
 changelog 2.0.50300.37:
--DHUD Settings addon rewrited to be compatible with new DHUD addon.
+-DHUD Settings addon rewritten to be compatible with new DHUD addon.
 
 changelog 2.0.50300.36:
 -bug fixes
@@ -37,14 +44,14 @@ changelog 2.0.50300.35:
 
 changelog 2.0.50300.34:
 -Updated MyMinimapButton class from version 0.4 to version 1.0 and fixed code to work with MoP
--Addon code have been rewriten and uses OOP design. Cpu and memory consumption is reduced
+-Addon code have been rewritten and uses OOP design. Cpu and memory consumption is reduced
 -Code is documented and easily readable.
 -Added new features:
 -Health bars are now able to display shields, incoming heal and absorbed heal.
 -Numbers are now truncated if enabled in settings
 -Cooldowns can be shown like it's done with auras
 -Auras whitelists and blacklists
--DHUD Settings addon is currenly in process of rewriting, all settings can be set via command line
+-DHUD Settings addon is currently in process of rewriting, all settings can be set via command line
 
 changelog 1.5.50000f MADCAT revision33:
 -reduced error spam when there are not enough buff frames (this was accidently not included in previous release)

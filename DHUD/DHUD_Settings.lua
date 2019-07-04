@@ -785,7 +785,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			-- allows to animate bars
 			["animateBars"] = { true, 0 },
 			-- allows to reverse casting bar animation
-			["reverseCastingBars"] = { true, 0 },
+			["reverseCastingBars"] = { false, 0 },
 			-- allows all timers to show milliseconds instead of seconds (when 10 or less seconds left)
 			["textTimerShowMilliSeconds"] = { true, 0 },
 			-- allows all numbers to be shortened (for numbers that use more than 5 chars)
