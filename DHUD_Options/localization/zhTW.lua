@@ -291,6 +291,15 @@ L["SETTING_MISC_SHORTNUMBERS_TOOLTIP"] = "If checked then numbers will be trunca
 L["SETTING_MISC_MINIMAP"] = "小地圖圖示";
 L["SETTING_MISC_MINIMAP_TOOLTIP"] = "If checked then dhud will show icon near minimap.\nIf disabled you can still access options via interface menu or /dhud slash command";
 
+L["SETTING_MISC_MOUSECONDITIONSMASK"] = "Mouse conditions";
+L["SETTING_MISC_MOUSECONDITIONSMASK_TOOLTIP"] = "Check conditions that should be met in order for frames to be mouse enabled to show tooltips and target options.";
+L["SETTING_MISC_MOUSECONDITIONSMASK_MASK"] = {
+	["UNSET"] = "No conditions",
+	["ALT"] = "ALT",
+	["CTRL"] = "CTRL",
+	["SHIFT"] = "SHIFT",
+};
+
 -- layouts
 L["HEADER_FRAMESDATA"] = "框架資料:";
 
@@ -405,9 +414,6 @@ L["SETTING_LAYOUTS_DATA_POSITIONS"] = {
 
 -- timers
 L["HEADER_TIMERS_GENERAL"] = "計時器:";
-
-L["SETTING_TIMERS_SHOWTOOLTIP"] = "顯示工具提示";
-L["SETTING_TIMERS_SHOWTOOLTIP_TOOLTIP"] = "Show tooltips when mouse is over timer slot";
 
 L["SETTING_TIMERS_TIMERSFORTARGETBUFFS"] = "Target buffs time";
 L["SETTING_TIMERS_TIMERSFORTARGETBUFFS_TOOLTIP"] = "Show time text field in target buffs slot";

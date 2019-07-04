@@ -1558,6 +1558,8 @@ DHUDGUI = {
 	backgroundTexture = true,
 	-- distance between bars divided by two, this number holds bar offset from center, so distance is two times higher
 	barsDistanceDiv2 = 0,
+	-- mask with conditions to enable mouse in gui frames
+	mouseEnableConditionsMask = 0,
 	-- list with information about textures
 	textures = {
 		-- path to background with 0 big bars and 0 small
@@ -2061,7 +2063,7 @@ function DHUDGUI:createUnitTextFrame(name, parentName, relativePointThis, relati
 	frame.resizeWithTextField = autoresize;
 	-- create text
 	local textField = self:createTextFontString(frame, "textField", "CENTER", "CENTER", 0, 0, width, height, alignH, alignV, fontType, fontLayer);
-	-- listen to mouse events, mouse will be enabled during runtime if target is eligable for dropdown menu
+	-- listen to mouse events, mouse will be enabled during runtime if enabled in settings and target is eligable for dropdown menu
 	frame:EnableMouse(false);
 	frame:RegisterForClicks("RightButtonUp");
 	frame:SetScript("OnClick", function(frame, arg1)
@@ -2096,8 +2098,8 @@ function DHUDGUI:createSpellCircleFrame(name)
 	local textField1 = self:createTextFontString(frame, "textFieldTime", "CENTER", "CENTER", 0, 0, 26 * 2, 26, "CENTER", "CENTER", "default", "OVERLAY");
 	-- stack text
 	local textField2 = self:createTextFontString(frame, "textFieldCount", "BOTTOMRIGHT", "BOTTOMRIGHT", 10, -5, 26, 26, "RIGHT", "BOTTOM", "default", "OVERLAY");
-	-- enable mouse events and listen to them
-	frame:EnableMouse(true);
+	-- listen to mouse events, mouse will be enabled during runtime if enabled in settings
+	frame:EnableMouse(false);
 	frame:SetScript("OnEnter", function(frame)
 		GameTooltip:SetOwner(frame, "ANCHOR_BOTTOMRIGHT");
 		-- update using data
@@ -2134,8 +2136,8 @@ function DHUDGUI:createSpellRectangleFrame(name, parentName, relativePointThis, 
 	local textField1 = self:createTextFontString(frame, "textFieldTime", "CENTER", "CENTER", 0, 0, 20 * 2, 20, "CENTER", "CENTER", "default", "OVERLAY");
 	-- stack text
 	local textField2 = self:createTextFontString(frame, "textFieldCount", "BOTTOMRIGHT", "BOTTOMRIGHT", 3, -3, 20, 20, "RIGHT", "BOTTOM", "default", "OVERLAY");
-	-- enable mouse events and listen to them
-	frame:EnableMouse(true);
+	-- listen to mouse events, mouse will be enabled during runtime if enabled in settings
+	frame:EnableMouse(false);
 	frame:SetScript("OnEnter", function(frame)
 		GameTooltip:SetOwner(frame, "ANCHOR_BOTTOMRIGHT");
 		-- update using data
@@ -3481,6 +3483,96 @@ function DHUDGUI:processFrameHDistanceSetting(settingName, frameLeft, frameRight
 	functionOnSettingChange(self, nil);
 end
 
+--- Process setting, that contains conditions for mouse enabling and listen to it's changes
+-- @param settingName name of the setting
+-- @param saveToVarName if not nil, then setting will also be saved to var specified
+-- @param frames list with frames that should be affected by this setting
+-- @param groups list with groups that should be affected by this setting
+function DHUDGUI:processMouseConditionsMaskSetting(settingName, saveToVarName, frames, groups)
+	-- create custom mouse enabled function for every frame
+	for i, v in ipairs(frames) do
+		v.mouseEnabledByConditions = false;
+		v.mouseEnabledByData = true;
+		function v:SetMouseEnabledByConditions(enabled)
+			self.mouseEnabledByConditions = enabled;
+			self:EnableMouse(self.mouseEnabledByConditions and self.mouseEnabledByData);
+		end
+		function v:SetMouseEnabledByData(enabled)
+			self.mouseEnabledByData = enabled;
+			self:EnableMouse(self.mouseEnabledByConditions and self.mouseEnabledByData);
+		end
+	end
+	for j, g in ipairs(groups) do
+		for i, v in ipairs(g) do
+			v.mouseEnabledByConditions = false;
+			v.mouseEnabledByData = true;
+			function v:SetMouseEnabledByConditions(enabled)
+				self.mouseEnabledByConditions = enabled;
+				self:EnableMouse(self.mouseEnabledByConditions and self.mouseEnabledByData);
+			end
+			function v:SetMouseEnabledByData(enabled)
+				self.mouseEnabledByData = enabled;
+				self:EnableMouse(self.mouseEnabledByConditions and self.mouseEnabledByData);
+			end
+		end
+	end
+	-- override group functions
+	for j, g in ipairs(groups) do
+		local onCreateCurrent = g.onDynamicFrameCreated;
+		g.onDynamicFrameCreated = function(self, frame)
+			if (onCreateCurrent ~= nil) then
+				onCreateCurrent(self, frame);
+			end
+			-- create custom mouse enabled function
+			frame.mouseEnabledByConditions = false;
+			frame.mouseEnabledByData = true;
+			function frame:SetMouseEnabledByConditions(enabled)
+				self.mouseEnabledByConditions = enabled;
+				self:EnableMouse(self.mouseEnabledByConditions and self.mouseEnabledByData);
+			end
+			function frame:SetMouseEnabledByData(enabled)
+				self.mouseEnabledByData = enabled;
+				self:EnableMouse(self.mouseEnabledByConditions and self.mouseEnabledByData);
+			end
+			-- update mouse enabled
+			local currentConditions = DHUDDataTrackers.helper.modifierKeysMask;
+			local requiredConditions = self[saveToVarName];
+			local mouseEnabledByConditions = bit.band(currentConditions, requiredConditions) == requiredConditions;
+			frame:SetMouseEnabledByConditions(mouseEnabledByConditions);
+		end
+	end
+	-- create condition listening function
+	local functionOnConditionsChange = function(self, e)
+		local currentConditions = DHUDDataTrackers.helper.modifierKeysMask;
+		local requiredConditions = self[saveToVarName];
+		local mouseEnabledByConditions = bit.band(currentConditions, requiredConditions) == requiredConditions;
+		-- iterate over specified frames
+		for i, v in ipairs(frames) do
+			v:SetMouseEnabledByConditions(mouseEnabledByConditions);
+		end
+		-- iterate over group frames
+		for j, g in ipairs(groups) do
+			for i, v in ipairs(g) do
+				v:SetMouseEnabledByConditions(mouseEnabledByConditions);
+			end
+		end
+	end
+	-- create function
+	local functionOnSettingChange = function(self, e)
+		local mask = DHUDSettings:getValue(settingName);
+		-- update var if any
+		if (saveToVarName ~= nil) then
+			self[saveToVarName] = mask;
+		end
+		-- invoke change conditions function
+		functionOnConditionsChange(self, nil);
+	end
+	-- listen
+	DHUDDataTrackers.helper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_MODIFIER_KEYS_STATE_CHANGED, self, functionOnConditionsChange);
+	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. settingName, self, functionOnSettingChange);
+	functionOnSettingChange(self, nil);
+end
+
 --- textures setting has changed, update gui
 function DHUDGUI:onTexturesSetting(e)
 	self:changeBarsTextures(DHUDSettings:getValue("textures_barTexture"));
@@ -3691,6 +3783,8 @@ function DHUDGUI:init()
 	self:processFrameOffsetSetting("offsets_rightSmallBar1", self.frames["DHUD_Right_TextSmall1"]);
 	self:processFrameOffsetSetting("offsets_rightSmallBar2", self.frames["DHUD_Right_TextSmall2"]);
 	self:processFrameHDistanceSetting("offsets_barDistance", self.frames["DHUD_Left_BarsBackground"], self.frames["DHUD_Right_BarsBackground"], "barsDistanceDiv2", self.repositionCircleFramesAll);
+	-- initialize mouse condition setting track
+	self:processMouseConditionsMaskSetting("misc_mouseConditionsMask", "mouseEnableConditionsMask", { self.frames["DHUD_Center_TextInfo1"], self.frames["DHUD_Center_TextInfo2"] }, { self.frameGroups["spellCircles"], self.frameGroups["spellRectangles"] } );
 	-- initialize gui manager
 	DHUDGUIManager:init();
 	-- debug
@@ -4693,10 +4787,10 @@ end
 
 --- Data trackers list setting has been changed, read it
 function DHUDSideInfoManager:onDataTrackersSettingChange(e)
-	-- call super
-	DHUDGuiSlotManager.onDataTrackersSettingChange(self, e);
 	-- update gui var name
 	self.timerAnimationVarName = "gui" .. (dataTrackersListSettingName or "");
+	-- call super
+	DHUDGuiSlotManager.onDataTrackersSettingChange(self, e);
 end
 
 --- Changes color of combo-points to table specified
@@ -4917,6 +5011,9 @@ function DHUDSideInfoManager:updateSpellCircleAnimationDisappear(spellCircleFram
 	local scale = DHUDGUI.scale[DHUDGUI.SCALE_SPELL_CIRCLES];
 	-- update according to time left
 	local percent = (1 - timer[2] / 1);
+	if (percent > 1) then -- do not try to animate further
+		percent = 1;
+	end
 	spellCircleFrame.animatedBySideInfo = true;
 	spellCircleFrame:SetAlpha(0.1 + guiData[4] * (1 - percent));
 	local newScale = scale * (1 + 0.5 * percent);
@@ -5412,7 +5509,7 @@ function DHUDUnitInfoManager:onDataTrackerChange(e)
 	end
 	-- update mouse eligability for frame
 	local enableMouse = self:getTrackedUnitId() == "target";
-	self.textFrame:EnableMouse(enableMouse);
+	self.textFrame:SetMouseEnabledByData(enableMouse);
 end
 
 --- current data tracker existance changed, check currentDataTracker variable for existance

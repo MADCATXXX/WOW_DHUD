@@ -43,6 +43,8 @@ DHUDDataTrackerHelperEvent = MCCreateSubClass(MADCATEvent, {
 	EVENT_RESTING_STATE_CHANGED = "resting",
 	-- dispatched when player enters or leaves pet battle
 	EVENT_PETBATTLE_STATE_CHANGED = "petBattle",
+	-- dispatched when user presses or releases modifier keys
+	EVENT_MODIFIER_KEYS_STATE_CHANGED = "modifierKeys",
 	-- dispatched when player is entering world, all data trackers should update them selves
 	EVENT_ENTERING_WORLD = "enteringWorld",
 })
@@ -108,6 +110,14 @@ DHUDDataTrackerHelper = MCCreateSubClass(MADCATEventDispatcher, {
 	auraIdDurationData = {},
 	-- table with guids for various unit ids, contains guids for player, pet, vehicle and target
 	guids				= {},
+	-- mask with currently pressed modifier keys
+	modifierKeysMask	= 0,
+	-- defines if alt modifier key is currently pressed
+	MODIFIER_KEY_ALT	= 1,
+	-- defines if ctrl modifier key is currently pressed
+	MODIFIER_KEY_CTRL	= 2,
+	-- defines if shift modifier key is currently pressed
+	MODIFIER_KEY_SHIFT	= 4,
 })
 
 --- Create data tracking helper
@@ -135,6 +145,7 @@ function DHUDDataTrackerHelper:constructor()
 	self.eventResting = DHUDDataTrackerHelperEvent:new(DHUDDataTrackerHelperEvent.EVENT_RESTING_STATE_CHANGED);
 	self.eventPetBattle =  DHUDDataTrackerHelperEvent:new(DHUDDataTrackerHelperEvent.EVENT_PETBATTLE_STATE_CHANGED);
 	self.eventSpecialization = DHUDDataTrackerHelperEvent:new(DHUDDataTrackerHelperEvent.EVENT_SPECIALIZATION_CHANGED);
+	self.eventModifierKeysState = DHUDDataTrackerHelperEvent:new(DHUDDataTrackerHelperEvent.EVENT_MODIFIER_KEYS_STATE_CHANGED);
 	self.eventEnteringWorld = DHUDDataTrackerHelperEvent:new(DHUDDataTrackerHelperEvent.EVENT_ENTERING_WORLD);
 	-- call super constructor
 	MADCATEventDispatcher.constructor(self);
@@ -162,6 +173,7 @@ function DHUDDataTrackerHelper:init()
 	self.eventsFrame:RegisterEvent("PLAYER_UPDATE_RESTING");
 	self.eventsFrame:RegisterEvent("PET_BATTLE_OPENING_START");
 	self.eventsFrame:RegisterEvent("PET_BATTLE_CLOSE");
+	self.eventsFrame:RegisterEvent("MODIFIER_STATE_CHANGED");
 	self.eventsFrame:RegisterEvent("PLAYER_ENTERING_WORLD");
 	-- initialize player class
 	_, self.playerClass = UnitClass("player");
@@ -242,6 +254,9 @@ function DHUDDataTrackerHelper:init()
 	function self.eventsFrame:PET_BATTLE_CLOSE()
 		helper:setIsInPetBattle(false);
 	end
+	function self.eventsFrame:MODIFIER_STATE_CHANGED(key, state)
+		helper:setModifierKeysMask((IsAltKeyDown() and helper.MODIFIER_KEY_ALT or 0) + (IsControlKeyDown() and helper.MODIFIER_KEY_CTRL or 0) + (IsShiftKeyDown() and helper.MODIFIER_KEY_SHIFT or 0));
+	end
 	function self.eventsFrame:PLAYER_ENTERING_WORLD()
 		--print("PLAYER_ENTERING_WORLD");
 		helper:onEnteringWorld();
@@ -292,6 +307,15 @@ end
 function DHUDDataTrackerHelper:getTimerMs()
 	self.timerMs = GetTime();
 	return self.timerMs;
+end
+
+--- set modifierKeysMask variable
+function DHUDDataTrackerHelper:setModifierKeysMask(mask)
+	if (self.modifierKeysMask == mask) then
+		return;
+	end
+	self.modifierKeysMask = mask;
+	self:dispatchEvent(self.eventModifierKeysState);
 end
 
 --- set isInVehicle variable
@@ -2036,6 +2060,11 @@ function DHUDCooldownsTracker:updateSpellCooldowns()
 			if (startTime ~= nil and duration > 1.5 and duration ~= invalidDuration) then
 				cooldownId = cooldownId + 1;
 				timer = self:findTimer(cooldownId, spellId);
+				-- degroup timers if their duration has changed, for spells like "Death from above"
+				if (timer[13] ~= nil and timer[3] ~= duration) then
+					timer[12] = nil;
+					timer[13] = nil;
+				end
 				-- fill timer info, { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder }
 				timer[1] = self.TIMER_TYPE_MASK_SPELL + self.TIMER_TYPE_MASK_ACTIVE; -- type
 				timer[2] = startTime + duration - timerMs; -- timeLeft
@@ -2081,27 +2110,7 @@ function DHUDCooldownsTracker:updateSpellCooldowns()
 				end
 			end
 		end
-		-- iterate over similiar cooldowns and reintegrate them together, move to base class, use antother var
-		--[[local firstTimer = self.sourceInfo[1];
-		local lastTimer = firstTimer + self.sourceInfo[2] - 1;
-		local timer2;
-		for i = firstTimer, lastTimer, 1 do
-			timer = self.timers[i];
-			if (timer[10] == true and timer[7] == 1) then
-				for j = i + 1, lastTimer, 1 do
-					timer2 = self.timers[j];
-					if (timer2[10] == true and timer2[7] == 1) then
-						-- check if timer is the same
-						if (timer[2] == timer2[2] and timer[3] == timer2[3]) then
-							-- increase charges
-							timer[7] = timer[7] + 1;
-							-- this will delete later timer
-							timer2[10] = false;
-						end
-					end
-				end
-			end
-		end]]--
+		-- iterate over similiar cooldowns and reintegrate them together
 		self:groupTimersByTime(0, self, self.groupSpellCooldowns);
 	end
 	-- stop
@@ -3424,7 +3433,7 @@ end
 --- update information about unit type
 function DHUDUnitInfoTracker:updateUnitType()
 	self.type = self.UNIT_TYPE_OTHER;
-	if (UnitIsPlayer(self.unitId) == 1) then
+	if (UnitIsPlayer(self.unitId)) then
 		self.type = self.UNIT_TYPE_PLAYER;
 	elseif (not UnitCanAttack("player", self.unitId)) then
 		if (UnitPlayerControlled(self.unitId) == 1) then

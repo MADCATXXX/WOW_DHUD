@@ -294,6 +294,15 @@ L["SETTING_MISC_MINIMAP_TOOLTIP"] = "Позволяет отображать и�
 L["SETTING_MISC_HIDEINPETBATTLES"] = "Скрыв. в битв.питом.";
 L["SETTING_MISC_HIDEINPETBATTLES_TOOLTIP"] = "Если выставлено, то панель будет скрыта целиком пока идет битва питомцев.";
 
+L["SETTING_MISC_MOUSECONDITIONSMASK"] = "Условия мышки";
+L["SETTING_MISC_MOUSECONDITIONSMASK_TOOLTIP"] = "Выберите условия, при которых будут обрабатываться события мышки для показа подсказок и выпадающего списка опций цели.";
+L["SETTING_MISC_MOUSECONDITIONSMASK_MASK"] = {
+	["UNSET"] = "Без условий",
+	["ALT"] = "ALT",
+	["CTRL"] = "CTRL",
+	["SHIFT"] = "SHIFT",
+};
+
 -- layouts
 L["HEADER_FRAMESDATA"] = "Данные панелей:";
 
@@ -411,9 +420,6 @@ L["SETTING_LAYOUTS_DATA_POSITIONS"] = {
 
 -- timers
 L["HEADER_TIMERS_GENERAL"] = "Таймеры:";
-
-L["SETTING_TIMERS_SHOWTOOLTIP"] = "Подсказки";
-L["SETTING_TIMERS_SHOWTOOLTIP_TOOLTIP"] = "Показывать подсказки при наведении мышкой на таймер";
 
 L["SETTING_TIMERS_TIMERSFORTARGETBUFFS"] = "Тайм. баффов цели";
 L["SETTING_TIMERS_TIMERSFORTARGETBUFFS_TOOLTIP"] = "Показывать время на таймерах положительных эффектов цели";

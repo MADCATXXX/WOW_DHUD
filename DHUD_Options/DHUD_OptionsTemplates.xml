@@ -331,6 +331,29 @@
 			<TexCoords left="0.25" right="0.5" top="0" bottom="1" />
 		</CheckedTexture>
 	</CheckButton>
+	<Frame name="DHUD_OptionsTemplate_DropdownMask" inherits="UIDropDownMenuTemplate" virtual="true">
+		<Size>
+			<AbsDimension x="120" y="20" />
+		</Size>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<FontString name="$parent_Label" inherits="GameFontNormalSmall" text="DropDownMask">
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT">
+							<Offset>
+								<AbsDimension x="21" y="0" />
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad>
+				DHUD_OptionsTemplates_LUA:processDropDownMaskOnLoad(self);
+			</OnLoad>
+		</Scripts>
+	</Frame>
 	<Frame name="DHUD_OptionsTemplate_DropdownFramesData" inherits="UIDropDownMenuTemplate" virtual="true">
 		<Size>
 			<AbsDimension x="200" y="20" />

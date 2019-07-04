@@ -533,8 +533,6 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 		}, 1 },
 		-- list with options for all auras
 		["aurasOptions"] = { {
-			-- allows to show tooltips when mouse is over some aura
-			["showTooltips"] = { true, 0 },
 			-- allows to show timers on target buffs
 			["showTimersOnTargetBuffs"] = { true, 0 },
 			-- allows to show timers on target debuffs
@@ -884,6 +882,8 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			["minimapIcon"] = { true, 0 },
 			-- allows to hide DHUD during pet battles
 			["hideInPetBattles"] = { true, 0 },
+			-- allows to click on units names and show tooltips for spell circles and rectangles when mouse conditions are met
+			["mouseConditionsMask"] = { 0, 0, { mask = { ["ALT"] = 1, ["CTRL"] = 2, ["SHIFT"] = 4 } } },
 		}, 1 },
 		-- service settings that do not affect dhud addon but may contain interesting settings that are provided by some other addons
 		["service"] = { {

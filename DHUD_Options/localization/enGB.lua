@@ -292,6 +292,15 @@ L["SETTING_MISC_MINIMAP_TOOLTIP"] = "If checked then dhud will show icon near mi
 L["SETTING_MISC_HIDEINPETBATTLES"] = "Hide in pet battles";
 L["SETTING_MISC_HIDEINPETBATTLES_TOOLTIP"] = "If checked then HUD will be hidden during pet battles.";
 
+L["SETTING_MISC_MOUSECONDITIONSMASK"] = "Mouse conditions";
+L["SETTING_MISC_MOUSECONDITIONSMASK_TOOLTIP"] = "Check conditions that should be met in order for frames to be mouse enabled to show tooltips and target options.";
+L["SETTING_MISC_MOUSECONDITIONSMASK_MASK"] = {
+	["UNSET"] = "No conditions",
+	["ALT"] = "ALT",
+	["CTRL"] = "CTRL",
+	["SHIFT"] = "SHIFT",
+};
+
 -- layouts
 L["HEADER_FRAMESDATA"] = "Frames Data:";
 
@@ -409,9 +418,6 @@ L["SETTING_LAYOUTS_DATA_POSITIONS"] = {
 
 -- timers
 L["HEADER_TIMERS_GENERAL"] = "Timers:";
-
-L["SETTING_TIMERS_SHOWTOOLTIP"] = "Show tooltips";
-L["SETTING_TIMERS_SHOWTOOLTIP_TOOLTIP"] = "Show tooltips when mouse is over timer slot";
 
 L["SETTING_TIMERS_TIMERSFORTARGETBUFFS"] = "Target buffs time";
 L["SETTING_TIMERS_TIMERSFORTARGETBUFFS_TOOLTIP"] = "Show time text field in target buffs slot";

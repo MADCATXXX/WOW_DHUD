@@ -345,6 +345,95 @@ function DHUD_OptionsTemplates_LUA:processRadioButtonOnLoad(frame)
 	end);
 end
 
+--- Options drop down check box frame is loaded
+function DHUD_OptionsTemplates_LUA:processDropDownMaskOnLoad(frame)
+	local name = frame:GetName();
+	local ltext = frame:GetAttribute("LTEXT") or "";
+	local setting = frame:GetAttribute("SETTING");
+	local mask = DHUDSettings:getValueDefaultTable(setting)[3]["mask"];
+	local maskLocale = DHUDOptionsLocalization[ltext .. "_MASK"];
+	--print("mask is " .. MCTableToString(mask));
+	-- update width
+	UIDropDownMenu_SetWidth(frame, frame:GetWidth(), 0);
+	-- update text
+	_G[name .. "_Label"]:SetText(DHUDOptionsLocalization[ltext] or ("LTEXT: " .. ltext));
+	-- save settings
+	frame.setting = setting;
+	frame.mask = mask;
+	frame.maskLocale = maskLocale;
+	-- add update text function
+	frame.updateText = function(frame)
+		-- read setting value
+		local settingValue = DHUDOptions:getSettingValue(frame.setting);
+		local mask = frame.mask;
+		local maskLocale = frame.maskLocale;
+		-- create text
+		local text = "";
+		for k, v in pairs(mask) do
+			if (bit.band(settingValue, v) ~= 0) then
+				local valueText = maskLocale[k] or ("LTEXT:" .. k);
+				if (text == "") then
+					text = text .. valueText;
+				else
+					text = text .. "+" .. valueText;
+				end
+			end
+		end
+		if (text == "") then
+			text = maskLocale["UNSET"] or ("LTEXT:" .. "UNSET");
+		end
+		UIDropDownMenu_SetText(frame, text);
+	end
+	-- initialize drop down
+	UIDropDownMenu_Initialize(frame, function(frame)
+		-- for nested function
+		local dropDownFrame = frame;
+		-- read setting value and copy it
+		local settingValue = DHUDOptions:getSettingValue(frame.setting);
+		local mask = frame.mask;
+		local maskLocale = frame.maskLocale;
+		-- go through mask
+		for k, v in pairs(mask) do
+			local info = {};
+			info.text = maskLocale[k] or ("LTEXT:" .. k);
+			info.isNotRadio = true;
+			info.keepShownOnClick = true;
+			info.checked = bit.band(settingValue, v) ~= 0;
+			info.owner = dropDownFrame;
+			info.arg1 = v;
+			-- dropdown click function
+			info.func = function(frame, value, arg2, checked)
+				-- update setting for source
+				if (checked) then
+					settingValue = bit.bor(settingValue, value);
+				else
+					settingValue = bit.band(settingValue, bit.bnot(value));
+				end
+				--settingValue = 2;
+				DHUDOptions:setSettingValue(setting, settingValue);
+				-- update text
+				dropDownFrame:updateText();
+				--print("setting " .. setting .. ", [value " .. value .. "] - set to " .. MCTableToString(settingValue));
+				--frame:SetText("clicked");
+			end
+			-- add button
+			UIDropDownMenu_AddButton(info);
+		end
+	end);
+	-- set on show handler
+	frame:SetScript("OnShow", function(frame)
+		frame:updateText();
+	end);
+	-- set tooltip handlers
+	frame:SetScript("OnEnter", function(frame)
+		GameTooltip:SetOwner(frame, "ANCHOR_RIGHT");
+		GameTooltip:SetText(DHUDOptionsLocalization[ltext .. "_TOOLTIP"] or ("LTOOLTIP: " .. ltext), 1, 1, 1, 1);
+	end);
+	frame:SetScript("OnLeave", function(frame)
+		GameTooltip:Hide();
+	end);
+end
+
 --- Options drop down frames data frame is loaded
 function DHUD_OptionsTemplates_LUA:processDropDownFramesDataOnLoad(frame)
 	local name = frame:GetName();

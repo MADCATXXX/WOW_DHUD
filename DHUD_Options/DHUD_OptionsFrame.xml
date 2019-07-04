@@ -757,7 +757,7 @@
 							<CheckButton name="$parent_RestingIconCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="171" y="-46" />
+										<Offset x="171" y="-31" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -768,7 +768,7 @@
 							<CheckButton name="$parent_CombatIconCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="171" y="-77" />
+										<Offset x="171" y="-62" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -779,7 +779,7 @@
 							<CheckButton name="$parent_SelfPvPIconCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="171" y="-108" />
+										<Offset x="171" y="-93" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -790,7 +790,7 @@
 							<CheckButton name="$parent_TargetPvPIconCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="171" y="-139" />
+										<Offset x="171" y="-124" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -801,7 +801,7 @@
 							<CheckButton name="$parent_TargetEliteIconCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="171" y="-170" />
+										<Offset x="171" y="-155" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -812,7 +812,7 @@
 							<CheckButton name="$parent_TargetRaidIconCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="171" y="-201" />
+										<Offset x="171" y="-186" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -823,7 +823,7 @@
 							<CheckButton name="$parent_TargetSpecRoleIconCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="171" y="-232" />
+										<Offset x="171" y="-217" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -834,7 +834,7 @@
 							<CheckButton name="$parent_TargetSpecIconCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="171" y="-262" />
+										<Offset x="171" y="-247" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -845,7 +845,7 @@
 							<Frame name="$parent_HeaderHealthBars" inherits="DHUD_OptionsTemplate_Header">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="171" y="-297" />
+										<Offset x="171" y="-282" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -855,7 +855,7 @@
 							<Slider name="$parent_HealthShieldSlider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="175" y="-336" />
+										<Offset x="175" y="-321" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -866,7 +866,7 @@
 							<CheckButton name="$parent_HealthHealAbsorbCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="171" y="-369" />
+										<Offset x="171" y="-354" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -877,7 +877,7 @@
 							<CheckButton name="$parent_HealthHealIncomingCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="171" y="-400" />
+										<Offset x="171" y="-385" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -898,7 +898,7 @@
 							<CheckButton name="$parent_BarTexture1RadioButton" inherits="DHUD_OptionsTemplate_RadioButton" text="BlizzardPlayerFrame">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="335" y="-46" />
+										<Offset x="335" y="-31" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -911,7 +911,7 @@
 							<CheckButton name="$parent_BarTexture2RadioButton" inherits="DHUD_OptionsTemplate_RadioButton" text="BlizzardPlayerFrame">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="335" y="-68" />
+										<Offset x="335" y="-53" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -924,7 +924,7 @@
 							<CheckButton name="$parent_BarTexture3RadioButton" inherits="DHUD_OptionsTemplate_RadioButton" text="BlizzardPlayerFrame">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="335" y="-93" />
+										<Offset x="335" y="-78" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -937,7 +937,7 @@
 							<CheckButton name="$parent_BarTexture4RadioButton" inherits="DHUD_OptionsTemplate_RadioButton" text="BlizzardPlayerFrame">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="335" y="-117" />
+										<Offset x="335" y="-102" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -950,7 +950,7 @@
 							<CheckButton name="$parent_BarTexture5RadioButton" inherits="DHUD_OptionsTemplate_RadioButton" text="BlizzardPlayerFrame">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="335" y="-139" />
+										<Offset x="335" y="-124" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -963,7 +963,7 @@
 							<CheckButton name="$parent_BackgroundTextureCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="335" y="-161" />
+										<Offset x="335" y="-146" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -974,7 +974,7 @@
 							<Frame name="$parent_HeaderMisc" inherits="DHUD_OptionsTemplate_Header">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="335" y="-194" />
+										<Offset x="335" y="-179" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -984,7 +984,7 @@
 							<CheckButton name="$parent_AnimateBarsCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="335" y="-230" />
+										<Offset x="335" y="-200" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -995,7 +995,7 @@
 							<CheckButton name="$parent_ReverseCastBarsCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="335" y="-261" />
+										<Offset x="335" y="-231" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -1006,7 +1006,7 @@
 							<CheckButton name="$parent_PlayerCastInfoCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="335" y="-292" />
+										<Offset x="335" y="-262" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -1017,7 +1017,7 @@
 							<CheckButton name="$parent_AlwaysShowCastBarBackgroundCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="335" y="-323" />
+										<Offset x="335" y="-293" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -1028,7 +1028,7 @@
 							<CheckButton name="$parent_ShowMillisecondsCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="335" y="-354" />
+										<Offset x="335" y="-324" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -1039,7 +1039,7 @@
 							<CheckButton name="$parent_ShortNumbersCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="335" y="-385" />
+										<Offset x="335" y="-355" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -1050,7 +1050,7 @@
 							<CheckButton name="$parent_MinimapCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="335" y="-416" />
+										<Offset x="335" y="-386" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -1061,7 +1061,7 @@
 							<CheckButton name="$parent_HideInPetBattlesCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="335" y="-447" />
+										<Offset x="335" y="-417" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -1069,6 +1069,17 @@
 									<Attribute name="SETTING" value="misc_hideInPetBattles" />
 								</Attributes>
 							</CheckButton>
+							<Frame name="$parent_MouseConditionsMask" inherits="DHUD_OptionsTemplate_DropdownMask">
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="325" y="-448" />
+									</Anchor>
+								</Anchors>
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_MISC_MOUSECONDITIONSMASK" />
+									<Attribute name="SETTING" value="misc_mouseConditionsMask" />
+								</Attributes>
+							</Frame>
 						</Frames>
 					</Frame>
 				</Frames>
@@ -1417,21 +1428,10 @@
 									<Attribute name="LTEXT" value="HEADER_TIMERS_GENERAL" />
 								</Attributes>
 							</Frame>
-							<CheckButton name="$parent_ShowTooltipsCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
-								<Anchors>
-									<Anchor point="TOPLEFT">
-										<Offset x="10" y="-34" />
-									</Anchor>
-								</Anchors>
-								<Attributes>
-									<Attribute name="LTEXT" value="SETTING_TIMERS_SHOWTOOLTIP" />
-									<Attribute name="SETTING" value="aurasOptions_showTooltips" />
-								</Attributes>
-							</CheckButton>
 							<CheckButton name="$parent_TargetBuffTimersCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="166" y="-34" />
+										<Offset x="10" y="-34" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -1442,7 +1442,7 @@
 							<CheckButton name="$parent_TargetDebuffTimersCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="314" y="-34" />
+										<Offset x="246" y="-34" />
 									</Anchor>
 								</Anchors>
 								<Attributes>

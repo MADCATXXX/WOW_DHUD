@@ -4,6 +4,13 @@
 -disable mouse over when casting aoe (or make option to disable mouse or enable only with certain key modifiers)?
 -other textures support (renetair from DHUD4)
 
+changelog 2.0.60000.48:
+-disappear animation for prioritizied spells should stop once aura time left is less or equal to 0
+-fixed exception with animation of priority spells in rare cases of reloading UI
+-added option to disable mouse click and mouse over handlers by default and enable them only with certain modifier keys
+-player class should correctly display for player targets (due to changes in UnitIsPlayer API)
+-cooldowns for spells like "Death from above" that incur a global 2 seconds cd and get grouped together should be degrouped once actual cooldown starts
+
 changelog 2.0.60000.47:
 -added option to show only player self short buffs, instead of all short buffs
 -changed default value of minimum time for aura to be considered short to 180 up from 60
