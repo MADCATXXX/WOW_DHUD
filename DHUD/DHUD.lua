@@ -4,7 +4,7 @@ DHUD modification for WotLK Beta by MADCAT
 -----------------------------------------------------------------------------------]]--
 
 -- Init Vars --
-DHUD_VERSION    = "Version: 1.5.30100b";
+DHUD_VERSION    = "Version: 1.5.30100c";
 DHUD_TEXT_EMPTY = "";
 DHUD_TEXT_HP2   = "<color_hp><hp_value></color>";
 DHUD_TEXT_HP3   = "<color_hp><hp_value></color>/<hp_max>";
@@ -2992,11 +2992,25 @@ function DHUD:UpdateValues(frame,set)
 	
 	if ( UnitExists(unit) ) then
 	    if typ == "health" then
-			value = tonumber(UnitHealth(unit)/UnitHealthMax(unit));
+		
+			--TODO: to increase perfomance  save functions results to variables instead of calling then 5 times
+			
+			if UnitHealthMax(unit)==0 then
+				value = 0;
+			elseif UnitHealth(unit)>UnitHealthMax(unit) then
+				value = 1;
+			else
+			    value = tonumber(UnitHealth(unit)/UnitHealthMax(unit));
+			end			
 	    else
+		
+			--TODO: to increase perfomance  save functions results to variables instead of calling then 5 times
+			--3.1 if mana > max - set percent to 100
 			--self:print("UnitMana: " .. UnitMana(unit) .. " UnitManaMax: " .. UnitManaMax(unit));
 			if UnitManaMax(unit)==0 then
 				value = 0;
+			elseif UnitMana(unit)>UnitManaMax(unit) then
+				value = 1;
 			else
 			    value = tonumber(UnitMana(unit)/UnitManaMax(unit));
 			end

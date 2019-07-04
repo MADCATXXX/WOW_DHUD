@@ -1,3 +1,6 @@
+changelog 1.5.30100c MADCAT revision16:
+-fixed SetTexCoord() error. Maximum Unit Health can be 0 in blizzard's opinion :)
+
 changelog 1.5.30100b MADCAT revision15:
 -fixed blizzard combo frame to properly hide when blizzard target frame turned off
 -added option to show player debuffs
