@@ -58,6 +58,79 @@ DHUD_variables = {
         events  = { },
         hideval = "", 
     },
+	
+	 ["<spellname>"] = { 
+        func    = function(text, unit)
+                    local time = DHUD.spellname;
+                    if time then
+                        text = DHUD:gsub(text, '<spellname>', time);
+                    else
+                        text = DHUD:gsub(text, '<spellname>', "");
+                    end
+                    return text;
+                  end,
+        events  = { },
+        hideval = "", 
+    },
+    
+    ["<enemycasttime>"] = { 
+        func    = function(text, unit)
+                    local time = DHUD.enemycasting_time;
+                    if time then
+                        text = DHUD:gsub(text, '<enemycasttime>', time);
+                    else
+                        text = DHUD:gsub(text, '<enemycasttime>', "");
+                    end
+                    return text;
+                  end,
+        events  = { },
+        hideval = "", 
+    },
+    
+    ["<enemycasttime_remain>"] = { 
+        func    = function(text, unit)
+                    local time = DHUD.enemycasting_time_rev;
+                    if time then
+                        text = DHUD:gsub(text, '<enemycasttime_remain>', time);
+                    else
+                        text = DHUD:gsub(text, '<enemycasttime_remain>', "");
+                    end
+                    return text;
+                  end,
+        events  = { },
+        hideval = "", 
+    },
+    
+    ["<enemycasttime_delay>"] = { 
+        func    = function(text, unit)
+                    local time = DHUD.enemycasting_time_del;
+                    if time then
+                        if tonumber(time) == 0 then 
+                            time = "";
+                        end
+                        text = DHUD:gsub(text, '<enemycasttime_delay>', time);
+                    else
+                        text = DHUD:gsub(text, '<enemycasttime_delay>', "");
+                    end
+                    return text;
+                  end,
+        events  = { },
+        hideval = "", 
+    },
+	
+	["<enemyspellname>"] = { 
+        func    = function(text, unit)
+                    local time = DHUD.enemyspellname;
+                    if time then
+                        text = DHUD:gsub(text, '<enemyspellname>', time);
+                    else
+                        text = DHUD:gsub(text, '<enemyspellname>', "");
+                    end
+                    return text;
+                  end,
+        events  = { },
+        hideval = "", 
+    },
     
     ["<name>"] = { 
         func    = function(text, unit)
@@ -78,8 +151,7 @@ DHUD_variables = {
         events  = { "UNIT_NAME_UPDATE" },
         hideval = "", 
     },
-	 
-        
+		        
    ["<hp_percent>"] = { 
        func = function(text, unit)
                 local percent = 0;

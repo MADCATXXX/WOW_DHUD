@@ -1,4 +1,4 @@
-DHUDO_NUMTABS = 5;
+DHUDO_NUMTABS = 6;
 DHUDDROPDOWNSELECTED = "";
 
 function DHUDO_Header_OnLoad(x,y)

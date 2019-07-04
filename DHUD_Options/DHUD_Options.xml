@@ -124,7 +124,8 @@
 			<Button name="$parentResetButton" inherits="OptionsButtonTemplate" text="Reset">
 				<Anchors>
 					<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT">
-						<Offset><AbsDimension x="-6" y="-39"/></Offset>
+						<Offset><AbsDimension x="-35" y="-5"/></Offset>
+						<!-- Old Offset: <Offset><AbsDimension x="-6" y="-39"/></Offset> -->
 					</Anchor>
 				</Anchors>
 				<Scripts>
@@ -1180,6 +1181,29 @@
 
                 </Frames>
             </Frame>
+			
+			<!-- Page 6 -->
+            <Frame name="DHUD_Tab6" hidden="true" >
+                <Frames>
+
+                    <!-- ................... -->
+                    <!-- MADCAT OPTIONS       -->
+                    <!-- ................... -->
+                    <Frame name="DHUD_Header_madcat" inherits="DHUD_HeaderTemplate">
+                        <Scripts><OnLoad>
+                                DHUDO_Header_OnLoad(10,-70);
+                        </OnLoad></Scripts>
+                    </Frame>
+					<!-- checkbox bplayer -->
+                    <CheckButton name="DHUD_Check_enemycastingbar" inherits="DHUD_Check_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Header_madcatText">
+                                <Offset><AbsDimension x="10" y="-25"/></Offset>
+                        </Anchor></Anchors>
+                    </CheckButton>
+				</Frames>
+            </Frame>
+					
+					
 
             <!-- Tabbutton -->
 			<Button name="$parentTab1" inherits="DHUD_TabButtonTemplate" id="1">
@@ -1217,6 +1241,13 @@
 					<Anchor point="LEFT" relativeTo="$parentTab4" relativePoint="RIGHT"></Anchor>
 				</Anchors>
 			</Button>
+			
+			<!-- Tabbutton -->
+			<Button name="$parentTab6" inherits="DHUD_TabButtonTemplate" id="6">
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parentTab5" relativePoint="RIGHT"></Anchor>
+				</Anchors>
+			</Button>
 
 	   </Frames>
 
@@ -1241,6 +1272,8 @@
 		</Scripts>
 
 	</Frame>
+	
+	
 
 
 
@@ -1286,6 +1319,7 @@
 				<Anchors>
 					<Anchor point="BOTTOM" relativePoint="BOTTOM">
 						<Offset><AbsDimension x="0" y="35"/></Offset>
+						<!-- Old Offset: <Offset><AbsDimension x="0" y="35"/></Offset> -->
 					</Anchor>
 				</Anchors>
 				<Scripts>
@@ -1303,6 +1337,7 @@
 				<Anchors>
 					<Anchor point="BOTTOM" relativePoint="BOTTOM">
 						<Offset><AbsDimension x="0" y="10"/></Offset>
+						<!-- Old Offset: <Offset><AbsDimension x="0" y="10"/></Offset> -->
 					</Anchor>
 				</Anchors>
 				<Scripts>

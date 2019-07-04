@@ -1,3 +1,6 @@
+Changelog 1.5.30000f MADCAT Revision8:
+-Added enemy castbar and spell info. Currently working only with layout1. On target change enemy spell info is not updated(If enemy is already casting a spell - you won't see it). Need your feedback for enemy cast bar.
+
 Changelog 1.5.30000e MADCAT Revision6:
 -fixed dropdown options
 -modified some code, so it may solve glyps error, but i'm not sure

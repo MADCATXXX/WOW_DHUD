@@ -131,6 +131,10 @@ DHUD_CommandList = {
                     ["type"]     = "toggle",
                     ["command"]  = "castingbartimer",
                 },
+	["enemycastingbar"] = {
+                    ["type"]     = "toggle",
+                    ["command"]  = "enemycastingbar",
+                    },
     ["animatebars"] = {
                     ["type"]     = "toggle",
                     ["command"]  = "animatebars",

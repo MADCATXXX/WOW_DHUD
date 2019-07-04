@@ -5,7 +5,8 @@ DHUDO_locale.DHUDOptionsFrameTab2 = "Offsets";
 DHUDO_locale.DHUDOptionsFrameTab3 = "Unit Text";
 DHUDO_locale.DHUDOptionsFrameTab4 = "Colors";
 DHUDO_locale.DHUDOptionsFrameTab5 = "Layouts";
-DHUDO_locale.DHUDOptionsFrameTab6 = "...";
+DHUDO_locale.DHUDOptionsFrameTab6 = "MADCATf";
+DHUDO_locale.DHUDOptionsFrameTab7 = "...";
 
 DHUDO_locale.Header_colorsplayer  = "Player Bars:";
 DHUDO_locale.Header_colorspet     = "Pet Bars:";
@@ -179,6 +180,11 @@ DHUDO_locale.DHUD_Casttime_Text      = "Cast Time Textbox";
 DHUDO_locale.DHUD_Castdelay_Text     = "Cast Delay Textbox";
 
 DHUDO_locale.Header_layout           = "DHUD Layouts:";
+
+DHUDO_locale.Header_madcat			 = "MADCAT features:";
+DHUDO_locale.enemycastingbar         = "Enemy castbar";
+DHUDO_locale.enemycastingbar_tooltip = "Show enemy castbar";
+
 
 DHUD_TEXTHELP = "|cff88ff88Available Tags:|r\n\n<spellname>\n<casttime>\n<casttime_remain>\n<casttime_delay>\n\n<hp_percent>\n<hp_value>\n<hp_max>\n<hp_diff>\n\n<mp_percent>\n<mp_value>\n<mp_max>\n<mp_diff>\n\n<mp_value_druid>\n<mp_max_druid>\n<mp_percent_druid>\n\n<name>\n<level>\n<elite>\n<type>\n<class>\n<pet>\n<npc>\n<faction>\n<combopoints>\n<pvp>\n<pvp_rank>\n<raidgroup>\n<guild>\n\n<color>ffffff\n</color>\n<color_level>\n<color_class>\n<color_reaction>";
 DHUD_DORESET  = "Do you really want to\nreset your Settings?";
