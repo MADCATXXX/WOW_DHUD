@@ -289,7 +289,7 @@ DHUD_Layouts.DHUD_StandardPTD_Layout = {
 		["Interface\\AddOns\\DHUD\\layout\\ecb"]  = { 258, 4  , 4 },
 		["Interface\\AddOns\\DHUD\\layout\\ecbh"]  = { 256, 11  , 11 },
     },
-    ["defaultfont"]     = "Fonts/FRIZQT__.TTF",  
+    ["defaultfont"]     = "Fonts\\FRIZQT__.TTF",  
     ["defaultfont_num"] = "Interface\\AddOns\\DHUD\\layout\\Number.TTF", 
     ["DHUD_names"] = { 
         "DHUD_Main", 

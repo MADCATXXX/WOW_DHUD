@@ -1,3 +1,8 @@
+changelog 1.5.50000a MADCAT revision28:
+-toc update
+-fixed lua errors
+-fixed path to default font
+
 changelog 1.5.40300a MADCAT revision27:
 -toc update
 

@@ -4,7 +4,7 @@ DHUD modification for WotLK and Cataclysm by MADCAT
 -----------------------------------------------------------------------------------]]--
 
 -- Init Vars --
-DHUD_VERSION    = "Version: 1.5.40300a";
+DHUD_VERSION    = "Version: 1.5.50000a";
 DHUD_TEXT_EMPTY = "";
 DHUD_TEXT_HP2   = "<color_hp><hp_value></color>";
 DHUD_TEXT_HP3   = "<color_hp><hp_value></color>/<hp_max>";
@@ -68,7 +68,7 @@ DHUD = {
     --
     playerbufffilter  = "HELPFUL",
     trennzeichen      = "/",
-    defaultfont       = "Fonts/FRIZQT__.TTF",  
+    defaultfont       = "Fonts\\FRIZQT__.TTF",  
     --defaultfont_num   = "Fonts/FRIZQT__.TTF",  
     defaultfont_num   = "Interface\\AddOns\\DHUD\\layout\\Number.TTF",  
     
@@ -1516,6 +1516,8 @@ function DHUD:init()
     self:updateTargetPvP();
     --self:updatePetIcon();
     
+	self:print("font " .. self.defaultfont);
+	self:print("font2 " .. self.defaultfont_num);
     -- set font
     DHUD_Castdelay_Text_Text:SetFont(self.defaultfont_num, DHUD_Settings["fontsizecastdelay"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["castdelayoutline"] ]);
     DHUD_Casttime_Text_Text:SetFont(self.defaultfont_num, DHUD_Settings["fontsizecasttime"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["castdelayoutline"] ]);
@@ -1876,7 +1878,7 @@ function DHUD:TargetChanged()
     self:TargetAuras();
     
     -- make name clickable?
-    if ( UnitIsUnit("target", "player") and ( GetNumPartyMembers() > 0 or GetNumRaidMembers() > 0 )) or
+    if ( UnitIsUnit("target", "player") and ( GetNumSubgroupMembers() > 0 or GetNumSubgroupMembers() > 0 )) or
        ( UnitIsPlayer("target")  and not UnitIsEnemy("player", "target")  and not UnitIsUnit("target", "player") ) or
        UnitIsUnit("target", "pet") then
         _G["DHUD_Target_Text"]:EnableMouse(1);
@@ -2466,7 +2468,7 @@ function DHUD:CreateMMB()
             self:OptionsFrame_Toggle();
         end,
         right = function() 
-            if GetNumPartyMembers() > 0 or GetNumRaidMembers() > 0 then
+            if GetNumSubgroupMembers() > 0 or GetNumSubgroupMembers() > 0 then
                 ToggleDropDownMenu(1, nil, DHUD_Player_DropDown, "DHUDMinimapButton" , 25, 10); 
             else
                 self:print("You are not in Group/Raid!");

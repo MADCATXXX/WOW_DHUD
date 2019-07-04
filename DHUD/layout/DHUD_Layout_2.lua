@@ -293,7 +293,7 @@ DHUD_Layouts.DHUD_PlayerLeft_Layout = {
         ["Interface\\AddOns\\DHUD\\layout\\cb"]  = { 256, 11  , 11 }, 	
         ["Interface\\AddOns\\DHUD\\layout\\cbh"] = { 256, 11  , 11 },
     },
-    ["defaultfont"]     = "Fonts/FRIZQT__.TTF",  
+    ["defaultfont"]     = "Fonts\\FRIZQT__.TTF",  
     ["defaultfont_num"] = "Interface\\AddOns\\DHUD\\layout\\Number.TTF", 
     ["DHUD_names"] = { 
         "DHUD_Main", 
