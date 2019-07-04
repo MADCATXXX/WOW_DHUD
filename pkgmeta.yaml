@@ -1,0 +1,31 @@
+# Help for yaml format: https://authors.curseforge.com/docs/packaging
+package-as: DHUDv2080200_63
+enable-nolib-creation: no
+
+# check thread: https://www.wowinterface.com/forums/showthread.php?t=55013
+externals:
+    DHUD_Options\libs:
+        url: https://repos.wowace.com/wow/ace3/trunk # not sure if svn repo is ok
+        tag: latest # if this line is left out, the latest version (even if it's not a tag) is assumed
+
+#move-folders:
+#    KillerCupcakes/Modules/Fire: KillerCupcakesOnFire # This moves KillerCupcakes/Modules/Fire to the same level as KillerCupcakes, as KillerCupCakesOnFire
+#    KillerCupcakes/Modules/Sky: KillerCupcakesInTheSky
+
+ignore: # Files and directories beginning with a dot (such as .git) are automatically ignored, as is the pgkmeta file itself.
+    - DHUD.wowsln
+    - DHUD.wowsuo
+    - DHUDGraph.grf
+    - LICENSE
+    - README.md
+    - DHUD/DHUD.wowproj
+    - DHUD/DHUD.wowproj.user
+    - DHUD_Options/DHUD_Options.wowproj
+
+manual-changelog: CHANGELOG.txt
+
+license-output: LICENSE.txt
+
+tools-used:
+    - AddOn Studio for World of Warcraft
+    - Graph (www.padowan.dk)
