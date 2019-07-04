@@ -30,7 +30,8 @@ L["HELP_UNITTEXTS_TYPE"] = {
 		"<guild>\narg1 = prefix\narg2 = postfix\n",
 	["cast"] = 
 		"\n|cffff0000Cast trackers:|r\n" ..
-		"<time>\n<time_remain>\n<time_total>\n<delay>\n\n" ..
+		"<time>\n<time_remain>\n<time_total>\n\n" ..
+		"<delay>\narg1 = cast prefix\narg2 = channel prefix\n\n" ..
 		"<spellname>\narg1 = interrupt text\n",
 };
 -- tabs
@@ -271,6 +272,9 @@ L["SETTING_MISC_REVERSECASTBARS_TOOLTIP"] = "If checked then cast bars animation
 
 L["SETTING_MISC_SHOWPLAYERCASTINFO"] = "Player Cast Info";
 L["SETTING_MISC_SHOWPLAYERCASTINFO_TOOLTIP"] = "If checked then cast info will be also shown for player casts";
+
+L["SETTING_MISC_ALWAYSSHOWCASTBARBACKGROUND"] = "Cast Bars Background";
+L["SETTING_MISC_ALWAYSSHOWCASTBARBACKGROUND_TOOLTIP"] = "If checked then cast bars will draw background texture beneath them regardless of unit ability to cast";
 
 L["SETTING_MISC_STORECOMBOPOINTS"] = "Store Combo-Points";
 L["SETTING_MISC_STORECOMBOPOINTS_TOOLTIP"] = "If checked then DHUD will show stored amount of combo-points with reduced alpha.\nCombo-points are stored when changing target and will be cleared after 30 secs of leaving combat.";

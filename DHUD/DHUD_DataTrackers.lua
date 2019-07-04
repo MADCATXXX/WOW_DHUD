@@ -238,16 +238,23 @@ function DHUDDataTrackerHelper:init()
 		helper:onEnteringWorld();
 	end
 	-- initialize other values
-	self.isInCombat = UnitAffectingCombat("player");
-	self.isResting = IsResting() == 1;
+	self:updateData();
+	-- process update events
+	self.timerMs = GetTime();
+	self.eventsFrame:SetScript("OnUpdate", function (self, timeElapsed) helper:onUpdate(timeElapsed); end);
+end
+
+--- Update helpers data, this function is invoked on init and when entering world
+function DHUDDataTrackerHelper:updateData()
+	self:setIsInCombat(UnitAffectingCombat("player") == 1);
+	self:setIsAttacking(false);
+	self:setIsInPetBattle(false);
+	self:setIsResting(IsResting() == 1);
 	self.eventsFrame:UNIT_ENTERED_VEHICLE("player");
 	self.eventsFrame:PLAYER_TARGET_CHANGED();
 	self.eventsFrame:UNIT_PET("player");
 	self.eventsFrame:PLAYER_SPECIALIZATION_CHANGED("player");
 	self.eventsFrame:PLAYER_ALIVE();
-	-- process update events
-	self.timerMs = GetTime();
-	self.eventsFrame:SetScript("OnUpdate", function (self, timeElapsed) helper:onUpdate(timeElapsed); end);
 end
 
 --- Function that is called by blizzard event frame to update ui
@@ -364,6 +371,7 @@ end
 
 --- player is entering world
 function DHUDDataTrackerHelper:onEnteringWorld()
+	self:updateData();
 	self:dispatchEvent(self.eventEnteringWorld);
 end
 
@@ -2129,6 +2137,8 @@ DHUDSpellCastTracker = MCCreateSubClass(DHUDDataTracker, {
 	isChannelSpell		= false,
 	-- defines if current spell is interruptable, e.g. no lock
 	isInterruptible		= true,
+	-- time at which the spell casting was started, in seconds
+	timeStart			= 0,
 	-- amount of time the spell is casting or amount of time for channel to end, in seconds, this value may be less than zero as reported by game!
 	timeProgress		= 0,
 	-- total amount of time this spell will be casted, in seconds
@@ -2313,6 +2323,7 @@ function DHUDSpellCastTracker:updateSpellCastStart()
 	self.isInterruptible = not notInterruptible;
 	self.spellName = name;
 	self.spellTexture = texture;
+	self.timeStart = startTime / 1000;
 	self.timeTotal = (endTime - startTime) / 1000;
 	self.timeProgress = timerMs - startTime / 1000;
 	self.delay = 0;
@@ -2327,10 +2338,11 @@ function DHUDSpellCastTracker:updateSpellCastDelay()
 	-- update delay
 	local timerMs = trackingHelper:getTimerMs();
 	local name, nameSubtext, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo(self.unitId);
-	local newTimeTotal = (endTime - startTime) / 1000;
+	local newTimeTotal = endTime / 1000 - self.timeStart;
 	self.delay = newTimeTotal - self.timeTotal;
-	self.timeProgress = timerMs - startTime / 1000 - self.delay;
+	self.timeProgress = timerMs - startTime / 1000;
 	self.timeUpdatedAt = timerMs;
+	--print("delay startTime " .. startTime .. ", endTime " .. endTime .. ", timerMs " .. timerMs .. ", delay " .. self.delay);
 	-- process data change
 	self:processDataChanged();
 end
@@ -2357,6 +2369,7 @@ function DHUDSpellCastTracker:updateSpellChannelStart()
 	self.isInterruptible = not notInterruptible;
 	self.spellName = name;
 	self.spellTexture = texture;
+	self.timeStart = startTime / 1000;
 	self.timeTotal = (endTime - startTime) / 1000;
 	self.timeProgress = endTime / 1000 - timerMs;
 	self.delay = 0;
@@ -2370,7 +2383,7 @@ function DHUDSpellCastTracker:updateSpellChannelDelay()
 	-- update delay
 	local timerMs = trackingHelper:getTimerMs();
 	local name, nameSubtext, text, texture, startTime, endTime, isTradeSkill, notInterruptible = UnitChannelInfo(self.unitId);
-	local newTimeTotal = (endTime - startTime) / 1000;
+	local newTimeTotal = endTime / 1000 - self.timeStart;
 	self.delay = self.timeTotal - newTimeTotal;
 	self.timeProgress = endTime / 1000 - timerMs;
 	self.timeUpdatedAt = timerMs;
@@ -2583,6 +2596,13 @@ function DHUDUnitInfoTracker:init()
 		tracker:updateTagging();
 		tracker:updatePvPInfo();
 	end
+	-- process unit classification change event
+	function self.eventsFrame:UNIT_CLASSIFICATION_CHANGED(unitId)
+		if (tracker.unitId ~= unitId) then
+			return;
+		end
+		tracker:updateEliteType();
+	end
 	-- process unit level change event
 	function self.eventsFrame:UNIT_LEVEL(unitId)
 		if (tracker.unitId ~= unitId) then
@@ -2733,6 +2753,7 @@ function DHUDUnitInfoTracker:startTracking()
 	-- listen to game events
 	self.eventsFrame:RegisterEvent("UNIT_NAME_UPDATE");
 	self.eventsFrame:RegisterEvent("UNIT_FACTION");
+	self.eventsFrame:RegisterEvent("UNIT_CLASSIFICATION_CHANGED");
 	self.eventsFrame:RegisterEvent("UNIT_LEVEL");
 	self.eventsFrame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED");
 	self.eventsFrame:RegisterEvent("RAID_TARGET_UPDATE");
@@ -2743,6 +2764,7 @@ function DHUDUnitInfoTracker:stopTracking()
 	-- stop listening to game events
 	self.eventsFrame:UnregisterEvent("UNIT_NAME_UPDATE");
 	self.eventsFrame:UnregisterEvent("UNIT_FACTION");
+	self.eventsFrame:UnregisterEvent("UNIT_CLASSIFICATION_CHANGED");
 	self.eventsFrame:UnregisterEvent("UNIT_LEVEL");
 	self.eventsFrame:UnregisterEvent("PLAYER_SPECIALIZATION_CHANGED");
 	self.eventsFrame:UnregisterEvent("RAID_TARGET_UPDATE");

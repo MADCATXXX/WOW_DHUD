@@ -32,7 +32,8 @@ L["HELP_UNITTEXTS_TYPE"] = {
 		"<guild>\nарг1 = префикс\nарг2 = постфикс\n",
 	["cast"] = 
 		"\n|cffff0000Данные о заклинании:|r\n" ..
-		"<time>\n<time_remain>\n<time_total>\n<delay>\n\n" ..
+		"<time>\n<time_remain>\n<time_total>\n\n" ..
+		"<delay>\nарг1 = префикс закл.\nарг2 = преф. поддерж. з.\n\n" ..
 		"<spellname>\nарг1 = Текст прерывания\n",
 };
 -- tabs
@@ -273,6 +274,9 @@ L["SETTING_MISC_REVERSECASTBARS_TOOLTIP"] = "Позволяет обратить
 
 L["SETTING_MISC_SHOWPLAYERCASTINFO"] = "Инф. о закл. игрока";
 L["SETTING_MISC_SHOWPLAYERCASTINFO_TOOLTIP"] = "Позволяет отображать информацию о заклинании произносимом игроком";
+
+L["SETTING_MISC_ALWAYSSHOWCASTBARBACKGROUND"] = "Фон панели закл.";
+L["SETTING_MISC_ALWAYSSHOWCASTBARBACKGROUND_TOOLTIP"] = "Позволяет рисовать фоновую текстуру под панелью произнесения заклинаний независимо от возможности произнесения заклинаний боевой еденицей";
 
 L["SETTING_MISC_STORECOMBOPOINTS"] = "Хранить комбо-очки";
 L["SETTING_MISC_STORECOMBOPOINTS_TOOLTIP"] = "Позволяет отображать сохраненное количество комбо очков с уменьшенной прозрачностью.\nКомбо-очки сохраняются при смене цели и исчезают через 30 секунд после выхода из боя.";

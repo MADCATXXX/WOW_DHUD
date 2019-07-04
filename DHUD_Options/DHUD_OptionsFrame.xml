@@ -131,7 +131,9 @@
 				<Frames>
 					<Frame name="$parent_Page1" inherits="DHUD_OptionsTemplate_TabPage">
 						<Anchors>
-							<Anchor point="TOPLEFT" />
+							<Anchor point="TOPLEFT">
+								<Offset x="-500" />
+							</Anchor>
 						</Anchors>
 						<Frames>
 							<Frame name="$parent_HeaderBlizzard" inherits="DHUD_OptionsTemplate_Header">
@@ -596,7 +598,7 @@
 					<Frame name="$parent_Page2" inherits="DHUD_OptionsTemplate_TabPage">
 						<Anchors>
 							<Anchor point="TOPLEFT">
-								<Offset x="550" />
+								<Offset />
 							</Anchor>
 						</Anchors>
 						<Frames>
@@ -991,6 +993,17 @@
 									</Anchor>
 								</Anchors>
 							</CheckButton>
+							<CheckButton name="$parent_AlwaysShowCastBarBackgroundCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_MISC_ALWAYSSHOWCASTBARBACKGROUND" />
+									<Attribute name="SETTING" value="misc_alwaysShowCastBarBackground" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="335" y="-323" />
+									</Anchor>
+								</Anchors>
+							</CheckButton>
 							<CheckButton name="$parent_StoreComboPointsCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
 								<Attributes>
 									<Attribute name="LTEXT" value="SETTING_MISC_STORECOMBOPOINTS" />
@@ -998,7 +1011,7 @@
 								</Attributes>
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="335" y="-323" />
+										<Offset x="335" y="-354" />
 									</Anchor>
 								</Anchors>
 							</CheckButton>
@@ -1009,7 +1022,7 @@
 								</Attributes>
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="335" y="-354" />
+										<Offset x="335" y="-385" />
 									</Anchor>
 								</Anchors>
 							</CheckButton>
@@ -1020,7 +1033,7 @@
 								</Attributes>
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="335" y="-385" />
+										<Offset x="335" y="-416" />
 									</Anchor>
 								</Anchors>
 							</CheckButton>
@@ -1031,7 +1044,7 @@
 								</Attributes>
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="335" y="-416" />
+										<Offset x="335" y="-447" />
 									</Anchor>
 								</Anchors>
 							</CheckButton>

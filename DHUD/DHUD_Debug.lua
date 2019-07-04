@@ -78,6 +78,82 @@ function DHUDDebug:testEventDispatcher()
 	return nil;
 end
 
+----------------------------
+-- Lib BitWise operations --
+----------------------------
+
+--- function for color tools debugging
+function DHUDDebug:testLibBitwiseOperations()
+	print("testLibBitwiseOperations - begin");
+	-- and function
+	print("And function:");
+	print("bitwise 15 and 7 = " .. mcbit.band(15, 7));
+	print("bitwise 255 and 0 = " .. mcbit.band(255, 0));
+	print("bitwise 15 and 7 and 2 = " .. mcbit.band(15, 7, 2));
+	-- or function
+	print("Or function:");
+	print("bitwise 15 or 7 = " .. mcbit.bor(15, 7));
+	print("bitwise 8 or 4 = " .. mcbit.bor(8, 4));
+	print("bitwise 8 or 4 or 2 = " .. mcbit.bor(8, 4, 2));
+	-- not function
+	print("Not function:");
+	print("bitwise not 8 = " .. mcbit.bnot(8));
+	print("bitwise not 15 = " .. mcbit.bnot(15));
+	-- xor function
+	print("Xor function:");
+	print("bitwise 15 xor 7 = " .. mcbit.bxor(15, 7));
+	print("bitwise 6 xor 12 = " .. mcbit.bxor(6, 12));
+	-- shift functions
+	print("Shift functions:");
+	print("bitwise 255 << 2 = " .. mcbit.lshift(255, 2));
+	print("bitwise 8 >> 2 = " .. mcbit.rshift(8, 2));
+	-- and not function combo
+	print("And not combination:");
+	print("bitwise 15 and (not 8) = " .. mcbit.band(15, mcbit.bnot(8)));
+	print("bitwise 7 and (not 24) = " .. mcbit.band(7, mcbit.bnot(24)));
+	-- return destructor
+	print("testLibBitwiseOperations - end");
+	return nil;
+end
+
+--------------------------------
+-- WoW API BitWise operations --
+--------------------------------
+
+--- function for color tools debugging
+function DHUDDebug:testWoWAPIBitwiseOperations()
+	print("testWoWAPIBitwiseOperations - begin");
+	-- and function
+	print("And function:");
+	print("bitwise 15 and 7 = " .. bit.band(15, 7));
+	print("bitwise 255 and 0 = " .. bit.band(255, 0));
+	print("bitwise 15 and 7 and 2 = " .. bit.band(15, 7, 2));
+	-- or function
+	print("Or function:");
+	print("bitwise 15 or 7 = " .. bit.bor(15, 7));
+	print("bitwise 8 or 4 = " .. bit.bor(8, 4));
+	print("bitwise 8 or 4 or 2 = " .. mcbit.bor(8, 4, 2));
+	-- not function
+	print("Not function:");
+	print("bitwise not 8 = " .. bit.bnot(8));
+	print("bitwise not 15 = " .. bit.bnot(15));
+	-- xor function
+	print("Xor function:");
+	print("bitwise 15 xor 7 = " .. bit.bxor(15, 7));
+	print("bitwise 6 xor 12 = " .. bit.bxor(6, 12));
+	-- shift functions
+	print("Shift functions:");
+	print("bitwise 255 << 2 = " .. bit.lshift(255, 2));
+	print("bitwise 8 >> 2 = " .. bit.rshift(8, 2));
+	-- and not function combo
+	print("And not combination:");
+	print("bitwise 15 and (not 8) = " .. bit.band(15, bit.bnot(8)));
+	print("bitwise 7 and (not 24) = " .. bit.band(7, bit.bnot(24)));
+	-- return destructor
+	print("testWoWAPIBitwiseOperations - end");
+	return nil;
+end
+
 -------------------------------
 -- Data tracker Combo Points --
 -------------------------------
@@ -530,6 +606,8 @@ end
 function DHUDDebug:SlashCommandHandlerInit()
 	-- set functions
 	self.slashCommandFunctions["lib_ed"] = self.testEventDispatcher;
+	self.slashCommandFunctions["lib_bit"] = self.testLibBitwiseOperations;
+	self.slashCommandFunctions["wow_bit"] = self.testWoWAPIBitwiseOperations;
 	self.slashCommandFunctions["dt_cp"] = self.testDataComboPoints;
 	self.slashCommandFunctions["dt_pa"] = self.testDataPlayerAuras;
 	self.slashCommandFunctions["dt_pc"] = self.testDataPlayerCooldowns;

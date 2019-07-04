@@ -1785,6 +1785,7 @@ function DHUDGUI.showFrame(self, reason)
 	if (self.visibleReason == DHUDGUI.FRAME_VISIBLE_REASON_ALL) then
 		self.Show(self); -- call super
 	end
+	--print("frame " .. self:GetName() .. " show reason " .. reason .. " total " .. self.visibleReason);
 end
 		
 --- Hide frame with reason (do not use it manually, as it's not part of this class!)
@@ -1792,9 +1793,10 @@ end
 -- @param reason reason to show
 function DHUDGUI.hideFrame(self, reason)
 	reason = reason or DHUDGUI.FRAME_VISIBLE_REASON_UI;
-	self.visibleReason = bit.band(self.visibleReason, bit.bnot(reason));
+	self.visibleReason = bit.band(self.visibleReason, mcbit.bnot(reason)); -- changed 'bnot' to self lib function as it causes errors on Mac OS X
 	-- frame visible reason is not DHUDGUI.FRAME_VISIBLE_REASON_ALL
 	self.Hide(self); -- call super
+	--print("frame " .. self:GetName() .. " hide reason " .. reason .. " total " .. self.visibleReason);
 end
 
 -- Create texture frame with parameters specified
@@ -1853,7 +1855,7 @@ function DHUDGUI:createBarFrame(name, parentName, relativePointThis, relativePoi
 	-- create frame
 	local frame, texture = self:createTextureFrame(name, parentName, relativePointThis, relativePointParent, offsetX, offsetY, width, height, textureName, textureMirror);
 	-- update texture
-	texture.pathPrefix = texture:GetTexture(); -- save path prefix to texture local variable
+	texture.pathPrefix = self.textures[textureName][1]; -- save path prefix to texture local variable
 	texture:SetTexture(texture.pathPrefix .. self.barsTexture);
 	-- set points
 	texture:ClearAllPoints();
@@ -1900,16 +1902,16 @@ function DHUDGUI:createCastBarIconFrame(name, parentName, relativePointThis, rel
 	-- create frame
 	frame = self:createFrame(name, parentName, relativePointThis, relativePointParent, offsetX, offsetY, width, height, nil, "Button");
 	-- create border texture
-	local texturePath = unpack(self.textures["BlizzardCastBarIconShield"]); -- icon 20x20, total dimensions 38x44
+	local texturePath, x0, x1, y0, y1 = unpack(self.textures["BlizzardCastBarIconShield"]); -- icon 20x20, total dimensions 38x44
 	local texture = frame:CreateTexture(name .. "_border", "ARTWORK", nil, 7);
 	local scaleX = width / 20;
 	local scaleY = height / 20;
 	texture:SetTexture(texturePath);
 	texture:SetVertexColor(1.0, 1.0, 1.0);
-	texture:SetPoint("TOPLEFT", frame, "TOPLEFT", -2 * scaleX, 11 * scaleY);
-	texture:SetHeight(44 * scaleX);
-	texture:SetWidth(38 * scaleY);
-	texture:SetTexCoord(0, 1, 0, 1);
+	texture:SetPoint("TOPLEFT", frame, "TOPLEFT", -9 * scaleX, 8 * scaleY);
+	texture:SetWidth(38 * scaleX);
+	texture:SetHeight(44 * scaleY);
+	texture:SetTexCoord(x0, x1, y0, y1);
 	frame.border = texture;
 	-- set normal texture
 	frame:SetNormalTexture("Interface\\Icons\\Ability_Druid_TravelForm");
@@ -2425,7 +2427,7 @@ function DHUDGUI:createCastBarFrameBigInnerLeft(index)
 	elseif (index == self.CASTBAR_GROUP_INDEX_ICON) then
 		frame = self:createCastBarIconFrame("DHUD_Left_CastBarIconBig1", "DHUD_Left_BarsBackground", "BOTTOM", "BOTTOM", 60, 275, 30, 30);
 	elseif (index == self.CASTBAR_GROUP_INDEX_SPELLNAME) then
-		frame = self:createTextFrame("DHUD_Left_CastBarSpellTextBig1", "DHUD_Left_BarsBackground", "LEFT", "BOTTOM", 74, 290, nil, 14, "LEFT", "CENTER");
+		frame = self:createTextFrame("DHUD_Left_CastBarSpellTextBig1", "DHUD_Left_BarsBackground", "LEFT", "BOTTOM", 79, 290, nil, 14, "LEFT", "CENTER");
 	elseif (index == self.CASTBAR_GROUP_INDEX_CASTTIME) then
 		frame = self:createTextFrame("DHUD_Left_CastBarTimeTextBig1", "DHUD_Left_BarsBackground", "LEFT", "BOTTOM", 30, 252, 100, 14, "LEFT", "CENTER");
 	elseif (index == self.CASTBAR_GROUP_INDEX_DELAY) then
@@ -2447,7 +2449,7 @@ function DHUDGUI:createCastBarFrameBigOuterLeft(index)
 	elseif (index == self.CASTBAR_GROUP_INDEX_ICON) then
 		frame = self:createCastBarIconFrame("DHUD_Left_CastBarIconBig2", "DHUD_Left_BarsBackground", "BOTTOM", "BOTTOM", 25, 285, 30, 30);
 	elseif (index == self.CASTBAR_GROUP_INDEX_SPELLNAME) then
-		frame = self:createTextFrame("DHUD_Left_CastBarSpellTextBig2", "DHUD_Left_BarsBackground", "RIGHT", "BOTTOM", 10, 300, nil, 14, "RIGHT", "CENTER");
+		frame = self:createTextFrame("DHUD_Left_CastBarSpellTextBig2", "DHUD_Left_BarsBackground", "RIGHT", "BOTTOM", 5, 300, nil, 14, "RIGHT", "CENTER");
 	elseif (index == self.CASTBAR_GROUP_INDEX_CASTTIME) then
 		frame = self:createTextFrame("DHUD_Left_CastBarTimeTextBig2", "DHUD_Left_BarsBackground", "RIGHT", "BOTTOM", 25, 262, 100, 14, "RIGHT", "CENTER");
 	elseif (index == self.CASTBAR_GROUP_INDEX_DELAY) then
@@ -2469,7 +2471,7 @@ function DHUDGUI:createCastBarFrameBigInnerRight(index)
 	elseif (index == self.CASTBAR_GROUP_INDEX_ICON) then
 		frame = self:createCastBarIconFrame("DHUD_Right_CastBarIconBig1", "DHUD_Right_BarsBackground", "BOTTOM", "BOTTOM", -60, 275, 30, 30);
 	elseif (index == self.CASTBAR_GROUP_INDEX_SPELLNAME) then
-		frame = self:createTextFrame("DHUD_Right_CastBarSpellTextBig1", "DHUD_Right_BarsBackground", "RIGHT", "BOTTOM", -74, 290, nil, 14, "RIGHT", "CENTER");
+		frame = self:createTextFrame("DHUD_Right_CastBarSpellTextBig1", "DHUD_Right_BarsBackground", "RIGHT", "BOTTOM", -79, 290, nil, 14, "RIGHT", "CENTER");
 	elseif (index == self.CASTBAR_GROUP_INDEX_CASTTIME) then
 		frame = self:createTextFrame("DHUD_Right_CastBarTimeTextBig1", "DHUD_Right_BarsBackground", "RIGHT", "BOTTOM", -30, 252, 100, 14, "RIGHT", "CENTER");
 	elseif (index == self.CASTBAR_GROUP_INDEX_DELAY) then
@@ -2491,7 +2493,7 @@ function DHUDGUI:createCastBarFrameBigOuterRight(index)
 	elseif (index == self.CASTBAR_GROUP_INDEX_ICON) then
 		frame = self:createCastBarIconFrame("DHUD_Right_CastBarIconBig2", "DHUD_Right_BarsBackground", "BOTTOM", "BOTTOM", -25, 285, 30, 30);
 	elseif (index == self.CASTBAR_GROUP_INDEX_SPELLNAME) then
-		frame = self:createTextFrame("DHUD_Right_CastBarSpellTextBig2", "DHUD_Right_BarsBackground", "LEFT", "BOTTOM", -10, 300, nil, 14, "LEFT", "CENTER");
+		frame = self:createTextFrame("DHUD_Right_CastBarSpellTextBig2", "DHUD_Right_BarsBackground", "LEFT", "BOTTOM", -5, 300, nil, 14, "LEFT", "CENTER");
 	elseif (index == self.CASTBAR_GROUP_INDEX_CASTTIME) then
 		frame = self:createTextFrame("DHUD_Right_CastBarTimeTextBig2", "DHUD_Right_BarsBackground", "LEFT", "BOTTOM", -25, 262, 100, 14, "LEFT", "CENTER");
 	elseif (index == self.CASTBAR_GROUP_INDEX_DELAY) then
@@ -4487,7 +4489,7 @@ DHUDSideInfoManager = MCCreateSubClass(DHUDGuiSlotManager, {
 	-- default combo-point colors
 	COMBO_POINT_COLOR_DEFAULT = { "ComboCircleRed", "ComboCircleRed", "ComboCircleRed", "ComboCircleOrange", "ComboCircleGreen", "ComboCirclePurple", "ComboCirclePurple", "ComboCirclePurple", "ComboCircleCyan", "ComboCircleJadeGreen" },
 	-- paladin holy power combo-point colors
-	COMBO_POINT_COLOR_PALADIN_HOLY_POWER = { "ComboCircleRed", "ComboCircleOrange", "ComboCircleGreen", "ComboCirclePurple", "ComboCircleCyan" },
+	COMBO_POINT_COLOR_PALADIN_HOLY_POWER = { "ComboCircleRed", "ComboCircleOrange", "ComboCircleGreen", "ComboCircleGreen", "ComboCircleGreen" },
 	-- priest shadow orbs combo-point colors
 	COMBO_POINT_COLOR_PRIEST_SHADOW_ORBS = { "ComboCirclePurple", "ComboCirclePurple", "ComboCirclePurple" },
 	-- warlock soul shards combo-point colors
@@ -4864,6 +4866,7 @@ function DHUDSideInfoManager:onDataTrackerChange(e)
 		self.updateFunc = self.updateRunes;
 		self.updateFuncTime = self.updateRunesTime;
 		self:setCurrentGroup(self.runeGroup);
+		self.currentGroup:setFramesShown(6);
 	-- changed to track combo-points like info
 	else
 		self.updateFuncTime = self.updateNilTime;
@@ -5594,13 +5597,20 @@ DHUDCastBarManager = MCCreateSubClass(DHUDGuiSlotManager, {
 	unitColorId = 0,
 	-- allows to show or hide player cast bar info
 	STATIC_showPlayerCastBarInfo = true,
+	-- allows to always show cast bar background texture
+	STATIC_alwaysShowCastBarBackground = true,
 	-- map with functions that are available to output cast info to text
 	FUNCTIONS_MAP_CASTINFO = { },
 })
 
---- Initialize DHUDGuiBarManager static values
+--- show player cast bar info setting changed
 function DHUDCastBarManager:STATIC_onSelfCastBarInfoSettingChange(e)
 	self.STATIC_showPlayerCastBarInfo = DHUDSettings:getValue("misc_showPlayerCastBarInfo");
+end
+
+--- always show cast bar background setting changed
+function DHUDCastBarManager:STATIC_onAlwaysShowCastBarBackgroundSettingChange(e)
+	self.STATIC_alwaysShowCastBarBackground = DHUDSettings:getValue("misc_alwaysShowCastBarBackground");
 end
 
 --- Initialize DHUDGuiBarManager static values
@@ -5615,7 +5625,9 @@ function DHUDCastBarManager:STATIC_init()
 	self.FUNCTIONS_MAP_CASTINFO["spellname"] = self.createTextSpellName;
 	-- listen to settings
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "misc_showPlayerCastBarInfo", self, self.STATIC_onSelfCastBarInfoSettingChange);
+	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "misc_alwaysShowCastBarBackground", self, self.STATIC_onAlwaysShowCastBarBackgroundSettingChange);
 	self:STATIC_onSelfCastBarInfoSettingChange(nil);
+	self:STATIC_onAlwaysShowCastBarBackgroundSettingChange(nil);
 end
 
 --- Create new bar manager
@@ -5667,13 +5679,19 @@ end
 
 --- Create text that contains data cast delay
 -- @param this reference to this bar manager (self is nil)
+-- @param castPrefix prefix before delay text for spell casts
+-- @param channelPrefix prefix before delay text for spell channels
 -- @return text to be shown in gui
-function DHUDCastBarManager:createTextDelay(this)
+function DHUDCastBarManager:createTextDelay(this, castPrefix, channelPrefix)
 	local value = this.currentDataTracker.delay;
 	if (value <= 0) then
 		return "";
 	end
-	return DHUDTextTools:formatNumberWithPrecision(value, 1);
+	if (this.currentDataTracker.isChannelSpell) then
+		return (channelPrefix or "") .. DHUDTextTools:formatNumberWithPrecision(value, 1);
+	else
+		return (castPrefix or "") .. DHUDTextTools:formatNumberWithPrecision(value, 1);
+	end
 end
 
 --- Create text that contains data cast spell name
@@ -5804,8 +5822,8 @@ end
 
 --- new unit has been selected by data tracker
 function DHUDCastBarManager:onDataUnitChange(e)
-	-- until unit has cast bar background should be hidden, if unit has no bar in this slot, notify gui manager
-	self.isExists = false;
+	-- until unit didn't cast anything - bar background should be hidden, if unit has no bar in this slot, notify gui manager
+	self.isExists = self.STATIC_alwaysShowCastBarBackground;
 	DHUDGUIManager:onSlotExistanceStateChanged();
 end
 
@@ -5814,9 +5832,11 @@ function DHUDCastBarManager:onExistanceChange()
 	-- no data to visualize
 	if (self.currentDataTracker == nil) then
 		self.helper:hideCastBar();
+		self.isExists = false;
+	else
+		self.isExists = self.STATIC_alwaysShowCastBarBackground;
 	end
 	-- notify gui manager
-	self.isExists = false;
 	DHUDGUIManager:onSlotExistanceStateChanged();
 end
 
@@ -5826,6 +5846,16 @@ function DHUDCastBarManager:onCastBarInfoSettingChange(e)
 		return;
 	end
 	self:onDataTrackerChange(nil); -- this will cause to hide or show player cast bar info
+end
+
+--- cast bar background setting changed, update
+function DHUDCastBarManager:onCastBarBackgroundSettingChange(e)
+	if (self.currentDataTracker == nil) then
+		return;
+	end
+	-- this will cause to update background texture
+	self:onDataUnitChange(nil);
+	self:onDataChange(nil);
 end
 
 --- Initialize cast bar manager
@@ -5840,6 +5870,7 @@ function DHUDCastBarManager:init(groupName, settingName)
 	self:setDataTrackerListSetting(settingName);
 	-- track cast bar info setting change
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "misc_showPlayerCastBarInfo", self, self.onCastBarInfoSettingChange);
+	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "misc_alwaysShowCastBarBackground", self, self.onCastBarBackgroundSettingChange);
 	-- track color settings change
 	self:trackColorSettingsChanges();
 end
@@ -6211,6 +6242,7 @@ function DHUDGUIManager:onDeathState(e)
 		for i, v in ipairs(self.barManagers) do
 			if (v:getTrackedUnitId() == "player") then
 				table.insert(list, v.textField.frame);
+				table.insert(list, v.group);
 			end
 		end
 		-- add side info frames

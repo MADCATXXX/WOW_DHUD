@@ -443,7 +443,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			-- cast time remaining time
 			["castTime2"] = "<color(\"ffff00\")><time_remain></color>",
 			-- cast delay text
-			["castDelay1"] = "<color(\"ff0000\")><delay></color>",
+			["castDelay1"] = "<color(\"ff0000\")><delay(\"+ \", \"- \")></color>",
 			-- cast spell name text
 			["castSpellName1"] = "<color(\"ffffff\")><spellname(\"|cff\" .. \"ff0000\" .. \"Interrupted\" .. \"|\" .. \"r\")></color>",
 		}, 2 },
@@ -792,6 +792,8 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			["textShortNumbers"] = { true, 0 },
 			-- allows to show what you are casting
 			["showPlayerCastBarInfo"] = { false, 0 },
+			-- allows to show background behind cast bars even if unit wasn't casting any spells
+			["alwaysShowCastBarBackground"] = { false, 0 },
 			-- allows to store combo-points on targets that are no longer selected
 			["storeComboPoints"] = { true, 0 },
 			-- allows to show DHUD icon on minimap
@@ -1217,7 +1219,10 @@ end
 function DHUDSettings:convertDataTrackerNamesArrayToReferenceArray(namesArray)
 	local refArray = { };
 	for i, v in ipairs(namesArray) do
-		refArray[i] = self:getDataTrackerByName(v);
+		local dt = self:getDataTrackerByName(v);
+		if (dt ~= nil and dt[1] ~= nil) then
+			table.insert(refArray, dt);
+		end
 	end
 	return refArray;
 end

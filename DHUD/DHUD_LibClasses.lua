@@ -312,6 +312,137 @@ function MCTableToString(tbl)
 	return "{" .. table.concat(result, ",") .. "}";
 end
 
+------------------------
+-- bitwise operations --
+------------------------
+
+--- Class to make bitwise operations. Required since bitwise operations that are provided by WoW API return incorrect results on some operating systems (e.g. Mac: bit.band(7, bit.bnot(12)) = 0 instead of 7)
+-- this class may perform slower than C++ implementation, but doesn't return incorrect results
+mcbit = {
+}
+
+--- Computes the bitwise 'not' of it's argument
+-- @param a number to invert
+-- @return the inverted value
+function mcbit.bnot(a)
+	local inverted = 4294967295 - a;
+	return inverted;
+end
+
+--- Computes the bitwise 'and' of it's arguments. More than two arguments are allowed
+-- @param a number one for 'and' operation
+-- @param b number two for 'and' operation
+-- @return the and'ed value
+function mcbit.band(a, b, ...)
+	if (a < 0) then a = a + 4294967296;	end
+	if (b < 0) then	b = b + 4294967296;	end
+	-- calculate
+	local result = 0;
+	for i = 1, 32, 1 do
+		result = result + result;
+		if (a > 2147483647 and b > 2147483647) then
+			result = result + 1;
+		end
+		a = a + a;
+		if (a > 4294967295) then a = a - 4294967296; end
+		b = b + b;
+		if (b > 4294967295) then b = b - 4294967296; end
+		--print("result " .. result .. ", a " .. a .. ", b " .. b);
+	end
+	-- process additional params
+	if (... ~= nil) then
+		local n = select("#", ...);
+		for i = 1, n, 1 do
+			result = mcbit.band(result, select(i, ...));
+		end
+	end
+	return result;
+end
+
+--- Computes the bitwise 'or' of it's arguments. More than two arguments are allowed
+-- @param a number one for 'or' operation
+-- @param b number two for 'or' operation
+-- @return the or'ed value
+function mcbit.bor(a, b, ...)
+	if (a < 0) then a = a + 4294967296;	end
+	if (b < 0) then	b = b + 4294967296;	end
+	-- calculate
+	local result = 0;
+	for i = 1, 32, 1 do
+		result = result + result;
+		if (a > 2147483647 or b > 2147483647) then
+			result = result + 1;
+		end
+		a = a + a;
+		if (a > 4294967295) then a = a - 4294967296; end
+		b = b + b;
+		if (b > 4294967295) then b = b - 4294967296; end
+		--print("result " .. result .. ", a " .. a .. ", b " .. b);
+	end
+	-- process additional params
+	if (... ~= nil) then
+		local n = select("#", ...);
+		for i = 1, n, 1 do
+			result = mcbit.bor(result, select(i, ...));
+		end
+	end
+	return result;
+end
+
+--- Computes the bitwise 'xor' of it's arguments. More than two arguments are allowed
+-- @param a number one for 'xor' operation
+-- @param b number two for 'xor' operation
+-- @return the and'ed value
+function mcbit.bxor(a, b, ...)
+	if (a < 0) then a = a + 4294967296;	end
+	if (b < 0) then	b = b + 4294967296;	end
+	-- calculate
+	local result = 0;
+	for i = 1, 32, 1 do
+		result = result + result;
+		if (a > 2147483647) then
+			if (b <= 2147483647) then
+				result = result + 1;
+			end
+		else
+			if (b > 2147483647) then
+				result = result + 1;
+			end
+		end
+		a = a + a;
+		if (a > 4294967295) then a = a - 4294967296; end
+		b = b + b;
+		if (b > 4294967295) then b = b - 4294967296; end
+		--print("result " .. result .. ", a " .. a .. ", b " .. b);
+	end
+	-- process additional params
+	if (... ~= nil) then
+		local n = select("#", ...);
+		for i = 1, n, 1 do
+			result = mcbit.bxor(result, select(i, ...));
+		end
+	end
+	return result;
+end
+
+--- Computes 'a' shifted to the left 'b' places
+-- @param a number to shift
+-- @param b shift amount
+-- @return the shifted value
+function mcbit.lshift(a, b)
+	local shifted = a * (2 ^ b);
+	return shifted;
+end
+
+--- Computes 'a' shifted to the right 'b' places
+-- @param a number to shift
+-- @param b shift amount
+-- @return the shifted value
+function mcbit.rshift(a, b)
+	local shifted = floor(a / (2 ^ b));
+	return shifted;
+end
+
 ----------------------
 -- Event dispatcher --
 ----------------------
