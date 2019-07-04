@@ -31,6 +31,9 @@
 -disable mouse over when casting aoe (or make option to disable mouse or enable only with certain key modifiers)?
 -other textures support (renetair from DHUD4)
 
+changelog 2.0.70000.55:
+-minor fixes (tagging check)
+
 changelog 2.0.70000.54:
 -updated toc
 -made changes to lua calls so that addon is compatible with 7.0

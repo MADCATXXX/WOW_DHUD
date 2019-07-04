@@ -3950,8 +3950,8 @@ end
 
 --- update unit tagging information
 function DHUDUnitInfoTracker:updateTagging()
-	self.tagged = UnitIsTapDenied(self.unitId);
-	self.communityTagged = true;
+	self.tagged = not UnitIsTapDenied(self.unitId);
+	self.communityTagged = false;
 	--print("UnitIsTappedByAllThreatList(self.unitId) " .. MCTableToString(UnitIsTappedByAllThreatList(self.unitId)));
 	self:processDataChanged();
 end
