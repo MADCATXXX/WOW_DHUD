@@ -1,3 +1,8 @@
+Changelog 1.5.30000e MADCAT Revision6:
+-fixed dropdown options
+-modified some code, so it may solve glyps error, but i'm not sure
+
+
 Changelog 1.5.30000d Beta2:
 -fixed recent achievements window
 -probably fixed glyph window, need to test it.

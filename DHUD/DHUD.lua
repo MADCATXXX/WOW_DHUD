@@ -4,7 +4,7 @@ DHUD modification for WotLK Beta by MADCAT
 -----------------------------------------------------------------------------------]]--
 
 -- Init Vars --
-DHUD_VERSION    = "Version: 1.5.30000d";
+DHUD_VERSION    = "Version: 1.5.30000e";
 DHUD_TEXT_EMPTY = "";
 DHUD_TEXT_HP2   = "<color_hp><hp_value></color>";
 DHUD_TEXT_HP3   = "<color_hp><hp_value></color>/<hp_max>";
@@ -1661,7 +1661,8 @@ function DHUD:createFrame(name)
         bgt:SetTexCoord(0,1,0,1);  
                 
         ref:SetNormalTexture( "Interface\\Icons\\Ability_Druid_TravelForm" );
-        ref:SetFrameLevel(self.frame_level);
+		--commenting to test if glyph interface will crush?
+        --ref:SetFrameLevel(self.frame_level);
         ref:SetParent(frame);
         
 

@@ -1,4 +1,5 @@
 DHUDO_NUMTABS = 5;
+DHUDDROPDOWNSELECTED = "";
 
 function DHUDO_Header_OnLoad(x,y)
     this.setting_name = string.gsub( this:GetName() , "DHUD_", "");
@@ -27,13 +28,19 @@ function DHUDO_DropDown_Initialize()
     for key, text in ipairs(table) do
         info = {};
         info.text = text;
+		--DHUD:print("DropDownText: "..text);
         info.func = DHUDO_DropDown_OnClick;
-        info.arg1 = index;
+        arg1 = index;
+		--arg1 not working, changing it to global variable
+		DHUDDROPDOWNSELECTED = index;
+		--DHUD:print("DropDownIndex: "..index);
         UIDropDownMenu_AddButton(info);
     end
 end
 
 function DHUDO_DropDown_OnClick(list)
+	--Can't get list, using global variable
+	list = DHUDDROPDOWNSELECTED;
     local sel = getglobal("DHUD_Edit_"..list.."_Selection");
     local box = getglobal("DHUD_Edit_"..list.."ScrollFrameText");
     local text = DHUDO_SELECTION[list]["values"][ this:GetID() ];
