@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Deploy" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Default</Configuration>
+    <Name>DHUD_Options</Name>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{bdee3f9c-3f5b-489f-b70e-e0f39f67ef0e}</ProjectGuid>
+    <AssemblyName>DHUD_Options</AssemblyName>
+    <RootNamespace>DHUD_Options</RootNamespace>
+    <WowPath>C:\Games\World of Warcraft</WowPath>
+    <AddonTitle>DHUD_Options</AddonTitle>
+    <DeployBasePath>C:\Games\World of Warcraft</DeployBasePath>
+    <RuntimePath>C:\Games\World of Warcraft</RuntimePath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Default' ">
+    <OutputPath>.</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="DHUD_Options.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="DHUD_Options.toc">
+      <SubType>TableOfContents</SubType>
+    </Content>
+    <Content Include="DHUD_OptionsFrame.lua">
+      <SubType>Code</SubType>
+      <DependentUpon>DHUD_OptionsFrame.xml</DependentUpon>
+    </Content>
+    <Content Include="DHUD_OptionsFrame.xml">
+      <SubType>Frame</SubType>
+    </Content>
+    <Content Include="DHUD_OptionsTemplates.lua">
+      <SubType>Code</SubType>
+      <DependentUpon>DHUD_OptionsTemplates.xml</DependentUpon>
+    </Content>
+    <Content Include="DHUD_OptionsTemplates.xml">
+      <SubType>Frame</SubType>
+    </Content>
+    <Content Include="legacy\deprecated_DHUD_Options.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="legacy\deprecated_DHUD_Options.xml">
+      <SubType>Frame</SubType>
+    </Content>
+    <Content Include="legacy\deprecated_DHUD_Templates.xml">
+      <SubType>Frame</SubType>
+    </Content>
+    <Content Include="legacy\deprecated_localization.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="localization\enGB.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="localization\ruRU.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="localization\zhTW.lua">
+      <SubType>Code</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="legacy" />
+    <Folder Include="localization" />
+  </ItemGroup>
+  <Import Project="$(DevEnvDir)\Extensions\Tools\MSBuild\Microsoft\WowAddonStudio\3.0\WowAddonStudio.targets" />
+  <!--
+	To modify your build process, add your task inside one of the targets below and uncomment it.
+	<Target Name="BeforeClean"></Target>
+	<Target Name="AfterClean"></Target>
+	<Target Name="BeforeRebuild"></Target>
+	<Target Name="AfterRebuild"></Target>
+	<Target Name="BeforeDeploy"></Target>
+	<Target Name="AfterDeploy"></Target>
+	-->
+</Project>

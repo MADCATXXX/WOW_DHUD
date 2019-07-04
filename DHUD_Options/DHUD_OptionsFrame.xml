@@ -2383,28 +2383,6 @@
 									<Attribute name="SETTING" value="colors_player_eclipse" />
 								</Attributes>
 							</Frame>
-							<Frame name="$parent_AlternativeBurningEmberColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
-								<Anchors>
-									<Anchor point="TOPLEFT">
-										<Offset x="117" y="-391" />
-									</Anchor>
-								</Anchors>
-								<Attributes>
-									<Attribute name="LTEXT" value="SETTING_COLORS_ALTERNATIVEPOWER_BURNINGEMBERS" />
-									<Attribute name="SETTING" value="colors_player_burningEmbers" />
-								</Attributes>
-							</Frame>
-							<Frame name="$parent_AlternativeDemonicFuryColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
-								<Anchors>
-									<Anchor point="TOPLEFT">
-										<Offset x="117" y="-417" />
-									</Anchor>
-								</Anchors>
-								<Attributes>
-									<Attribute name="LTEXT" value="SETTING_COLORS_ALTERNATIVEPOWER_DEMONICFURY" />
-									<Attribute name="SETTING" value="colors_player_demonicFury" />
-								</Attributes>
-							</Frame>
 							<Frame name="$parent_AlternativeVengeanceColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
 								<Anchors>
 									<Anchor point="TOPLEFT">

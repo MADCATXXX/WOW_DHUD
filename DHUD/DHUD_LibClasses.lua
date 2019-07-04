@@ -87,12 +87,13 @@ function MCCombatEventFrame:STATIC_init()
 	combatLogFrame.listeners = { };
 	-- process event
 	-- (self, blizz_event, timestamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceFlags2, destGUID, destName, destFlags, destFlags2, ...)
-	combatLogFrame:SetScript("OnEvent", function (self, eventNameConst, timestamp, event, ...)
+	combatLogFrame:SetScript("OnEvent", function (self, eventNameConst)
+		local timestamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceFlags2, destGUID, destName, destFlags, destFlags2, ex1, ex2, ex3, ex4, ex5 = CombatLogGetCurrentEventInfo();
 		local subListeners = self.listeners[event];
 		if (subListeners ~= nil) then
 			for i, v in ipairs(subListeners) do
 				local func = v[event];
-				if (func) then func(v, timestamp, ...); end
+				if (func) then func(v, timestamp, hideCaster, sourceGUID, sourceName, sourceFlags, sourceFlags2, destGUID, destName, destFlags, destFlags2, ex1, ex2, ex3, ex4, ex5); end
 			end
 		end
 	end);

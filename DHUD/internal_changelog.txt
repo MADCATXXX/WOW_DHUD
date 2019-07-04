@@ -3,12 +3,23 @@
 - check DHUDUnitInfoTracker .isNPC and .communityTagged
 - check canHaveTwoAlternativeGuardians , shaman resource bar + mana?
 - check runeType
+- tanks vengeance/resolve removed in legion
+- death knight runes cd changed (consolidate cooldowns)
+- casters channeling spell delay (displays as 0.0 at start)
+- character vehicle cast not ending
+- monk removed chi from tank and heal specs, remaining for dps
 - http://www.wowinterface.com/forums/showthread.php?t=53140
+- http://wow.gamepedia.com/PowerType
 -UnitPowerMax(unit) now always required power type, e.g. UnitPowerMax(unit, UnitPowerType(unit))
 -texture:SetTexture(r, g, b, a) changes into texture:SetColorTexture(r, g, b, a)
 - tga not loaded ? http://www.wowinterface.com/downloads/info22128-BLPNGConverter.html
 - http://www.wowinterface.com/forums/showthread.php?s=31b0a0311080a16c212526c5029ba5f1&t=53248
 -to be added:
+-consider adding option for shield displaying from bottom of health as new color
+-add command to reset cast duration info (usefull after bosses with time speed change)
+-check for item id error during wow start up if item such as back is on cooldown
+-check lua startup code for errors and reset it after
+-unify target and player auras with cd tracker (separate class)
 -calculate damage for soul capacitor trinket and ring (show as stacks, minimizing numbers, e.g. 4k)
 -ace3 profiles bugged? check alpha and other settings are correctly changed on profile change
 -add option 3 for shields (so that health is always at 100% when health + shield is over 100)
@@ -33,6 +44,12 @@
 -cooldowns for passive items? scan tooltips, but only on item change (updateData still requires to scan but other events not)
 -disable mouse over when casting aoe (or make option to disable mouse or enable only with certain key modifiers)?
 -other textures support (renetair from DHUD4)
+-add option to place cast info under bar
+
+changelog 2.0.70100.57:
+-removed rogue anticipation buff tracking, it's no longer the cases
+-removed rogue bandits guile tracking, it's no longer part of outlaw spec
+-removed demonic fury/burning ember from dhud settings (they were already removed from addon itself)
 
 changelog 2.0.70000.56:
 -death knight compatibility - updated rune types, also changed default value for font outline on resource bar

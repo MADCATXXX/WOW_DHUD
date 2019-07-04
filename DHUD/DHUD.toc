@@ -1,18 +1,37 @@
 ## Author: MADCAT, Markus Inger (Drathal/Silberklinge), Howie (Caeryn)
-## Interface: 70000
+## Interface: 80000
 ## Notes: Head-Up Display with all possible information about player and it's target
 ## Title: Drathals HUD
-## Version: v2.0.70000.56
+## Version: v2.0.80000.57
 ## SavedVariables: DHUDODB3
 ## SavedVariablesPerCharacter: DHUD_SavedVars
-## X-Curse-Packaged-Version: DHUDv2070000_56
+## X-Curse-Packaged-Version: DHUDv2080000_57
 ## X-Curse-Project-ID: dhud-3_0
-## X-Curse-Project-Name: DHUD for 7.0
+## X-Curse-Project-Name: DHUD for 8.0
 ## X-Curse-Repository-ID: wow/dhud-3_0/mainline
-## X-Min-Interface: 50000
+## X-Min-Interface: 80000
 DHUD_LibClasses.lua
 DHUD_WoWAddonStudio.lua
-DHUD_DataTrackers.lua
+datatrackers/DataTrackerHelper.lua
+datatrackers/DataTrackerBase.lua
+datatrackers/power/PowerTrackerBase.lua
+datatrackers/power/AuraValueTracker.lua
+datatrackers/power/PowerSpecificTracker.lua
+datatrackers/power/PowerMainTracker.lua
+datatrackers/power/HealthTracker.lua
+datatrackers/power/PlayerComboPointsTracker.lua
+datatrackers/power/DeathKnightRunesTracker.lua
+datatrackers/power/StaggerTracker.lua
+datatrackers/power/VehicleComboPointsTracker.lua
+datatrackers/timers/TimersTrackerBase.lua
+datatrackers/timers/TimersTrackerCustom.lua
+datatrackers/timers/AurasTracker.lua
+datatrackers/timers/CooldownsTracker.lua
+datatrackers/timers/GuardiansTracker.lua
+datatrackers/info/UnitInfoTracker.lua
+datatrackers/info/SpellCastTracker.lua
+datatrackers/info/PlayerInfoTracker.lua
+datatrackers/DataTrackers.lua
 DHUD_Settings.lua
 DHUD_GUI.lua
 DHUD_Debug.lua

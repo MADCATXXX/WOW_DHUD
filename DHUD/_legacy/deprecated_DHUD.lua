@@ -78,7 +78,7 @@ DHUD = {
     trennzeichen      = "/",
     defaultfont       = "Fonts\\FRIZQT__.TTF",  
     --defaultfont_num   = "Fonts/FRIZQT__.TTF",  
-    defaultfont_num   = "Interface\\AddOns\\DHUD\\layout\\Number.TTF",  
+    defaultfont_num   = "Interface\\AddOns\\DHUD\\art\\Number.TTF",  
     
     C_textures    = nil,
     C_frames      = nil,
@@ -2208,7 +2208,7 @@ function DHUD:transform(name)
         font:SetHeight(height);
         
         local bgt = _G[name.."_Border"];
-        bgt:SetTexture("Interface\\AddOns\\DHUD\\layout\\serenity0");
+        bgt:SetTexture("Interface\\AddOns\\DHUD\\art\\serenity0");
         bgt:SetVertexColor(1.0,1.0,1.0);
         bgt:SetPoint("TOPLEFT", ref, "TOPLEFT", -7.5, 7.5);
         bgt:SetHeight(height*1.6);
@@ -2506,7 +2506,7 @@ function DHUD:createFrame(name)
         font2:SetHeight(height*1.2);
         
         local bgt = ref:CreateTexture(name.."_Border","OVERLAY");
-        bgt:SetTexture("Interface\\AddOns\\DHUD\\layout\\serenity0");
+        bgt:SetTexture("Interface\\AddOns\\DHUD\\art\\serenity0");
         bgt:SetVertexColor(1.0,1.0,1.0);
         bgt:SetPoint("TOPLEFT", ref, "TOPLEFT", -7.5, 7.5);
         bgt:SetHeight(height*1.6);

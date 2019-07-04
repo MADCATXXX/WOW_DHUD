@@ -490,6 +490,12 @@ DHUDColorizeTools = {
 	COLOR_ID_TYPE_ECLIPSE = 8,
 	-- constant for maelstorm power type
 	COLOR_ID_TYPE_MAELSTROM = 11,
+	-- constant for shadow priests insanity power type
+	COLOR_ID_TYPE_INSANITY = 13,
+	-- constant for demon hunters fury power type
+	COLOR_ID_TYPE_FURY = 17,
+	-- constant for demon hunters pain power type
+	COLOR_ID_TYPE_PAIN = 18,
 	-- constant for custom stagger power type
 	COLOR_ID_TYPE_CUSTOM_VENGEANCE = 100,
 	-- constant for custom stagger power type
@@ -563,6 +569,8 @@ DHUDColorizeTools = {
 		[6] = "RUNIC_POWER",
 		[8] = "ECLIPSE",
 		[11] = "MAELSTROM",
+		[17] = "FURY",
+		[18] = "PAIN",
 	}
 }
 
@@ -825,6 +833,12 @@ function DHUDColorizeTools:init()
 	-- maelstorm
 	self:processSetting(self.COLOR_ID_TYPE_MAELSTROM + self.COLOR_ID_UNIT_SELF, "colors_player_maelstrom");
 	self:processSetting(self.COLOR_ID_TYPE_MAELSTROM + self.COLOR_ID_UNIT_TARGET, "colors_target_maelstrom");
+	-- fury
+	self:processSetting(self.COLOR_ID_TYPE_FURY + self.COLOR_ID_UNIT_SELF, "colors_player_fury");
+	self:processSetting(self.COLOR_ID_TYPE_FURY + self.COLOR_ID_UNIT_TARGET, "colors_target_fury");
+	-- pain
+	self:processSetting(self.COLOR_ID_TYPE_PAIN + self.COLOR_ID_UNIT_SELF, "colors_player_pain");
+	self:processSetting(self.COLOR_ID_TYPE_PAIN + self.COLOR_ID_UNIT_TARGET, "colors_target_pain");
 	-- vengeance
 	self:processSetting(self.COLOR_ID_TYPE_CUSTOM_VENGEANCE + self.COLOR_ID_UNIT_SELF, "colors_player_vengeance");
 	-- stagger
@@ -1559,53 +1573,53 @@ DHUDGUI = {
 	-- list with information about textures
 	textures = {
 		-- path to background with 0 big bars and 0 small
-		["BackgroundBars0B0S"] = {"Interface\\AddOns\\DHUD\\layout\\bg_0", 0, 1, 0, 1 },
+		["BackgroundBars0B0S"] = {"Interface\\AddOns\\DHUD\\art\\bg_0", 0, 1, 0, 1 },
 		-- path to background with 1 big inner bar and 0 small
-		["BackgroundBars1BI0S"] = {"Interface\\AddOns\\DHUD\\layout\\bg_1", 0, 1, 0, 1 },
+		["BackgroundBars1BI0S"] = {"Interface\\AddOns\\DHUD\\art\\bg_1", 0, 1, 0, 1 },
 		-- path to background with 1 big inner bar and 1 small inner
-		["BackgroundBars1BI1SI"] = {"Interface\\AddOns\\DHUD\\layout\\bg_1p", 0, 1, 0, 1 },
+		["BackgroundBars1BI1SI"] = {"Interface\\AddOns\\DHUD\\art\\bg_1p", 0, 1, 0, 1 },
 		-- path to background with 2 big bars and 0 small
-		["BackgroundBars1BO0S"] = {"Interface\\AddOns\\DHUD\\layout\\bg_2", 0, 1, 0, 1 },
+		["BackgroundBars1BO0S"] = {"Interface\\AddOns\\DHUD\\art\\bg_2", 0, 1, 0, 1 },
 		-- path to background with 2 big bars and 0 small
-		["BackgroundBars2B0S"] = {"Interface\\AddOns\\DHUD\\layout\\bg_21", 0, 1, 0, 1 },
+		["BackgroundBars2B0S"] = {"Interface\\AddOns\\DHUD\\art\\bg_21", 0, 1, 0, 1 },
 		-- path to background with 2 big bars and 1 small inner
-		["BackgroundBars2B1SI"] = {"Interface\\AddOns\\DHUD\\layout\\bg_21p", 0, 1, 0, 1 },
+		["BackgroundBars2B1SI"] = {"Interface\\AddOns\\DHUD\\art\\bg_21p", 0, 1, 0, 1 },
 		-- path to background with 2 big bars and 2 small
-		["BackgroundBars2B2S"] = {"Interface\\AddOns\\DHUD\\layout\\bg_21pp", 0, 1, 0, 1 },
+		["BackgroundBars2B2S"] = {"Interface\\AddOns\\DHUD\\art\\bg_21pp", 0, 1, 0, 1 },
 		-- path prefix to first big bar texture
-		["TexturePrefixBarB1"] = { "Interface\\AddOns\\DHUD\\layout\\1", 0, 1, 0, 1 },
+		["TexturePrefixBarB1"] = { "Interface\\AddOns\\DHUD\\art\\1", 0, 1, 0, 1 },
 		-- path prefix to second big bar texture
-		["TexturePrefixBarB2"] = { "Interface\\AddOns\\DHUD\\layout\\2", 0, 1, 0, 1 },
+		["TexturePrefixBarB2"] = { "Interface\\AddOns\\DHUD\\art\\2", 0, 1, 0, 1 },
 		-- path prefix to first small bar texture
-		["TexturePrefixBarS1"] = { "Interface\\AddOns\\DHUD\\layout\\p1", 0, 1, 0, 1 },
+		["TexturePrefixBarS1"] = { "Interface\\AddOns\\DHUD\\art\\p1", 0, 1, 0, 1 },
 		-- path prefix to second small bar texture
-		["TexturePrefixBarS2"] = { "Interface\\AddOns\\DHUD\\layout\\p2", 0, 1, 0, 1 },
+		["TexturePrefixBarS2"] = { "Interface\\AddOns\\DHUD\\art\\p2", 0, 1, 0, 1 },
 		-- path to texture with inner casting bar
-		["CastingBarB1"] = { "Interface\\AddOns\\DHUD\\layout\\cb", 0, 1, 0, 1 },
+		["CastingBarB1"] = { "Interface\\AddOns\\DHUD\\art\\cb", 0, 1, 0, 1 },
 		-- path to texture with inner casting bar flash animation
-		["CastFlashBarB1"] = { "Interface\\AddOns\\DHUD\\layout\\cbh", 0, 1, 0, 1 },
+		["CastFlashBarB1"] = { "Interface\\AddOns\\DHUD\\art\\cbh", 0, 1, 0, 1 },
 		-- path to texture with outer casting bar
-		["CastingBarB2"] = { "Interface\\AddOns\\DHUD\\layout\\ecb", 0, 1, 0, 1 },
+		["CastingBarB2"] = { "Interface\\AddOns\\DHUD\\art\\ecb", 0, 1, 0, 1 },
 		-- path to texture with outer casting bar flash animation
-		["CastFlashBarB2"] = { "Interface\\AddOns\\DHUD\\layout\\ecbh", 0, 1, 0, 1 },
+		["CastFlashBarB2"] = { "Interface\\AddOns\\DHUD\\art\\ecbh", 0, 1, 0, 1 },
 		-- overlay that is drawn over spell circles
-		["OverlaySpellCircle"] = { "Interface\\AddOns\\DHUD\\layout\\serenity0", 0, 1, 0, 1 },
+		["OverlaySpellCircle"] = { "Interface\\AddOns\\DHUD\\art\\serenity0", 0, 1, 0, 1 },
 		-- path to texture with red combo circle
-		["ComboCircleRed"] = { "Interface\\AddOns\\DHUD\\layout\\c1", 0, 1, 0, 1 },
+		["ComboCircleRed"] = { "Interface\\AddOns\\DHUD\\art\\c1", 0, 1, 0, 1 },
 		-- path to texture with red combo circle
-		["ComboCircleJadeGreen"] = { "Interface\\AddOns\\DHUD\\layout\\c2", 0, 1, 0, 1 },
+		["ComboCircleJadeGreen"] = { "Interface\\AddOns\\DHUD\\art\\c2", 0, 1, 0, 1 },
 		-- path to texture with red combo circle
-		["ComboCircleCyan"] = { "Interface\\AddOns\\DHUD\\layout\\c3", 0, 1, 0, 1 },
+		["ComboCircleCyan"] = { "Interface\\AddOns\\DHUD\\art\\c3", 0, 1, 0, 1 },
 		-- path to texture with red combo circle
-		["ComboCircleOrange"] = { "Interface\\AddOns\\DHUD\\layout\\c4", 0, 1, 0, 1 },
+		["ComboCircleOrange"] = { "Interface\\AddOns\\DHUD\\art\\c4", 0, 1, 0, 1 },
 		-- path to texture with red combo circle
-		["ComboCircleGreen"] = { "Interface\\AddOns\\DHUD\\layout\\c5", 0, 1, 0, 1 },
+		["ComboCircleGreen"] = { "Interface\\AddOns\\DHUD\\art\\c5", 0, 1, 0, 1 },
 		-- path to texture with red combo circle
-		["ComboCirclePurple"] = { "Interface\\AddOns\\DHUD\\layout\\c6", 0, 1, 0, 1 },
+		["ComboCirclePurple"] = { "Interface\\AddOns\\DHUD\\art\\c6", 0, 1, 0, 1 },
 		-- path to texture with golden dragon for hud
-		["TargetEliteDragon"] = { "Interface\\AddOns\\DHUD\\layout\\elite", 0, 1, 0, 1 },
+		["TargetEliteDragon"] = { "Interface\\AddOns\\DHUD\\art\\elite", 0, 1, 0, 1 },
 		-- path to texture with silver dragon for hud
-		["TargetRareDragon"] = { "Interface\\AddOns\\DHUD\\layout\\rare", 0, 1, 0, 1 },
+		["TargetRareDragon"] = { "Interface\\AddOns\\DHUD\\art\\rare", 0, 1, 0, 1 },
 		-- blizzard cast bar icon shield (http://wowprogramming.com/BlizzArt/Interface/CastingBar/UI-CastingBar-Arena-Shield.png), icon inside is 20x20, border is 38x44
 		["BlizzardCastBarIconShield"] = { "Interface\\CastingBar\\UI-CastingBar-Arena-Shield", 0.015625, 0.609375, 0.1875, 0.875 },
 		-- blizzard horde pvp flag
@@ -1662,7 +1676,7 @@ DHUDGUI = {
 		-- default font for all text fields if not specified
 		["default"] = "Fonts\\FRIZQT__.TTF",
 		-- font to be used for text fields that display numbers
-		["numeric"] = "Interface\\AddOns\\DHUD\\layout\\Number.TTF",
+		["numeric"] = "Interface\\AddOns\\DHUD\\art\\Number.TTF",
 	},
 	-- list with clipping information about textures, required to change height correctly, each value contains following info: { pixelsHeight, pixelsFromTop, pixelsFromBottom
 	clipping = {

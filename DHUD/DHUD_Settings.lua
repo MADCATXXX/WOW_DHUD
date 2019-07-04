@@ -252,6 +252,10 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				["vengeance"] = { { "FF00FF", "FF00FF", "FF00FF" }, 3 },
 				-- allows to change color of player monk stagger on bars
 				["stagger"] = { { "FF8000", "FFFF00", "80FF00" }, 3 },
+				-- allows to change color of player demon hunter anger on bars
+				["fury"] = { { "7E2DCD", "7E2DCD", "7E2DCD" }, 3 },
+				-- allows to change color of player demon hunter pain on bars
+				["pain"] = { { "C48100", "C48100", "C48100" }, 3 },
 			}, 1 },
 			-- list with colors to visualize target data on bars
 			["target"] = { {
@@ -277,6 +281,10 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				["focus"] = { { "aa4400", "aa4400", "aa4400" }, 3 },
 				-- allows to change color of player shaman maelstrom on bars
 				["maelstrom"] = { { "00a2d6", "00a2d6", "00a2d6" }, 3 },
+				-- allows to change color of target demon hunter anger on bars
+				["fury"] = { { "7E2DCD", "7E2DCD", "7E2DCD" }, 3 },
+				-- allows to change color of target demon hunter pain on bars
+				["pain"] = { { "C48100", "C48100", "C48100" }, 3 },
 			}, 1 },
 			-- list with colors to visualize pet data on bars
 			["pet"] = { {
@@ -610,7 +618,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			-- data that can be shown on bars
 			["bars"] = { "playerHealth", "playerPower", "targetHealth", "targetPower", "petHealth", "petPower",
 						 "characterInVehicleHealth", "characterInVehiclePower", "druidMana", "druidEnergy", "druidEclipse",
-						 "monkMana", "monkEnergy", "tankVengeance", "monkStagger" },
+						 "monkStagger" },
 			-- data that can be shown on cast bars
 			["castBars"] = { "playerCastBar", "targetCastBar" },
 			-- data that can be shown on side slots
@@ -689,7 +697,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 					-- what to show on the left outer side info
 					["leftOuterSideInfo"] = { "playerComboPoints", "vehicleComboPoints" },
 					-- what to show on inner left small bar
-					["leftSmallBar1"] = { "characterInVehicleHealth", "tankVengeance", "petHealth" },
+					["leftSmallBar1"] = { "characterInVehicleHealth", "petHealth" },
 					-- what to show on inner right small bar
 					["rightSmallBar1"] = { "characterInVehiclePower", "druidMana", "druidEclipse", "petPower" },
 				},
@@ -705,7 +713,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 					-- what to show on inner left small bar
 					["leftSmallBar1"] = { "characterInVehicleHealth", "monkStagger", "petHealth" },
 					-- what to show on inner right small bar
-					["rightSmallBar1"] = { "characterInVehiclePower", "tankVengeance", "monkMana", "petPower" },
+					["rightSmallBar1"] = { "characterInVehiclePower", "petPower" },
 				},
 				-- warlock overrides
 				["WARLOCK"] = {
@@ -717,14 +725,14 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				-- warrior overrides
 				["WARRIOR"] = {
 					-- what to show on inner right small bar
-					["rightSmallBar1"] = { "characterInVehiclePower", "tankVengeance" },
+					["rightSmallBar1"] = { "characterInVehiclePower" },
 				},
 				-- paladin overrides
 				["PALADIN"] = {
 					-- what to show on the left outer side info
 					["leftOuterSideInfo"] = { "paladinHolyPower", "vehicleComboPoints" },
 					-- what to show on inner right small bar
-					["rightSmallBar1"] = { "characterInVehiclePower", "tankVengeance", "petPower" },
+					["rightSmallBar1"] = { "characterInVehiclePower", "petPower" },
 				},
 				-- priest overrides
 				["PRIEST"] = {
@@ -736,7 +744,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 					-- what to show on the left outer side info
 					["leftOuterSideInfo"] = { "deathKnightRunes", "vehicleComboPoints" },
 					-- what to show on inner right small bar
-					["rightSmallBar1"] = { "characterInVehiclePower", "tankVengeance", "petPower" },
+					["rightSmallBar1"] = { "characterInVehiclePower", "petPower" },
 				},
 				-- shaman overrides
 				["SHAMAN"] = {
@@ -806,7 +814,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 					-- what to show on inner left small bar
 					["leftSmallBar1"] = { "characterInVehiclePower", "druidMana", "druidEclipse", "petPower" },
 					-- what to show on outer left small bar
-					["leftSmallBar2"] = { "characterInVehicleHealth", "tankVengeance", "petHealth" },
+					["leftSmallBar2"] = { "characterInVehicleHealth", "petHealth" },
 				},
 				-- rogue overrides
 				["ROGUE"] = {
@@ -818,7 +826,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 					-- what to show on the left outer side info
 					["rightOuterSideInfo"] = { "monkChi", "vehicleComboPoints" },
 					-- what to show on inner left small bar
-					["leftSmallBar1"] = { "characterInVehiclePower", "tankVengeance", "monkMana", "petPower" },
+					["leftSmallBar1"] = { "characterInVehiclePower", "petPower" },
 					-- what to show on outer left small bar
 					["leftSmallBar2"] = { "characterInVehicleHealth", "monkStagger", "petHealth" },
 				},
@@ -834,7 +842,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				-- warrior overrides
 				["WARRIOR"] = {
 					-- what to show on inner left small bar
-					["leftSmallBar1"] = { "characterInVehiclePower", "tankVengeance", "petPower" },
+					["leftSmallBar1"] = { "characterInVehiclePower", "petPower" },
 					-- what to show on outer left small bar
 					["leftSmallBar2"] = { "characterInVehicleHealth", "petHealth" },
 				},
@@ -843,7 +851,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 					-- what to show on the left outer side info
 					["rightOuterSideInfo"] = { "paladinHolyPower", "vehicleComboPoints" },
 					-- what to show on inner left small bar
-					["leftSmallBar1"] = { "characterInVehiclePower", "tankVengeance", "petPower" },
+					["leftSmallBar1"] = { "characterInVehiclePower", "petPower" },
 					-- what to show on outer left small bar
 					["leftSmallBar2"] = { "characterInVehicleHealth", "petHealth" },
 				},
@@ -857,7 +865,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 					-- what to show on the left outer side info
 					["rightOuterSideInfo"] = { "deathKnightRunes", "vehicleComboPoints" },
 					-- what to show on inner left small bar
-					["leftSmallBar1"] = { "characterInVehiclePower", "tankVengeance", "petPower" },
+					["leftSmallBar1"] = { "characterInVehiclePower", "petPower" },
 					-- what to show on outer left small bar
 					["leftSmallBar2"] = { "characterInVehicleHealth", "petHealth" },
 				},
@@ -900,14 +908,16 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			-- allows to change level of ui errors, 0 - all errors shown, 1 - ui errors hidden, 2 - ui error frame is hidden (including quest messages)
 			["uiErrorFilter"] = { 0, 0, { range = { 0, 2, 1 } } },
 			-- lua code to be executed when addon is loaded, can be used to increase camera max distance and set other things
-			["luaStartUp"] = { "SetCVar(\"cameraDistanceMaxFactor\", 4);", 0 },
+			["luaStartUp"] = { "SetCVar(\"cameraDistanceMaxZoomFactor\", 2.6);", 0 },
 		}, 1 },
 		-- reference to codes that can be used at start up
 		["luaStartUpCodes"] = { {
 			-- increases maximum camera distance to highest value
-			["cameraMaxDistance"] = "SetCVar(\"cameraDistanceMaxFactor\", 4);",
+			["cameraMaxDistance"] = "SetCVar(\"cameraDistanceMaxZoomFactor\", 2.6);",
 			-- hide recruit a friend rewards on logon, can be usefull when you don't want to use reward until new mount for RAF is available
 			["hideRAF"] = "if (ProductChoiceFrame.mainAlertFrame ~= nil) then ProductChoiceFrame.mainAlertFrame:Hide(); ProductChoiceFrame.mainAlertFrame:Hide(); ProductChoiceFrame.secondAlertFrame:Hide(); end",
+			-- use old tab targetting, prior to legion 7.1
+			["oldTab"] = "SetCVar(\"TargetNearestUseOld\", 1);"
 		}, 2 },
 	},
 	-- settings table in following format: setting = value
@@ -1359,14 +1369,14 @@ function DHUDSettings:mapDataTrackers()
 	trackersTable["targetDebuffs"] = { DHUDDataTrackers.ALL.targetAuras, DHUDTimersFilterHelperSettingsHandler.filterDebuffAuras };
 	trackersTable["playerCastBar"] = { DHUDDataTrackers.ALL.selfCast };
 	trackersTable["targetCastBar"] = { DHUDDataTrackers.ALL.targetCast };
-	trackersTable["tankVengeance"] = { DHUDDataTrackers.ALL.vengeanceInfo };
+	--trackersTable["tankVengeance"] = { DHUDDataTrackers.ALL.vengeanceInfo };
 	-- specific to druid
 	trackersTable["druidMana"] = { DHUDDataTrackers.DRUID.selfMana };
 	trackersTable["druidEnergy"] = { DHUDDataTrackers.DRUID.selfEnergy };
 	trackersTable["druidEclipse"] = { DHUDDataTrackers.DRUID.selfEclipse };
 	-- specific to monk
-	trackersTable["monkMana"] = { DHUDDataTrackers.MONK.selfMana };
-	trackersTable["monkEnergy"] = { DHUDDataTrackers.MONK.selfEnergy };
+	--trackersTable["monkMana"] = { DHUDDataTrackers.MONK.selfMana };
+	--trackersTable["monkEnergy"] = { DHUDDataTrackers.MONK.selfEnergy };
 	trackersTable["monkChi"] = { DHUDDataTrackers.MONK.selfChi };
 	trackersTable["monkStagger"] = { DHUDDataTrackers.MONK.selfStagger };
 	-- specific to warlock
