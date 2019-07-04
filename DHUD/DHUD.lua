@@ -4,7 +4,7 @@ DHUD modification for WotLK Beta by MADCAT
 -----------------------------------------------------------------------------------]]--
 
 -- Init Vars --
-DHUD_VERSION    = "Version: 1.5.30000f";
+DHUD_VERSION    = "Version: 1.5.30000g";
 DHUD_TEXT_EMPTY = "";
 DHUD_TEXT_HP2   = "<color_hp><hp_value></color>";
 DHUD_TEXT_HP3   = "<color_hp><hp_value></color>/<hp_max>";
@@ -702,6 +702,10 @@ function DHUD:OnEvent()
                 this.enemydelay     = this.enemydelay + enemydelay;
                 
                 local time = GetTime();
+				if (not this.enemyendTime) then
+					this.enemyendTime=time
+				end
+				
                 if (time > this.enemyendTime) then
                     time = this.enemyendTime
                 end

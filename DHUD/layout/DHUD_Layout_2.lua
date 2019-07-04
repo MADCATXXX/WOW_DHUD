@@ -15,6 +15,10 @@ DHUD_Layouts.DHUD_PlayerLeft_Layout = {
         
         ["DHUD_Casting_Bar"]      = { "Interface\\AddOns\\DHUD\\layout\\cb"     , 0 , 1 , 0 , 1 },
         ["DHUD_Flash_Bar"]        = { "Interface\\AddOns\\DHUD\\layout\\cbh"    , 0 , 1 , 0 , 1 },
+		
+		["DHUD_EnemyCasting_Bar"] = { "Interface\\AddOns\\DHUD\\layout\\cb"     , 1 , 0 , 0 , 1 },
+        ["DHUD_EnemyFlash_Bar"]   = { "Interface\\AddOns\\DHUD\\layout\\cbh"    , 1 , 0 , 0 , 1 },
+		["DHUD_EnemyCB_Texture"]  = { "Interface\\TargetingFrame\\UI-PVP-FFA"   , 0 , 1 , 0 , 1 },
         
         ["DHUD_Combo1"]           = { "Interface\\AddOns\\DHUD\\layout\\c1"     , 0 , 1 , 0 , 1 },
         ["DHUD_Combo2"]           = { "Interface\\AddOns\\DHUD\\layout\\c2"     , 0 , 1 , 0 , 1 },
@@ -98,8 +102,13 @@ DHUD_Layouts.DHUD_PlayerLeft_Layout = {
         ["DHUD_PetMana_Bar"]       = { "Bar"        , "BOTTOM" , "DHUD_LeftFrame"   , "BOTTOM"  , 0    , 0    , 128 , 256 },
         
         ["DHUD_Casting_Bar"]       = { "Bar"        , "BOTTOM" , "DHUD_LeftFrame"   , "BOTTOM"  , 0    , 0    , 128 , 256 },
-        ["DHUD_Flash_Bar"]         = { "Bar"        , "BOTTOM" , "DHUD_LeftFrame"   , "BOTTOM"  , 0    , 0    , 128 , 256 },   
-         
+        ["DHUD_Flash_Bar"]         = { "Bar"        , "BOTTOM" , "DHUD_LeftFrame"   , "BOTTOM"  , 0    , 0    , 128 , 256 },  
+			
+		["DHUD_EnemyCasting_Bar"]  = { "Bar"        , "BOTTOM" , "DHUD_RightFrame"   , "BOTTOM"  , 0    , 0    , 128 , 256 },
+        ["DHUD_EnemyFlash_Bar"]    = { "Bar"        , "BOTTOM" , "DHUD_RightFrame"   , "BOTTOM"  , 0    , 0    , 128 , 256 }, 
+        ["DHUD_EnemyCB_Texture"]   = { "Texture"    , "BOTTOM" , "DHUD_RightFrame"   , "BOTTOM"  , -25  , 285  , 30  , 30 },
+		["DHUD_EnemyCB_Text"]      = { "Text"       , "TOPLEFT", "DHUD_RightFrame"   , "TOPLEFT" , 50  , 43    , 100 , 14 },
+		
         ["DHUD_Combo1"]            = { "Texture"    , "BOTTOM" , "DHUD_RightFrame"    , "BOTTOM"  , -4    , 0    , 20  , 20 },
         ["DHUD_Combo2"]            = { "Texture"    , "BOTTOM" , "DHUD_RightFrame"    , "BOTTOM"  , 3   , 20   , 20  , 20 },
         ["DHUD_Combo3"]            = { "Texture"    , "BOTTOM" , "DHUD_RightFrame"    , "BOTTOM"  , 8   , 40   , 20  , 20 },
@@ -119,6 +128,9 @@ DHUD_Layouts.DHUD_PlayerLeft_Layout = {
         
         ["DHUD_Casttime_Text"]     = { "Text"       , "TOPLEFT", "DHUD_LeftFrame"   , "TOPLEFT" , 118  , 5    , 100 , 14 },
         ["DHUD_Castdelay_Text"]    = { "Text"       , "TOPLEFT", "DHUD_LeftFrame"   , "TOPLEFT" , 118  , 19   , 100 , 14 }, 
+		
+		["DHUD_EnemyCasttime_Text"]  = { "Text"       , "TOPRIGHT", "DHUD_RightFrame"   , "TOPRIGHT" , -60  , 15    , 100 , 14 },
+        ["DHUD_EnemyCastdelay_Text"] = { "Text"       , "TOPRIGHT", "DHUD_RightFrame"   , "TOPRIGHT" , -60  , 29   , 100 , 14 },
         
         ["DHUD_Buff1"]             = { "Buff"       , "RIGHT"  , "DHUD_Target_Text"  , "LEFT"    , -1   , 0    , 20  , 20 },
         ["DHUD_Buff2"]             = { "Buff"       , "RIGHT"  , "DHUD_Buff1"        , "LEFT"    , -1   , 0    , 20  , 20 },
@@ -262,6 +274,10 @@ DHUD_Layouts.DHUD_PlayerLeft_Layout = {
         "DHUD_PetMana_Text",
         "DHUD_Casttime_Text",
         "DHUD_Castdelay_Text",
+		"DHUD_EnemyCasttime_Text",
+        "DHUD_EnemyCastdelay_Text",
+		"DHUD_EnemyCB_Texture",
+		"DHUD_EnemyCB_Text",
         "DHUD_Buff1",
         "DHUD_Buff2",
         "DHUD_Buff3",
@@ -360,6 +376,8 @@ DHUD_Layouts.DHUD_PlayerLeft_Layout = {
         "DHUD_PlayerBuff16",
         "DHUD_Casting_Bar",
         "DHUD_Flash_Bar",
+		"DHUD_EnemyCasting_Bar",
+		"DHUD_EnemyFlash_Bar",
         "DHUD_PlayerResting",
         "DHUD_PlayerInCombat",
         --"DHUD_PlayerLeader",
