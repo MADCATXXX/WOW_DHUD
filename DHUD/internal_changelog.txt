@@ -46,6 +46,15 @@
 -other textures support (renetair from DHUD4)
 -add option to place cast info under bar
 
+changelog 2.0.80000.58:
+- updated dhud settings to 8.0.1
+- fixed settings for blizzard frames
+
+changelog 2.0.80000.57:
+- updated to 8.0.1
+- added demon hunter resource colors
+- restructured data trackers
+
 changelog 2.0.70100.57:
 -removed rogue anticipation buff tracking, it's no longer the cases
 -removed rogue bandits guile tracking, it's no longer part of outlaw spec

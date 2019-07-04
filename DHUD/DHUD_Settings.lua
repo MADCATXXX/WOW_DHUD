@@ -2103,26 +2103,27 @@ end
 --- Function to show blizzard player frame
 function DHUDNonAddonSettingsHandler:showBlizzardPlayerFrame()
 	PlayerFrame:RegisterEvent("UNIT_LEVEL");
-    PlayerFrame:RegisterEvent("UNIT_COMBAT");
-    PlayerFrame:RegisterEvent("UNIT_SPELLMISS");
-    PlayerFrame:RegisterEvent("UNIT_PVP_UPDATE");
-    PlayerFrame:RegisterEvent("UNIT_MAXMANA");
-    PlayerFrame:RegisterEvent("PLAYER_ENTER_COMBAT");
-    PlayerFrame:RegisterEvent("PLAYER_LEAVE_COMBAT");
-    PlayerFrame:RegisterEvent("PLAYER_UPDATE_RESTING");
-    PlayerFrame:RegisterEvent("PARTY_MEMBERS_CHANGED");
-    PlayerFrame:RegisterEvent("PARTY_LEADER_CHANGED");
-    PlayerFrame:RegisterEvent("PARTY_LOOT_METHOD_CHANGED");
-    PlayerFrame:RegisterEvent("PLAYER_ENTERING_WORLD");
-    PlayerFrame:RegisterEvent("PLAYER_REGEN_DISABLED");
-    PlayerFrame:RegisterEvent("PLAYER_REGEN_ENABLED");
-    PlayerFrameHealthBar:RegisterEvent("UNIT_HEALTH");
-    PlayerFrameHealthBar:RegisterEvent("UNIT_MAXHEALTH");
-    PlayerFrameManaBar:RegisterEvent("UNIT_POWER");
-    PlayerFrameManaBar:RegisterEvent("UNIT_DISPLAYPOWER");
-    PlayerFrame:RegisterEvent("UNIT_NAME_UPDATE");
-    PlayerFrame:RegisterEvent("UNIT_PORTRAIT_UPDATE");
-    PlayerFrame:RegisterEvent("UNIT_DISPLAYPOWER");
+	PlayerFrame:RegisterEvent("UNIT_FACTION");
+	PlayerFrame:RegisterEvent("PLAYER_ENTERING_WORLD");
+	PlayerFrame:RegisterEvent("PLAYER_ENTER_COMBAT");
+	PlayerFrame:RegisterEvent("PLAYER_LEAVE_COMBAT");
+	PlayerFrame:RegisterEvent("PLAYER_REGEN_DISABLED");
+	PlayerFrame:RegisterEvent("PLAYER_REGEN_ENABLED");
+	PlayerFrame:RegisterEvent("PLAYER_UPDATE_RESTING");
+	PlayerFrame:RegisterEvent("PARTY_LEADER_CHANGED");
+	PlayerFrame:RegisterEvent("GROUP_ROSTER_UPDATE");
+	PlayerFrame:RegisterEvent("READY_CHECK");
+	PlayerFrame:RegisterEvent("READY_CHECK_CONFIRM");
+	PlayerFrame:RegisterEvent("READY_CHECK_FINISHED");
+	PlayerFrame:RegisterEvent("UNIT_ENTERED_VEHICLE");
+	PlayerFrame:RegisterEvent("UNIT_ENTERING_VEHICLE");
+	PlayerFrame:RegisterEvent("UNIT_EXITING_VEHICLE");
+	PlayerFrame:RegisterEvent("UNIT_EXITED_VEHICLE");
+	PlayerFrame:RegisterEvent("PVP_TIMER_UPDATE");
+	PlayerFrame:RegisterEvent("PLAYER_ROLES_ASSIGNED");
+	PlayerFrame:RegisterEvent("VARIABLES_LOADED");
+	PlayerFrame:RegisterUnitEvent("UNIT_COMBAT", "player", "vehicle");
+	PlayerFrame:RegisterUnitEvent("UNIT_MAXPOWER", "player", "vehicle");
     PlayerFrame:Show();
 	if (DHUDDataTrackers.helper.playerClass == "DEATHKNIGHT") then
 		RuneFrame:Show();
@@ -2132,26 +2133,27 @@ end
 --- Function to hide blizzard player frame
 function DHUDNonAddonSettingsHandler:hideBlizzardPlayerFrame()
 	PlayerFrame:UnregisterEvent("UNIT_LEVEL");
-	PlayerFrame:UnregisterEvent("UNIT_COMBAT");
-	PlayerFrame:UnregisterEvent("UNIT_SPELLMISS");
-	PlayerFrame:UnregisterEvent("UNIT_PVP_UPDATE");
-	PlayerFrame:UnregisterEvent("UNIT_MAXMANA");
+	PlayerFrame:UnregisterEvent("UNIT_FACTION");
+	PlayerFrame:UnregisterEvent("PLAYER_ENTERING_WORLD");
 	PlayerFrame:UnregisterEvent("PLAYER_ENTER_COMBAT");
 	PlayerFrame:UnregisterEvent("PLAYER_LEAVE_COMBAT");
-	PlayerFrame:UnregisterEvent("PLAYER_UPDATE_RESTING");
-	PlayerFrame:UnregisterEvent("PARTY_MEMBERS_CHANGED");
-	PlayerFrame:UnregisterEvent("PARTY_LEADER_CHANGED");
-	PlayerFrame:UnregisterEvent("PARTY_LOOT_METHOD_CHANGED");
-	PlayerFrame:UnregisterEvent("PLAYER_ENTERING_WORLD");
 	PlayerFrame:UnregisterEvent("PLAYER_REGEN_DISABLED");
 	PlayerFrame:UnregisterEvent("PLAYER_REGEN_ENABLED");
-	PlayerFrameHealthBar:UnregisterEvent("UNIT_HEALTH");
-	PlayerFrameHealthBar:UnregisterEvent("UNIT_MAXHEALTH");
-	PlayerFrameManaBar:UnregisterEvent("UNIT_POWER");
-	PlayerFrameManaBar:UnregisterEvent("UNIT_DISPLAYPOWER");
-	PlayerFrame:UnregisterEvent("UNIT_NAME_UPDATE");
-	PlayerFrame:UnregisterEvent("UNIT_PORTRAIT_UPDATE");
-	PlayerFrame:UnregisterEvent("UNIT_DISPLAYPOWER");
+	PlayerFrame:UnregisterEvent("PLAYER_UPDATE_RESTING");
+	PlayerFrame:UnregisterEvent("PARTY_LEADER_CHANGED");
+	PlayerFrame:UnregisterEvent("GROUP_ROSTER_UPDATE");
+	PlayerFrame:UnregisterEvent("READY_CHECK");
+	PlayerFrame:UnregisterEvent("READY_CHECK_CONFIRM");
+	PlayerFrame:UnregisterEvent("READY_CHECK_FINISHED");
+	PlayerFrame:UnregisterEvent("UNIT_ENTERED_VEHICLE");
+	PlayerFrame:UnregisterEvent("UNIT_ENTERING_VEHICLE");
+	PlayerFrame:UnregisterEvent("UNIT_EXITING_VEHICLE");
+	PlayerFrame:UnregisterEvent("UNIT_EXITED_VEHICLE");
+	PlayerFrame:UnregisterEvent("PVP_TIMER_UPDATE");
+	PlayerFrame:UnregisterEvent("PLAYER_ROLES_ASSIGNED");
+	PlayerFrame:UnregisterEvent("VARIABLES_LOADED");
+	PlayerFrame:UnregisterEvent("UNIT_COMBAT");
+	PlayerFrame:UnregisterEvent("UNIT_MAXPOWER");
 	PlayerFrame:Hide();
 	RuneFrame:Hide();
 end
@@ -2184,35 +2186,35 @@ end
 --- Function to show blizzard target frame
 function DHUDNonAddonSettingsHandler:showBlizzardTargetFrame()
 	TargetFrame:RegisterEvent("PLAYER_TARGET_CHANGED");
+	TargetFrame:RegisterEvent("PLAYER_ENTERING_WORLD");
 	TargetFrame:RegisterEvent("UNIT_HEALTH");
 	TargetFrame:RegisterEvent("UNIT_LEVEL");
 	TargetFrame:RegisterEvent("UNIT_FACTION");
 	TargetFrame:RegisterEvent("UNIT_CLASSIFICATION_CHANGED");
-	TargetFrame:RegisterEvent("UNIT_AURA");
 	TargetFrame:RegisterEvent("PLAYER_FLAGS_CHANGED");
-	TargetFrame:RegisterEvent("PARTY_MEMBERS_CHANGED");
-	TargetFrame:RegisterEvent("PLAYER_FOCUS_CHANGED");
+	TargetFrame:RegisterEvent("GROUP_ROSTER_UPDATE");
+	TargetFrame:RegisterEvent("RAID_TARGET_UPDATE");
+	TargetFrame:RegisterUnitEvent("UNIT_AURA", "target");
 	if (DHUDDataTrackers.helper.isTargetAvailable) then
 		TargetFrame:Show();
 	end
 	ComboFrame:RegisterEvent("PLAYER_TARGET_CHANGED");
-	ComboFrame:RegisterEvent("UNIT_COMBO_POINTS");
 end
 
 --- Function to show blizzard target frame
 function DHUDNonAddonSettingsHandler:hideBlizzardTargetFrame()
 	TargetFrame:UnregisterEvent("PLAYER_TARGET_CHANGED");
+	TargetFrame:UnregisterEvent("PLAYER_ENTERING_WORLD");
 	TargetFrame:UnregisterEvent("UNIT_HEALTH");
 	TargetFrame:UnregisterEvent("UNIT_LEVEL");
 	TargetFrame:UnregisterEvent("UNIT_FACTION");
 	TargetFrame:UnregisterEvent("UNIT_CLASSIFICATION_CHANGED");
-	TargetFrame:UnregisterEvent("UNIT_AURA");
 	TargetFrame:UnregisterEvent("PLAYER_FLAGS_CHANGED");
-	TargetFrame:UnregisterEvent("PARTY_MEMBERS_CHANGED");
-	TargetFrame:UnregisterEvent("PLAYER_FOCUS_CHANGED");
+	TargetFrame:UnregisterEvent("GROUP_ROSTER_UPDATE");
+	TargetFrame:UnregisterEvent("RAID_TARGET_UPDATE");
+	TargetFrame:UnregisterEvent("UNIT_AURA");
 	TargetFrame:Hide();
 	ComboFrame:UnregisterEvent("PLAYER_TARGET_CHANGED");
-	ComboFrame:UnregisterEvent("UNIT_COMBO_POINTS");
 	ComboFrame:Hide();
 end
 

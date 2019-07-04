@@ -609,7 +609,7 @@
 					<Frame name="$parent_Page2" inherits="DHUD_OptionsTemplate_TabPage">
 						<Anchors>
 							<Anchor point="TOPLEFT">
-								<Offset />
+								<Offset x="-500" />
 							</Anchor>
 						</Anchors>
 						<Frames>
@@ -1063,7 +1063,7 @@
 					<Frame name="$parent_Page3" inherits="DHUD_OptionsTemplate_TabPage">
 						<Anchors>
 							<Anchor point="TOPLEFT">
-								<Offset />
+								<Offset x="-500" />
 							</Anchor>
 						</Anchors>
 						<Frames>
@@ -1135,7 +1135,7 @@
 					<Frame name="$parent_Page1" inherits="DHUD_OptionsTemplate_TabPage">
 						<Anchors>
 							<Anchor point="TOPLEFT">
-								<Offset />
+								<Offset x="-500" />
 							</Anchor>
 						</Anchors>
 						<Frames>
@@ -2217,7 +2217,7 @@
 					<Frame name="$parent_Page3" inherits="DHUD_OptionsTemplate_TabPage">
 						<Anchors>
 							<Anchor point="TOPLEFT">
-								<Offset />
+								<Offset x="-500" />
 							</Anchor>
 						</Anchors>
 						<Frames>
@@ -2688,7 +2688,7 @@
 					<Frame name="$parent_Page1" inherits="DHUD_OptionsTemplate_TabPage">
 						<Anchors>
 							<Anchor point="TOPLEFT">
-								<Offset />
+								<Offset x="-500" />
 							</Anchor>
 						</Anchors>
 						<Frames>
@@ -2848,7 +2848,7 @@
 					<Frame name="$parent_Page1" inherits="DHUD_OptionsTemplate_TabPage">
 						<Anchors>
 							<Anchor point="TOPLEFT">
-								<Offset />
+								<Offset x="-500" />
 							</Anchor>
 						</Anchors>
 						<Frames>
