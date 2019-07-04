@@ -1,3 +1,10 @@
+Changelog 1.5.30000h MADCAT Revision10:
+-fixed maximum player mana issue on update
+-added ace3 profiles support, in order to save or load profile you should load DHUD_Options addon(as it is "load on demand" you should click on the minimap icon). Your current character settings will be loaded to profile on first load.
+-fixed enemy castbar to nolonger flash for a huge amount of time after spell complete or failed.
+-Enemy castbar now show "interrupted" message if the cast was interrupted.
+-Added spell info for your cast. By default it's disabled.
+
 Changelog 1.5.30000g MADCAT Revision9:
 -Added enemycastbar to layout2.
 -Fixed enemycastbar compare with nil error.

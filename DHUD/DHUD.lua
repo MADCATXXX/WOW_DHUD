@@ -4,7 +4,7 @@ DHUD modification for WotLK Beta by MADCAT
 -----------------------------------------------------------------------------------]]--
 
 -- Init Vars --
-DHUD_VERSION    = "Version: 1.5.30000g";
+DHUD_VERSION    = "Version: 1.5.30000h";
 DHUD_TEXT_EMPTY = "";
 DHUD_TEXT_HP2   = "<color_hp><hp_value></color>";
 DHUD_TEXT_HP3   = "<color_hp><hp_value></color>/<hp_max>";
@@ -53,7 +53,7 @@ DHUD = {
     -- MADCAT variables
     mcplmaxenergy     = 0,
     mcpetmaxenergy    = 0,
-	mcenemycasting	  = 0,
+	mcenemycasting	  = nil,
     -- mcplenergy     = 0,
     --
     playerbufffilter  = "HELPFUL",
@@ -159,6 +159,7 @@ DHUD = {
 					"DHUD_EnemyCasting_Bar",
                     "DHUD_EnemyFlash_Bar",
 					"DHUD_EnemyCB_Texture",
+					"DHUD_CB_Texture",
                     "DHUD_TargetElite",
                     "DHUD_PetHappy",
                     "DHUD_RaidIcon",
@@ -246,6 +247,7 @@ DHUD = {
                 ["showplayerbuffs"]    = 1,
                 ["castingbar"]         = 1,
 				["enemycastingbar"]	   = 1,
+				["castingbarinfo"]	   = 0,
                 ["reversecasting"]     = 0,
                 ["shownpc"]            = 1,
                 ["showtarget"]         = 1,
@@ -260,7 +262,8 @@ DHUD = {
                 ["DHUD_Casttime_Text"]     = "<color>ffff00<casttime_remain></color>",
 				["DHUD_EnemyCastdelay_Text"]    = "<color>ff0000<enemycasttime_delay></color>",    
                 ["DHUD_EnemyCasttime_Text"]     = "<color>ffff00<enemycasttime_remain></color>",
-				["DHUD_EnemyCB_Text"]     = "<color>ffff00<enemyspellname></color>",
+				["DHUD_EnemyCB_Text"]      = "<color>ffff00<enemyspellname></color>",
+				["DHUD_CB_Text"]    	   = "<color>ffff00<spellname></color>",
                 ["DHUD_PlayerHealth_Text"] = "<color_hp><hp_value></color> <color>999999(</color><hp_percent><color>999999)</color>",
                 ["DHUD_PlayerMana_Text"]   = "<color_mp><mp_value></color> <color>999999(</color><mp_percent><color>999999)</color>",
                 ["DHUD_TargetHealth_Text"] = "<color_hp><hp_value></color> <color>999999(</color><hp_percent><color>999999)</color>",
@@ -514,6 +517,15 @@ function DHUD:OnEvent()
             DHUD_Castdelay_Text:SetAlpha(1);
             DHUD_Casting_Bar:Show();
             DHUD_Flash_Bar:Hide();
+			
+			--Spell Name and Texture
+			if DHUD_Settings["castingbarinfo"] == 1 then
+				local casticon = getglobal("DHUD_CB_Texture_Texture");
+	            casticon:SetTexture( icon );
+				getglobal("DHUD_CB_Texture"):Show();
+				DHUD_CB_Text:SetAlpha(1);
+				self:triggerTextEvent("DHUD_CB_Text");
+			end
         -- stop 
         elseif ( event == "UNIT_SPELLCAST_STOP" or event == "UNIT_SPELLCAST_CHANNEL_STOP") and (arg1 == "player") then
             if (not DHUD_Casting_Bar:IsVisible()) then
@@ -538,6 +550,11 @@ function DHUD:OnEvent()
                     self:updateAlpha();
                     self:SetBarHeight("DHUD_Casting_Bar",0);
                 end
+				--[[Spell Name and Texture
+				if DHUD_Settings["castingbarinfo"] == 1 then
+					self.spellname = "|cffff0000Interrupted|r";
+					self:triggerTextEvent("DHUD_CB_Text");
+				end]]--
             end
         -- failed
         elseif (event == "UNIT_SPELLCAST_FAILED" or event == "UNIT_SPELLCAST_INTERRUPTED") and (arg1 == "player") then
@@ -551,6 +568,11 @@ function DHUD:OnEvent()
                 this.holdTime = GetTime() + CASTING_BAR_HOLD_TIME;
                 DHUD_Flash_Bar:Hide();
                 DHUD_Flash_Bar:SetAlpha(0);
+				--Spell Name and Texture
+				if DHUD_Settings["castingbarinfo"] == 1 then
+					self.spellname = "|cffff0000Interrupted|r";
+					self:triggerTextEvent("DHUD_CB_Text");
+				end
             end
         -- delayed
         elseif (event == "UNIT_SPELLCAST_DELAYED") and (arg1 == "player") then
@@ -644,8 +666,8 @@ function DHUD:OnEvent()
 			--icon:SetTexCoord(10,10,10,10);
 			
 			--Enemy Spell Name and Texture
-			local icon = getglobal("DHUD_EnemyCB_Texture_Texture");
-            icon:SetTexture( enemyicon );
+			local ecasticon = getglobal("DHUD_EnemyCB_Texture_Texture");
+            ecasticon:SetTexture( enemyicon );
 			getglobal("DHUD_EnemyCB_Texture"):Show();
 			DHUD_EnemyCB_Text:SetAlpha(1);
 			self:triggerTextEvent("DHUD_EnemyCB_Text");
@@ -674,9 +696,12 @@ function DHUD:OnEvent()
                     self:SetBarHeight("DHUD_EnemyCasting_Bar",0);
                 end
 				--Hide enemy spell info
-				self.enemyspellname = nil;
-				self:triggerTextEvent("DHUD_EnemyCB_Text");
-				getglobal("DHUD_EnemyCB_Texture"):Hide();
+				--self.enemyspellname = nil;
+				--self:triggerTextEvent("DHUD_EnemyCB_Text");
+				--getglobal("DHUD_EnemyCB_Texture"):Hide();
+				--Change enemy spellname text to interrupted
+				--self.enemyspellname = "|cffff0000Interrupted|r";
+				--self:triggerTextEvent("DHUD_EnemyCB_Text");
             end
         -- failed
         elseif (event == "UNIT_SPELLCAST_FAILED" or event == "UNIT_SPELLCAST_INTERRUPTED") and (arg1 == "target") then
@@ -690,6 +715,9 @@ function DHUD:OnEvent()
                 this.enemyholdTime = GetTime() + CASTING_BAR_HOLD_TIME;
                 DHUD_EnemyFlash_Bar:Hide();
                 DHUD_EnemyFlash_Bar:SetAlpha(0);
+				--Change enemy spellname text to interrupted
+				self.enemyspellname = "|cffff0000Interrupted|r";
+				self:triggerTextEvent("DHUD_EnemyCB_Text");
             end
         -- delayed
         elseif (event == "UNIT_SPELLCAST_DELAYED") and (arg1 == "target") then
@@ -978,23 +1006,34 @@ function DHUD:OnUpdate()
             end
         -- fade
         elseif this.fadeOut then
-            local alpha = DHUD_Casting_Bar:GetAlpha() - CASTING_BAR_ALPHA_STEP;
+			local alpha = DHUD_Casting_Bar:GetAlpha() - CASTING_BAR_ALPHA_STEP;
             if alpha > 0 and DHUD_Settings["reversecasting"] == 0 then
                 DHUD_Casting_Bar:SetAlpha(alpha);
                 DHUD_Casttime_Text:SetAlpha(alpha);
                 DHUD_Castdelay_Text:SetAlpha(alpha);
+				if DHUD_Settings["castingbarinfo"] == 1 then
+					DHUD_CB_Texture:SetAlpha(alpha);
+					DHUD_CB_Text:SetAlpha(alpha);
+				end
             else
                 this.fadeOut = nil;
                 DHUD_Casting_Bar:Hide();
                 DHUD_Casting_Bar:SetAlpha(0);
                 self.Casting = nil;
-                self:updateAlpha();
+				if (DHUD_Settings["enemycastingbar"] == 0) then
+					self:updateAlpha();
+				end
                 self.casting_time     = nil;
                 self.casting_time_rev = nil;
                 self.casting_time_del = nil;
                 self.spellname        = nil;
                 self:triggerTextEvent("DHUD_Casttime_Text");
                 self:triggerTextEvent("DHUD_Castdelay_Text");
+				if DHUD_Settings["castingbarinfo"] == 1 then
+					self.enemyspellname = nil;
+					self:triggerTextEvent("DHUD_CB_Text");
+					getglobal("DHUD_CB_Texture"):Hide();
+				end
             end
         end
     end 
@@ -1069,11 +1108,13 @@ function DHUD:OnUpdate()
             end
         -- fade
         elseif this.enemyfadeOut then
-            local enemyalpha = DHUD_EnemyCasting_Bar:GetAlpha() - CASTING_BAR_ALPHA_STEP;
+			local enemyalpha = DHUD_EnemyCasting_Bar:GetAlpha() - CASTING_BAR_ALPHA_STEP;
             if enemyalpha > 0 and DHUD_Settings["reversecasting"] == 0 then
                 DHUD_EnemyCasting_Bar:SetAlpha(enemyalpha);
                 DHUD_EnemyCasttime_Text:SetAlpha(enemyalpha);
                 DHUD_EnemyCastdelay_Text:SetAlpha(enemyalpha);
+				DHUD_EnemyCB_Texture:SetAlpha(enemyalpha);
+				DHUD_EnemyCB_Text:SetAlpha(enemyalpha);
             else
                 this.enemyfadeOut = nil;
                 DHUD_EnemyCasting_Bar:Hide();
@@ -1086,6 +1127,10 @@ function DHUD:OnUpdate()
                 self.enemyspellname        = nil;
                 self:triggerTextEvent("DHUD_EnemyCasttime_Text");
                 self:triggerTextEvent("DHUD_EnemyCastdelay_Text");
+				--Hide enemy spell info
+				self.enemyspellname = nil;
+				self:triggerTextEvent("DHUD_EnemyCB_Text");
+				getglobal("DHUD_EnemyCB_Texture"):Hide();
             end
         end
     end
@@ -1392,6 +1437,11 @@ function DHUD:init()
     DHUD_EnemyCasting_Bar:Hide();
     DHUD_EnemyFlash_Bar:Hide();
 	getglobal("DHUD_EnemyCB_Texture"):Hide();
+	self.enemyspellname = nil;
+	self:triggerTextEvent("DHUD_EnemyCB_Text");
+	getglobal("DHUD_CB_Texture"):Hide();
+	self.spellname = nil;
+	self:triggerTextEvent("DHUD_CB_Text");
     
     -- init castbar
     this.endTime = 0;
@@ -1476,23 +1526,24 @@ function DHUD:TargetChanged()
         self:UpdateValues("DHUD_TargetMana_Text", 1); 
     end
     
-	
-	--Remove Enemy CastBar if target Changed
-	if (DHUD_EnemyCasting_Bar:IsShown() and not this.enemyfadeOut ) then
-                DHUD_EnemyCasting_Bar_Texture:SetVertexColor(1, 0, 0);
-                self:SetBarHeight("DHUD_EnemyCasting_Bar",1);
-                this.enemycasting    = nil;
-                this.enemychanneling = nil;
-                this.enemyfadeOut    = 1;
-                this.enemyflash      = nil;
-                this.enemyholdTime = GetTime();
-                DHUD_EnemyFlash_Bar:Hide();
-                DHUD_EnemyFlash_Bar:SetAlpha(0);
-				self:SetBarHeight("DHUD_EnemyCasting_Bar", 0 );
-    end
-	self.enemyspellname = nil;
-	self:triggerTextEvent("DHUD_EnemyCB_Text");
-	getglobal("DHUD_EnemyCB_Texture"):Hide();
+	 if DHUD_Settings["enemycastingbar"] == 1 then
+		--Remove Enemy CastBar if target Changed
+		if (DHUD_EnemyCasting_Bar:IsShown() and not this.enemyfadeOut ) then
+	                DHUD_EnemyCasting_Bar_Texture:SetVertexColor(1, 0, 0);
+	                self:SetBarHeight("DHUD_EnemyCasting_Bar",1);
+	                this.enemycasting    = nil;
+	                this.enemychanneling = nil;
+	                this.enemyfadeOut    = 1;
+	                this.enemyflash      = nil;
+	                this.enemyholdTime = GetTime();
+	                DHUD_EnemyFlash_Bar:Hide();
+	                DHUD_EnemyFlash_Bar:SetAlpha(0);
+					self:SetBarHeight("DHUD_EnemyCasting_Bar", 0 );
+	    end
+		self.enemyspellname = nil;
+		self:triggerTextEvent("DHUD_EnemyCB_Text");
+		getglobal("DHUD_EnemyCB_Texture"):Hide();
+	end
 	
     self:UpdateCombos();
     self:updateRaidIcon();
@@ -2380,6 +2431,7 @@ function DHUD:MCUpdatePlayerEnergy()
     text = DHUD:gsub(text, '</color>', '|r');
     text = DHUD:gsub(text, '<color>', '|cff');
     text = DHUD:gsub(text, '<mp_percent>', value.."%%");
+	text = DHUD:gsub(text, '<mp_max>', mcplmaxenergy);
     -- text = string.gsub(text, "  "," ");
     -- text = string.gsub(text,"(^%s+)","");
     -- text = string.gsub(text,"(%s+$)","");
@@ -2420,6 +2472,7 @@ function DHUD:MCUpdatePetEnergy()
     text = DHUD:gsub(text, '</color>', '|r');
     text = DHUD:gsub(text, '<color>', '|cff');
     text = DHUD:gsub(text, '<mp_percent>', value.."%%");
+	text = DHUD:gsub(text, '<mp_max>', mcpetmaxenergy);	
     -- text = string.gsub(text, "  "," ");
     -- text = string.gsub(text,"(^%s+)","");
     -- text = string.gsub(text,"(%s+$)","");
@@ -2712,7 +2765,10 @@ function DHUD:updateAlpha()
         self:setAlpha("regenalpha");
     -- Casting
     elseif self.Casting then
-        self:setAlpha("regenalpha");	 
+        self:setAlpha("regenalpha");	
+	--EnemyCasting
+	elseif self.mcenemycasting then
+		self:setAlpha("regenalpha");
     -- standard mode     	    		       
     else
         self:setAlpha("oocalpha");

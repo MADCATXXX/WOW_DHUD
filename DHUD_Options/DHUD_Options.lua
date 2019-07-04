@@ -1,7 +1,240 @@
 DHUDO_NUMTABS = 6;
 DHUDDROPDOWNSELECTED = "";
 
+--Ace3 Profile Support
+local AppName = "DHUDO"
+local VERSION = AppName .. "v 1.5.30000h"
+
+local AceConfig = LibStub("AceConfig-3.0")
+local AceDBOptions = LibStub("AceDBOptions-3.0")
+local ACD = LibStub("AceConfigDialog-3.0")
+--local L = LibStub("AceLocale-3.0"):GetLocale("DHUD")
+local SML = LibStub:GetLibrary("LibSharedMedia-3.0", true)
+
+local db
+
+local defaults = {
+	profile = {
+				["dhudsettingloaded"]  = false,
+                ["version"]            = DHUD_VERSION,
+                ["layouttyp"]          = "DHUD_Standard_Layout",
+
+                ["combatalpha"]        = 0.8,
+                ["oocalpha"]           = 0,
+                ["selectalpha"]        = 0.5,
+                ["regenalpha"]         = 0.3,
+                
+                ["scale"]              = 1,              
+                ["mmb"]                = {},
+                
+                ["showmmb"]            = 1,
+                ["showresticon"]       = 1,
+                ["showcombaticon"]     = 1,
+                ["showplayerpvpicon"]  = 1,   
+                ["showtargetpvpicon"]  = 1,  
+                ["showpeticon"]        = 1, 
+                ["showeliteicon"]      = 1, 
+                ["animatebars"]        = 1,
+                ["barborders"]         = 1,
+                ["showauras"]          = 1,
+                ["showauratips"]       = 1,
+                ["showplayerbuffs"]    = 1,
+                ["castingbar"]         = 1,
+				["enemycastingbar"]	   = 1,
+				["castingbarinfo"]	   = 0,
+                ["reversecasting"]     = 0,
+                ["shownpc"]            = 1,
+                ["showtarget"]         = 1,
+                ["showtargettarget"]   = 1,
+                ["showpet"]            = 1,
+                ["btarget"]            = 0,
+                ["bplayer"]            = 0,                
+                ["bcastingbar"]        = 0,
+                ["swaptargetauras"]    = 0,
+                                                  
+                ["DHUD_Castdelay_Text"]    = "<color>ff0000<casttime_delay></color>",    
+                ["DHUD_Casttime_Text"]     = "<color>ffff00<casttime_remain></color>",
+				["DHUD_EnemyCastdelay_Text"]    = "<color>ff0000<enemycasttime_delay></color>",    
+                ["DHUD_EnemyCasttime_Text"]     = "<color>ffff00<enemycasttime_remain></color>",
+				["DHUD_EnemyCB_Text"]     = "<color>ffff00<enemyspellname></color>",
+                ["DHUD_PlayerHealth_Text"] = "<color_hp><hp_value></color> <color>999999(</color><hp_percent><color>999999)</color>",
+                ["DHUD_PlayerMana_Text"]   = "<color_mp><mp_value></color> <color>999999(</color><mp_percent><color>999999)</color>",
+                ["DHUD_TargetHealth_Text"] = "<color_hp><hp_value></color> <color>999999(</color><hp_percent><color>999999)</color>",
+                ["DHUD_TargetMana_Text"]   = "<color_mp><mp_value></color> <color>999999(</color><mp_percent><color>999999)</color>",
+                ["DHUD_PetHealth_Text"]    = "<color_hp><hp_value></color>",
+                ["DHUD_PetMana_Text"]      = "<color_mp><mp_value></color>",
+                ["DHUD_Target_Text"]       = "<color_level><level><elite></color> <color_reaction><name></color> [<color_class><class><type><pet><npc></color>] <pvp>",
+                ["DHUD_TargetTarget_Text"] = "<color_level><level><elite></color> <color_reaction><name></color> [<color_class><class><type><pet><npc></color>] <pvp>",
+                                
+                ["playerhpoutline"]     = 1,
+                ["playermanaoutline"]   = 1,
+                ["targethpoutline"]     = 1,
+                ["targetmanaoutline"]   = 1,
+                ["pethpoutline"]        = 1,
+                ["petmanaoutline"]      = 1,
+                ["casttimeoutline"]     = 1,
+                ["castdelayoutline"]    = 1,
+                ["targetoutline"]       = 1,
+                ["targettargetoutline"] = 1,
+                
+                ["fontsizepet"]        = 9,
+                ["fontsizeplayer"]     = 10,
+                ["fontsizetarget"]     = 10,	
+                ["fontsizetargetname"] = 12,	
+                ["fontsizetargettargetname"] = 10,	
+                ["fontsizecasttime"]   = 10,
+                ["fontsizecastdelay"]  = 10,
+
+                ["xoffset"]            = 0,
+                ["yoffset"]            = 0,
+                ["hudspacing"]         = 0,
+                ["targettextx"]        = 0,
+                ["targettexty"]        = 0,
+                ["targettargetx"]      = 0,
+                ["targettargety"]      = 0,
+                ["playerhptextx"]      = 0,
+                ["playerhptexty"]      = 0,
+                ["playermanatextx"]    = 0,
+                ["playermanatexty"]    = 0,
+                ["targethptextx"]      = 0,
+                ["targethptexty"]      = 0,
+                ["targetmanatextx"]    = 0,
+                ["targetmanatexty"]    = 0,
+                ["pethptextx"]         = 0,
+                ["pethptexty"]         = 0,
+                ["petmanatextx"]       = 0,
+                ["petmanatexty"]       = 0,
+                
+                
+                -- player buffs
+                ["playerbufftimefilter"] = 60,
+                ["fontsizeplayerbuff"] = 12,
+                ["playerbuffoutline"]  = 1,
+                
+                ["colors"]             = {
+                                        aura_player   = { "ffffff", "ffffff", "eeeeee" },
+                                        health_player = { "00FF00", "FFFF00", "FF0000" }, --
+                                        health_target = { "00aa00", "aaaa00", "aa0000" }, --
+                                        health_pet    = { "00FF00", "FFFF00", "FF0000" }, --
+                                        mana_player   = { "00FFFF", "0000FF", "FF00FF" }, --
+                                        mana_target   = { "00aaaa", "0000aa", "aa00aa" }, --
+                                        mana_pet      = { "00FFFF", "0000FF", "FF00FF" }, --
+                                        rage_player   = { "FF0000", "FF0000", "FF0000" }, --
+                                        rage_target   = { "aa0000", "aa0000", "aa0000" }, --
+                                        energy_player = { "FFFF00", "FFFF00", "FFFF00" }, --
+                                        energy_target = { "aaaa00", "aaaa00", "aaaa00" }, --
+                                        focus_target  = { "aa4400", "aa4400", "aa4400" }, --
+                                        focus_pet     = { "aa4400", "aa4400", "aa4400" }, --
+                                        castbar       = { "00FF00", "88FF00", "FFFF00" }, --
+                                        channelbar    = { "E0E0FF", "C0C0FF", "A0A0FF" }, --
+                                        tapped        = { "cccccc", "bbbbbb", "aaaaaa" }, --
+                },
+	},
+}
+
+
+DHUDO = LibStub("AceAddon-3.0"):NewAddon(AppName, "AceConsole-3.0", "AceEvent-3.0")
+DHUDO:SetDefaultModuleState(false)
+
+function DHUDO:Profiles()
+	DHUD:OptionsFrame_Toggle()
+	DHUDO:OpenConfigDialog()
+end
+
+function DHUDO:LoadDHUDSettingsToDB()
+	for k, v in pairs(DHUD_Settings) do
+        db[k] = DHUD_Settings[k];
+    end
+end
+
+function DHUDO:SetDBSetting(key,value)
+	db[key] = value;
+end
+
+function DHUDO:DHUDODBLOAD()
+	self.db = LibStub("AceDB-3.0"):New("DHUDODB3", defaults)
+	self.db.RegisterCallback(self, "OnProfileChanged")
+	self.db.RegisterCallback(self, "OnProfileCopied")
+	self.db.RegisterCallback(self, "OnProfileReset")
+	db = self.db.profile
+	self:addConfigTab('profiles', AceDBOptions:GetOptionsTable(self.db), 20, false)
+    AceDBOptions:GetOptionsTable(self.db);
+	AceConfig:RegisterOptionsTable(AppName, self.configOptions, "dhudo")
+	ACD:AddToBlizOptions(AppName)
+	if ( not db.dhudsettingloaded or db.dhudsettingloaded == false ) then
+		db.dhudsettingloaded = true
+		DHUDO:LoadDHUDSettingsToDB()
+	end
+	DHUDO:applySettings()
+end
+
+function DHUDO:addConfigTab(key, group, order, isCmdInline)
+	if (not self.configOptions) then
+		self.configOptions = {
+			type = "group",
+			name = AppName,
+			childGroups = "tab",
+			args = {},
+		}
+	end
+	self.configOptions.args[key] = group
+	self.configOptions.args[key].order = order
+	self.configOptions.args[key].cmdInline = isCmdInline
+end
+
+function DHUDO:OpenConfigDialog()
+    local f = ACD.OpenFrames[AppName]
+    ACD:Open(AppName)
+    if not f then
+        f = ACD.OpenFrames[AppName]
+       -- f:SetWidth(400)
+       -- f:SetHeight(600)
+    end
+end
+
+function DHUDO:OnProfileChanged()
+	db = self.db.profile
+	if ( not db.dhudsettingloaded or db.dhudsettingloaded == false ) then
+		db.dhudsettingloaded = true
+		DHUDO:LoadDHUDSettingsToDB()
+	end
+	DHUDO:applySettings()
+end
+
+function DHUDO:OnProfileCopied()
+	db = self.db.profile
+	if ( not db.dhudsettingloaded or db.dhudsettingloaded == false ) then
+		db.dhudsettingloaded = true
+		DHUDO:LoadDHUDSettingsToDB()
+	end
+	DEFAULT_CHAT_FRAME:AddMessage("|cff88ff88DHUD:|r ".."settings copied.")
+	DHUDO:applySettings()
+end
+
+function DHUDO:OnProfileReset()
+	db = self.db.profile
+	DHUD:reset()
+	db.dhudsettingloaded = true
+	DHUDO:LoadDHUDSettingsToDB()
+	DHUDO:applySettings()
+end
+
+function DHUDO:applySettings()
+	--DEFAULT_CHAT_FRAME:AddMessage("Apply Settings called")
+	for k, v in pairs(db) do	
+		if ( k ~= "dhudsettingloaded" ) then
+			--DEFAULT_CHAT_FRAME:AddMessage(k .. " Being copied")
+			DHUD_Settings[k] = db[k];
+			-- DHUD:SetConfig( k , db[k] );
+		end
+    end
+	DHUD:init();
+end
+
+
+--DHUD Options CODE
 function DHUDO_Header_OnLoad(x,y)
+	
     this.setting_name = string.gsub( this:GetName() , "DHUD_", "");
     local text = getglobal( this:GetName().."Text");
     text:SetText( " "..(DHUDO_locale[this.setting_name] or "["..(this.setting_name).."]") );
@@ -11,6 +244,7 @@ function DHUDO_Header_OnLoad(x,y)
 end
 
 function DHUDO_OnLoad()
+	DHUDO:DHUDODBLOAD() --load ACE3 DB Profiles
     table.insert(UISpecialFrames, "DHUDOptionsFrame");
     PanelTemplates_SetNumTabs(this, DHUDO_NUMTABS);
     PanelTemplates_SetTab(this, 1);    
@@ -47,6 +281,7 @@ function DHUDO_DropDown_OnClick(list)
     box:SetText(text);
     UIDropDownMenu_SetSelectedID( sel , this:GetID() );
     DHUD:SetConfig( list, text );
+	db[list] = text ;
     DHUDO_updateTexts(list);
     DHUD:init();
 end
@@ -116,6 +351,7 @@ function DHUDO_FrameSlider_OnValueChanged(key,text)
      end
      
 	 DHUD:SetConfig( key, value );
+	 db[key] = value ;
     if this.nullbase == 1 then
         getglobal(this:GetName().."Text"):SetText(text.." "..(DHUD_Settings[key] - this.low ).." ");
     else
@@ -145,6 +381,7 @@ function DHUDO_ColorPicker_ColorChanged()
 	local r, g, b = ColorPickerFrame:GetColorRGB();
 
     DHUD_Settings["colors"][ColorPickerFrame.objname][ColorPickerFrame.objindex] = DHUD_DecToHex(r,g,b);
+	db["colors"][ColorPickerFrame.objname][ColorPickerFrame.objindex] = DHUD_DecToHex(r,g,b);
     --getglobal(ColorPickerFrame.tohue):SetTexture(r,g,b);
     DHUDO_changeG(ColorPickerFrame.objname);
     DHUD:init();
@@ -180,6 +417,7 @@ function DHUDO_ColorPicker_Cancelled(color)
 
     local r,g,b = unpack(color);
     DHUD_Settings["colors"][ColorPickerFrame.objname][ColorPickerFrame.objindex] = DHUD_DecToHex(r,g,b);
+	db["colors"][ColorPickerFrame.objname][ColorPickerFrame.objindex]  = DHUD_DecToHex(r,g,b);
     --getglobal(ColorPickerFrame.tohue):SetTexture(r,g,b);
     DHUDO_changeG(ColorPickerFrame.objname);
     DHUD:init();

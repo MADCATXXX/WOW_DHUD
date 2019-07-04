@@ -1,11 +1,12 @@
 ## Interface: 30000
-## Title: Drathals HUD Options [|cffffffffv1.5.30000g|r]
+## Title: Drathals HUD Options [|cffffffffv1.5.30000h|r]
 ## Author: Markus Inger (Drathal/Silberklinge), Howie (Caeryn)
 ## Maintained By: Mad Cat
-## Version: v1.5.30000g
+## Version: v1.5.30000h
 ## Notes: Drathals HUD Options.
 ## Dependencies: DHUD
 ## LoadOnDemand: 1
+embeds.xml
 localization.lua
 ..\..\FrameXML\Fonts.xml
 ..\..\FrameXML\UIDropDownMenuTemplates.xml

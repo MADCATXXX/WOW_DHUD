@@ -18,6 +18,7 @@
             </OnLoad>				
             <OnClick>
                 DHUD:ToggleConfig(this.setting_name);
+				DHUDO:SetDBSetting(this.setting_name,DHUD_Settings[this.setting_name])
             </OnClick>
             <OnShow>
                 getglobal(this:GetName()):SetChecked(DHUD:GetConfig(this.setting_name));
@@ -213,8 +214,10 @@
             <OnClick>
                 if (arg1 == "RightButton") then
                     DHUD:SetConfig(this.setting_name, DHUD:GetConfig(this.setting_name) - 10);
+					DHUDO:SetDBSetting(this.setting_name, DHUD:GetConfig(this.setting_name) - 10);
                 else
                     DHUD:SetConfig(this.setting_name, DHUD:GetConfig(this.setting_name) - 1);
+					DHUDO:SetDBSetting(this.setting_name, DHUD:GetConfig(this.setting_name) - 1);
                 end
                 local parent = this:GetParent();
                 local text = getglobal(parent:GetName().."_Minitext");
@@ -249,8 +252,10 @@
             <OnClick>
                 if (arg1 == "RightButton") then
                     DHUD:SetConfig(this.setting_name, DHUD:GetConfig(this.setting_name) + 10);
+					DHUDO:SetDBSetting(this.setting_name, DHUD:GetConfig(this.setting_name) + 10);
                 else
                     DHUD:SetConfig(this.setting_name, DHUD:GetConfig(this.setting_name) + 1);
+					DHUDO:SetDBSetting(this.setting_name, DHUD:GetConfig(this.setting_name) + 1);
                 end
                 local parent = this:GetParent();
                 local text = getglobal(parent:GetName().."_Minitext");
@@ -354,6 +359,8 @@
                     this:SetText( this:GetNumber() or 0 );
                 end
                 DHUD:SetConfig( this.setting_name, this:GetText() );
+				DHUDO:SetDBSetting( this.setting_name, this:GetText() );
+
             </OnTextChanged> 
             <OnEditFocusLost>
                 this:HighlightText(0, 0);
@@ -508,6 +515,7 @@
                                 local name = string.gsub( this:GetParent():GetParent():GetName() , "DHUD_Edit_", "");
                                 local dropdown = getglobal("DHUD_Edit_"..name.."_Selection");
                                 DHUD:SetConfig( name , this:GetText() );
+								DHUDO:SetDBSetting(name,this:GetText());
                                 
                                 UIDropDownMenu_SetSelectedID( dropdown, 1 );
                                 UIDropDownMenu_SetText( dropdown, DHUDO_SELECTION[name]["table"][1] );

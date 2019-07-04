@@ -134,6 +134,21 @@
 					</OnClick>
 				</Scripts>
 			</Button>
+			
+			<!-- Profiles Button -->
+			<Button name="$parentProfilesButton" inherits="OptionsButtonTemplate" text="Profiles">
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT">
+						<Offset><AbsDimension x="-400" y="-5"/></Offset>
+						<!-- Old Offset: <Offset><AbsDimension x="-6" y="-39"/></Offset> -->
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						DHUDO:Profiles();
+					</OnClick>
+				</Scripts>
+			</Button>
 
 			<!-- Page 1 -->
             <Frame name="DHUD_Tab1" hidden="false" >
@@ -1194,10 +1209,16 @@
                                 DHUDO_Header_OnLoad(10,-70);
                         </OnLoad></Scripts>
                     </Frame>
-					<!-- checkbox bplayer -->
+					<!-- checkbox enemycastbar -->
                     <CheckButton name="DHUD_Check_enemycastingbar" inherits="DHUD_Check_Template">
                         <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Header_madcatText">
                                 <Offset><AbsDimension x="10" y="-25"/></Offset>
+                        </Anchor></Anchors>
+                    </CheckButton>
+					<!-- checkbox castbarinfo -->
+					<CheckButton name="DHUD_Check_castingbarinfo" inherits="DHUD_Check_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Check_enemycastingbar">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
                         </Anchor></Anchors>
                     </CheckButton>
 				</Frames>
