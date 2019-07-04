@@ -74,7 +74,7 @@ DHUDPowerTracker = MCCreateSubClass(DHUDDataTracker, {
 	},
 	-- table with min percents for resource types, all unset resource types will be treated as 0
 	MIN_PERCENT_FOR_RESOURCE_TYPE = {
-		["LUNAR_POWER"]			= -1,
+		--["LUNAR_POWER"]			= -1,
 	},
 })
 

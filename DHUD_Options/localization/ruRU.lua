@@ -415,6 +415,7 @@ L["SETTING_LAYOUTS_DATA_SOURCES"] = {
 	["warlockDemonicFury"] = "Игрок: Чернокниж. Демон. Ярость",
 	["paladinHolyPower"] = "Игрок: Паладин. Святая Сила",
 	["priestShadowOrbs"] = "Игрок: Жрец. Темные Сферы",
+	["mageArcaneCharges"] = "Игрок: Маг Чародейские Заряды",
 	["deathKnightRunes"] = "Игрок: Рыцарь Смерти. Руны",
 	["shamanTotems"] = "Игрок: Шаман. Тотемы",
 	["tankVengeance"] = "Игрок: Отмщение танков",

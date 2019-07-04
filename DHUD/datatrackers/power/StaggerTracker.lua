@@ -40,6 +40,8 @@ function DHUDStaggerTracker:init()
 	end
 	-- init unit ids
 	self:initPlayerNotInVehicleOrNoneUnitId();
+	-- init tank only
+	self:initPlayerSpecsOnly(1);
 	-- change resource type
 	self:setCustomResourceType(DHUDColorizeTools.COLOR_ID_TYPE_CUSTOM_STAGGER);
 end

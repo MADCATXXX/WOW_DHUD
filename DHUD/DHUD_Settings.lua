@@ -245,9 +245,11 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				-- allows to change color of player focus on bars
 				["focus"] = { { "aa4400", "aa4400", "aa4400" }, 3 },
 				-- allows to change color of player druid eclipse on bars
-				["eclipse"] = { { "fcea1e", "d89d3f", "d29835", "ffffff", "4c80ba", "79c9ec", "d9ffff" }, 3 },
+				["eclipse"] = { { "6c7ad9", "6c7ad9", "6c7ad9" }, 3 }, -- { "fcea1e", "d89d3f", "d29835", "ffffff", "4c80ba", "79c9ec", "d9ffff" }
 				-- allows to change color of player shaman maelstrom on bars
 				["maelstrom"] = { { "00a2d6", "00a2d6", "00a2d6" }, 3 },
+				-- allows to change color of player priest insanity on bars
+				["insanity"] = { { "462296", "462296", "462296" }, 3 },
 				-- allows to change color of player tank vengeance on bars
 				["vengeance"] = { { "FF00FF", "FF00FF", "FF00FF" }, 3 },
 				-- allows to change color of player monk stagger on bars
@@ -279,8 +281,12 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				["runicPower"] = { { "004060", "004060", "004060" }, 3 },
 				-- allows to change color of target focus on bars
 				["focus"] = { { "aa4400", "aa4400", "aa4400" }, 3 },
-				-- allows to change color of player shaman maelstrom on bars
+				-- allows to change color of target druid eclipse on bars
+				["eclipse"] = { { "6c7ad9", "6c7ad9", "6c7ad9" }, 3 }, -- { "fcea1e", "d89d3f", "d29835", "ffffff", "4c80ba", "79c9ec", "d9ffff" }
+				-- allows to change color of target shaman maelstrom on bars
 				["maelstrom"] = { { "00a2d6", "00a2d6", "00a2d6" }, 3 },
+				-- allows to change color of target priest insanity on bars
+				["insanity"] = { { "462296", "462296", "462296" }, 3 },
 				-- allows to change color of target demon hunter anger on bars
 				["fury"] = { { "7E2DCD", "7E2DCD", "7E2DCD" }, 3 },
 				-- allows to change color of target demon hunter pain on bars
@@ -503,7 +509,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				61336, -- Druid: Survival Instincts, reduces all gamage by 50%
 				19263, -- Hunter: Deterrence, prevents all damage to target
 				45438, -- Mage: Ice block, prevents all damage to target
-				108978, -- Mage: Alter Time, reverts all damage done to target after 6 seconds
+				--108978, -- Mage: Alter Time, reverts all damage done to target after 6 seconds
 				1022, -- Paladin: Hand of protection, prevents physical damage to target
 				642, -- Paladin: Divine Shield, prevents all damage to target
 				47585, -- Priest: Dispersion, reduces damage by 90%
@@ -622,7 +628,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			-- data that can be shown on cast bars
 			["castBars"] = { "playerCastBar", "targetCastBar" },
 			-- data that can be shown on side slots
-			["sideSlots"] = { "vehicleComboPoints", "playerComboPoints", "playerShortAuras", "targetShortAuras", "playerCooldowns", "monkChi", "warlockSoulShards", "paladinHolyPower", "priestShadowOrbs", "deathKnightRunes", "shamanTotems" },
+			["sideSlots"] = { "vehicleComboPoints", "playerComboPoints", "playerShortAuras", "targetShortAuras", "playerCooldowns", "monkChi", "warlockSoulShards", "paladinHolyPower", "mageArcaneCharges", "deathKnightRunes", "shamanTotems" },
 			-- data that can be shown on spell rectangles
 			["spellRectangles"] = { "targetBuffs", "targetDebuffs" },
 			-- data that can be shown in unit info frames
@@ -737,7 +743,12 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				-- priest overrides
 				["PRIEST"] = {
 					-- what to show on the left outer side info
-					["leftOuterSideInfo"] = { "priestShadowOrbs", "vehicleComboPoints" },
+					["leftOuterSideInfo"] = { "vehicleComboPoints" },
+				},
+				-- mage overrides
+				["MAGE"] = {
+					-- what to show on the left outer side info
+					["leftOuterSideInfo"] = { "mageArcaneCharges", "vehicleComboPoints" },
 				},
 				-- death knight overrides
 				["DEATHKNIGHT"] = {
@@ -858,7 +869,12 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				-- priest overrides
 				["PRIEST"] = {
 					-- what to show on the left outer side info
-					["rightOuterSideInfo"] = { "priestShadowOrbs", "vehicleComboPoints" },
+					["rightOuterSideInfo"] = { "vehicleComboPoints" },
+				},
+				-- mage overrides
+				["MAGE"] = {
+					-- what to show on the left outer side info
+					["rightOuterSideInfo"] = { "mageArcaneCharges", "vehicleComboPoints" },
 				},
 				-- death knight overrides
 				["DEATHKNIGHT"] = {
@@ -909,6 +925,8 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			["uiErrorFilter"] = { 0, 0, { range = { 0, 2, 1 } } },
 			-- lua code to be executed when addon is loaded, can be used to increase camera max distance and set other things
 			["luaStartUp"] = { "SetCVar(\"cameraDistanceMaxZoomFactor\", 2.6);", 0 },
+			-- result of the last lua start up code
+			["luaStartUpError"] = { false, 0 },
 		}, 1 },
 		-- reference to codes that can be used at start up
 		["luaStartUpCodes"] = { {
@@ -1384,7 +1402,9 @@ function DHUDSettings:mapDataTrackers()
 	-- specific to paladin
 	trackersTable["paladinHolyPower"] = { DHUDDataTrackers.PALADIN.selfHolyPower };
 	-- specific to priest
-	trackersTable["priestShadowOrbs"] = { DHUDDataTrackers.PRIEST.selfShadowOrbs };
+	--trackersTable["priestShadowOrbs"] = { DHUDDataTrackers.PRIEST.selfShadowOrbs };
+	-- specific to mage
+	trackersTable["mageArcaneCharges"] = { DHUDDataTrackers.MAGE.selfArcaneCharges };
 	-- specific to death knight
 	trackersTable["deathKnightRunes"] = { DHUDDataTrackers.DEATHKNIGHT.selfRunes };
 	-- specific to shaman
@@ -2003,6 +2023,8 @@ DHUDNonAddonSettingsHandler = {
 	SETTING_NAME_SERVICE_UI_ERROR_FILTER = "service_uiErrorFilter",
 	-- name of the setting that contains code to be executed on start up
 	SETTING_NAME_SERVICE_LUA_START_UP = "service_luaStartUp",
+	-- name of the setting that contains result of the last start up code
+	SETTING_NAME_SERVICE_LUA_START_UP_ERROR = "service_luaStartUpError",
 }
 
 -- value of the setting has changed
@@ -2055,6 +2077,11 @@ function DHUDNonAddonSettingsHandler:onServiceUIErrorLevelChange(e)
 	self:changeServiceUIErrorFiltering(val);
 end
 
+-- value of the setting has changed
+function DHUDNonAddonSettingsHandler:onLuaStartUpChange(e)
+	DHUDSettings:setValue(self.SETTING_NAME_SERVICE_LUA_START_UP_ERROR, false);
+end
+
 --- initialize non addon specific settings handler
 function DHUDNonAddonSettingsHandler:init()
 	-- events frame
@@ -2065,6 +2092,7 @@ function DHUDNonAddonSettingsHandler:init()
 	local castbarFrameVisible = DHUDSettings:getValue(self.SETTING_NAME_BLIZZARD_CASTBAR);
 	local uiErrorsLevel = DHUDSettings:getValue(self.SETTING_NAME_SERVICE_UI_ERROR_FILTER);
 	local luaStartUp = DHUDSettings:getValue(self.SETTING_NAME_SERVICE_LUA_START_UP);
+	local luaStartUpError = DHUDSettings:getValue(self.SETTING_NAME_SERVICE_LUA_START_UP_ERROR);
 	self.blizzardPowerAurasAlpha = DHUDSettings:getValue(self.SETTING_NAME_BLIZZARD_SPELL_ACTIVATION_ALPHA);
 	self.blizzardPowerAurasScale = DHUDSettings:getValue(self.SETTING_NAME_BLIZZARD_SPELL_ACTIVATION_SCALE);
 	-- listen to events
@@ -2074,6 +2102,7 @@ function DHUDNonAddonSettingsHandler:init()
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. self.SETTING_NAME_BLIZZARD_SPELL_ACTIVATION_ALPHA, self, self.onBlizzardSpellActivationFrameAlphaChange);
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. self.SETTING_NAME_BLIZZARD_SPELL_ACTIVATION_SCALE, self, self.onBlizzardSpellActivationFrameScaleChange);
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. self.SETTING_NAME_SERVICE_UI_ERROR_FILTER, self, self.onServiceUIErrorLevelChange);
+	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. self.SETTING_NAME_SERVICE_LUA_START_UP, self, self.onLuaStartUpChange);
 	-- register to power auras event
 	self.eventsFrame:RegisterEvent("SPELL_ACTIVATION_OVERLAY_SHOW");
 	-- process power auras event
@@ -2095,7 +2124,7 @@ function DHUDNonAddonSettingsHandler:init()
 	if (uiErrorsLevel ~= 0) then
 		self:changeServiceUIErrorFiltering(uiErrorsLevel);
 	end
-	if (luaStartUp ~= "") then
+	if (luaStartUp ~= "" and luaStartUpError ~= true) then
 		self:processLuaStartUpCode(luaStartUp);
 	end
 end
@@ -2243,15 +2272,24 @@ end
 --- Function to process lua start up code
 -- @param code code to be executed on startup
 function DHUDNonAddonSettingsHandler:processLuaStartUpCode(code)
+	self.onLuaError = function(msg)
+		DHUDMain:print("Lua start up code contains errors, it will be disabled: " .. MCTableToString(msg));
+		DHUDSettings:setValue(self.SETTING_NAME_SERVICE_LUA_START_UP_ERROR, true);
+		seterrorhandler(self.origErrorHandler);
+		self.origErrorHandler(msg);
+	end
 	self.onProcessLuaStartUpCode = function(self, e)
 		DHUDDataTrackers.helper:removeEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE_FREQUENT, self, self.onProcessLuaStartUpCode);
+		self.origErrorHandler = geterrorhandler();
+		seterrorhandler(self.onLuaError);
 		--DHUDMain:print("Lua start up code: " .. code);
 		local evalFunc, error = loadstring(code, "DHUD onLoad text input");
 		if (evalFunc ~= nil) then
 			evalFunc();
 		else
-			DHUDMain:print("Lua start up code contains errors: " .. error);
+			DHUDMain:print("Lua start up code contains syntax errors: " .. error);
 		end
+		seterrorhandler(self.origErrorHandler);
 	end
 	-- execute function on first timer tick to not break initialization if code contains errors
 	DHUDDataTrackers.helper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE_FREQUENT, self, self.onProcessLuaStartUpCode);

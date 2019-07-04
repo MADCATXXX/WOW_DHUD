@@ -46,6 +46,16 @@
 -other textures support (renetair from DHUD4)
 -add option to place cast info under bar
 
+changelog 2.0.80000.59:
+- if there is error in "lua start up code" setting - it will be disabled for next launch
+- fixed druid eclipse/lunar power color
+- removed spell ids that are no longer present
+- fixed priest insanity power color
+- removed priest shadow orbs power tracker
+- added mage arcane charges
+- fixed death knight rune tracking and colors
+- stagger should be displayed for monk tank spec only
+
 changelog 2.0.80000.58:
 - updated dhud settings to 8.0.1
 - fixed settings for blizzard frames

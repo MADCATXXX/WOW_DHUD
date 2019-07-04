@@ -487,7 +487,7 @@ DHUDColorizeTools = {
 	-- constant for runicpower power type
 	COLOR_ID_TYPE_RUNIC_POWER = 6,
 	-- constant for eclipse power type
-	COLOR_ID_TYPE_ECLIPSE = 8,
+	COLOR_ID_TYPE_LUNAR_POWER = 8,
 	-- constant for maelstorm power type
 	COLOR_ID_TYPE_MAELSTROM = 11,
 	-- constant for shadow priests insanity power type
@@ -567,8 +567,9 @@ DHUDColorizeTools = {
 		[2] = "FOCUS",
 		[3] = "ENERGY",
 		[6] = "RUNIC_POWER",
-		[8] = "ECLIPSE",
+		[8] = "LUNAR_POWER",
 		[11] = "MAELSTROM",
+		[13]	= "INSANITY",
 		[17] = "FURY",
 		[18] = "PAIN",
 	}
@@ -828,11 +829,15 @@ function DHUDColorizeTools:init()
 	-- runic power
 	self:processSetting(self.COLOR_ID_TYPE_RUNIC_POWER + self.COLOR_ID_UNIT_SELF, "colors_player_runicPower");
 	self:processSetting(self.COLOR_ID_TYPE_RUNIC_POWER + self.COLOR_ID_UNIT_TARGET, "colors_target_runicPower");
-	-- eclipse
-	self:processSetting(self.COLOR_ID_TYPE_ECLIPSE + self.COLOR_ID_UNIT_SELF, "colors_player_eclipse");
+	-- lunar power/eclipse
+	self:processSetting(self.COLOR_ID_TYPE_LUNAR_POWER + self.COLOR_ID_UNIT_SELF, "colors_player_eclipse");
+	self:processSetting(self.COLOR_ID_TYPE_LUNAR_POWER + self.COLOR_ID_UNIT_TARGET, "colors_target_eclipse");
 	-- maelstorm
 	self:processSetting(self.COLOR_ID_TYPE_MAELSTROM + self.COLOR_ID_UNIT_SELF, "colors_player_maelstrom");
 	self:processSetting(self.COLOR_ID_TYPE_MAELSTROM + self.COLOR_ID_UNIT_TARGET, "colors_target_maelstrom");
+	-- insanity
+	self:processSetting(self.COLOR_ID_TYPE_INSANITY + self.COLOR_ID_UNIT_SELF, "colors_player_insanity");
+	self:processSetting(self.COLOR_ID_TYPE_INSANITY + self.COLOR_ID_UNIT_TARGET, "colors_target_insanity");
 	-- fury
 	self:processSetting(self.COLOR_ID_TYPE_FURY + self.COLOR_ID_UNIT_SELF, "colors_player_fury");
 	self:processSetting(self.COLOR_ID_TYPE_FURY + self.COLOR_ID_UNIT_TARGET, "colors_target_fury");
@@ -4727,7 +4732,9 @@ DHUDSideInfoManager = MCCreateSubClass(DHUDGuiSlotManager, {
 	-- paladin holy power combo-point colors
 	COMBO_POINT_COLOR_PALADIN_HOLY_POWER = { "ComboCircleRed", "ComboCircleOrange", "ComboCircleGreen", "ComboCircleGreen", "ComboCircleGreen" },
 	-- priest shadow orbs combo-point colors
-	COMBO_POINT_COLOR_PRIEST_SHADOW_ORBS = { "ComboCirclePurple", "ComboCirclePurple", "ComboCirclePurple" },
+	--COMBO_POINT_COLOR_PRIEST_SHADOW_ORBS = { "ComboCirclePurple", "ComboCirclePurple", "ComboCirclePurple" },
+	-- priest shadow orbs combo-point colors
+	COMBO_POINT_COLOR_MAGE_ARCANE_CHARGES = { "ComboCircleCyan", "ComboCircleCyan", "ComboCircleCyan", "ComboCircleCyan" },
 	-- warlock soul shards combo-point colors
 	COMBO_POINT_COLOR_WARLOCK_SOUL_SHARDS = { "ComboCirclePurple", "ComboCirclePurple", "ComboCirclePurple", "ComboCirclePurple" },
 	-- monk chi combo-point colors
@@ -5279,8 +5286,10 @@ function DHUDSideInfoManager:onDataTrackerChange(e)
 				self:changeComboPointColors(self.COMBO_POINT_COLOR_MONK_CHI);
 			elseif (self.currentDataTracker == DHUDDataTrackers.PALADIN.selfHolyPower) then
 				self:changeComboPointColors(self.COMBO_POINT_COLOR_PALADIN_HOLY_POWER);
-			elseif (self.currentDataTracker == DHUDDataTrackers.PRIEST.selfShadowOrbs) then
-				self:changeComboPointColors(self.COMBO_POINT_COLOR_PRIEST_SHADOW_ORBS);
+			--[[elseif (self.currentDataTracker == DHUDDataTrackers.PRIEST.selfShadowOrbs) then
+				self:changeComboPointColors(self.COMBO_POINT_COLOR_PRIEST_SHADOW_ORBS);]]--
+			elseif (self.currentDataTracker == DHUDDataTrackers.MAGE.selfArcaneCharges) then
+				self:changeComboPointColors(self.COMBO_POINT_COLOR_MAGE_ARCANE_CHARGES);
 			elseif (self.currentDataTracker == DHUDDataTrackers.WARLOCK.selfSoulShards) then
 				self:changeComboPointColors(self.COMBO_POINT_COLOR_WARLOCK_SOUL_SHARDS);
 			else

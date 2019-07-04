@@ -413,6 +413,7 @@ L["SETTING_LAYOUTS_DATA_SOURCES"] = {
 	["warlockDemonicFury"] = "Player: Warlock Demonic Fury",
 	["paladinHolyPower"] = "Player: Paladin Holy Power",
 	["priestShadowOrbs"] = "Player: Priest Shadow Orbs",
+	["mageArcaneCharges"] = "Player: Mage Arcane Charges",
 	["deathKnightRunes"] = "Player: Death-Knight Runes",
 	["shamanTotems"] = "Player: Shaman Totems",
 	["tankVengeance"] = "Player: Tank Vengeance",

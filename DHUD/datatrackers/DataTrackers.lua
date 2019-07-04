@@ -258,12 +258,26 @@ DHUDDataTrackers = {
 		-----------------
 		-- Shadow orbs --
 		-----------------
-		PRIEST.selfShadowOrbs = DHUDSpecificPowerTracker:new();
+		--[[PRIEST.selfShadowOrbs = DHUDSpecificPowerTracker:new();
 		PRIEST.selfShadowOrbs:setResourceType(13, "SHADOW_ORBS");
 		PRIEST.selfShadowOrbs:initPlayerSpecsOnly(3);
 		PRIEST.selfShadowOrbs:initPlayerNotInVehicleOrNoneUnitId();
 		PRIEST.selfShadowOrbs.canRegenerate = false;
-		PRIEST.selfShadowOrbs.updateFrequently = false;
+		PRIEST.selfShadowOrbs.updateFrequently = false;]]--
+	end,
+	-- trackers that are used by priest
+	MAGE = { },
+	fillMAGE = function(self, charclass)
+		-- fill table with trackers
+		local MAGE = self.MAGE;
+		-----------------
+		-- Shadow orbs --
+		-----------------
+		MAGE.selfArcaneCharges = DHUDSpecificPowerTracker:new();
+		MAGE.selfArcaneCharges:setResourceType(16, "ARCANE_CHARGES");
+		MAGE.selfArcaneCharges:initPlayerSpecsOnly(1);
+		MAGE.selfArcaneCharges:initPlayerNotInVehicleOrNoneUnitId();
+		MAGE.selfArcaneCharges.updateFrequently = false;
 	end,
 	-- trackers that are used by shaman
 	SHAMAN = { },

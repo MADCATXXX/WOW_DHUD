@@ -2372,7 +2372,7 @@
 									<Attribute name="SETTING" value="colors_selfGuardians_passive" />
 								</Attributes>
 							</Frame>
-							<Frame name="$parent_AlternativeEclipseColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine7">
+							<Frame name="$parent_AlternativeEclipseColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
 								<Anchors>
 									<Anchor point="TOPLEFT">
 										<Offset x="117" y="-365" />

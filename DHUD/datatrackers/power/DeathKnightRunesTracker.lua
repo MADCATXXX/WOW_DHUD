@@ -59,7 +59,10 @@ function DHUDRunesTracker:init()
 		tracker:updateRuneCooldowns();
 	end
 	-- process rune type change
-	function self.eventsFrame:RUNE_TYPE_UPDATE()
+	function self.eventsFrame:PLAYER_SPECIALIZATION_CHANGED(unitId)
+		if (unitId ~= "player") then
+			return;
+		end
 		tracker:updateRuneTypes();
 	end
 	-- init unit ids
@@ -69,10 +72,12 @@ end
 --- Update rune types through API
 function DHUDRunesTracker:updateRuneTypes()
 	-- create vars
+	local spec = GetSpecialization();
 	local runeType; -- 1 : RUNETYPE_BLOOD, 2 : RUNETYPE_CHROMATIC, 3 : RUNETYPE_FROST, 4 : RUNETYPE_DEATH
+	runeType = spec == 1 and 1 or (spec == 2 and 3 or 2);
 	-- update runes
 	for i = 1, 6, 1 do
-		runeType = 4; -- GetRuneType(i);
+		--runeType = 1; -- GetRuneType(i);
 		local rune = self.runes[i];
 		rune[1] = runeType;
 	end
@@ -131,7 +136,8 @@ end
 function DHUDRunesTracker:startTracking()
 	-- listen to game events
 	self.eventsFrame:RegisterEvent("RUNE_POWER_UPDATE");
-	self.eventsFrame:RegisterEvent("RUNE_TYPE_UPDATE");
+	self.eventsFrame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED");
+	--self.eventsFrame:RegisterEvent("RUNE_TYPE_UPDATE");
 	trackingHelper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE, self, self.onUpdateTime);
 end
 
@@ -139,7 +145,8 @@ end
 function DHUDRunesTracker:stopTracking()
 	-- stop listening to game events
 	self.eventsFrame:UnregisterEvent("RUNE_POWER_UPDATE");
-	self.eventsFrame:UnregisterEvent("RUNE_TYPE_UPDATE");
+	self.eventsFrame:UnregisterEvent("PLAYER_SPECIALIZATION_CHANGED");
+	--self.eventsFrame:UnregisterEvent("RUNE_TYPE_UPDATE");
 	trackingHelper:removeEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE, self, self.onUpdateTime);
 end
 
