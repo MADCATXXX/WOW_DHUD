@@ -1,3 +1,7 @@
+changelog 1.5.40000a MADCAT revision20:
+-fixed minimap icon and options to work with cataclysm
+-fixed target dropdown menu not showing on target name click
+
 changelog 1.5.40000a MADCAT revision19:
 -updated addon to work with Cataclysm
 -minimap icon and options are currently not working

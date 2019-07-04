@@ -197,18 +197,26 @@ if not MyMinimapButton or MyMinimapButton.Version<version then
 		return position
 	end,
 
-	OnMouseDown = function()
-		getglobal(this:GetName().."Icon"):SetTexCoord(.1,.9,.1,.9)
+	OnMouseDown = function(frame)
+		MyMinimapButton:OnMouseDownHandler(frame);
+	end,
+	
+	OnMouseDownHandler = function(self, frame)
+		getglobal(frame:GetName().."Icon"):SetTexCoord(.1,.9,.1,.9)
 	end,
 
-	OnMouseUp = function()
-		getglobal(this:GetName().."Icon"):SetTexCoord(0,1,0,1)
+	OnMouseUp = function(frame)
+		MyMinimapButton:OnMouseUpHandler(frame);
+	end,
+	
+	OnMouseUpHandler = function(self, frame)
+		getglobal(frame:GetName().."Icon"):SetTexCoord(0,1,0,1)
 	end,
 
-	OnEnter = function()
+	OnEnter = function(frame)
 		GameTooltip_SetDefaultAnchor(GameTooltip,UIParent)
-		GameTooltip:AddLine(this.tooltipTitle)
-		GameTooltip:AddLine(this.tooltipText,.8,.8,.8,1)
+		GameTooltip:AddLine(frame.tooltipTitle)
+		GameTooltip:AddLine(frame.tooltipText,.8,.8,.8,1)
 		GameTooltip:Show()
 	end,
 
@@ -216,33 +224,33 @@ if not MyMinimapButton or MyMinimapButton.Version<version then
 		GameTooltip:Hide()
 	end,
 
-	OnDragStart = function()
-		MyMinimapButton:OnMouseDown()
-		this:LockHighlight()
-		this:SetScript("OnUpdate",MyMinimapButton.OnUpdate)
+	OnDragStart = function(frame)
+		MyMinimapButton:OnMouseDownHandler(frame);
+		frame:LockHighlight()
+		frame:SetScript("OnUpdate",MyMinimapButton.OnUpdate)
 	end,
 
-	OnDragStop = function()
-		this:SetScript("OnUpdate",nil)
-		this:UnlockHighlight()
-		MyMinimapButton:OnMouseUp()
+	OnDragStop = function(frame)
+		frame:SetScript("OnUpdate",nil)
+		frame:UnlockHighlight()
+		MyMinimapButton:OnMouseUpHandler(frame);
 	end,
 
-	OnUpdate = function()
+	OnUpdate = function(frame)
 		local xpos,ypos = GetCursorPosition()
 		local xmin,ymin = Minimap:GetLeft(), Minimap:GetBottom()
 		xpos = xmin-xpos/Minimap:GetEffectiveScale()+70
 		ypos = ypos/Minimap:GetEffectiveScale()-ymin-70
-		this.modSettings.position = math.deg(math.atan2(ypos,xpos))
-		local modName = string.gsub(this:GetName() or "","MinimapButton$","")
+		frame.modSettings.position = math.deg(math.atan2(ypos,xpos))
+		local modName = string.gsub(frame:GetName() or "","MinimapButton$","")
 		MyMinimapButton:Move(modName)
 	end,
 
-	OnClick = function()
-		if arg1=="LeftButton" and this.leftClick then
-			this.leftClick()
-		elseif arg1=="RightButton" and this.rightClick then
-			this.rightClick()
+	OnClick = function(frame, arg1)
+		if arg1=="LeftButton" and frame.leftClick then
+			frame.leftClick()
+		elseif arg1=="RightButton" and frame.rightClick then
+			frame.rightClick()
 		end
 	end
 

@@ -159,7 +159,7 @@
                     <!-- ................... -->
                     <Frame name="DHUD_Header_blizzard" inherits="DHUD_HeaderTemplate">
                         <Scripts><OnLoad>
-                                DHUDO_Header_OnLoad(10,-70);
+                                DHUDO_Header_OnLoad(self, 10,-70);
                         </OnLoad></Scripts>
                     </Frame>
 
@@ -190,7 +190,7 @@
                     <!-- ............ -->
                     <Frame name="DHUD_Header_icons" inherits="DHUD_HeaderTemplate">
                         <Scripts><OnLoad>
-                                DHUDO_Header_OnLoad(160,-70);
+                                DHUDO_Header_OnLoad(self, 160,-70);
                         </OnLoad></Scripts>
                     </Frame>
 
@@ -241,7 +241,7 @@
                     <!-- ........... -->
                     <Frame name="DHUD_Header_misc" inherits="DHUD_HeaderTemplate">
                         <Scripts><OnLoad>
-                                DHUDO_Header_OnLoad(320,-70);
+                                DHUDO_Header_OnLoad(self, 320,-70);
                         </OnLoad></Scripts>
                     </Frame>
 
@@ -341,7 +341,7 @@
                     <!-- ................... -->
                     <Frame name="DHUD_Header_scale" inherits="DHUD_HeaderTemplate">
                         <Scripts><OnLoad>
-                                DHUDO_Header_OnLoad(165,-245);
+                                DHUDO_Header_OnLoad(self, 165,-245);
                         </OnLoad></Scripts>
                     </Frame>
 
@@ -351,8 +351,8 @@
                             <Offset><AbsDimension x="10" y="-30"/></Offset>
                         </Anchor></Anchors>
                         <Scripts><OnLoad>
-                            DHUDO_FrameSlider_OnLoad( 0.2 , 2, 0.1 );
-                            this.triggertext = 1;
+                            DHUDO_FrameSlider_OnLoad(self, 0.2 , 2, 0.1 );
+                            self.triggertext = 1;
                         </OnLoad></Scripts>
                     </Slider>
 
@@ -362,8 +362,8 @@
                             <Offset><AbsDimension x="0" y="-35"/></Offset>
                         </Anchor></Anchors>
                         <Scripts><OnLoad>
-                            DHUDO_FrameSlider_OnLoad( 6 , 30 , 1 );
-                            this.triggertext = 1;
+                            DHUDO_FrameSlider_OnLoad(self, 6 , 30 , 1 );
+                            self.triggertext = 1;
                         </OnLoad></Scripts>
                     </Slider>
 
@@ -373,8 +373,8 @@
                             <Offset><AbsDimension x="0" y="-35"/></Offset>
                         </Anchor></Anchors>
                         <Scripts><OnLoad>
-                            DHUDO_FrameSlider_OnLoad( 6 , 30 , 1 );
-                            this.triggertext = 1;
+                            DHUDO_FrameSlider_OnLoad(self, 6 , 30 , 1 );
+                            self.triggertext = 1;
                         </OnLoad></Scripts>
                     </Slider>
 
@@ -384,8 +384,8 @@
                             <Offset><AbsDimension x="0" y="-35"/></Offset>
                         </Anchor></Anchors>
                         <Scripts><OnLoad>
-                            DHUDO_FrameSlider_OnLoad( 6 , 30 , 1 );
-                            this.triggertext = 1;
+                            DHUDO_FrameSlider_OnLoad(self, 6 , 30 , 1 );
+                            self.triggertext = 1;
                         </OnLoad></Scripts>
                     </Slider>
 
@@ -395,8 +395,8 @@
                             <Offset><AbsDimension x="0" y="-35"/></Offset>
                         </Anchor></Anchors>
                         <Scripts><OnLoad>
-                            DHUDO_FrameSlider_OnLoad( 6 , 30 , 1 );
-                            this.triggertext = 1;
+                            DHUDO_FrameSlider_OnLoad(self, 6 , 30 , 1 );
+                            self.triggertext = 1;
                         </OnLoad></Scripts>
                     </Slider>
 
@@ -406,8 +406,8 @@
                             <Offset><AbsDimension x="0" y="-35"/></Offset>
                         </Anchor></Anchors>
                         <Scripts><OnLoad>
-                            DHUDO_FrameSlider_OnLoad( 6 , 30 , 1 );
-                            this.triggertext = 1;
+                            DHUDO_FrameSlider_OnLoad(self, 6 , 30 , 1 );
+                            self.triggertext = 1;
                         </OnLoad></Scripts>
                     </Slider>
 
@@ -417,8 +417,8 @@
                             <Offset><AbsDimension x="0" y="-35"/></Offset>
                         </Anchor></Anchors>
                         <Scripts><OnLoad>
-                            DHUDO_FrameSlider_OnLoad( 6 , 30 , 1 );
-                            this.triggertext = 1;
+                            DHUDO_FrameSlider_OnLoad(self, 6 , 30 , 1 );
+                            self.triggertext = 1;
                         </OnLoad></Scripts>
                     </Slider>
 
@@ -428,8 +428,8 @@
                             <Offset><AbsDimension x="0" y="-35"/></Offset>
                         </Anchor></Anchors>
                         <Scripts><OnLoad>
-                            DHUDO_FrameSlider_OnLoad( 6 , 30 , 1 );
-                            this.triggertext = 1;
+                            DHUDO_FrameSlider_OnLoad(self, 6 , 30 , 1 );
+                            self.triggertext = 1;
                         </OnLoad></Scripts>
                     </Slider>
                     
@@ -440,8 +440,8 @@
                             <Offset><AbsDimension x="0" y="-35"/></Offset>
                         </Anchor></Anchors>
                         <Scripts><OnLoad>
-                            DHUDO_FrameSlider_OnLoad( 6 , 30 , 1 );
-                            this.triggertext = 1;
+                            DHUDO_FrameSlider_OnLoad(self, 6 , 30 , 1 );
+                            self.triggertext = 1;
                         </OnLoad></Scripts>
                     </Slider>
                     
@@ -453,7 +453,7 @@
                     <!-- ................... -->
                     <Frame name="DHUD_Header_outlines" inherits="DHUD_HeaderTemplate">
                         <Scripts><OnLoad>
-                                DHUDO_Header_OnLoad(10,-175);
+                                DHUDO_Header_OnLoad(self, 10,-175);
                         </OnLoad></Scripts>
                     </Frame>
 
@@ -463,9 +463,9 @@
                             <Offset><AbsDimension x="10" y="-30"/></Offset>
                         </Anchor></Anchors>
                         <Scripts><OnLoad>
-                            this.triggertext = 1;
-                            this.nullbase = 1;
-                            DHUDO_FrameSlider_OnLoad( 1 , 3 , 1 );
+                            self.triggertext = 1;
+                            self.nullbase = 1;
+                            DHUDO_FrameSlider_OnLoad(self, 1 , 3 , 1 );
                         </OnLoad></Scripts>
                     </Slider>
 
@@ -475,9 +475,9 @@
                             <Offset><AbsDimension x="0" y="-35"/></Offset>
                         </Anchor></Anchors>
                         <Scripts><OnLoad>
-                            this.triggertext = 1;
-                            this.nullbase = 1;
-                            DHUDO_FrameSlider_OnLoad( 1 , 3 , 1 );
+                            self.triggertext = 1;
+                            self.nullbase = 1;
+                            DHUDO_FrameSlider_OnLoad(self, 1 , 3 , 1 );
                         </OnLoad></Scripts>
                     </Slider>
 
@@ -487,9 +487,9 @@
                             <Offset><AbsDimension x="0" y="-35"/></Offset>
                         </Anchor></Anchors>
                         <Scripts><OnLoad>
-                            this.triggertext = 1;
-                            this.nullbase = 1;
-                            DHUDO_FrameSlider_OnLoad( 1 , 3 , 1 );
+                            self.triggertext = 1;
+                            self.nullbase = 1;
+                            DHUDO_FrameSlider_OnLoad(self, 1 , 3 , 1 );
                         </OnLoad></Scripts>
                     </Slider>
 
@@ -499,9 +499,9 @@
                             <Offset><AbsDimension x="0" y="-35"/></Offset>
                         </Anchor></Anchors>
                         <Scripts><OnLoad>
-                            this.triggertext = 1;
-                            this.nullbase = 1;
-                            DHUDO_FrameSlider_OnLoad( 1 , 3 , 1 );
+                            self.triggertext = 1;
+                            self.nullbase = 1;
+                            DHUDO_FrameSlider_OnLoad(self, 1 , 3 , 1 );
                         </OnLoad></Scripts>
                     </Slider>
 
@@ -511,9 +511,9 @@
                             <Offset><AbsDimension x="0" y="-35"/></Offset>
                         </Anchor></Anchors>
                         <Scripts><OnLoad>
-                            this.triggertext = 1;
-                            this.nullbase = 1;
-                            DHUDO_FrameSlider_OnLoad( 1 , 3 , 1 );
+                            self.triggertext = 1;
+                            self.nullbase = 1;
+                            DHUDO_FrameSlider_OnLoad(self, 1 , 3 , 1 );
                         </OnLoad></Scripts>
                     </Slider>
 
@@ -523,9 +523,9 @@
                             <Offset><AbsDimension x="0" y="-35"/></Offset>
                         </Anchor></Anchors>
                         <Scripts><OnLoad>
-                            this.triggertext = 1;
-                            this.nullbase = 1;
-                            DHUDO_FrameSlider_OnLoad( 1 , 3 , 1 );
+                            self.triggertext = 1;
+                            self.nullbase = 1;
+                            DHUDO_FrameSlider_OnLoad(self, 1 , 3 , 1 );
                         </OnLoad></Scripts>
                     </Slider>
 
@@ -535,9 +535,9 @@
                             <Offset><AbsDimension x="0" y="-35"/></Offset>
                         </Anchor></Anchors>
                         <Scripts><OnLoad>
-                            this.triggertext = 1;
-                            this.nullbase = 1;
-                            DHUDO_FrameSlider_OnLoad( 1 , 3 , 1 );
+                            self.triggertext = 1;
+                            self.nullbase = 1;
+                            DHUDO_FrameSlider_OnLoad(self, 1 , 3 , 1 );
                         </OnLoad></Scripts>
                     </Slider>
 
@@ -547,9 +547,9 @@
                             <Offset><AbsDimension x="0" y="-35"/></Offset>
                         </Anchor></Anchors>
                         <Scripts><OnLoad>
-                            this.triggertext = 1;
-                            this.nullbase = 1;
-                            DHUDO_FrameSlider_OnLoad( 1 , 3 , 1 );
+                            self.triggertext = 1;
+                            self.nullbase = 1;
+                            DHUDO_FrameSlider_OnLoad(self, 1 , 3 , 1 );
                         </OnLoad></Scripts>
                     </Slider>
 
@@ -559,9 +559,9 @@
                             <Offset><AbsDimension x="0" y="-35"/></Offset>
                         </Anchor></Anchors>
                         <Scripts><OnLoad>
-                            this.triggertext = 1;
-                            this.nullbase = 1;
-                            DHUDO_FrameSlider_OnLoad( 1 , 3 , 1 );
+                            self.triggertext = 1;
+                            self.nullbase = 1;
+                            DHUDO_FrameSlider_OnLoad(self, 1 , 3 , 1 );
                         </OnLoad></Scripts>
                     </Slider>
 
@@ -571,9 +571,9 @@
                             <Offset><AbsDimension x="0" y="-35"/></Offset>
                         </Anchor></Anchors>
                         <Scripts><OnLoad>
-                            this.triggertext = 1;
-                            this.nullbase = 1;
-                            DHUDO_FrameSlider_OnLoad( 1 , 3 , 1 );
+                            self.triggertext = 1;
+                            self.nullbase = 1;
+                            DHUDO_FrameSlider_OnLoad(self, 1 , 3 , 1 );
                         </OnLoad></Scripts>
                     </Slider>
 
@@ -583,9 +583,9 @@
                             <Offset><AbsDimension x="0" y="-35"/></Offset>
                         </Anchor></Anchors>
                         <Scripts><OnLoad>
-                            this.triggertext = 1;
-                            this.nullbase = 1;
-                            DHUDO_FrameSlider_OnLoad( 1 , 3 , 1 );
+                            self.triggertext = 1;
+                            self.nullbase = 1;
+                            DHUDO_FrameSlider_OnLoad(self, 1 , 3 , 1 );
                         </OnLoad></Scripts>
                     </Slider>
 
@@ -595,7 +595,7 @@
                     <!-- ................... -->
                     <Frame name="DHUD_Header_alpha" inherits="DHUD_HeaderTemplate">
                         <Scripts><OnLoad>
-                                DHUDO_Header_OnLoad(320,-415);
+                                DHUDO_Header_OnLoad(self, 320,-415);
                         </OnLoad></Scripts>
                     </Frame>
 
@@ -605,7 +605,7 @@
                             <Offset><AbsDimension x="10" y="-35"/></Offset>
                         </Anchor></Anchors>
                         <Scripts><OnLoad>
-                            DHUDO_FrameSlider_OnLoad( 0 , 1 , 0.1 );
+                            DHUDO_FrameSlider_OnLoad(self, 0 , 1 , 0.1 );
                         </OnLoad></Scripts>
                     </Slider>
 
@@ -615,7 +615,7 @@
                             <Offset><AbsDimension x="0" y="-35"/></Offset>
                         </Anchor></Anchors>
                         <Scripts><OnLoad>
-                            DHUDO_FrameSlider_OnLoad( 0 , 1 , 0.1 );
+                            DHUDO_FrameSlider_OnLoad(self, 0 , 1 , 0.1 );
                         </OnLoad></Scripts>
                     </Slider>
 
@@ -625,7 +625,7 @@
                             <Offset><AbsDimension x="0" y="-35"/></Offset>
                         </Anchor></Anchors>
                         <Scripts><OnLoad>
-                            DHUDO_FrameSlider_OnLoad( 0 , 1 , 0.1 );
+                            DHUDO_FrameSlider_OnLoad(self, 0 , 1 , 0.1 );
                         </OnLoad></Scripts>
                     </Slider>
 
@@ -635,7 +635,7 @@
                             <Offset><AbsDimension x="0" y="-35"/></Offset>
                         </Anchor></Anchors>
                         <Scripts><OnLoad>
-                            DHUDO_FrameSlider_OnLoad( 0 , 1 , 0.1 );
+                            DHUDO_FrameSlider_OnLoad(self, 0 , 1 , 0.1 );
                         </OnLoad></Scripts>
                     </Slider>
 
@@ -653,7 +653,7 @@
                     <!-- ........... -->
                     <Frame name="DHUD_Header_pos" inherits="DHUD_HeaderTemplate">
                         <Scripts><OnLoad>
-                                DHUDO_Header_OnLoad(10,-70);
+                                DHUDO_Header_OnLoad(self, 10,-70);
                         </OnLoad></Scripts>
                     </Frame>
 
@@ -750,7 +750,7 @@
                     <!-- ........... -->
                     <Frame name="DHUD_Header_textpos" inherits="DHUD_HeaderTemplate">
                         <Scripts><OnLoad>
-                                DHUDO_Header_OnLoad(10,-270);
+                                DHUDO_Header_OnLoad(self, 10,-270);
                         </OnLoad></Scripts>
                     </Frame>
 
@@ -856,7 +856,7 @@
                     <!-- ........... -->
                     <Frame name="DHUD_Header_filter" inherits="DHUD_HeaderTemplate">
                         <Scripts><OnLoad>
-                                DHUDO_Header_OnLoad(10,-470);
+                                DHUDO_Header_OnLoad(self, 10,-470);
                         </OnLoad></Scripts>
                     </Frame>
                     
@@ -867,9 +867,9 @@
                             <Offset><AbsDimension x="10" y="-35"/></Offset>
                         </Anchor></Anchors>
                         <Scripts><OnLoad>
-                            this.triggertext = 1;
-                            --this.nullbase = 1;
-                            DHUDO_FrameSlider_OnLoad( 0 , 3600 , 10 );
+                            self.triggertext = 1;
+                            --self.nullbase = 1;
+                            DHUDO_FrameSlider_OnLoad(self, 0 , 3600 , 10 );
                         </OnLoad></Scripts>
                     </Slider>
 
@@ -885,7 +885,7 @@
                     <!-- ........... -->
                     <Frame name="DHUD_Header_text" inherits="DHUD_HeaderTemplate">
                         <Scripts><OnLoad>
-                                DHUDO_Header_OnLoad(10,-70);
+                                DHUDO_Header_OnLoad(self, 10,-70);
                         </OnLoad></Scripts>
                     </Frame>
 
@@ -981,7 +981,7 @@
                     <!-- ................... -->
                     <Frame name="DHUD_Header_colorsplayer" inherits="DHUD_HeaderTemplate">
                         <Scripts><OnLoad>
-                                DHUDO_Header_OnLoad(10,-70);
+                                DHUDO_Header_OnLoad(self, 10,-70);
                         </OnLoad></Scripts>
                     </Frame>
 
@@ -1029,7 +1029,7 @@
                     <!-- ................... -->
                     <Frame name="DHUD_Header_colorspet" inherits="DHUD_HeaderTemplate">
                         <Scripts><OnLoad>
-                                DHUDO_Header_OnLoad(10,-195);
+                                DHUDO_Header_OnLoad(self, 10,-195);
                         </OnLoad></Scripts>
                     </Frame>
 
@@ -1062,7 +1062,7 @@
                     <!-- ................... -->
                     <Frame name="DHUD_Header_colorstarget" inherits="DHUD_HeaderTemplate">
                         <Scripts><OnLoad>
-                                DHUDO_Header_OnLoad(10,-285);
+                                DHUDO_Header_OnLoad(self, 10,-285);
                         </OnLoad></Scripts>
                     </Frame>
 
@@ -1127,7 +1127,7 @@
                     <!-- ................... -->
                     <Frame name="DHUD_Header_colorsother" inherits="DHUD_HeaderTemplate">
                         <Scripts><OnLoad>
-                                DHUDO_Header_OnLoad(10,-445);
+                                DHUDO_Header_OnLoad(self, 10,-445);
                         </OnLoad></Scripts>
                     </Frame>
 
@@ -1176,7 +1176,7 @@
                     <!-- ................... -->
                     <Frame name="DHUD_Header_layout" inherits="DHUD_HeaderTemplate">
                         <Scripts><OnLoad>
-                                DHUDO_Header_OnLoad(10,-70);
+                                DHUDO_Header_OnLoad(self, 10,-70);
                         </OnLoad></Scripts>
                     </Frame>
 
@@ -1188,14 +1188,14 @@
                         </Anchors>
             			<Scripts>
             				<OnLoad>
-            				    getglobal(this:GetName().."Text"):SetText("|cff88ff88DHUD Bubbles|r (Hitpoints Left - Mana Right)");
+            				    getglobal(self:GetName().."Text"):SetText("|cff88ff88DHUD Bubbles|r (Hitpoints Left - Mana Right)");
             				    if DHUD:GetConfig("layouttyp") == "DHUD_Standard_Layout" then
             				        DHUD_RADIO_layout1:SetChecked(1);
             				    else
             				        DHUD_RADIO_layout1:SetChecked(nil);
             				    end
             				</OnLoad>
-            				<OnClick>DHUD_RadioButton_OnClick( this:GetID() )</OnClick>
+            				<OnClick>DHUD_RadioButton_OnClick( self:GetID() )</OnClick>
             			</Scripts>
             		</CheckButton>
             		<CheckButton name="DHUD_RADIO_layout2" inherits="DHUD_RadioButtonTemplate" id="2">
@@ -1206,14 +1206,14 @@
                         </Anchors>
             			<Scripts>
             				<OnLoad>
-            				    getglobal(this:GetName().."Text"):SetText("|cff88ff88DHUD Bubbles|r (Player Left - Target Right)");
+            				    getglobal(self:GetName().."Text"):SetText("|cff88ff88DHUD Bubbles|r (Player Left - Target Right)");
             				    if DHUD:GetConfig("layouttyp") == "DHUD_PlayerLeft_Layout" then
             				        DHUD_RADIO_layout2:SetChecked(1);
             				    else
             				        DHUD_RADIO_layout2:SetChecked(nil);
             				    end
             				</OnLoad>
-            				<OnClick>DHUD_RadioButton_OnClick( this:GetID() )</OnClick>
+            				<OnClick>DHUD_RadioButton_OnClick( self:GetID() )</OnClick>
             			</Scripts>
             		</CheckButton>
 					<CheckButton name="DHUD_RADIO_layout3" inherits="DHUD_RadioButtonTemplate" id="3">
@@ -1224,14 +1224,14 @@
                         </Anchors>
             			<Scripts>
             				<OnLoad>
-            				    getglobal(this:GetName().."Text"):SetText("|cff88ff88DHUD Layout1|r (Mirror)");
+            				    getglobal(self:GetName().."Text"):SetText("|cff88ff88DHUD Layout1|r (Mirror)");
             				    if DHUD:GetConfig("layouttyp") == "DHUD_StandardMirror_Layout" then
             				        DHUD_RADIO_layout3:SetChecked(1);
             				    else
             				        DHUD_RADIO_layout3:SetChecked(nil);
             				    end
             				</OnLoad>
-            				<OnClick>DHUD_RadioButton_OnClick( this:GetID() )</OnClick>
+            				<OnClick>DHUD_RadioButton_OnClick( self:GetID() )</OnClick>
             			</Scripts>
             		</CheckButton>
 					<CheckButton name="DHUD_RADIO_layout4" inherits="DHUD_RadioButtonTemplate" id="4">
@@ -1242,14 +1242,14 @@
                         </Anchors>
             			<Scripts>
             				<OnLoad>
-            				    getglobal(this:GetName().."Text"):SetText("|cff88ff88DHUD Layout2|r (Mirror)");
+            				    getglobal(self:GetName().."Text"):SetText("|cff88ff88DHUD Layout2|r (Mirror)");
             				    if DHUD:GetConfig("layouttyp") == "DHUD_PlayerLeftMirror_Layout" then
             				        DHUD_RADIO_layout4:SetChecked(1);
             				    else
             				        DHUD_RADIO_layout4:SetChecked(nil);
             				    end
             				</OnLoad>
-            				<OnClick>DHUD_RadioButton_OnClick( this:GetID() )</OnClick>
+            				<OnClick>DHUD_RadioButton_OnClick( self:GetID() )</OnClick>
             			</Scripts>
             		</CheckButton>
 
@@ -1265,7 +1265,7 @@
                     <!-- ................... -->
                     <Frame name="DHUD_Header_madcat" inherits="DHUD_HeaderTemplate">
                         <Scripts><OnLoad>
-                                DHUDO_Header_OnLoad(10,-70);
+                                DHUDO_Header_OnLoad(self, 10,-70);
                         </OnLoad></Scripts>
                     </Frame>
 					<!-- checkbox enemycastbar -->
@@ -1316,7 +1316,7 @@
                     <!-- ................... -->
                     <Frame name="DHUD_Header_madcat2scale" inherits="DHUD_HeaderTemplate">
                         <Scripts><OnLoad>
-                                DHUDO_Header_OnLoad(10,-270);
+                                DHUDO_Header_OnLoad(self, 10,-270);
                         </OnLoad></Scripts>
                     </Frame>
 
@@ -1326,8 +1326,8 @@
                             <Offset><AbsDimension x="10" y="-30"/></Offset>
                         </Anchor></Anchors>
                         <Scripts><OnLoad>
-                            DHUDO_FrameSlider_OnLoad( 0.8 , 1.6, 0.1 );
-                            this.triggertext = 1;
+                            DHUDO_FrameSlider_OnLoad(self, 0.8 , 1.6, 0.1 );
+                            self.triggertext = 1;
                         </OnLoad></Scripts>
                     </Slider>
 
@@ -1386,16 +1386,16 @@
 
 		<Scripts>
 		    <OnLoad>
-		        DHUDO_OnLoad();
+		        DHUDO_OnLoad(self);
 		    </OnLoad>
 			<OnMouseDown>
 				if (arg1 == "LeftButton") then
-					this:StartMoving();
+					self:StartMoving();
 				end
 			</OnMouseDown>
 			<OnMouseUp>
 				if (arg1 == "LeftButton") then
-					this:StopMovingOrSizing();
+					self:StopMovingOrSizing();
 				end
 			</OnMouseUp>
 			<OnShow>

@@ -3,7 +3,7 @@ DHUDDROPDOWNSELECTED = "";
 
 --Ace3 Profile Support
 local AppName = "DHUDO"
-local VERSION = AppName .. "v 1.5.40000a"
+local VERSION = AppName .. "v 1.5.40000b"
 
 local AceConfig = LibStub("AceConfig-3.0")
 local AceDBOptions = LibStub("AceDBOptions-3.0")
@@ -259,28 +259,27 @@ end
 
 
 --DHUD Options CODE
-function DHUDO_Header_OnLoad(x,y)
-	
-    this.setting_name = string.gsub( this:GetName() , "DHUD_", "");
-    local text = getglobal( this:GetName().."Text");
-    text:SetText( " "..(DHUDO_locale[this.setting_name] or "["..(this.setting_name).."]") );
+function DHUDO_Header_OnLoad(frame, x,y)
+    frame.setting_name = string.gsub( frame:GetName() , "DHUD_", "");
+    local text = getglobal( frame:GetName().."Text");
+    text:SetText( " "..(DHUDO_locale[frame.setting_name] or "["..(frame.setting_name).."]") );
     text:ClearAllPoints();
     text:SetHeight(20);
     text:SetPoint("TOPLEFT", "DHUDOptionsFrame" , "TOPLEFT", x, y);
 end
 
-function DHUDO_OnLoad()
+function DHUDO_OnLoad(frame)
 	DHUDO:DHUDODBLOAD() --load ACE3 DB Profiles
     table.insert(UISpecialFrames, "DHUDOptionsFrame");
-    PanelTemplates_SetNumTabs(this, DHUDO_NUMTABS);
-    PanelTemplates_SetTab(this, 1);    
+    PanelTemplates_SetNumTabs(frame, DHUDO_NUMTABS);
+    PanelTemplates_SetTab(frame, 1);    
 end
 
-function DHUDO_DropDown_Initialize()
+function DHUDO_DropDown_Initialize(frame)
 	local info = {};
 	local index;
 	
-    index = string.gsub( this:GetName() , "DHUD_Edit_", "");
+    index = string.gsub( frame:GetName() , "DHUD_Edit_", "");
 	index = string.gsub( index , "_Selection", "");
 	index = string.gsub( index , "Button", "");
 	
@@ -298,14 +297,14 @@ function DHUDO_DropDown_Initialize()
     end
 end
 
-function DHUDO_DropDown_OnClick(list)
+function DHUDO_DropDown_OnClick(frame, list)
 	--Can't get list, using global variable
 	list = DHUDDROPDOWNSELECTED;
     local sel = getglobal("DHUD_Edit_"..list.."_Selection");
     local box = getglobal("DHUD_Edit_"..list.."ScrollFrameText");
-    local text = DHUDO_SELECTION[list]["values"][ this:GetID() ];
+    local text = DHUDO_SELECTION[list]["values"][ frame:GetID() ];
     box:SetText(text);
-    UIDropDownMenu_SetSelectedID( sel , this:GetID() );
+    UIDropDownMenu_SetSelectedID( sel , frame:GetID() );
     DHUD:SetConfig( list, text );
 	db[list] = text ;
     DHUDO_updateTexts(list);
@@ -317,75 +316,75 @@ function DHUDO_updateTexts(name)
     DHUD:triggerTextEvent(name);
 end
         
-function DHUDO_FrameSlider_OnLoad(low, high, step)
-    this.setting_name = string.gsub( this:GetName() , "DHUD_Slider_", "");
-    this.st = step;
-    if this.nullbase == 1 then
-	   getglobal(this:GetName().."Low"):SetText( (low - low) );
-	   getglobal(this:GetName().."High"):SetText( (high - low));     
-	   this.low = low;  
+function DHUDO_FrameSlider_OnLoad(frame, low, high, step)
+    frame.setting_name = string.gsub( frame:GetName() , "DHUD_Slider_", "");
+    frame.st = step;
+    if frame.nullbase == 1 then
+	   getglobal(frame:GetName().."Low"):SetText( (low - low) );
+	   getglobal(frame:GetName().."High"):SetText( (high - low));     
+	   frame.low = low;  
     else
-	   getglobal(this:GetName().."Low"):SetText(low);
-	   getglobal(this:GetName().."High"):SetText(high);        
+	   getglobal(frame:GetName().."Low"):SetText(low);
+	   getglobal(frame:GetName().."High"):SetText(high);        
     end
-	this:SetMinMaxValues(low, high);
-	this:SetValueStep(this.st);
+	frame:SetMinMaxValues(low, high);
+	frame:SetValueStep(frame.st);
 end
 
-function DHUDO_FrameSlider_OnShow( key,text)
-    getglobal(this:GetName()):SetValue(DHUD_Settings[key]);
-    if this.nullbase == 1 then
-        getglobal(this:GetName().."Text"):SetText(text.." "..(DHUD_Settings[key] - this.low ).." ");
+function DHUDO_FrameSlider_OnShow(frame, key,text)
+    getglobal(frame:GetName()):SetValue(DHUD_Settings[key]);
+    if frame.nullbase == 1 then
+        getglobal(frame:GetName().."Text"):SetText(text.." "..(DHUD_Settings[key] - frame.low ).." ");
     else
-        getglobal(this:GetName().."Text"):SetText(text.." "..DHUD_Settings[key].." ");
+        getglobal(frame:GetName().."Text"):SetText(text.." "..DHUD_Settings[key].." ");
     end
 end
 
-function DHUDO_FrameSlider_OnValueChanged(key,text)
+function DHUDO_FrameSlider_OnValueChanged(frame, key,text)
 
      local m;
      local value;
      
-     if this.st == nil then
+     if frame.st == nil then
         m = 0;
      end
      
-     if this.st == 10 then
+     if frame.st == 10 then
         m = 0.1;
      end
      
-     if this.st == 1 then
+     if frame.st == 1 then
         m = 0;
      end
      
-     if this.st == 0.1 then
+     if frame.st == 0.1 then
         m = 10;
      end
      
-     if this.st == 0.01 then
+     if frame.st == 0.01 then
         m = 100;
      end
      
-     if this.st == 0.001 then
+     if frame.st == 0.001 then
         m = 1000;
      end
                     
      if m > 0 then
-         value =  math.floor( ( this:GetValue() + 0.00001) * m ) / m; 
+         value =  math.floor( ( frame:GetValue() + 0.00001) * m ) / m; 
      else
-         value =  math.floor( this:GetValue() ); 
+         value =  math.floor( frame:GetValue() ); 
      end
      
 	 DHUD:SetConfig( key, value );
 	 db[key] = value ;
-    if this.nullbase == 1 then
-        getglobal(this:GetName().."Text"):SetText(text.." "..(DHUD_Settings[key] - this.low ).." ");
+    if frame.nullbase == 1 then
+        getglobal(frame:GetName().."Text"):SetText(text.." "..(DHUD_Settings[key] - frame.low ).." ");
     else
-        getglobal(this:GetName().."Text"):SetText(text.." "..DHUD_Settings[key].." ");
+        getglobal(frame:GetName().."Text"):SetText(text.." "..DHUD_Settings[key].." ");
     end
 	 DHUD:init();
 	 
-    if this.triggertext then
+    if frame.triggertext then
         DHUD:triggerAllTextEvents();
     end
 end
@@ -428,9 +427,9 @@ function DHUDO_ColorPicker_ColorChanged()
     DHUD:init();
 end
 
-function DHUDO_ColorPicker_OnClick(boxnumber)
+function DHUDO_ColorPicker_OnClick(frame, boxnumber)
 
-    local name = string.gsub( this:GetName() , "DHUD_Colorbox_", "");
+    local name = string.gsub( frame:GetName() , "DHUD_Colorbox_", "");
     name = string.gsub( name , boxnumber, "");
     local Red, Green, Blue = unpack(DHUD_HexToDec(DHUD_Settings["colors"][name][boxnumber]));
     

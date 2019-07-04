@@ -1,11 +1,21 @@
 --- AceDBOptions-3.0 provides a universal AceConfig options screen for managing AceDB-3.0 profiles.
 -- @class file
 -- @name AceDBOptions-3.0
--- @release $Id: AceDBOptions-3.0.lua 726 2009-01-06 14:41:57Z nevcairiel $
-local ACEDBO_MAJOR, ACEDBO_MINOR = "AceDBOptions-3.0", 10
+-- @release $Id: AceDBOptions-3.0.lua 938 2010-06-13 07:21:38Z nevcairiel $
+local ACEDBO_MAJOR, ACEDBO_MINOR = "AceDBOptions-3.0", 12
 local AceDBOptions, oldminor = LibStub:NewLibrary(ACEDBO_MAJOR, ACEDBO_MINOR)
 
 if not AceDBOptions then return end -- No upgrade needed
+
+-- Lua APIs
+local pairs, next = pairs, next
+
+-- WoW APIs
+local UnitClass = UnitClass
+
+-- Global vars/functions that we don't upvalue since they might get hooked, or upgraded
+-- List them here for Mikk's FindGlobals script
+-- GLOBALS: NORMAL_FONT_COLOR_CODE, FONT_COLOR_CODE_CLOSE
 
 AceDBOptions.optionTables = AceDBOptions.optionTables or {}
 AceDBOptions.handlers = AceDBOptions.handlers or {}
@@ -20,7 +30,7 @@ local L = {
 	reset_desc = "Reset the current profile back to its default values, in case your configuration is broken, or you simply want to start over.",
 	reset = "Reset Profile",
 	reset_sub = "Reset the current profile to the default",
-	choose_desc = "You can either create a new profile by entering a name in the editbox, or choose one of the already exisiting profiles.",
+	choose_desc = "You can either create a new profile by entering a name in the editbox, or choose one of the already existing profiles.",
 	new = "New",
 	new_sub = "Create a new empty profile.",
 	choose = "Existing Profiles",
@@ -33,6 +43,7 @@ local L = {
 	delete_confirm = "Are you sure you want to delete the selected profile?",
 	profiles = "Profiles",
 	profiles_sub = "Manage Profiles",
+	current = "Current Profile:",
 }
 
 local LOCALE = GetLocale()
@@ -55,6 +66,7 @@ if LOCALE == "deDE" then
 	L["delete_confirm"] = "Willst du das ausgew\195\164hlte Profil wirklich l\195\182schen?"
 	L["profiles"] = "Profile"
 	L["profiles_sub"] = "Profile verwalten"
+	--L["current"] = "Current Profile:"
 elseif LOCALE == "frFR" then
 	L["default"] = "D\195\169faut"
 	L["intro"] = "Vous pouvez changer le profil actuel afin d'avoir des param\195\168tres diff\195\169rents pour chaque personnage, permettant ainsi d'avoir une configuration tr\195\168s flexible."
@@ -74,6 +86,7 @@ elseif LOCALE == "frFR" then
 	L["delete_confirm"] = "Etes-vous s\195\187r de vouloir supprimer le profil s\195\169lectionn\195\169 ?"
 	L["profiles"] = "Profils"
 	L["profiles_sub"] = "Gestion des profils"
+	--L["current"] = "Current Profile:"
 elseif LOCALE == "koKR" then
 	L["default"] = "기본값"
 	L["intro"] = "모든 캐릭터의 다양한 설정과 사용중인 데이터베이스 프로필, 어느것이던지 매우 다루기 쉽게 바꿀수 있습니다." 
@@ -93,7 +106,8 @@ elseif LOCALE == "koKR" then
 	L["delete_confirm"] = "정말로 선택한 프로필의 삭제를 원하십니까?"
 	L["profiles"] = "프로필"
 	L["profiles_sub"] = "프로필 설정"
-elseif LOCALE == "esES" then
+	--L["current"] = "Current Profile:"
+elseif LOCALE == "esES" or LOCALE == "esMX" then
 	L["default"] = "Por defecto"
 	L["intro"] = "Puedes cambiar el perfil activo de tal manera que cada personaje tenga diferentes configuraciones."
 	L["reset_desc"] = "Reinicia el perfil actual a los valores por defectos, en caso de que se haya estropeado la configuración o quieras volver a empezar de nuevo."
@@ -112,6 +126,7 @@ elseif LOCALE == "esES" then
 	L["delete_confirm"] = "¿Estas seguro que quieres borrar el perfil seleccionado?"
 	L["profiles"] = "Perfiles"
 	L["profiles_sub"] = "Manejar Perfiles"
+	--L["current"] = "Current Profile:"
 elseif LOCALE == "zhTW" then
 	L["default"] = "預設"
 	L["intro"] = "你可以選擇一個活動的資料設定檔，這樣你的每個角色就可以擁有不同的設定值，可以給你的插件設定帶來極大的靈活性。" 
@@ -131,6 +146,7 @@ elseif LOCALE == "zhTW" then
 	L["delete_confirm"] = "你確定要刪除所選擇的設定檔嗎？"
 	L["profiles"] = "設定檔"
 	L["profiles_sub"] = "管理設定檔"
+	--L["current"] = "Current Profile:"
 elseif LOCALE == "zhCN" then
 	L["default"] = "默认"
 	L["intro"] = "你可以选择一个活动的数据配置文件，这样你的每个角色就可以拥有不同的设置值，可以给你的插件配置带来极大的灵活性。" 
@@ -150,6 +166,7 @@ elseif LOCALE == "zhCN" then
 	L["delete_confirm"] = "你确定要删除所选择的配置文件么？"
 	L["profiles"] = "配置文件"
 	L["profiles_sub"] = "管理配置文件"
+	--L["current"] = "Current Profile:"
 elseif LOCALE == "ruRU" then
 	L["default"] = "По умолчанию"
 	L["intro"] = "Изменяя активный профиль, вы можете задать различные настройки модификаций для каждого персонажа."
@@ -169,6 +186,7 @@ elseif LOCALE == "ruRU" then
 	L["delete_confirm"] = "Вы уверены, что вы хотите удалить выбранный профиль?"
 	L["profiles"] = "Профили"
 	L["profiles_sub"] = "Управление профилями"
+	--L["current"] = "Current Profile:"
 end
 
 local defaultProfiles
@@ -310,6 +328,12 @@ local optionsTable = {
 		desc = L["reset_sub"],
 		func = "Reset",
 	},
+	current = {
+		order = 11,
+		type = "description",
+		name = function(info) return L["current"] .. " " .. NORMAL_FONT_COLOR_CODE .. info.handler:GetCurrentProfile() .. FONT_COLOR_CODE_CLOSE end,
+		width = "default",
+	},
 	choosedesc = {
 		order = 20,
 		type = "description",
@@ -372,8 +396,9 @@ local optionsTable = {
 --- Get/Create a option table that you can use in your addon to control the profiles of AceDB-3.0.
 -- @param db The database object to create the options table for.
 -- @return The options table to be used in AceConfig-3.0
--- @usage Assuming ''options'' is your top-level options table and ''self.db'' is your database:<br/>
--- <tt>options.args.profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db)</tt>
+-- @usage 
+-- -- Assuming `options` is your top-level options table and `self.db` is your database:
+-- options.args.profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db)
 function AceDBOptions:GetOptionsTable(db, noDefaultProfiles)
 	local tbl = AceDBOptions.optionTables[db] or {
 			type = "group",

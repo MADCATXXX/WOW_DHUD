@@ -13,19 +13,19 @@
         </Anchors>
         <Scripts>
             <OnLoad>
-                this.setting_name = string.gsub( this:GetName() , "DHUD_Check_", "");
-                getglobal( this:GetName().."Text"):SetText( " "..DHUDO_locale[this.setting_name] );
+                self.setting_name = string.gsub( self:GetName() , "DHUD_Check_", "");
+                getglobal( self:GetName().."Text"):SetText( " "..DHUDO_locale[self.setting_name] );
             </OnLoad>				
             <OnClick>
-                DHUD:ToggleConfig(this.setting_name);
-				DHUDO:SetDBSetting(this.setting_name,DHUD_Settings[this.setting_name])
+                DHUD:ToggleConfig(self.setting_name);
+				DHUDO:SetDBSetting(self.setting_name,DHUD_Settings[self.setting_name])
             </OnClick>
             <OnShow>
-                getglobal(this:GetName()):SetChecked(DHUD:GetConfig(this.setting_name));
+                getglobal(self:GetName()):SetChecked(DHUD:GetConfig(self.setting_name));
             </OnShow>
             <OnEnter>
-                GameTooltip:SetOwner(this, "ANCHOR_RIGHT");
-                GameTooltip:SetText(DHUDO_locale[this.setting_name.."_tooltip"], 1, 1, 1, 1);
+                GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+                GameTooltip:SetText(DHUDO_locale[self.setting_name.."_tooltip"], 1, 1, 1, 1);
             </OnEnter>
             <OnLeave>
                 GameTooltip:Hide();
@@ -42,7 +42,7 @@
         </Layers>
         <Scripts>
             <OnLoad>
-                DHUDO_Header_OnLoad(0,0);
+                DHUDO_Header_OnLoad(self, 0,0);
             </OnLoad>
         </Scripts>
     </Frame> 
@@ -121,7 +121,7 @@
 		<Scripts>
 			<OnLoad>
 				PanelTemplates_TabResize(0);
-				getglobal(this:GetName().."HighlightTexture"):SetWidth(this:GetTextWidth() + 31);
+				getglobal(self:GetName().."HighlightTexture"):SetWidth(self:GetTextWidth() + 31);
 			</OnLoad>
 		</Scripts>
 		<ButtonText name="$parentText" inherits="GameFontNormalSmall">
@@ -174,15 +174,15 @@
 		</HighlightTexture>
         <Scripts>
             <OnLoad>
-                this:SetText(DHUDO_locale[this:GetName()]);
-                getglobal(this:GetName().."HighlightTexture"):SetWidth(this:GetTextWidth() + 31);
+                self:SetText(DHUDO_locale[self:GetName()]);
+                getglobal(self:GetName().."HighlightTexture"):SetWidth(self:GetTextWidth() + 31);
 				<!--Before WotLK PanelTemplates_TabResize(-15, nil, nil, 150);-->
             </OnLoad>
             <OnClick>
-                PanelTemplates_SetTab(DHUDOptionsFrame, this:GetID());
+                PanelTemplates_SetTab(DHUDOptionsFrame, self:GetID());
 
                 for i = 1, DHUDO_NUMTABS do
-                  if i == this:GetID() then
+                  if i == self:GetID() then
                       getglobal("DHUD_Tab"..i):Show();
                   else
                       getglobal("DHUD_Tab"..i):Hide();
@@ -207,21 +207,21 @@
         </Anchors>
         <Scripts>
             <OnLoad>
-                local parent = this:GetParent();
-                this.setting_name = string.gsub( parent:GetName() , "DHUD_Pos_", "");
-                this:RegisterForClicks("LeftButtonUp", "RightButtonUp");
+                local parent = self:GetParent();
+                self.setting_name = string.gsub( parent:GetName() , "DHUD_Pos_", "");
+                self:RegisterForClicks("LeftButtonUp", "RightButtonUp");
             </OnLoad>
             <OnClick>
                 if (arg1 == "RightButton") then
-                    DHUD:SetConfig(this.setting_name, DHUD:GetConfig(this.setting_name) - 10);
-					DHUDO:SetDBSetting(this.setting_name, DHUD:GetConfig(this.setting_name) - 10);
+                    DHUD:SetConfig(self.setting_name, DHUD:GetConfig(self.setting_name) - 10);
+					DHUDO:SetDBSetting(self.setting_name, DHUD:GetConfig(self.setting_name) - 10);
                 else
-                    DHUD:SetConfig(this.setting_name, DHUD:GetConfig(this.setting_name) - 1);
-					DHUDO:SetDBSetting(this.setting_name, DHUD:GetConfig(this.setting_name) - 1);
+                    DHUD:SetConfig(self.setting_name, DHUD:GetConfig(self.setting_name) - 1);
+					DHUDO:SetDBSetting(self.setting_name, DHUD:GetConfig(self.setting_name) - 1);
                 end
-                local parent = this:GetParent();
+                local parent = self:GetParent();
                 local text = getglobal(parent:GetName().."_Minitext");
-                text:SetText( DHUD:GetConfig(this.setting_name) );
+                text:SetText( DHUD:GetConfig(self.setting_name) );
                 DHUD:init();
             </OnClick>
         </Scripts>
@@ -245,21 +245,21 @@
         </Anchors>
         <Scripts>
             <OnLoad>
-                local parent = this:GetParent();
-                this.setting_name = string.gsub( parent:GetName() , "DHUD_Pos_", "");
-                this:RegisterForClicks("LeftButtonUp", "RightButtonUp");
+                local parent = self:GetParent();
+                self.setting_name = string.gsub( parent:GetName() , "DHUD_Pos_", "");
+                self:RegisterForClicks("LeftButtonUp", "RightButtonUp");
             </OnLoad>
             <OnClick>
                 if (arg1 == "RightButton") then
-                    DHUD:SetConfig(this.setting_name, DHUD:GetConfig(this.setting_name) + 10);
-					DHUDO:SetDBSetting(this.setting_name, DHUD:GetConfig(this.setting_name) + 10);
+                    DHUD:SetConfig(self.setting_name, DHUD:GetConfig(self.setting_name) + 10);
+					DHUDO:SetDBSetting(self.setting_name, DHUD:GetConfig(self.setting_name) + 10);
                 else
-                    DHUD:SetConfig(this.setting_name, DHUD:GetConfig(this.setting_name) + 1);
-					DHUDO:SetDBSetting(this.setting_name, DHUD:GetConfig(this.setting_name) + 1);
+                    DHUD:SetConfig(self.setting_name, DHUD:GetConfig(self.setting_name) + 1);
+					DHUDO:SetDBSetting(self.setting_name, DHUD:GetConfig(self.setting_name) + 1);
                 end
-                local parent = this:GetParent();
+                local parent = self:GetParent();
                 local text = getglobal(parent:GetName().."_Minitext");
-                text:SetText( DHUD:GetConfig(this.setting_name) );
+                text:SetText( DHUD:GetConfig(self.setting_name) );
                 DHUD:init();
             </OnClick>
         </Scripts>
@@ -339,35 +339,35 @@
         </Layers>
         <Scripts>
             <OnLoad>
-                local parent = this:GetParent();
-                this.setting_name = string.gsub( parent:GetName() , "DHUD_Pos_", "");
-                getglobal( this:GetName().."Text"):SetText( " "..(DHUDO_locale[this.setting_name] or "No Locale") );
-                this:SetText( tonumber(DHUD:GetConfig(this.setting_name)) or 0 );
-                this.oldvalue = this:GetText();
+                local parent = self:GetParent();
+                self.setting_name = string.gsub( parent:GetName() , "DHUD_Pos_", "");
+                getglobal( self:GetName().."Text"):SetText( " "..(DHUDO_locale[self.setting_name] or "No Locale") );
+                self:SetText( tonumber(DHUD:GetConfig(self.setting_name)) or 0 );
+                self.oldvalue = self:GetText();
             </OnLoad>
             <OnEnterPressed>
-                this:ClearFocus();
+                self:ClearFocus();
             </OnEnterPressed>
             <OnEscapePressed>
-                this:ClearFocus();
+                self:ClearFocus();
             </OnEscapePressed>
             <OnTextChanged>
-                if this:GetNumber() == this:GetText() then
-                    this.oldvalue = this:GetText();
+                if self:GetNumber() == self:GetText() then
+                    self.oldvalue = self:GetText();
                 end
-                if this:GetText() ~= "-" then
-                    this:SetText( this:GetNumber() or 0 );
+                if self:GetText() ~= "-" then
+                    self:SetText( self:GetNumber() or 0 );
                 end
-                DHUD:SetConfig( this.setting_name, this:GetText() );
-				DHUDO:SetDBSetting( this.setting_name, this:GetText() );
+                DHUD:SetConfig( self.setting_name, self:GetText() );
+				DHUDO:SetDBSetting( self.setting_name, self:GetText() );
 
             </OnTextChanged> 
             <OnEditFocusLost>
-                this:HighlightText(0, 0);
+                self:HighlightText(0, 0);
                 DHUD:init();
             </OnEditFocusLost>
             <OnEditFocusGained>
-                this:HighlightText();
+                self:HighlightText();
             </OnEditFocusGained>
         </Scripts>
         <FontString inherits="ChatFontNormal"/>
@@ -441,12 +441,12 @@
 		</Layers>
 		<Scripts>
 			<OnLoad>
-				UIDropDownMenu_Initialize(this, DHUDO_DropDown_Initialize);
+				UIDropDownMenu_Initialize(self, DHUDO_DropDown_Initialize);
 			</OnLoad>
 			<OnEnter>
-				if ( this.tooltipText ) then
-					GameTooltip:SetOwner(this, "ANCHOR_RIGHT");
-					GameTooltip:SetText(this.tooltipText, nil, nil, nil, nil, 1);
+				if ( self.tooltipText ) then
+					GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+					GameTooltip:SetText(self.tooltipText, nil, nil, nil, nil, 1);
 				end
 			</OnEnter>
 			<OnLeave>
@@ -496,26 +496,26 @@
                         </Size>
                         <Scripts>
                             <OnTextChanged>
-                                local scrollBar = getglobal(this:GetParent():GetName().."ScrollBar")
-                                this:GetParent():UpdateScrollChildRect();
+                                local scrollBar = getglobal(self:GetParent():GetName().."ScrollBar")
+                                self:GetParent():UpdateScrollChildRect();
                                 local min, max = scrollBar:GetMinMaxValues();
-                                if ( max > 0 and (this.max ~= max) ) then
-                                    this.max = max;
+                                if ( max > 0 and (self.max ~= max) ) then
+                                    self.max = max;
                                     scrollBar:SetValue(max);
                                 end
                             </OnTextChanged>
                             <OnEscapePressed>
-                                this:ClearFocus();
+                                self:ClearFocus();
                             </OnEscapePressed>
                             <OnEditFocusGained>
                                 DHUDHelpFrame:Show();
                             </OnEditFocusGained>
                             <OnEditFocusLost>
                                  
-                                local name = string.gsub( this:GetParent():GetParent():GetName() , "DHUD_Edit_", "");
+                                local name = string.gsub( self:GetParent():GetParent():GetName() , "DHUD_Edit_", "");
                                 local dropdown = getglobal("DHUD_Edit_"..name.."_Selection");
-                                DHUD:SetConfig( name , this:GetText() );
-								DHUDO:SetDBSetting(name,this:GetText());
+                                DHUD:SetConfig( name , self:GetText() );
+								DHUDO:SetDBSetting(name,self:GetText());
                                 
                                 UIDropDownMenu_SetSelectedID( dropdown, 1 );
                                 UIDropDownMenu_SetText( dropdown, DHUDO_SELECTION[name]["table"][1] );
@@ -559,7 +559,7 @@
                 </Anchors>
                 <Scripts>
                     <OnClick>
-                        getglobal(this:GetParent():GetName().."ScrollFrameText"):SetFocus();
+                        getglobal(self:GetParent():GetName().."ScrollFrameText"):SetFocus();
                     </OnClick>
                 </Scripts>
             </Button>
@@ -577,29 +577,29 @@
         </Frames>
         <Scripts>
             <OnLoad>
-                this:SetBackdropColor(.1,.1,.1,1);
-                this.setting_name = string.gsub( this:GetName() , "DHUD_Edit_", "");
+                self:SetBackdropColor(.1,.1,.1,1);
+                self.setting_name = string.gsub( self:GetName() , "DHUD_Edit_", "");
             </OnLoad>
             <OnShow>
                 local droptext;
-                local dropdown = getglobal(this:GetName().."_Selection");
+                local dropdown = getglobal(self:GetName().."_Selection");
                 
-                local label = getglobal(this:GetName().."_SelectionLabel");
-                label:SetText(DHUDO_locale[this.setting_name] or "no Locale");
+                local label = getglobal(self:GetName().."_SelectionLabel");
+                label:SetText(DHUDO_locale[self.setting_name] or "no Locale");
                 
-                local box = getglobal(this:GetName().."ScrollFrameText");
-                box:SetText( DHUD:GetConfig(this.setting_name) );
+                local box = getglobal(self:GetName().."ScrollFrameText");
+                box:SetText( DHUD:GetConfig(self.setting_name) );
 
-                local tipptext = DHUDO_SELECTION[this.setting_name]["ttt"];
+                local tipptext = DHUDO_SELECTION[self.setting_name]["ttt"];
                 dropdown.tooltipText = tipptext;
                 
                 UIDropDownMenu_SetSelectedID( dropdown, 1 );
-                UIDropDownMenu_SetText( dropdown, DHUDO_SELECTION[this.setting_name]["table"][1] );
+                UIDropDownMenu_SetText( dropdown, DHUDO_SELECTION[self.setting_name]["table"][1] );
                 
-                for key, str in ipairs(DHUDO_SELECTION[this.setting_name]["values"]) do
-                    if DHUD:GetConfig(this.setting_name) == str then
+                for key, str in ipairs(DHUDO_SELECTION[self.setting_name]["values"]) do
+                    if DHUD:GetConfig(self.setting_name) == str then
                         UIDropDownMenu_SetSelectedID( dropdown, key );
-                        droptext = DHUDO_SELECTION[this.setting_name]["table"][key];
+                        droptext = DHUDO_SELECTION[self.setting_name]["table"][key];
                         UIDropDownMenu_SetText( dropdown , droptext );
                     end
                 end
@@ -618,17 +618,17 @@
         </Anchors>
         <Scripts>
             <OnLoad>
-                DHUDO_FrameSlider_OnLoad( 0.1, 1, 0.1 );
+                DHUDO_FrameSlider_OnLoad(self, 0.1, 1, 0.1 );
             </OnLoad>
             <OnShow>
-                DHUDO_FrameSlider_OnShow( this.setting_name , (DHUDO_locale[this.setting_name] or "") );
+                DHUDO_FrameSlider_OnShow(self, self.setting_name , (DHUDO_locale[self.setting_name] or "") );
             </OnShow>
             <OnValueChanged>
-                DHUDO_FrameSlider_OnValueChanged( this.setting_name, (DHUDO_locale[this.setting_name] or "") );
+                DHUDO_FrameSlider_OnValueChanged(self, self.setting_name, (DHUDO_locale[self.setting_name] or "") );
             </OnValueChanged>
             <OnEnter>
-                GameTooltip:SetOwner(this, "ANCHOR_RIGHT");
-                GameTooltip:SetText((DHUDO_locale[this.setting_name.."_tooltip"] or ""), 1, 1, 1, 1);
+                GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+                GameTooltip:SetText((DHUDO_locale[self.setting_name.."_tooltip"] or ""), 1, 1, 1, 1);
             </OnEnter>
             <OnLeave>
                 GameTooltip:Hide();
@@ -722,7 +722,7 @@
                 </Layers>
         		<Scripts>
         			<OnClick>
-                        DHUDO_ColorPicker_OnClick(1);
+                        DHUDO_ColorPicker_OnClick(self, 1);
         			</OnClick>
         		</Scripts>
         		<HighlightTexture file="Interface\Buttons\CheckButtonHilight" alphaMode="ADD"></HighlightTexture>
@@ -829,11 +829,11 @@
         </Frames>
         <Scripts> 
             <OnLoad>
-                this.setting_name = string.gsub( this:GetName() , "DHUD_Colorbox_", "");
-                getglobal( this:GetName().."Text"):SetText( " "..(DHUDO_locale[this.setting_name] or this.setting_name) );
+                self.setting_name = string.gsub( self:GetName() , "DHUD_Colorbox_", "");
+                getglobal( self:GetName().."Text"):SetText( " "..(DHUDO_locale[self.setting_name] or self.setting_name) );
             </OnLoad>
             <OnShow>
-                DHUDO_changeG(this.setting_name);
+                DHUDO_changeG(self.setting_name);
             </OnShow> 
         </Scripts> 
     </Frame>  

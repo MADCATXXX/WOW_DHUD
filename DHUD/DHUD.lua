@@ -4,7 +4,7 @@ DHUD modification for WotLK Beta by MADCAT
 -----------------------------------------------------------------------------------]]--
 
 -- Init Vars --
-DHUD_VERSION    = "Version: 1.5.40000a";
+DHUD_VERSION    = "Version: 1.5.40000b";
 DHUD_TEXT_EMPTY = "";
 DHUD_TEXT_HP2   = "<color_hp><hp_value></color>";
 DHUD_TEXT_HP3   = "<color_hp><hp_value></color>/<hp_max>";
@@ -988,7 +988,6 @@ end
 
 -- events for vars
 function DHUD:TextOnEvent(frame, event, arg1, arg2, arg3)
-
     if frame.unit == arg1 or 
         event == "PLAYER_ENTERING_WORLD" or  
         --( event == "PLAYER_TARGET_CHANGED" and frame.unit == "target" ) or 
@@ -3652,7 +3651,7 @@ function DHUD:OptionsFrame_Toggle()
 end
 
 -- target dropdown
-function DHUD_Target_DropDown_Initialize()
+function DHUD_Target_DropDown_Initialize(frame)
     local menu = nil;
     if (UnitIsEnemy("target", "player")) then
         return;
@@ -3670,13 +3669,13 @@ function DHUD_Target_DropDown_Initialize()
     end
     
     if menu then
-        --UnitPopup_ShowMenu( DHUD_Target_DropDown, menu, "target" );
+        UnitPopup_ShowMenu( frame, menu, "target" );
     end
 end
 
 -- player dropdown
-function DHUD_Player_DropDown_Initialize()
-    --UnitPopup_ShowMenu( DHUD_Player_DropDown, "SELF", "player" );
+function DHUD_Player_DropDown_Initialize(frame)
+    UnitPopup_ShowMenu( frame, "SELF", "player" );
 end
 
 -- print Debug --

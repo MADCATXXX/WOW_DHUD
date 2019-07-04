@@ -32,7 +32,7 @@
         </Anchors>
         <Scripts>
             <OnLoad>
-                UIDropDownMenu_Initialize(DHUD_Target_DropDown, DHUD_Target_DropDown_Initialize, "MENU");
+                UIDropDownMenu_Initialize(self, DHUD_Target_DropDown_Initialize, "MENU");
             </OnLoad>
         </Scripts>
     </Frame>
@@ -51,7 +51,7 @@
         </Anchors>
         <Scripts>
             <OnLoad>
-                UIDropDownMenu_Initialize(DHUD_Player_DropDown, DHUD_Player_DropDown_Initialize, "MENU");
+                UIDropDownMenu_Initialize(self, DHUD_Player_DropDown_Initialize, "MENU");
             </OnLoad>
         </Scripts>
     </Frame>	
