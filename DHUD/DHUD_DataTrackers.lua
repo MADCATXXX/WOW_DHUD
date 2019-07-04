@@ -1058,7 +1058,7 @@ end
 DHUDHealthTracker = MCCreateSubClass(DHUDPowerTracker, {
 	-- List of absorb spells to query for negative absorbs (there is UNIT_ABSORB_AMOUNT_CHANGED event for positive absorb but not for negative)
 	SPELLIDS_ABSORB_HEAL = {
-		73975,			-- DK: Necrotic Strike
+		--73975,			-- DK: Necrotic Strike
 	};
 	-- amount of incoming heal (e.g. when casting non-instant healing spell on the target)
 	amountHealIncoming	= 0,

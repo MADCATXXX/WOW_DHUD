@@ -494,7 +494,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				19263, -- Hunter: Deterrence, prevents all damage to target
 				45438, -- Mage: Ice block, prevents all damage to target
 				108978, -- Mage: Alter Time, reverts all damage done to target after 6 seconds
-				122464, -- Monk: Dematerialize, causes all abilities to miss
+				--122464, -- Monk: Dematerialize, causes all abilities to miss
 				1022, -- Paladin: Hand of protection, prevents physical damage to target
 				642, -- Paladin: Divine Shield, prevents all damage to target
 				47585, -- Priest: Dispersion, reduces damage by 90%
