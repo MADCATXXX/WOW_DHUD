@@ -1451,7 +1451,7 @@
                                 <Offset><AbsDimension x="0" y="-25"/></Offset>
                         </Anchor></Anchors>
                     </CheckButton>
-					<!-- checkbox pallyhollypower -->
+					<!-- checkbox warlockshards -->
 					<CheckButton name="DHUD_Check_warlockshards" inherits="DHUD_Check_Template">
                         <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Check_pallyhollypower">
                                 <Offset><AbsDimension x="0" y="-25"/></Offset>
@@ -1463,9 +1463,21 @@
                                 <Offset><AbsDimension x="0" y="-25"/></Offset>
                         </Anchor></Anchors>
                     </CheckButton>
+					<!-- checkbox storecombos -->
+					<CheckButton name="DHUD_Check_storecombos" inherits="DHUD_Check_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Check_priestspheres">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                        </Anchor></Anchors>
+                    </CheckButton>
+					<!-- checkbox monkchi -->
+					<CheckButton name="DHUD_Check_monkchi" inherits="DHUD_Check_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Check_storecombos">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                        </Anchor></Anchors>
+                    </CheckButton>
 					<!-- checkbox playerdebuffs -->
 					<CheckButton name="DHUD_Check_playerdebuffs" inherits="DHUD_Check_Template">
-                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Check_priestspheres">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Check_monkchi">
                                 <Offset><AbsDimension x="0" y="-25"/></Offset>
                         </Anchor></Anchors>
                     </CheckButton>
@@ -1487,7 +1499,7 @@
                     <!-- ................... -->
                     <Frame name="DHUD_Header_madcat2scale" inherits="DHUD_HeaderTemplate">
                         <Scripts><OnLoad>
-                                DHUDO_Header_OnLoad(self, 10,-365);
+                            DHUDO_Header_OnLoad(self, 10, -445);
                         </OnLoad></Scripts>
                     </Frame>
 
@@ -1657,7 +1669,7 @@
 
 	<Frame name="DHUDHelpFrame" toplevel="true" parent="DHUDOptionsFrame" hidden="true">
 		<Size>
-			<AbsDimension x="150" y="430"/>
+			<AbsDimension x="150" y="460"/>
 		</Size>
 		<Anchors>
 			<Anchor point="LEFT" relativeTo="DHUDOptionsFrame" relativePoint="RIGHT">

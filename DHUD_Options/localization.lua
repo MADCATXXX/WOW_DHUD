@@ -203,8 +203,14 @@ DHUDO_locale.pallyhollypower		 = "Pally HollyPower";
 DHUDO_locale.pallyhollypower_tooltip = "Enable Holly Power Track for Paladins, it will show up as rogue combopoints";
 DHUDO_locale.warlockshards		     = "Warlock shards";
 DHUDO_locale.warlockshards_tooltip   = "Enable Shards Track for Warlocks, it will show up as rogue combopoints";
+DHUDO_locale.warlockember		     = "Warlock ember";
+DHUDO_locale.warlockember_tooltip    = "Enable Ember Track for Warlocks, it will show up as pet mana bar";
 DHUDO_locale.priestspheres		     = "Priest spheres";
 DHUDO_locale.priestspheres_tooltip   = "Enable Spheres Track for Priests, it will show up as rogue combopoints";
+DHUDO_locale.storecombos		     = "Store combos";
+DHUDO_locale.storecombos_tooltip  	 = "Enable storing combopoints to see amount of combopoints on non-selected targets, if may be wrong sometimes";
+DHUDO_locale.monkchi		 	     = "Monk chi";
+DHUDO_locale.monkchi_tooltip  		 = "Enable chi Track for Monks, it will show up as rogue combopoints";
 DHUDO_locale.playerdebuffs			 = "Show Player Debuffs";
 DHUDO_locale.playerdebuffs_tooltip	 = "Show Player Debuffs along with buffs. Player Buffs option should be turned on";
 DHUDO_locale.playerdebuffscolorize	 = "Colorize Player Debuffs";
@@ -218,7 +224,7 @@ DHUDO_locale.scalecp_tooltip         = "Scale the CP";
 
 
 
-DHUD_TEXTHELP = "|cff88ff88Available Tags:|r\n\n<spellname>\n<casttime>\n<casttime_remain>\n<casttime_delay>\n\n<hp_percent>\n<hp_value>\n<hp_max>\n<hp_diff>\n\n<mp_percent>\n<mp_value>\n<mp_max>\n<mp_diff>\n\n<mp_value_druid>\n<mp_max_druid>\n<mp_percent_druid>\n\n<name>\n<level>\n<elite>\n<type>\n<class>\n<pet>\n<npc>\n<faction>\n<combopoints>\n<pvp>\n<pvp_rank>\n<raidgroup>\n<guild>\n\n<color>ffffff\n</color>\n<color_level>\n<color_class>\n<color_reaction>";
+DHUD_TEXTHELP = "|cff88ff88Available Tags:|r\n\n<spellname>\n<casttime>\n<casttime_remain>\n<casttime_delay>\n\n<hp_percent>\n<hp_value>\n<hp_max>\n<hp_diff>\n\n<mp_percent>\n<mp_value>\n<mp_max>\n<mp_diff>\n\n<mp_value_druid>\n<mp_max_druid>\n<mp_percent_druid>\n\n<ember_value_warlock>\n<ember_max_warlock>\n<ember_percent_warlock>\n\n<name>\n<level>\n<elite>\n<type>\n<class>\n<pet>\n<npc>\n<faction>\n<combopoints>\n<pvp>\n<pvp_rank>\n<raidgroup>\n<guild>\n\n<color>ffffff\n</color>\n<color_level>\n<color_class>\n<color_reaction>";
 DHUD_DORESET  = "Do you really want to\nreset your Settings?";
 
 
@@ -338,7 +344,8 @@ DHUDO_SELECTION["DHUD_PetMana_Text"] = {
         [5] = "70 (50%)",
         [6] = "70/140 (50%)",
         [7] = "70 (Druid)",
-        [8] = "Empty",
+		[8] = "70 (Warlock)",
+        [9] = "Empty",
     },
     values = {
         [1] = DHUD_TEXT_EMPTY,
@@ -348,7 +355,8 @@ DHUDO_SELECTION["DHUD_PetMana_Text"] = {
         [5] = DHUD_TEXT_MP5,
         [6] = DHUD_TEXT_MP6,
         [7] = DHUD_TEXT_MP7,
-        [8] = DHUD_TEXT_EMPTY,
+		[8] = DHUD_TEXT_MP8,
+        [9] = DHUD_TEXT_EMPTY,
     }
 };
 DHUDO_SELECTION["DHUD_Target_Text"] = { 

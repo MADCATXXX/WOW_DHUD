@@ -4,7 +4,7 @@ DHUD modification for WotLK, Cataclysm and MoP by MADCAT
 -----------------------------------------------------------------------------------]]--
 
 -- Init Vars --
-DHUD_VERSION    = "Version: 1.5.50000e";
+DHUD_VERSION    = "Version: 1.5.50000f";
 DHUD_TEXT_EMPTY = "";
 DHUD_TEXT_HP2   = "<color_hp><hp_value></color>";
 DHUD_TEXT_HP3   = "<color_hp><hp_value></color>/<hp_max>";
@@ -17,6 +17,7 @@ DHUD_TEXT_MP4   = "<color_mp><mp_percent></color>";
 DHUD_TEXT_MP5   = "<color_mp><mp_value></color> <color>999999(</color><mp_percent><color>999999)</color>";
 DHUD_TEXT_MP6   = "<color_mp><mp_value>/<mp_max></color> <color>999999(</color><mp_percent><color>999999)</color>";
 DHUD_TEXT_MP7   = "<color_mp><mp_value_druid></color>";
+DHUD_TEXT_MP8   = "<color_mp><ember_value_warlock></color>";
 DHUD_TEXT_TA1   = "<color_level><level><elite></color> <color_reaction><name></color> [<color_class><class><type><pet><npc></color>] <guild> <pvp> <pvp_rank>";
 DHUD_TEXT_TA2   = "<color_level><level><elite></color> <color_reaction><name></color> [<color_class><class><type><pet><npc></color>] <pvp>";
 DHUD_TEXT_TA3   = "<color_level><level><elite></color> <color_reaction><name></color> <pvp>";
@@ -49,6 +50,7 @@ DHUD = {
     has_pet_health    = nil, 
     has_pet_mana      = nil, 
     player_class      = nil,
+	player_guid		  = nil,
     CastingAlpha      = 1,
     update_elapsed    = 0,
     step              = 0.005,
@@ -68,6 +70,8 @@ DHUD = {
 	mcdkrune6		  = 3,
 	mccpconsumed	  = 5,
 	mccpstored		  = 0,
+	mcerrortime		  = 0,
+	mcpetbattle		  = nil,
     -- mcplenergy     = 0,
     --
     playerbufffilter  = "HELPFUL",
@@ -258,6 +262,7 @@ DHUD = {
 
                 ["combatalpha"]        = 0.8,
                 ["oocalpha"]           = 0,
+				["petbattlealpha"]     = 0,
                 ["selectalpha"]        = 0.5,
                 ["regenalpha"]         = 0.3,
                 
@@ -279,6 +284,8 @@ DHUD = {
 				["pallyhollypower"]    = 1,
 				["warlockshards"]      = 1,
 				["priestspheres"]      = 1,
+				["storecombos"]        = 1,
+				["monkchi"]        	   = 1,
 				["playerdebuffs"]	   = 0,
 				["playerdebuffscolorize"] = 1,
                 ["animatebars"]        = 1,
@@ -450,6 +457,9 @@ function DHUD:OnEvent(event, arg1, arg2, arg3)
 	--if (arg2) then
 	--	self:print("arg2: "..arg2);
 	--end
+	--if (arg3) then
+	--	self:print("arg3: "..arg3);
+	--end
 	
     -- debug
     self:printd("MainEvent: "..event);
@@ -474,6 +484,7 @@ function DHUD:OnEvent(event, arg1, arg2, arg3)
 	--Vehicle support
 	elseif event == "UNIT_ENTERED_VEHICLE" then
 		if arg1 == "player" then
+			self.mccpstored = 0;
 			--self:print("MainEvent: "..event);
 			local hasUI = UnitHasVehicleUI("player")
 			if hasUI then
@@ -487,6 +498,7 @@ function DHUD:OnEvent(event, arg1, arg2, arg3)
 		end
 	elseif event == "UNIT_EXITED_VEHICLE" then
 		if arg1 == "player" then
+			self.mccpstored = 0;
 			--self:print("MainEvent: "..event);
 			self.mcinvehicle = 0;
 			self.mcMainTrackTarget = "player";
@@ -709,6 +721,10 @@ function DHUD:OnEvent(event, arg1, arg2, arg3)
         elseif ( event == "UNIT_SPELLCAST_STOP" or event == "UNIT_SPELLCAST_CHANNEL_STOP") and (arg1 == "player") then
             if (not DHUD_Casting_Bar:IsVisible()) then
                 DHUD_Casting_Bar:Hide();
+				frame.casting    = nil;
+				frame.channeling = nil;
+				frame.flash      = nil;
+				frame.fadeOut    = 1;
             end
             if (DHUD_Casting_Bar:IsShown()) then
                 if ( event == "UNIT_SPELLCAST_STOP" and frame.casting ) then
@@ -815,8 +831,7 @@ function DHUD:OnEvent(event, arg1, arg2, arg3)
                 frame.endTime = endTime / 1000;
                 frame.delay = frame.endTime - frame.startTime + (endTime / 1000);
             end
-        end
-	
+		end
    end
 	-- MADCAT Enemy castbar events
     if DHUD_Settings["enemycastingbar"] == 1 then
@@ -867,6 +882,10 @@ function DHUD:OnEvent(event, arg1, arg2, arg3)
         elseif ( event == "UNIT_SPELLCAST_STOP" or event == "UNIT_SPELLCAST_CHANNEL_STOP") and (arg1 == "target") then
             if (not DHUD_EnemyCasting_Bar:IsVisible()) then
                 DHUD_EnemyCasting_Bar:Hide();
+				frame.enemycasting    = nil;
+				frame.enemychanneling = nil;
+				frame.enemyflash      = nil;
+				frame.enemyfadeOut    = 1;
             end
             if (DHUD_EnemyCasting_Bar:IsShown()) then
                 if ( event == "UNIT_SPELLCAST_STOP" and frame.enemycasting ) then
@@ -981,7 +1000,19 @@ function DHUD:OnEvent(event, arg1, arg2, arg3)
                 frame.enemyendTime = enemyendTime / 1000;
                 frame.enemydelay = frame.enemyendTime - frame.enemystartTime + (enemyendTime / 1000);
             end
-        end
+		end
+	end
+end
+
+-- combat log events handler
+function DHUD:onCombatLog(event, timestamp,	eventType, ...)
+	-- check if spell failed for combo point storing
+	if (eventType == "SPELL_CAST_FAILED") then
+		local unitGuid = select(2, ...);
+		if (unitGuid == DHUD.player_guid) then
+			local failType = select(13, ...);
+			--DHUD:print("failtype: "..failType);
+		end
 	end
 end
 
@@ -1137,6 +1168,9 @@ function DHUD:OnUpdate(elapsed)
         if self.player_class == "DRUID" and UnitPowerType("player") ~= 0 then
             self:Animate("DHUD_PetMana_Bar");
         end
+		if self.player_class == "WARLOCK" then
+            self:Animate("DHUD_PetMana_Bar");
+        end
     end
 	
 	
@@ -1166,7 +1200,7 @@ function DHUD:OnUpdate(elapsed)
             self.casting_time     = string.format( "%.1f", (time + frame.delay) - frame.startTime );
             self:triggerTextEvent("DHUD_Casttime_Text");
             self:triggerTextEvent("DHUD_Castdelay_Text");
-                        
+            --self:print("casting " .. self.casting_time);
         -- channeling
         elseif frame.channeling then
             local time = GetTime();
@@ -1349,8 +1383,11 @@ function DHUD:OnUpdate(elapsed)
     
     -- MADCAT pet energy update, messed up condition a little
 	if (DHUD_Settings["showpet"] == 1) and (self.has_pet_mana == 1 or self.mcinvehicle == 1) then
-	if not(self.player_class == "DRUID") or self.mcinvehicle == 1 then
+	if not(self.player_class == "DRUID" or self.player_class == "WARLOCK") or self.mcinvehicle == 1 then
     	self:MCUpdatePetEnergy();
+	end
+	if (self.player_class == "WARLOCK") then
+		self:MCUpdateWarlockEmber();
 	end
     end
     -- Update Player Buffs
@@ -1384,6 +1421,12 @@ function DHUD:OnUpdate(elapsed)
 	if self.player_class == "PRIEST" and DHUD_Settings["priestspheres"] == 1 then
 		self:MCPriestSpheres();
 	end
+	
+	--Update Monk Chi, CPU consuming
+	if self.player_class == "MONK" and DHUD_Settings["monkchi"] == 1 then
+		self:MCMonkChi();
+	end
+	
 end
 
 -- register Events
@@ -1425,6 +1468,7 @@ function DHUD:setup()
     -- set userid 
     self.userID = GetRealmName()..":"..UnitName("player");
     _, self.player_class = UnitClass("player");
+	self.player_guid = UnitGUID("player");
     
     -- set default Values
     if( not DHUD_Settings ) then
@@ -1800,6 +1844,30 @@ function DHUD:init()
     DHUD_Casting_Bar:SetFrameLevel(DHUD_Flash_Bar:GetFrameLevel() + 1);
 	DHUD_EnemyFlash_Bar:SetFrameLevel(DHUD_PlayerMana_Bar:GetFrameLevel() + 1);
     DHUD_EnemyCasting_Bar:SetFrameLevel(DHUD_Flash_Bar:GetFrameLevel() + 1);
+	
+	-- pet battles
+	--if not self.petBattleController then
+	--	self.petBattleController = CreateFrame("Frame", nil, UIParent, "SecureHandlerStateTemplate");
+	--	self.petBattleController.dhud = DHUD;
+	--	self.petBattleController.somevar = 1;
+	--	self.petBattleController:SetAttribute("_onstate-petbattle", [[ -- arguments: self, stateid, newstate
+	--		print("stateChanged " .. newstate);
+	--		DHUD:print("stateChanged " .. newstate);
+	--		if newstate == "petbattle" then
+	--			DHUD.mcpetbattle = true;
+	--		else
+	--			DHUD.mcpetbattle = nil;
+	--		end;
+	--		DHUD:updateAlpha();
+	--	]]);
+	--	RegisterStateDriver(self.petBattleController, "petbattle", "[petbattle]petbattle;nopetbattle");
+	--end
+	-- combat log parser
+	--[[if not self.combatLogEventHandler then
+		self.combatLogEventHandler = CreateFrame("Frame");
+		self.combatLogEventHandler:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");
+		self.combatLogEventHandler:SetScript("OnEvent", self.onCombatLog);
+	end]]--
     
     -- minimap button
     if DHUD_Settings["showmmb"] == 1 then
@@ -1813,6 +1881,11 @@ function DHUD:init()
     -- alter pet manatext when class = DRUID
     if self.player_class == "DRUID" and DHUD_Settings["DHUD_PetMana_Text"] == DHUD_TEXT_MP2 then
         DHUD_Settings["DHUD_PetMana_Text"] = DHUD_TEXT_MP7;
+    end
+	
+	 -- alter pet manatext when class = DRUID
+    if self.player_class == "WARLOCK" and DHUD_Settings["DHUD_PetMana_Text"] == DHUD_TEXT_MP2 then
+        DHUD_Settings["DHUD_PetMana_Text"] = DHUD_TEXT_MP8;
     end
     
     -- trigger all texts
@@ -2662,13 +2735,28 @@ end;
 -- show / hide combopoints
 function DHUD:UpdateCombos()
 	local points = GetComboPoints(self.mcMainTrackTarget,"target");
-	--self:print("Points: " .. points);
+	local isStored = 0;
 	-- track combo points for previous target
-	if points == 0 then
-		DHUD:DrawComboPoints(self.mccpstored, 5, 1);
-	else
-		DHUD:DrawComboPoints(points, 5, 0);
+	if points == 0 and DHUD_Settings["storecombos"] == 1 then
+		isStored = 1;
+		points = self.mccpstored;
 	end
+	-- track additional rogue combo points for level 90 ability
+	if (self.mcMainTrackTarget == "player" and self.player_class == "ROGUE" and points == 5) then
+		for i = 1, 40 do
+			local _, _, _, buffcount, _, _, _, _, _, _, buffspellId = UnitBuff("player", i, "PLAYER");
+			if (buffspellId) then
+				if (buffspellId == 115189) then
+					points = points + buffcount;
+					break;
+				end
+			else
+				break;
+			end
+		end
+	end
+	-- show
+	DHUD:DrawComboPoints(points, 5, isStored);
 end
 
 -- update target Auras
@@ -2853,7 +2941,10 @@ function DHUD:PlayerAuras()
                 
                 -- limited number of buff slots
                 if j == 24 then
-                    self:print("You have reached the buff limit. Contact MADCAT and ask for more buff slots");
+					if (time() - self.mcerrortime > 60) then
+						self.mcerrortime = time();
+						self:print("You have reached the buff limit. Contact MADCAT and ask for more buff slots");
+					end
                     break;
                 else
                     j = j + 1;
@@ -2936,7 +3027,10 @@ function DHUD:TargetPlayerDebuff()
                 
                 -- limited number of buff slots
                 if j == 12 then
-                    self:print("You have reached the target debuff limit. Contact MADCAT and ask for more debuff slots");
+					if (time() - self.mcerrortime > 60) then
+						self.mcerrortime = time();
+						self:print("You have reached the target debuff limit. Contact MADCAT and ask for more debuff slots");
+					end
                     break;
                 else
                     j = j + 1;
@@ -3182,6 +3276,45 @@ function DHUD:MCWarlockShards()
 	DHUD:DrawComboPoints(points, 3, 0);
 end
 
+-- ######MADCAT: Update Ember smoothly
+function DHUD:MCUpdateWarlockEmber()    
+	local frame = _G["DHUD_PetMana_Text"];
+    local font = _G["DHUD_PetMana_Text".."_Text"];
+    
+    local text  = frame.text;
+	
+	local power = UnitPower("player", 15);
+	local powermax = UnitPowerMax("player", 15);
+	local value;
+
+    -- Update Bar
+	if powermax == 0 then
+		value = 0;
+	else
+	    value = tonumber(power/powermax);
+	end
+	
+    local bar = self.text2bar["DHUD_PetMana_Text"];
+    self.bar_values[bar] = value;
+    if DHUD_Settings["animatebars"] == 0 or set then
+        self.bar_anim[bar] = value;
+        self:SetBarHeight(bar,value); 
+        self:SetBarColor(bar,value);
+    end       
+    
+    -- Set text
+    value = math.floor(value * 100);
+    local typunit = DHUD:getTypUnit(frame.unit,"mana");
+    local color = DHUD_DecToHex(DHUD:Colorize(typunit,100));
+    text = DHUD:gsub(text, '<color_mp>', "|cff"..color);
+    text = DHUD:gsub(text, '<ember_value_warlock>', power);
+    text = DHUD:gsub(text, '</color>', '|r');
+    text = DHUD:gsub(text, '<color>', '|cff');
+    text = DHUD:gsub(text, '<ember_percent_warlock>', value.."%%");
+	text = DHUD:gsub(text, '<ember_max_warlock>', powermax);	
+    font:SetText(text);
+end
+
 -- ######MADCAT: Priest spheres
 function DHUD:MCPriestSpheres()
 	if (self.CastingAlpha == 0) then
@@ -3194,6 +3327,20 @@ function DHUD:MCPriestSpheres()
 		return;
 	end
 	DHUD:DrawComboPoints(points, 3, 0);
+end
+
+-- ######MADCAT: Monk Chi
+function DHUD:MCMonkChi()
+	if (self.CastingAlpha == 0) then
+		return;
+	end
+	local points;
+	if (not self.mcinvehicle or self.mcinvehicle == 0) then
+		points = UnitPower("Player", 12);
+	else
+		return;
+	end
+	DHUD:DrawComboPoints(points, 4, 0);
 end
 
 -- is unit npc?
@@ -3377,6 +3524,11 @@ function DHUD:UpdateValues(frame,set)
            set   = 1;
        end
     end
+	-- warlock ember support
+    if unit == "pet" and typ == "mana" and self.player_class == "WARLOCK" then
+	   value = tonumber( UnitPower("player",15) / UnitPowerMax("player",15) );
+	   self.PetneedMana = nil;
+    end
         
     self.bar_values[bar] = value;
     
@@ -3508,6 +3660,10 @@ function DHUD:ChangeBackgroundTexture()
                 self.has_pet_mana = nil;
             end
         end
+		-- check warlockbar
+        if self.player_class == "WARLOCK" then
+            self.has_pet_mana = 1;
+        end
     
         local what = "ph_pm";
         if self.has_pet_health    then what = what.."_eh"; end
@@ -3595,6 +3751,9 @@ function DHUD:updateAlpha()
     -- Combat Mode
     if self.inCombat then
         self:setAlpha("combatalpha");
+	-- pet battle
+	elseif self.mcpetbattle then
+		self:setAlpha("petbattlealpha");
     -- target selected    	    
     elseif self.Target then
         self:setAlpha("selectalpha");

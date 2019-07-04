@@ -320,6 +320,36 @@ DHUD_variables = {
             end,
       events  = { "UNIT_POWER","UNIT_DISPLAYPOWER","UPDATE_SHAPESHIFT_FORMS" },
       hideval = "", 
+  },
+  
+  ["<ember_value_warlock>"] = { 
+       func = function(text, unit)
+                local dm = UnitPower("player",15);
+                text = DHUD:gsub(text, '<ember_value_warlock>', dm);
+                return text;
+            end,
+      events  = { "UNIT_POWER","UNIT_DISPLAYPOWER","UPDATE_SHAPESHIFT_FORMS" },
+      hideval = "", 
+  },  
+  
+   ["<ember_max_warlock>"] = { 
+       func = function(text, unit)
+                local dm = UnitPowerMax("player",15);
+                text = DHUD:gsub(text, '<ember_max_warlock>', dm);
+                return text;
+            end,
+      events  = { "UNIT_POWER","UNIT_DISPLAYPOWER","UPDATE_SHAPESHIFT_FORMS" },
+      hideval = "", 
+  }, 
+
+   ["<ember_percent_warlock>"] = { 
+       func = function(text, unit)
+                local dm = math.floor(UnitPower("player", 15) / UnitPowerMax("player",15) * 100);
+                text = DHUD:gsub(text, '<ember_percent_warlock>', dm);
+                return text;
+            end,
+      events  = { "UNIT_POWER","UNIT_DISPLAYPOWER","UPDATE_SHAPESHIFT_FORMS" },
+      hideval = "", 
   }, 
       
    ["<mp_max>"] = { 

@@ -3,7 +3,7 @@ DHUDDROPDOWNSELECTED = "";
 
 --Ace3 Profile Support
 local AppName = "DHUDO"
-local VERSION = AppName .. "v 1.5.50000e"
+local VERSION = AppName .. "v 1.5.50000f"
 
 local AceConfig = LibStub("AceConfig-3.0")
 local AceDBOptions = LibStub("AceDBOptions-3.0")
@@ -22,6 +22,7 @@ local defaults = {
 
                 ["combatalpha"]        = 0.8,
                 ["oocalpha"]           = 0,
+				["petbattlealpha"]     = 0,
                 ["selectalpha"]        = 0.5,
                 ["regenalpha"]         = 0.3,
                 
@@ -43,6 +44,8 @@ local defaults = {
 				["pallyhollypower"]    = 1,
 				["warlockshards"]      = 1,
 				["priestspheres"]      = 1,
+				["storecombos"]        = 1,
+				["monkchi"]        	   = 1,
 				["playerdebuffs"]	   = 0,
 				["playerdebuffscolorize"] = 1,
                 ["animatebars"]        = 1,

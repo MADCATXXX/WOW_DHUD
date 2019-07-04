@@ -1,3 +1,10 @@
+changelog 1.5.50000f MADCAT revision33:
+-reduced error spam when there are not enough buff frames (this was accidently not included in previous release)
+-rogues will see up to 10 combopoints if specced into corresponding talent
+-added tracking of chi for monks
+-added tracking of ember for warlock, it will use pet mana bar
+-fixed bug with casting bar time staying at 0.0 when closing world map
+
 changelog 1.5.50000e MADCAT revision32:
 -reduced error spam when there are not enough buff frames
 -Added support for up to 10 combopoints, scale function for points 6 to 10 is not finished yet
