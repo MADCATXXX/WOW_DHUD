@@ -1,3 +1,8 @@
+changelog 1.5.30100b MADCAT revision15:
+-fixed blizzard combo frame to properly hide when blizzard target frame turned off
+-added option to show player debuffs
+-added option to scale combo points
+
 changelog 1.5.30100a MADCAT revision14:
 -quick update to fix 3.1 error for NPC that have no mana
 

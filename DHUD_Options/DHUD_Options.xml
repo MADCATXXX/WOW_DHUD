@@ -1154,6 +1154,14 @@
                             </Anchor>
                         </Anchors>
                      </Frame>
+					 
+					 <Frame name="DHUD_Colorbox_debuffaura_player" inherits="DHUD_Colorbox_Template">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Colorbox_aura_player" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="0" y="-20"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                     </Frame>
 
 
                 </Frames>
@@ -1296,6 +1304,34 @@
                                 <Offset><AbsDimension x="0" y="-25"/></Offset>
                         </Anchor></Anchors>
                     </CheckButton>
+					<!-- checkbox playerdebuffs -->
+					<CheckButton name="DHUD_Check_playerdebuffs" inherits="DHUD_Check_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Check_dkrunes">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                        </Anchor></Anchors>
+                    </CheckButton>
+					
+					<!-- ................... -->
+                    <!-- Header Scale        -->
+                    <!-- ................... -->
+                    <Frame name="DHUD_Header_madcat2scale" inherits="DHUD_HeaderTemplate">
+                        <Scripts><OnLoad>
+                                DHUDO_Header_OnLoad(10,-270);
+                        </OnLoad></Scripts>
+                    </Frame>
+
+                    <!-- slider scale -->
+                    <Slider name="DHUD_Slider_scalecp" inherits="DHUD_Slider_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Header_madcat2scaleText">
+                            <Offset><AbsDimension x="10" y="-30"/></Offset>
+                        </Anchor></Anchors>
+                        <Scripts><OnLoad>
+                            DHUDO_FrameSlider_OnLoad( 0.8 , 1.6, 0.1 );
+                            this.triggertext = 1;
+                        </OnLoad></Scripts>
+                    </Slider>
+
+
 					
 				</Frames>
             </Frame>

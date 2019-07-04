@@ -1,4 +1,4 @@
-TODO(revision12):
+TODO(revision12-15):
 \/ : DK regen alpha - turn off text.
 \/ : Set debuff timers to nill on turn off.
 \/ : DK RUNES
@@ -6,3 +6,7 @@ TODO(revision12):
 \/ : ECB flash.
 \/ : Buffs with charges.
 \/ : Druid bar support.
+\/ : Scale Combo Points
+\/ : Show target Guild in <> - Already done.
+\/ : Show player debuffs along with buffs
+\/ : blizz combopoint hide

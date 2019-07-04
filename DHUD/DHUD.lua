@@ -4,7 +4,7 @@ DHUD modification for WotLK Beta by MADCAT
 -----------------------------------------------------------------------------------]]--
 
 -- Init Vars --
-DHUD_VERSION    = "Version: 1.5.30100a";
+DHUD_VERSION    = "Version: 1.5.30100b";
 DHUD_TEXT_EMPTY = "";
 DHUD_TEXT_HP2   = "<color_hp><hp_value></color>";
 DHUD_TEXT_HP3   = "<color_hp><hp_value></color>/<hp_max>";
@@ -250,8 +250,10 @@ DHUD = {
                 ["selectalpha"]        = 0.5,
                 ["regenalpha"]         = 0.3,
                 
-                ["scale"]              = 1,              
+                ["scale"]              = 1, 
                 ["mmb"]                = {},
+				
+				["scalecp"]			   = 1,
                 
                 ["showmmb"]            = 1,
                 ["showresticon"]       = 1,
@@ -263,6 +265,7 @@ DHUD = {
 				["showraidicon"]	   = 1,
 				["debufftimer"]		   = 0,
 				["dkrunes"]			   = 1,
+				["playerdebuffs"]	   = 0,
                 ["animatebars"]        = 1,
                 ["barborders"]         = 1,
                 ["showauras"]          = 1,
@@ -350,6 +353,7 @@ DHUD = {
                 
                 ["colors"]             = {
                                         aura_player   = { "ffffff", "ffffff", "eeeeee" },
+										debuffaura_player   = { "FFFF00", "FFFF00", "FFFF00" },
                                         health_player = { "00FF00", "FFFF00", "FF0000" }, --
                                         health_target = { "00aa00", "aaaa00", "aa0000" }, --
                                         health_pet    = { "00FF00", "FFFF00", "FF0000" }, --
@@ -1517,7 +1521,8 @@ function DHUD:init()
         TargetFrame:UnregisterEvent("PLAYER_FOCUS_CHANGED")
         TargetFrame:Hide()
         ComboFrame:UnregisterEvent("PLAYER_TARGET_CHANGED")
-        ComboFrame:UnregisterEvent("PLAYER_COMBO_POINTS")
+        ComboFrame:UnregisterEvent("UNIT_COMBO_POINTS")
+		ComboFrame:Hide()
     else
         TargetFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
         TargetFrame:RegisterEvent("UNIT_HEALTH")
@@ -1530,7 +1535,7 @@ function DHUD:init()
         TargetFrame:RegisterEvent("PLAYER_FOCUS_CHANGED")
         if UnitExists("target") then TargetFrame:Show() end
         ComboFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
-        ComboFrame:RegisterEvent("PLAYER_COMBO_POINTS")
+        ComboFrame:RegisterEvent("UNIT_COMBO_POINTS")
     end
    
     -- Hide Blizz Player Frame
@@ -1663,6 +1668,41 @@ function DHUD:init()
 		self:triggerTextEvent("DHUD_Rune4_Text");
 		self:triggerTextEvent("DHUD_Rune5_Text");
 		self:triggerTextEvent("DHUD_Rune6_Text");
+	end
+	
+	--scale combopoints
+	if DHUD_Settings["scalecp"]	then--and not (DHUD_Settings["scalecp"]==1) then
+		--scale cp
+		DHUD_Combo1:SetScale(DHUD_Settings["scalecp"] or 1);
+		DHUD_Combo2:SetScale(DHUD_Settings["scalecp"] or 1);
+		DHUD_Combo3:SetScale(DHUD_Settings["scalecp"] or 1);
+		DHUD_Combo4:SetScale(DHUD_Settings["scalecp"] or 1);
+		DHUD_Combo5:SetScale(DHUD_Settings["scalecp"] or 1);
+		local i;
+		for i=1,5,1 do
+			local typ, point, frame, relative, x, y, width, height = unpack( self.C_frames["DHUD_Combo"..i] );
+			local ref = getglobal("DHUD_Combo"..i);
+			local x2;
+			--x2=(1-DHUD_Settings["scalecp"])*(1/(1+0.5*(i-1)))*20*(1/DHUD_Settings["scalecp"]);
+			x2=(1-DHUD_Settings["scalecp"])*(1/(1+0.5*(i-2)*(i-1)*(i-3)))*20*(1/DHUD_Settings["scalecp"]);
+			if i==3 then
+				x2=(1-DHUD_Settings["scalecp"])*(1/1.5)*20*(1/DHUD_Settings["scalecp"]);
+			elseif i==4 then
+				x2=(1-DHUD_Settings["scalecp"])*(1/2.5)*20*(1/DHUD_Settings["scalecp"]);
+			end
+			--[[if i==1 then
+				x2=(1-DHUD_Settings["scalecp"])*20*(1/DHUD_Settings["scalecp"]);
+			elseif i==2 then
+				x2=(1-DHUD_Settings["scalecp"])*20*(1/DHUD_Settings["scalecp"]);
+			elseif i==3 then
+				x2=(1-DHUD_Settings["scalecp"])*20*(1/DHUD_Settings["scalecp"]);
+			elseif i==4 then
+				x2=(1-DHUD_Settings["scalecp"])*20*(1/DHUD_Settings["scalecp"]);
+			elseif i==5 then
+				x2=(1-DHUD_Settings["scalecp"])*20*(1/DHUD_Settings["scalecp"]);
+			end]]--
+			ref:SetPoint(point, frame , relative, x + x2, y);
+		end
 	end
 	
 	
@@ -2613,24 +2653,45 @@ function DHUD:PlayerAuras()
 	local buffCountText;
     local buffframe = "DHUD_PlayerBuff";
     local color = {};
+	--added variable for debuffs
+	local countbd = 40;
+	
+	--show debuffs
+	if DHUD_Settings["playerdebuffs"] == 1 then
+		countbd = 80;
+	end
     
     -- Buffs
     if DHUD_Settings["showplayerbuffs"] == 1 and getglobal(buffframe .. "1"):IsVisible() then
-        for i = 1, 40 do
+        for i = 1, countbd do
             -- WotLK GetPlayerBuff changed to UnitBuff
 			if (not mcinvehicle or mcinvehicle == 0) then
-				buffI, _, pbtexture, pbcount, _, _, pbtimeLeft  = UnitBuff( "player", i, self.playerbufffilter );
+				--show debuffs
+				if DHUD_Settings["playerdebuffs"] == 1 and i>40 then
+					buffI, _, pbtexture, pbcount, _, _, pbtimeLeft  = UnitDebuff( "player", i-40, self.playerbufffilter );
+				else
+					buffI, _, pbtexture, pbcount, _, _, pbtimeLeft  = UnitBuff( "player", i, self.playerbufffilter );
+				end
            	elseif mcinvehicle == 1 then
-				buffI, _, pbtexture, pbcount, _, _, pbtimeLeft  = UnitBuff( "pet", i, self.playerbufffilter );
+				--show debuffs
+				if DHUD_Settings["playerdebuffs"] == 1 and i>40 then
+					buffI, _, pbtexture, pbcount, _, _, pbtimeLeft  = UnitDebuff( "pet", i-40, self.playerbufffilter );
+				else
+					buffI, _, pbtexture, pbcount, _, _, pbtimeLeft  = UnitBuff( "pet", i, self.playerbufffilter );
+				end
 			end
 			
-		-- don't show empty frames
+			-- don't show empty frames
             if (buffI==nil) then pbtimeLeft=0; 
-		else 
-		pbtimeLeft = pbtimeLeft - GetTime();
+			else 
+			pbtimeLeft = pbtimeLeft - GetTime();
 		            
             if (pbtimeLeft > 0 and pbtimeLeft < DHUD_Settings["playerbufftimefilter"]) or (DHUD_Settings["buffswithcharges"]==1 and pbcount>1) then
-                color.r, color.g, color.b = self:Colorize("aura_player", pbtimeLeft / 20);
+                if DHUD_Settings["playerdebuffs"] == 1 and i>40 then
+					color.r, color.g, color.b = self:Colorize("debuffaura_player", pbtimeLeft / 20);
+				else
+					color.r, color.g, color.b = self:Colorize("aura_player", pbtimeLeft / 20);
+				end
 
                 button = getglobal(buffframe..j);
                 button.hasdebuff = nil;

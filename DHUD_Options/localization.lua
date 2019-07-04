@@ -30,6 +30,7 @@ DHUDO_locale.castbar              = "Castbar";
 DHUDO_locale.channelbar           = "Channel";
 DHUDO_locale.tapped               = "Target Tapped";
 DHUDO_locale.aura_player          = "Player Buffs";
+DHUDO_locale.debuffaura_player    = "Player Debuffs";
                                         
 DHUDO_locale.Header_blizzard      = "Blizzard Frames:";
 DHUDO_locale.bplayer              = "Show Player Frame";
@@ -196,6 +197,12 @@ DHUDO_locale.buffswithcharges		 = "Player Auras with charges";
 DHUDO_locale.buffswithcharges_tooltip	 = "Show Player Auras with charges";
 DHUDO_locale.dkrunes				 = "DK Runes";
 DHUDO_locale.dkrunes_tooltip		 = "Enable Runes Cooldown Track for Death Knights";
+DHUDO_locale.playerdebuffs			 = "Show Player Debuffs";
+DHUDO_locale.playerdebuffs_tooltip	 = "Show Player Debuffs along with buffs. Player Buffs option should be turned on";
+DHUDO_locale.Header_madcat2scale	 = "CP Scale:";
+DHUDO_locale.scalecp                 = "CP";
+DHUDO_locale.scalecp_tooltip         = "Scale the CP";
+
 
 
 

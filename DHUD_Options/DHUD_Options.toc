@@ -2,7 +2,7 @@
 ## Title: Drathals HUD Options [|cffffffffv1.5.30100a|r]
 ## Author: Markus Inger (Drathal/Silberklinge), Howie (Caeryn)
 ## Maintained By: Mad Cat
-## Version: v1.5.30100a
+## Version: v1.5.30100b
 ## Notes: Drathals HUD Options.
 ## Dependencies: DHUD
 ## LoadOnDemand: 1

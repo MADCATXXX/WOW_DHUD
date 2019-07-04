@@ -3,7 +3,7 @@ DHUDDROPDOWNSELECTED = "";
 
 --Ace3 Profile Support
 local AppName = "DHUDO"
-local VERSION = AppName .. "v 1.5.30100a"
+local VERSION = AppName .. "v 1.5.30100b"
 
 local AceConfig = LibStub("AceConfig-3.0")
 local AceDBOptions = LibStub("AceDBOptions-3.0")
@@ -26,6 +26,8 @@ local defaults = {
                 
                 ["scale"]              = 1,              
                 ["mmb"]                = {},
+				
+				["scalecp"]			   = 1,
                 
                 ["showmmb"]            = 1,
                 ["showresticon"]       = 1,
@@ -37,6 +39,7 @@ local defaults = {
 				["showraidicon"]	   = 1,
 				["debufftimer"]		   = 0,
 				["dkrunes"]			   = 1,
+				["playerdebuffs"]	   = 0,
                 ["animatebars"]        = 1,
                 ["barborders"]         = 1,
                 ["showauras"]          = 1,
@@ -123,6 +126,7 @@ local defaults = {
                 
                 ["colors"]             = {
                                         aura_player   = { "ffffff", "ffffff", "eeeeee" },
+										debuffaura_player   = { "FFFF00", "FFFF00", "FFFF00" },
                                         health_player = { "00FF00", "FFFF00", "FF0000" }, --
                                         health_target = { "00aa00", "aaaa00", "aa0000" }, --
                                         health_pet    = { "00FF00", "FFFF00", "FF0000" }, --
