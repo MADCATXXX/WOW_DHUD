@@ -1,3 +1,6 @@
+changelog 1.5.40100b MADCAT revision26:
+-fixed death knigth runic power color (accidently deleted happiness from power types)
+
 changelog 1.5.40100a MADCAT revision26:
 -layout and texture settings now persist forever (not until opening settings)
 -increased target player debuffs limit to 12

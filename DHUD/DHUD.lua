@@ -4,7 +4,7 @@ DHUD modification for WotLK and Cataclysm by MADCAT
 -----------------------------------------------------------------------------------]]--
 
 -- Init Vars --
-DHUD_VERSION    = "Version: 1.5.40100a";
+DHUD_VERSION    = "Version: 1.5.40100b";
 DHUD_TEXT_EMPTY = "";
 DHUD_TEXT_HP2   = "<color_hp><hp_value></color>";
 DHUD_TEXT_HP3   = "<color_hp><hp_value></color>/<hp_max>";
@@ -112,7 +112,7 @@ DHUD = {
     },
     
     -- powertypes
-    powertypes    = { "mana", "rage", "focus", "energy", "runes", "runic_power" },
+    powertypes    = { "mana", "rage", "focus", "energy", "happiness", "runes", "runic_power", "soul_shards", "eclipse", "holy_power", "ammoslot", "fuel" },
                   
     -- font outlines
     Outline       = { "", "OUTLINE", "THICKOUTLINE" },
