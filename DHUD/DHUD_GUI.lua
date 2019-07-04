@@ -3797,6 +3797,11 @@ function DHUDGuiSlotManager:setCurrentDataTracker(currentDataTracker, currentDat
 	self.isChangingDataTracker = false;
 end
 
+--- Show preview data
+function DHUDGuiSlotManager:showPreviewData()
+	-- to be overriden
+end
+
 --- Return true if this slot is regenerating something or false otherwise
 function DHUDGuiSlotManager:getIsRegenerating()
 	return self.isRegenerating;
@@ -4049,14 +4054,15 @@ end
 -- @return text to be shown in gui
 function DHUDGuiBarManager:createTextAmountPercent(this, prefix, precision)
 	--local valueMax = this.currentDataTracker.amountMax;
-	local value = math.floor(this.currentDataTracker.amount * 100 / this.currentDataTracker.amountMax);
+	local value = this.currentDataTracker.amount * 100 / this.currentDataTracker.amountMax;
+	local valueFloor = math.floor(value);
 	if (prefix ~= nil) then
 		if (value > 0) then
-			return prefix .. (precision and DHUDTextTools:formatNumberWithPrecision(value, precision) or DHUDTextTools:formatNumber(value, nil, value));
+			return prefix .. (precision and DHUDTextTools:formatNumberWithPrecision(value, precision) or DHUDTextTools:formatNumber(valueFloor, nil, valueFloor));
 		end
 		return "";
 	end
-	return (precision and DHUDTextTools:formatNumberWithPrecision(value, precision) or DHUDTextTools:formatNumber(value, nil, value));
+	return (precision and DHUDTextTools:formatNumberWithPrecision(value, precision) or DHUDTextTools:formatNumber(valueFloor, nil, valueFloor));
 end
 
 --- Create text that contains data amount extra, prefixed if specified
@@ -4799,6 +4805,13 @@ function DHUDSideInfoManager:init(runeGroupName, spellCirclesGroupName, comboPoi
 	self:trackColorSettingsChanges();
 end
 
+--- Show preview data
+function DHUDSideInfoManager:showPreviewData()
+	-- just show all ui elements
+	local num = #self.currentGroup;
+	self.currentGroup:setFramesShown(num);
+end
+
 -----------------------
 -- Unit Info Manager --
 -----------------------
@@ -5222,6 +5235,13 @@ function DHUDSpellRectanglesManager:init(spellRectanglesGroupName, settingName)
 	self:trackColorSettingsChanges();
 end
 
+--- Show preview data
+function DHUDSpellRectanglesManager:showPreviewData()
+	-- just show all ui elements
+	local num = #self.group;
+	self.group:setFramesShown(num);
+end
+
 -------------------
 -- Icons Manager --
 -------------------
@@ -5636,6 +5656,9 @@ end
 
 --- cast bar info setting changed, update
 function DHUDCastBarManager:onCastBarInfoSettingChange(e)
+	if (self.currentDataTracker == nil) then
+		return;
+	end
 	self:onDataTrackerChange(nil); -- this will cause to hide or show player cast bar info
 end
 
@@ -5660,6 +5683,14 @@ function DHUDCastBarManager:getIsExists()
 	return self.isExists;
 end
 
+--- Show preview data
+function DHUDCastBarManager:showPreviewData()
+	-- just show all ui elements
+	for i, v in ipairs(self.group) do
+		v:Show();
+	end
+end
+
 -----------------
 -- GUI Manager --
 -----------------
@@ -5674,6 +5705,8 @@ DHUDGUIManager = {
 	isAttacking			= false,
 	-- defines if player is dead
 	isDead				= false,
+	-- defines if settings preview mode is active
+	isPreviewMode		= false,
 	-- defines if player has target selected
 	hasTarget			= false,
 	-- manager of the left inner big bar
@@ -5794,6 +5827,9 @@ function DHUDGUIManager:init()
 	self:onCombatState(nil);
 	self:onTargetUpdated(nil);
 	self:onDeathState(nil);
+	-- listen to preview settings
+	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_START_PREVIEW, self, self.onPreviewStart);
+	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_STOP_PREVIEW, self, self.onPreviewStop);
 	-- init slot managers
 	self.leftBigBar1:init("leftBigBar1", "framesData_leftBigBar1");
 	self.leftBigBar2:init("leftBigBar2", "framesData_leftBigBar2");
@@ -5855,7 +5891,8 @@ function DHUDGUIManager:toggleUnitTextDropdown(frame)
 end
 
 --- update gui alpha according to situation
-function DHUDGUIManager:updateAlpha()
+-- @param force if true than alpha will be updated to same valueType, required for setting changes and preview
+function DHUDGUIManager:updateAlpha(force)
 	local newAlphaType = self.ALPHA_TYPE_OTHER;
 	if (self.isInCombat or self.isAttacking) then
 		newAlphaType = self.ALPHA_TYPE_INCOMBAT;
@@ -5864,11 +5901,16 @@ function DHUDGUIManager:updateAlpha()
 	elseif (self.isRegenerating) then
 		newAlphaType = self.ALPHA_TYPE_REGENERATING;
 	end
-	if (self.alphaType == newAlphaType) then
+	if (self.alphaType == newAlphaType and (not force)) then
 		return;
 	end
 	self.alphaType = newAlphaType;
 	local alpha = self.ALPHA_VALUES[self.alphaType];
+	-- alpha should be atleast 0.1 for preview
+	if (self.isPreviewMode and alpha < 0.1) then
+		alpha = 0.1;
+	end
+	-- change
 	DHUDGUI:changeAlpha(alpha);
 end
 
@@ -5907,6 +5949,70 @@ function DHUDGUIManager:onSlotRegenerationStateChanged()
 	--print("set self.isRegenerating " .. MCTableToString(self.isRegenerating));
 	if (before ~= self.isRegenerating) then
 		self:updateAlpha();
+	end
+end
+
+--- DHUD Options addon requested to preview settings
+function DHUDGUIManager:onPreviewStart(e)
+	self.isPreviewMode = true;
+	-- update alpha
+	self:updateAlpha(true);
+	-- update frames
+	DHUDDataTrackers.helper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE_FREQUENT, self, self.onPreview);
+	self:onPreview(nil);
+end
+
+--- Function to refresh preview
+function DHUDGUIManager:onPreview(e)
+	-- preview cast bars
+	for i, v in ipairs(self.castBarManagers) do
+		if (v.currentDataTracker ~= nil) then
+			v:showPreviewData();
+		end
+	end
+	-- preview side info
+	for i, v in ipairs(self.sideManagers) do
+		if (v.currentDataTracker ~= nil) then
+			v:showPreviewData();
+		end
+	end
+	-- preview rectangles
+	for i, v in ipairs(self.rectangleManagers) do
+		if (v.currentDataTracker ~= nil) then
+			v:showPreviewData();
+		end
+	end
+end
+
+--- DHUD Options addon requested to stop settings preview
+function DHUDGUIManager:onPreviewStop(e)
+	self.isPreviewMode = false;
+	DHUDDataTrackers.helper:removeEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE_FREQUENT, self, self.onPreview);
+	-- update alpha
+	self:updateAlpha(true);
+	-- stop cast bars preview
+	for i, v in ipairs(self.castBarManagers) do
+		if (v.currentDataTracker ~= nil) then
+			v:onDataTrackerChange();
+			v:onDataUnitChange();
+			v:onDataChange();
+		end
+	end
+	-- stop side info preview
+	for i, v in ipairs(self.sideManagers) do
+		if (v.currentDataTracker ~= nil) then
+			v:onDataTrackerChange();
+			v:onDataUnitChange();
+			v:onDataChange();
+		end
+	end
+	-- stop rectangles preview
+	for i, v in ipairs(self.rectangleManagers) do
+		if (v.currentDataTracker ~= nil) then
+			v:onDataTrackerChange();
+			v:onDataUnitChange();
+			v:onDataChange();
+		end
 	end
 end
 
@@ -5963,8 +6069,7 @@ function DHUDGUIManager:processAlphaSetting(alphaType, alphaSettingName)
 	local functionOnSettingChange = function(self, e)
 		self.ALPHA_VALUES[alphaType] = DHUDSettings:getValue(alphaSettingName);
 		if (self.alphaType == alphaType) then
-			self.alphaType = 0;
-			self:updateAlpha();
+			self:updateAlpha(true);
 		end
 	end
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. alphaSettingName, self, functionOnSettingChange);

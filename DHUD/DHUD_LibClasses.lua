@@ -189,6 +189,25 @@ function MCFindSubValueInTable(t, subValueName, subValue)
 	return nil;
 end
 
+--- Compare two tables by values
+-- @param t1 table one to comapre
+-- @param t2 table two to compare
+-- @return true if tables are identical, false otherwise
+function MCCompareTables(t1, t2)
+	if (t1 == t2) then
+		return true;
+	end
+	if ("table" ~= type(t1) or "table" ~= type(t2)) then
+		return false;
+	end
+	for k, v in pairs(t1) do
+		if (not MCCompareTables(v, t2[k])) then
+			return false;
+		end
+	end
+	return true;
+end
+
 --- Sort table using function, table.sort makes excess exchanges when items order is the same
 -- @param t table to sort
 -- @param func function that will sort table, comparison function should take two arguments to compare, Given the elements A and B, negative return value specifies that A appears before B in the sorted sequence, return value of 0 specifies that A and B have the same sort order, positive return value specifies that A appears after B in the sorted sequence. should return -1 if first parameter should be before second, or 1 if first parameter should be after

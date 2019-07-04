@@ -1,0 +1,2877 @@
+﻿<Ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.blizzard.com/wow/ui/">
+	<Script file="DHUD_OptionsFrame.lua" />
+	<Frame name="DHUD_OptionsFrame" parent="UIParent" toplevel="true" movable="true" enableMouse="true">
+		<Size>
+			<AbsDimension x="500" y="600" />
+		</Size>
+		<Anchors>
+			<Anchor point="CENTER">
+				<Offset>
+					<AbsDimension x="0" y="0" />
+				</Offset>
+			</Anchor>
+		</Anchors>
+		<Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background" edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
+			<BackgroundInsets>
+				<AbsInset left="4" right="4" top="4" bottom="4" />
+			</BackgroundInsets>
+			<TileSize>
+				<AbsValue val="16" />
+			</TileSize>
+			<EdgeSize>
+				<AbsValue val="16" />
+			</EdgeSize>
+		</Backdrop>
+		<Layers>
+			<Layer level="BORDER">
+				<Texture name="$parent_TopGradient" hidden="true" file="Interface\ChatFrame\ChatFrameBackground">
+					<Gradient orientation="VERTICAL">
+						<MinColor r="0.1" g="0.1" b="0.1" a="0" />
+						<MaxColor r=".25" g=".25" b=".25" a="1" />
+					</Gradient>
+					<Size>
+						<AbsDimension x="64" y="64" />
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset x="5" y="-5" />
+						</Anchor>
+						<Anchor point="BOTTOMRIGHT" relativeTo="$parent" relativePoint="TOPRIGHT" x="-5" y="-50" />
+					</Anchors>
+				</Texture>
+				<Texture name="$parent_TabsLine" file="Interface\AddOns\DHUD_Options\line">
+					<Size>
+						<AbsDimension x="256" y="50" />
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT">
+							<Offset x="5" y="-44" />
+						</Anchor>
+						<Anchor point="TOPRIGHT" relativeTo="$parent" relativePoint="TOPRIGHT">
+							<Offset x="-5" y="-44" />
+						</Anchor>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer>
+				<Texture name="$parent_Logo" file="Interface\AddOns\DHUD_Options\logo">
+					<Size>
+						<AbsDimension x="256" y="128" />
+					</Size>
+					<Anchors>
+						<Anchor point="TOP">
+							<Offset y="77" />
+						</Anchor>
+					</Anchors>
+				</Texture>
+				<Texture name="$parent_BottomGradient" hidden="true" file="Interface\ChatFrame\ChatFrameBackground">
+					<Gradient orientation="VERTICAL">
+						<MinColor r=".20" g=".20" b=".20" a="1" />
+						<MaxColor r="0.1" g="0.1" b="0.1" a="0" />
+					</Gradient>
+					<Size>
+						<AbsDimension x="64" y="64" />
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="BOTTOMLEFT">
+							<Offset x="5" y="50" />
+						</Anchor>
+						<Anchor point="BOTTOMRIGHT" x="-5" y="5" />
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<FontString name="$parent_VersionString" inherits="GameFontHighlightSmall" text="DHUD_VERSION">
+					<Size x="200" y="20" />
+					<Anchors>
+						<Anchor point="TOP">
+							<Offset y="-10" />
+						</Anchor>
+					</Anchors>
+					<FontHeight>
+						<AbsValue val="12" />
+					</FontHeight>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Button name="$parent_CloseButton" inherits="UIPanelCloseButton" text="">
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT">
+						<Offset x="1" y="1" />
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parent_ResetButton" inherits="DHUD_OptionsTemplate_RedButton" text="Reset">
+				<Attributes>
+					<Attribute name="LTEXT" value="BUTTON_RESET" />
+				</Attributes>
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT">
+						<Offset x="-35" y="-5" />
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parent_ProfilesButton" inherits="DHUD_OptionsTemplate_RedButton" text="Profiles">
+				<Attributes>
+					<Attribute name="LTEXT" value="BUTTON_PROFILES" />
+				</Attributes>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
+						<Offset x="15" y="-5" />
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Frame name="$parent_GeneralTab" inherits="DHUD_OptionsTemplate_Tab">
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="5" y="-73" />
+					</Anchor>
+				</Anchors>
+				<Frames>
+					<Frame name="$parent_Page1" inherits="DHUD_OptionsTemplate_TabPage">
+						<Anchors>
+							<Anchor point="TOPLEFT" />
+						</Anchors>
+						<Frames>
+							<Frame name="$parent_HeaderBlizzard" inherits="DHUD_OptionsTemplate_Header">
+								<Attributes>
+									<Attribute name="LTEXT" value="HEADER_BLIZZARD" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="5" y="-10" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<CheckButton name="$parent_BlizzardPlayerCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_BLIZZARD_PLAYER" />
+									<Attribute name="SETTING" value="blizzardFrames_playerFrame" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="10" y="-36" />
+									</Anchor>
+								</Anchors>
+							</CheckButton>
+							<CheckButton name="$parent_BlizzardTargetCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardTargetFrame">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_BLIZZARD_TARGET" />
+									<Attribute name="SETTING" value="blizzardFrames_targetFrame" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="10" y="-67" />
+									</Anchor>
+								</Anchors>
+							</CheckButton>
+							<CheckButton name="$parent_BlizzardCastBarCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardCastFrame">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_BLIZZARD_CASTBAR" />
+									<Attribute name="SETTING" value="blizzardFrames_castingFrame" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="10" y="-98" />
+									</Anchor>
+								</Anchors>
+							</CheckButton>
+							<Slider name="$parent_BlizzardSpellActivationSlider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_BLIZZARD_SPELLACTIVATION" />
+									<Attribute name="SETTING" value="blizzardFrames_spellActivationFrameAlpha" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="14" y="-146" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Frame name="$parent_HeaderScale" inherits="DHUD_OptionsTemplate_Header">
+								<Attributes>
+									<Attribute name="LTEXT" value="HEADER_SCALE" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="5" y="-178" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Slider name="$parent_ScaleMainSlider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_SCALE_MAIN" />
+									<Attribute name="SETTING" value="scale_main" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="14" y="-207" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Slider name="$parent_ScaleSpellCirclesSlider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_SCALE_SPELL_CIRCLES" />
+									<Attribute name="SETTING" value="scale_spellCircles" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="14" y="-245" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Slider name="$parent_ScaleSpellRectanglesSlider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_SCALE_SPELL_RECTANGLES" />
+									<Attribute name="SETTING" value="scale_spellRectangles" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="14" y="-283" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Slider name="$parent_ScaleResourcesSlider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_SCALE_RESOURCES" />
+									<Attribute name="SETTING" value="scale_resource" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="14" y="-319" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Frame name="$parent_HeaderAlpha" inherits="DHUD_OptionsTemplate_Header">
+								<Attributes>
+									<Attribute name="LTEXT" value="HEADER_ALPHA" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="5" y="-343" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Slider name="$parent_AlphaCombatSlider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_ALPHA_COMBAT" />
+									<Attribute name="SETTING" value="alpha_combat" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="14" y="-375" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Slider name="$parent_AlphaTargetSlider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_ALPHA_HASTARGET" />
+									<Attribute name="SETTING" value="alpha_hasTarget" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="14" y="-406" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Slider name="$parent_AlphaRegenSlider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_ALPHA_REGEN" />
+									<Attribute name="SETTING" value="alpha_regen" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="14" y="-441" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Slider name="$parent_AlphaOutOfCombatSlider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_ALPHA_OUTOFCOMBAT" />
+									<Attribute name="SETTING" value="alpha_outOfCombat" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="14" y="-476" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Frame name="$parent_HeaderFontSize" inherits="DHUD_OptionsTemplate_Header">
+								<Attributes>
+									<Attribute name="LTEXT" value="HEADER_FONTSIZE" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="170" y="-10" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_HeaderFontOutline" inherits="DHUD_OptionsTemplate_Header">
+								<Attributes>
+									<Attribute name="LTEXT" value="HEADER_FONTOUTLINE" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="326" y="-199" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Slider name="$parent_FontSizeLeftBigBar1Slider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FONTSIZE_LEFTBIGBAR1" />
+									<Attribute name="SETTING" value="scale_leftBigBar1" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="173" y="-46" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Slider name="$parent_FontSizeLeftBigBar2Slider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FONTSIZE_LEFTBIGBAR2" />
+									<Attribute name="SETTING" value="scale_leftBigBar2" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="173" y="-82" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Slider name="$parent_FontSizeLeftSmallBar1Slider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FONTSIZE_LEFTSMALLBAR1" />
+									<Attribute name="SETTING" value="scale_leftSmallBar1" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="173" y="-117" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Slider name="$parent_FontSizeLeftSmallBar2Slider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FONTSIZE_LEFTSMALLBAR2" />
+									<Attribute name="SETTING" value="scale_leftSmallBar2" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="173" y="-155" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Slider name="$parent_FontSizeRightBigBar1Slider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FONTSIZE_RIGHTBIGBAR1" />
+									<Attribute name="SETTING" value="scale_rightBigBar1" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="173" y="-194" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Slider name="$parent_FontSizeRightBigBar2Slider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FONTSIZE_RIGHTBIGBAR2" />
+									<Attribute name="SETTING" value="scale_rightBigBar2" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="173" y="-231" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Slider name="$parent_FontSizeRightSmallBar1Slider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FONTSIZE_RIGHTSMALLBAR1" />
+									<Attribute name="SETTING" value="scale_rightSmallBar1" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="173" y="-268" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Slider name="$parent_FontSizeRightSmallBar2Slider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FONTSIZE_RIGHTSMALLBAR2" />
+									<Attribute name="SETTING" value="scale_rightSmallBar2" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="173" y="-303" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Slider name="$parent_FontSizeTargetInfo1Slider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FONTSIZE_TARGETINFO1" />
+									<Attribute name="SETTING" value="scale_targetInfo1" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="173" y="-342" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Slider name="$parent_FontSizeTargetInfo2Slider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FONTSIZE_TARGETINFO2" />
+									<Attribute name="SETTING" value="scale_targetInfo2" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="173" y="-379" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Slider name="$parent_FontSizeSpellCirclesTimeSlider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FONTSIZE_SPELLCIRCLESTIME" />
+									<Attribute name="SETTING" value="scale_spellCirclesTime" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="173" y="-415" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Slider name="$parent_FontSizeSpellCirclesStacksSlider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FONTSIZE_SPELLCIRCLESSTACKS" />
+									<Attribute name="SETTING" value="scale_spellCirclesStacks" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="173" y="-451" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Slider name="$parent_FontSizeSpellRectanglesTimeSlider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FONTSIZE_SPELLRECTANGLESTIME" />
+									<Attribute name="SETTING" value="scale_spellRectanglesTime" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="173" y="-484" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Slider name="$parent_FontSizeSpellRectanglesStacksSlider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FONTSIZE_SPELLRECTANGLESSTACKS" />
+									<Attribute name="SETTING" value="scale_spellRectanglesStacks" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="326" y="-27" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Slider name="$parent_FontSizeResourcesTimeSlider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FONTSIZE_RESOURCETIME" />
+									<Attribute name="SETTING" value="scale_resourceTime" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="326" y="-63" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Slider name="$parent_FontSizeCastTimeSlider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FONTSIZE_CASTBARSTIME" />
+									<Attribute name="SETTING" value="scale_castBarsTime" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="326" y="-98" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Slider name="$parent_FontSizeCastDelaySlider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FONTSIZE_CASTBARSDELAY" />
+									<Attribute name="SETTING" value="scale_castBarsDelay" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="326" y="-132" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Slider name="$parent_FontSizeCastSpellNameSlider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FONTSIZE_CASTBARSSPELL" />
+									<Attribute name="SETTING" value="scale_castBarsSpell" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="326" y="-168" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Slider name="$parent_FontOutlineLeftBigBar1Slider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FONTOUTLINE_LEFTBIGBAR1" />
+									<Attribute name="SETTING" value="outlines_leftBigBar1" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="326" y="-239" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Slider name="$parent_FontOutlineLeftBigBar2Slider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FONTOUTLINE_LEFTBIGBAR2" />
+									<Attribute name="SETTING" value="outlines_leftBigBar2" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="326" y="-275" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Slider name="$parent_FontOutlineLeftSmallBar1Slider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FONTOUTLINE_LEFTSMALLBAR1" />
+									<Attribute name="SETTING" value="outlines_leftSmallBar1" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="326" y="-314" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Slider name="$parent_FontOutlineLeftSmallBar2Slider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FONTOUTLINE_LEFTSMALLBAR2" />
+									<Attribute name="SETTING" value="outlines_leftSmallBar2" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="326" y="-353" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Slider name="$parent_FontOutlineRightBigBar1Slider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FONTOUTLINE_RIGHTBIGBAR1" />
+									<Attribute name="SETTING" value="outlines_rightBigBar1" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="326" y="-393" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Slider name="$parent_FontOutlineRightBigBar2Slider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FONTOUTLINE_RIGHTBIGBAR2" />
+									<Attribute name="SETTING" value="outlines_rightBigBar2" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="326" y="-429" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Slider name="$parent_FontOutlineRightSmallBar1Slider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FONTOUTLINE_RIGHTSMALLBAR1" />
+									<Attribute name="SETTING" value="outlines_rightSmallBar1" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="326" y="-473" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+						</Frames>
+					</Frame>
+					<Frame name="$parent_Page2" inherits="DHUD_OptionsTemplate_TabPage">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset x="550" />
+							</Anchor>
+						</Anchors>
+						<Frames>
+							<Slider name="$parent_FontOutlineRightSmallBar2Slider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FONTOUTLINE_RIGHTSMALLBAR2" />
+									<Attribute name="SETTING" value="outlines_rightSmallBar2" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="12" y="-46" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Frame name="$parent_HeaderOutline" inherits="DHUD_OptionsTemplate_Header">
+								<Attributes>
+									<Attribute name="LTEXT" value="HEADER_FONTOUTLINE" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="5" y="-10" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Slider name="$parent_FontOutlineTargetInfo1Slider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FONTOUTLINE_TARGETINFO1" />
+									<Attribute name="SETTING" value="outlines_targetInfo1" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="12" y="-82" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Slider name="$parent_FontOutlineTargetInfo2Slider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FONTOUTLINE_TARGETINFO2" />
+									<Attribute name="SETTING" value="outlines_targetInfo2" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="12" y="-117" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Slider name="$parent_FontOutlineSpellCirclesTimeSlider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FONTOUTLINE_SPELLCIRCLESTIME" />
+									<Attribute name="SETTING" value="outlines_spellCirclesTime" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="12" y="-155" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Slider name="$parent_FontOutlineSpellCirclesStacksSlider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FONTOUTLINE_SPELLCIRCLESSTACKS" />
+									<Attribute name="SETTING" value="outlines_spellCirclesStacks" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="12" y="-194" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Slider name="$parent_FontOutlineSpellRectanglesTimeSlider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FONTOUTLINE_SPELLRECTANGLESTIME" />
+									<Attribute name="SETTING" value="outlines_spellRectanglesTime" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="12" y="-231" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Slider name="$parent_FontOutlineSpellRectanglesStacksSlider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FONTOUTLINE_SPELLRECTANGLESSTACKS" />
+									<Attribute name="SETTING" value="outlines_spellRectanglesStacks" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="12" y="-268" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Slider name="$parent_FontOutlineResourcesTimeSlider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FONTOUTLINE_RESOURCETIME" />
+									<Attribute name="SETTING" value="outlines_resourceTime" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="12" y="-303" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Slider name="$parent_FontOutlineCastTimeSlider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FONTOUTLINE_CASTBARSTIME" />
+									<Attribute name="SETTING" value="outlines_castBarsTime" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="12" y="-340" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Slider name="$parent_FontOutlineCastDelaySlider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FONTOUTLINE_CASTBARSDELAY" />
+									<Attribute name="SETTING" value="outlines_castBarsDelay" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="12" y="-372" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Slider name="$parent_FontOutlineCastSpellNameSlider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FONTOUTLINE_CASTBARSSPELL" />
+									<Attribute name="SETTING" value="outlines_castBarsSpell" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="12" y="-415" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Frame name="$parent_HeaderIcons" inherits="DHUD_OptionsTemplate_Header">
+								<Attributes>
+									<Attribute name="LTEXT" value="HEADER_ICONS" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="170" y="-10" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<CheckButton name="$parent_RestingIconCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_ICON_RESTING" />
+									<Attribute name="SETTING" value="icons_restingIcon" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="171" y="-46" />
+									</Anchor>
+								</Anchors>
+							</CheckButton>
+							<CheckButton name="$parent_CombatIconCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_ICON_COMBAT" />
+									<Attribute name="SETTING" value="icons_combatIcon" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="171" y="-77" />
+									</Anchor>
+								</Anchors>
+							</CheckButton>
+							<CheckButton name="$parent_SelfPvPIconCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_ICON_SELFPVP" />
+									<Attribute name="SETTING" value="icons_playerPvPIcon" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="171" y="-108" />
+									</Anchor>
+								</Anchors>
+							</CheckButton>
+							<CheckButton name="$parent_TargetPvPIconCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_ICON_TARGETPVP" />
+									<Attribute name="SETTING" value="icons_targetPvPIcon" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="171" y="-139" />
+									</Anchor>
+								</Anchors>
+							</CheckButton>
+							<CheckButton name="$parent_TargetEliteIconCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_ICON_TARGETELITE" />
+									<Attribute name="SETTING" value="icons_targetEliteIcon" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="171" y="-170" />
+									</Anchor>
+								</Anchors>
+							</CheckButton>
+							<CheckButton name="$parent_TargetRaidIconCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_ICON_TARGETRAID" />
+									<Attribute name="SETTING" value="icons_targetRaidIcon" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="171" y="-201" />
+									</Anchor>
+								</Anchors>
+							</CheckButton>
+							<CheckButton name="$parent_TargetSpecRoleIconCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_ICON_TARGETSPECROLE" />
+									<Attribute name="SETTING" value="icons_targetSpecRoleIcon" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="171" y="-232" />
+									</Anchor>
+								</Anchors>
+							</CheckButton>
+							<CheckButton name="$parent_TargetSpecIconCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_ICON_TARGETSPEC" />
+									<Attribute name="SETTING" value="icons_targetSpecIcon" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="171" y="-262" />
+									</Anchor>
+								</Anchors>
+							</CheckButton>
+							<CheckButton name="$parent_HealthShieldCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_HEALTHBAR_SHIELDS" />
+									<Attribute name="SETTING" value="healthBarOptions_showShields" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="171" y="-331" />
+									</Anchor>
+								</Anchors>
+							</CheckButton>
+							<CheckButton name="$parent_HealthHealAbsorbCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_HEALTHBAR_HEALABSORBS" />
+									<Attribute name="SETTING" value="healthBarOptions_showHealAbsorb" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="171" y="-362" />
+									</Anchor>
+								</Anchors>
+							</CheckButton>
+							<CheckButton name="$parent_HealthHealIncomingCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_HEALTHBAR_HEALINCOMING" />
+									<Attribute name="SETTING" value="healthBarOptions_showHealIncoming" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="171" y="-393" />
+									</Anchor>
+								</Anchors>
+							</CheckButton>
+							<Frame name="$parent_HeaderTextures" inherits="DHUD_OptionsTemplate_Header">
+								<Attributes>
+									<Attribute name="LTEXT" value="HEADER_TEXTURES" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="335" y="-10" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<CheckButton name="$parent_BarTexture1RadioButton" inherits="DHUD_OptionsTemplate_RadioButton" text="BlizzardPlayerFrame">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_TEXTURES_BARS_1" />
+									<Attribute name="SETTING" value="textures_barTexture" />
+									<Attribute name="VALUE" value="1" />
+									<Attribute name="RADIOGROUP" value="textures_barTexture" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="335" y="-46" />
+									</Anchor>
+								</Anchors>
+							</CheckButton>
+							<CheckButton name="$parent_BarTexture2RadioButton" inherits="DHUD_OptionsTemplate_RadioButton" text="BlizzardPlayerFrame">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_TEXTURES_BARS_2" />
+									<Attribute name="SETTING" value="textures_barTexture" />
+									<Attribute name="VALUE" value="2" />
+									<Attribute name="RADIOGROUP" value="textures_barTexture" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="335" y="-68" />
+									</Anchor>
+								</Anchors>
+							</CheckButton>
+							<CheckButton name="$parent_BarTexture3RadioButton" inherits="DHUD_OptionsTemplate_RadioButton" text="BlizzardPlayerFrame">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_TEXTURES_BARS_3" />
+									<Attribute name="SETTING" value="textures_barTexture" />
+									<Attribute name="VALUE" value="3" />
+									<Attribute name="RADIOGROUP" value="textures_barTexture" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="335" y="-93" />
+									</Anchor>
+								</Anchors>
+							</CheckButton>
+							<CheckButton name="$parent_BarTexture4RadioButton" inherits="DHUD_OptionsTemplate_RadioButton" text="BlizzardPlayerFrame">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_TEXTURES_BARS_4" />
+									<Attribute name="SETTING" value="textures_barTexture" />
+									<Attribute name="VALUE" value="4" />
+									<Attribute name="RADIOGROUP" value="textures_barTexture" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="335" y="-117" />
+									</Anchor>
+								</Anchors>
+							</CheckButton>
+							<CheckButton name="$parent_BarTexture5RadioButton" inherits="DHUD_OptionsTemplate_RadioButton" text="BlizzardPlayerFrame">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_TEXTURES_BARS_5" />
+									<Attribute name="SETTING" value="textures_barTexture" />
+									<Attribute name="VALUE" value="5" />
+									<Attribute name="RADIOGROUP" value="textures_barTexture" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="335" y="-139" />
+									</Anchor>
+								</Anchors>
+							</CheckButton>
+							<CheckButton name="$parent_BackgroundTextureCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_TEXTURES_BARS_BACKGROUND" />
+									<Attribute name="SETTING" value="textures_barBackground" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="335" y="-161" />
+									</Anchor>
+								</Anchors>
+							</CheckButton>
+							<Frame name="$parent_HeaderMisc" inherits="DHUD_OptionsTemplate_Header">
+								<Attributes>
+									<Attribute name="LTEXT" value="HEADER_MISC" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="335" y="-194" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<CheckButton name="$parent_AnimateBarsCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_MISC_ANIMATEBARS" />
+									<Attribute name="SETTING" value="misc_animateBars" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="335" y="-230" />
+									</Anchor>
+								</Anchors>
+							</CheckButton>
+							<CheckButton name="$parent_ReverseCastBarsCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_MISC_REVERSECASTBARS" />
+									<Attribute name="SETTING" value="misc_reverseCastingBars" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="335" y="-261" />
+									</Anchor>
+								</Anchors>
+							</CheckButton>
+							<CheckButton name="$parent_PlayerCastInfoCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_MISC_SHOWPLAYERCASTINFO" />
+									<Attribute name="SETTING" value="misc_showPlayerCastBarInfo" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="335" y="-292" />
+									</Anchor>
+								</Anchors>
+							</CheckButton>
+							<CheckButton name="$parent_StoreComboPointsCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_MISC_STORECOMBOPOINTS" />
+									<Attribute name="SETTING" value="misc_storeComboPoints" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="335" y="-323" />
+									</Anchor>
+								</Anchors>
+							</CheckButton>
+							<CheckButton name="$parent_ShowMillisecondsCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_MISC_SHOWMILLISECONDS" />
+									<Attribute name="SETTING" value="misc_textTimerShowMilliSeconds" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="335" y="-354" />
+									</Anchor>
+								</Anchors>
+							</CheckButton>
+							<CheckButton name="$parent_ShortNumbersCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_MISC_SHORTNUMBERS" />
+									<Attribute name="SETTING" value="misc_textShortNumbers" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="335" y="-385" />
+									</Anchor>
+								</Anchors>
+							</CheckButton>
+							<CheckButton name="$parent_MinimapCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_MISC_MINIMAP" />
+									<Attribute name="SETTING" value="misc_minimapIcon" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="335" y="-416" />
+									</Anchor>
+								</Anchors>
+							</CheckButton>
+							<Frame name="$parent_HeaderHealthBars" inherits="DHUD_OptionsTemplate_Header">
+								<Attributes>
+									<Attribute name="LTEXT" value="HEADER_HEALTHBAR" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="171" y="-297" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+						</Frames>
+					</Frame>
+				</Frames>
+			</Frame>
+			<Frame name="$parent_LayoutsTab" inherits="DHUD_OptionsTemplate_Tab">
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="5" y="-2073" />
+					</Anchor>
+				</Anchors>
+				<Frames>
+					<Frame name="$parent_Page1" inherits="DHUD_OptionsTemplate_TabPage">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset />
+							</Anchor>
+						</Anchors>
+						<Frames>
+							<Frame name="$parent_HeaderFramesData" inherits="DHUD_OptionsTemplate_Header">
+								<Attributes>
+									<Attribute name="LTEXT" value="HEADER_FRAMESDATA" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="5" y="-10" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_FramesDataLeftBigBar1" inherits="DHUD_OptionsTemplate_DropdownFramesData">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FRAMESDATA_LEFTBIGBAR1" />
+									<Attribute name="SETTING" value="framesData_leftBigBar1" />
+									<Attribute name="SETTING2" value="framesData_leftBigCastBar1" />
+									<Attribute name="FRAMETYPE" value="bars" />
+									<Attribute name="FRAMETYPE2" value="castBars" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset y="-45" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_FramesDataLeftBigBar2" inherits="DHUD_OptionsTemplate_DropdownFramesData">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FRAMESDATA_LEFTBIGBAR2" />
+									<Attribute name="SETTING" value="framesData_leftBigBar2" />
+									<Attribute name="SETTING2" value="framesData_leftBigCastBar2" />
+									<Attribute name="FRAMETYPE" value="bars" />
+									<Attribute name="FRAMETYPE2" value="castBars" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset y="-83" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_FramesDataLeftSmallBar1" inherits="DHUD_OptionsTemplate_DropdownFramesData">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FRAMESDATA_LEFTSMALLBAR1" />
+									<Attribute name="SETTING" value="framesData_leftSmallBar1" />
+									<Attribute name="FRAMETYPE" value="bars" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset y="-121" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_FramesDataLeftSmallBar2" inherits="DHUD_OptionsTemplate_DropdownFramesData">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FRAMESDATA_LEFTSMALLBAR2" />
+									<Attribute name="SETTING" value="framesData_leftSmallBar2" />
+									<Attribute name="FRAMETYPE" value="bars" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset y="-158" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_FramesDataLeftInnerSideInfo" inherits="DHUD_OptionsTemplate_DropdownFramesData">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FRAMESDATA_LEFTINNERSIDE" />
+									<Attribute name="SETTING" value="framesData_leftInnerSideInfo" />
+									<Attribute name="FRAMETYPE" value="sideSlots" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset y="-195" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_FramesDataLeftOuterSideInfo" inherits="DHUD_OptionsTemplate_DropdownFramesData">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FRAMESDATA_LEFTOUTERSIDE" />
+									<Attribute name="SETTING" value="framesData_leftOuterSideInfo" />
+									<Attribute name="FRAMETYPE" value="sideSlots" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset y="-233" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_FramesDataLeftRectangles" inherits="DHUD_OptionsTemplate_DropdownFramesData">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FRAMESDATA_LEFTRECTANGLES" />
+									<Attribute name="SETTING" value="framesData_leftRectangles" />
+									<Attribute name="FRAMETYPE" value="spellRectangles" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset y="-274" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_FramesDataCenterUnitInfo1" inherits="DHUD_OptionsTemplate_DropdownFramesData">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FRAMESDATA_TARGETINFO1" />
+									<Attribute name="SETTING" value="framesData_centerUnitInfo1" />
+									<Attribute name="FRAMETYPE" value="unitInfo" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset y="-310" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_FramesDataRightBigBar1" inherits="DHUD_OptionsTemplate_DropdownFramesData">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FRAMESDATA_RIGHTBIGBAR1" />
+									<Attribute name="SETTING" value="framesData_rightBigBar1" />
+									<Attribute name="SETTING2" value="framesData_rightBigCastBar1" />
+									<Attribute name="FRAMETYPE" value="bars" />
+									<Attribute name="FRAMETYPE2" value="castBars" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="244" y="-45" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_FramesDataRightBigBar2" inherits="DHUD_OptionsTemplate_DropdownFramesData">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FRAMESDATA_RIGHTBIGBAR2" />
+									<Attribute name="SETTING" value="framesData_rightBigBar2" />
+									<Attribute name="SETTING2" value="framesData_rightBigCastBar2" />
+									<Attribute name="FRAMETYPE" value="bars" />
+									<Attribute name="FRAMETYPE2" value="castBars" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="244" y="-83" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_FramesDataRightSmallBar1" inherits="DHUD_OptionsTemplate_DropdownFramesData">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FRAMESDATA_RIGHTSMALLBAR1" />
+									<Attribute name="SETTING" value="framesData_rightSmallBar1" />
+									<Attribute name="FRAMETYPE" value="bars" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="244" y="-121" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_FramesDataRightSmallBar2" inherits="DHUD_OptionsTemplate_DropdownFramesData">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FRAMESDATA_RIGHTSMALLBAR2" />
+									<Attribute name="SETTING" value="framesData_rightSmallBar2" />
+									<Attribute name="FRAMETYPE" value="bars" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="244" y="-158" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_FramesDataRightInnerSideInfo" inherits="DHUD_OptionsTemplate_DropdownFramesData">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FRAMESDATA_RIGHTINNERSIDE" />
+									<Attribute name="SETTING" value="framesData_rightInnerSideInfo" />
+									<Attribute name="FRAMETYPE" value="sideSlots" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="244" y="-195" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_FramesDataRightOuterSideInfo" inherits="DHUD_OptionsTemplate_DropdownFramesData">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FRAMESDATA_RIGHTOUTERSIDE" />
+									<Attribute name="SETTING" value="framesData_rightOuterSideInfo" />
+									<Attribute name="FRAMETYPE" value="sideSlots" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="244" y="-233" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_FramesDataRightRectangles" inherits="DHUD_OptionsTemplate_DropdownFramesData">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FRAMESDATA_RIGHTRECTANGLES" />
+									<Attribute name="SETTING" value="framesData_rightRectangles" />
+									<Attribute name="FRAMETYPE" value="spellRectangles" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="244" y="-274" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_FramesDataCenterUnitInfo2" inherits="DHUD_OptionsTemplate_DropdownFramesData">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FRAMESDATA_TARGETINFO2" />
+									<Attribute name="SETTING" value="framesData_centerUnitInfo2" />
+									<Attribute name="FRAMETYPE" value="unitInfo" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="244" y="-310" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_HeaderPositions" inherits="DHUD_OptionsTemplate_Header">
+								<Attributes>
+									<Attribute name="LTEXT" value="HEADER_FRAMESDATA_POSITION" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="5" y="-348" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_FramesPositionDragon" inherits="DHUD_OptionsTemplate_DropdownFramesPosition">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FRAMESDATA_POSITION_TARGETDRAGON" />
+									<Attribute name="SETTING" value="framesData_iconPositions_dragon" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset y="-382" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_FramesPositionSelfState" inherits="DHUD_OptionsTemplate_DropdownFramesPosition">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FRAMESDATA_POSITION_SELFSTATE" />
+									<Attribute name="SETTING" value="framesData_iconPositions_selfState" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="155" y="-382" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_FramesPositionTargetState" inherits="DHUD_OptionsTemplate_DropdownFramesPosition">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_FRAMESDATA_POSITION_TARGETSTATE" />
+									<Attribute name="SETTING" value="framesData_iconPositions_targetState" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="314" y="-382" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_HeaderLayouts" inherits="DHUD_OptionsTemplate_Header">
+								<Attributes>
+									<Attribute name="LTEXT" value="HEADER_LAYOUTS" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="5" y="-424" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<CheckButton name="$parent_Layout1" inherits="DHUD_OptionsTemplate_LayoutsRadioButton" text="CheckButton1">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_LAYOUTS_1" />
+									<Attribute name="SETTING" value="framesData_layout" />
+									<Attribute name="VALUE" value="1" />
+									<Attribute name="RADIOGROUP" value="framesData_layout" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="10" y="-459" />
+									</Anchor>
+								</Anchors>
+							</CheckButton>
+							<CheckButton name="$parent_Layout2" inherits="DHUD_OptionsTemplate_LayoutsRadioButton" text="CheckButton1">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_LAYOUTS_2" />
+									<Attribute name="SETTING" value="framesData_layout" />
+									<Attribute name="VALUE" value="2" />
+									<Attribute name="RADIOGROUP" value="framesData_layout" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="181" y="-459" />
+									</Anchor>
+								</Anchors>
+							</CheckButton>
+							<CheckButton name="$parent_Layout0" inherits="DHUD_OptionsTemplate_LayoutsRadioButton" text="CheckButton1">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_LAYOUTS_0" />
+									<Attribute name="SETTING" value="framesData_layout" />
+									<Attribute name="VALUE" value="0" />
+									<Attribute name="RADIOGROUP" value="framesData_layout" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="350" y="-459" />
+									</Anchor>
+								</Anchors>
+							</CheckButton>
+						</Frames>
+					</Frame>
+				</Frames>
+			</Frame>
+			<Frame name="$parent_TimersTab" inherits="DHUD_OptionsTemplate_Tab">
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="5" y="-3073" />
+					</Anchor>
+				</Anchors>
+				<Frames>
+					<Frame name="$parent_Page1" inherits="DHUD_OptionsTemplate_TabPage">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset x="-150" />
+							</Anchor>
+						</Anchors>
+						<Frames>
+							<Frame name="$parent_HeaderTimersGeneral" inherits="DHUD_OptionsTemplate_Header">
+								<Attributes>
+									<Attribute name="LTEXT" value="HEADER_TIMERS_GENERAL" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="5" y="-10" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<CheckButton name="$parent_ShowTooltipsCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_TIMERS_SHOWTOOLTIP" />
+									<Attribute name="SETTING" value="aurasOptions_showTooltips" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="10" y="-34" />
+									</Anchor>
+								</Anchors>
+							</CheckButton>
+							<CheckButton name="$parent_TargetBuffTimersCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_TIMERS_TIMERSFORTARGETBUFFS" />
+									<Attribute name="SETTING" value="aurasOptions_showTimersOnTargetBuffs" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="166" y="-34" />
+									</Anchor>
+								</Anchors>
+							</CheckButton>
+							<CheckButton name="$parent_TargetDebuffTimersCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_TIMERS_TIMERSFORTARGETDEBUFFS" />
+									<Attribute name="SETTING" value="aurasOptions_showTimersOnTargetDeBuffs" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="314" y="-34" />
+									</Anchor>
+								</Anchors>
+							</CheckButton>
+							<Frame name="$parent_HeaderTimersShortAuras" inherits="DHUD_OptionsTemplate_Header">
+								<Attributes>
+									<Attribute name="LTEXT" value="HEADER_TIMERS_SHORTAURAS" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="5" y="-65" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<CheckButton name="$parent_ShortAurasWithChargesCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_TIMERS_SHORTAURASWITHCHARGES" />
+									<Attribute name="SETTING" value="shortAurasOptions_aurasWithCharges" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="10" y="-128" />
+									</Anchor>
+								</Anchors>
+							</CheckButton>
+							<Slider name="$parent_ShortAurasTimeLeftSlider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_TIMERS_SHORTAURASTIMELEFT" />
+									<Attribute name="SETTING" value="shortAurasOptions_aurasTimeLeftMax" />
+								</Attributes>
+								<Size>
+									<AbsDimension x="455" y="16" />
+								</Size>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="10" y="-103" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Frame name="$parent_HeaderPlayersShortAuras" inherits="DHUD_OptionsTemplate_Header">
+								<Attributes>
+									<Attribute name="LTEXT" value="HEADER_TIMERS_PLAYERSHORT" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="5" y="-161" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<CheckButton name="$parent_PlayerDebuffsCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_TIMERS_PLAYERSHORT_DEBUFFS" />
+									<Attribute name="SETTING" value="shortAurasOptions_playerDebuffs" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="10" y="-187" />
+									</Anchor>
+								</Anchors>
+							</CheckButton>
+							<CheckButton name="$parent_ColorizePlayerDebuffsCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_TIMERS_PLAYERSHORT_COLORIZEDEBUFFS" />
+									<Attribute name="SETTING" value="shortAurasOptions_colorizePlayerDebuffs" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="246" y="-187" />
+									</Anchor>
+								</Anchors>
+							</CheckButton>
+							<Frame name="$parent_PlayerShortAurasWhiteList" inherits="DHUD_OptionsTemplate_SpellListTextBox">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_TIMERS_PLAYERSHORT_WHITELIST" />
+									<Attribute name="SETTING" value="shortAurasOptions_playerAurasWhiteList" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="5" y="-224" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_PlayerShortAurasBlackList" inherits="DHUD_OptionsTemplate_SpellListTextBox">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_TIMERS_PLAYERSHORT_BLACKLIST" />
+									<Attribute name="SETTING" value="shortAurasOptions_playerAurasBlackList" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="246" y="-224" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_PlayerShortAurasPriorityList" inherits="DHUD_OptionsTemplate_SpellListTextBox">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_TIMERS_PLAYERSHORT_PRIORITYLIST" />
+									<Attribute name="SETTING" value="shortAurasOptions_playerAurasPriorityList" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="5" y="-287" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_HeaderTargetShortAuras" inherits="DHUD_OptionsTemplate_Header">
+								<Attributes>
+									<Attribute name="LTEXT" value="HEADER_TIMERS_TARGETSHORT" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="5" y="-341" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_TargetShortAurasWhiteList" inherits="DHUD_OptionsTemplate_SpellListTextBox">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_TIMERS_TARGETSHORT_WHITELIST" />
+									<Attribute name="SETTING" value="shortAurasOptions_targetAurasWhiteList" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="5" y="-378" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_TargetShortAurasBlackList" inherits="DHUD_OptionsTemplate_SpellListTextBox">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_TIMERS_TARGETSHORT_BLACKLIST" />
+									<Attribute name="SETTING" value="shortAurasOptions_targetAurasBlackList" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="246" y="-378" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_TargetShortAurasPriorityList" inherits="DHUD_OptionsTemplate_SpellListTextBox">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_TIMERS_TARGETSHORT_PRIORITYLIST" />
+									<Attribute name="SETTING" value="shortAurasOptions_targetAurasPriorityList" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="5" y="-439" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+						</Frames>
+					</Frame>
+					<Frame name="$parent_Page2" inherits="DHUD_OptionsTemplate_TabPage">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset x="450" />
+							</Anchor>
+						</Anchors>
+						<Frames>
+							<Frame name="$parent_HeaderPlayerCooldowns" inherits="DHUD_OptionsTemplate_Header">
+								<Attributes>
+									<Attribute name="LTEXT" value="HEADER_TIMERS_PLAYERCOOLDOWNS" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="5" y="-10" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Slider name="$parent_PlayerCooldownsMinDurationSlider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_TIMERS_PLAYERCOOLDOWNS_DURATIONMIN" />
+									<Attribute name="SETTING" value="shortAurasOptions_cooldownsDurationMin" />
+								</Attributes>
+								<Size>
+									<AbsDimension x="455" y="16" />
+								</Size>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="5" y="-43" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<Slider name="$parent_PlayerCooldownsMaxDurationSlider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_TIMERS_PLAYERCOOLDOWNS_DURATIONMAX" />
+									<Attribute name="SETTING" value="shortAurasOptions_cooldownsDurationMax" />
+								</Attributes>
+								<Size>
+									<AbsDimension x="455" y="16" />
+								</Size>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="5" y="-80" />
+									</Anchor>
+								</Anchors>
+							</Slider>
+							<CheckButton name="$parent_ItemCooldownsCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_TIMERS_PLAYERCOOLDOWNS_ITEM" />
+									<Attribute name="SETTING" value="shortAurasOptions_cooldownsItem" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="5" y="-114" />
+									</Anchor>
+								</Anchors>
+							</CheckButton>
+							<Frame name="$parent_CooldownsWhiteList" inherits="DHUD_OptionsTemplate_SpellListTextBox">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_TIMERS_PLAYERCOOLDOWNS_WHITELIST" />
+									<Attribute name="SETTING" value="shortAurasOptions_cooldownsWhiteList" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="5" y="-161" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_CooldownsBlackList" inherits="DHUD_OptionsTemplate_SpellListTextBox">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_TIMERS_PLAYERCOOLDOWNS_BLACKLIST" />
+									<Attribute name="SETTING" value="shortAurasOptions_cooldownsBlackList" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="250" y="-161" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_CooldownsPriorityList" inherits="DHUD_OptionsTemplate_SpellListTextBox">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_TIMERS_PLAYERCOOLDOWNS_PRIORITYLIST" />
+									<Attribute name="SETTING" value="shortAurasOptions_cooldownsPriorityList" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="5" y="-224" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+						</Frames>
+					</Frame>
+				</Frames>
+			</Frame>
+			<Frame name="$parent_ColorsTab" inherits="DHUD_OptionsTemplate_Tab">
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="5" y="-4073" />
+					</Anchor>
+				</Anchors>
+				<Frames>
+					<Frame name="$parent_Page1" inherits="DHUD_OptionsTemplate_TabPage">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset x="-500" />
+							</Anchor>
+						</Anchors>
+						<Frames>
+							<Frame name="$parent_HeaderPlayerColors" inherits="DHUD_OptionsTemplate_Header">
+								<Attributes>
+									<Attribute name="LTEXT" value="HEADER_COLORS_PLAYER" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="5" y="-7" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_PlayerHealthColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_PLAYER_HEALTH" />
+									<Attribute name="SETTING" value="colors_player_health" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-31" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_PlayerHealthShieldColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_PLAYER_HEALTHSHIELD" />
+									<Attribute name="SETTING" value="colors_player_healthShield" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-57" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_PlayerHealthAbsorbColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_PLAYER_HEALTHHEALABSORB" />
+									<Attribute name="SETTING" value="colors_player_healthAbsorb" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-83" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_PlayerHealthHealColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_PLAYER_HEALTHHEALINCOMING" />
+									<Attribute name="SETTING" value="colors_player_healthHeal" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-109" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_PlayerManaColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_PLAYER_MANA" />
+									<Attribute name="SETTING" value="colors_player_mana" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-135" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_PlayerRageColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_PLAYER_RAGE" />
+									<Attribute name="SETTING" value="colors_player_rage" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-161" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_PlayerEnergyColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_PLAYER_ENERGY" />
+									<Attribute name="SETTING" value="colors_player_energy" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-187" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_PlayerRunicPowerColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_PLAYER_RUNICPOWER" />
+									<Attribute name="SETTING" value="colors_player_runicPower" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-213" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_PlayerFocusColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_PLAYER_FOCUS" />
+									<Attribute name="SETTING" value="colors_player_focus" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-239" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_PlayerCastColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_PLAYER_CAST" />
+									<Attribute name="SETTING" value="colors_selfCastbar_cast" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-265" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_PlayerChannelColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_PLAYER_CHANNEL" />
+									<Attribute name="SETTING" value="colors_selfCastbar_channel" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-291" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_PlayerLockedCastColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_PLAYER_LOCKEDCAST" />
+									<Attribute name="SETTING" value="colors_selfCastbar_lockedCast" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-317" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_PlayerLockedChannelColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_PLAYER_LOCKEDCHANNEL" />
+									<Attribute name="SETTING" value="colors_selfCastbar_lockedChannel" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-343" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_PlayerInterruptedCastColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_PLAYER_CASTINTERRUPTED" />
+									<Attribute name="SETTING" value="colors_selfCastbar_interrupted" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-369" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_PlayerShortAurasBuffColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_PLAYER_SHORTAURABUFF" />
+									<Attribute name="SETTING" value="colors_selfShortAuras_buff" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-395" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_PlayerShortAurasDebuffColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_PLAYER_SHORTAURADEBUFF" />
+									<Attribute name="SETTING" value="colors_selfShortAuras_debuff" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-421" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_PlayerCooldownsSpellColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_PLAYER_COOLDOWNSSPELL" />
+									<Attribute name="SETTING" value="colors_selfCooldowns_spell" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-447" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_PlayerCooldownsItemColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_PLAYER_COOLDOWNSITEM" />
+									<Attribute name="SETTING" value="colors_selfCooldowns_item" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-473" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+						</Frames>
+					</Frame>
+					<Frame name="$parent_Page2" inherits="DHUD_OptionsTemplate_TabPage">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset x="550" />
+							</Anchor>
+						</Anchors>
+						<Frames>
+							<Frame name="$parent_HeaderTargetColors" inherits="DHUD_OptionsTemplate_Header">
+								<Attributes>
+									<Attribute name="LTEXT" value="HEADER_COLORS_TARGET" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="5" y="-7" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_TargetHealthColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_TARGET_HEALTH" />
+									<Attribute name="SETTING" value="colors_target_health" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-31" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_TargetHealthShieldColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_TARGET_HEALTHSHIELD" />
+									<Attribute name="SETTING" value="colors_target_healthShield" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-57" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_TargetHealthAbsorbColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_TARGET_HEALTHHEALABSORB" />
+									<Attribute name="SETTING" value="colors_target_healthAbsorb" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-83" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_TargetHealthHealColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_TARGET_HEALTHHEALINCOMING" />
+									<Attribute name="SETTING" value="colors_target_healthHeal" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-109" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_TargetHealthNotTappedColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_TARGET_HEALTHNOTTAPPED" />
+									<Attribute name="SETTING" value="colors_target_healthNotTapped" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-135" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_TargetManaColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_TARGET_MANA" />
+									<Attribute name="SETTING" value="colors_target_mana" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-161" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_TargetRageColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_TARGET_RAGE" />
+									<Attribute name="SETTING" value="colors_target_rage" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-187" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_TargetEnergyColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_TARGET_ENERGY" />
+									<Attribute name="SETTING" value="colors_target_energy" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-213" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_TargetRunicPowerColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_TARGET_RUNICPOWER" />
+									<Attribute name="SETTING" value="colors_target_runicPower" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-239" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_TargetFocusColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_TARGET_FOCUS" />
+									<Attribute name="SETTING" value="colors_target_focus" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-265" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_TargetCastColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_TARGET_CAST" />
+									<Attribute name="SETTING" value="colors_targetCastbar_cast" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-291" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_TargetChannelColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_TARGET_CHANNEL" />
+									<Attribute name="SETTING" value="colors_targetCastbar_channel" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-317" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_TargetLockedCastColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_TARGET_LOCKEDCAST" />
+									<Attribute name="SETTING" value="colors_targetCastbar_lockedCast" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-343" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_TargetLockedChannelColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_TARGET_LOCKEDCHANNEL" />
+									<Attribute name="SETTING" value="colors_targetCastbar_lockedChannel" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-369" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_TargetInterruptedCastColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_TARGET_CASTINTERRUPTED" />
+									<Attribute name="SETTING" value="colors_targetCastbar_interrupted" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-395" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_TargetShortAurasBuffColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_TARGET_SHORTAURABUFF" />
+									<Attribute name="SETTING" value="colors_targetShortAuras_buff" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-421" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_TargetShortAurasDebuffColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_TARGET_SHORTAURADEBUFF" />
+									<Attribute name="SETTING" value="colors_targetShortAuras_debuff" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-447" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_TargetShortAurasByPlayerSpellColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_TARGET_PLAYERSHORTAURA" />
+									<Attribute name="SETTING" value="colors_targetShortAuras_appliedByPlayer" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-473" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+						</Frames>
+					</Frame>
+					<Frame name="$parent_Page3" inherits="DHUD_OptionsTemplate_TabPage">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset />
+							</Anchor>
+						</Anchors>
+						<Frames>
+							<Frame name="$parent_HeaderTargetColors" inherits="DHUD_OptionsTemplate_Header">
+								<Attributes>
+									<Attribute name="LTEXT" value="HEADER_COLORS_TARGET" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="5" y="-7" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_TargetAuraBuffColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_TARGET_AURABUFF" />
+									<Attribute name="SETTING" value="colors_targetAuras_buff" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-31" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_TargetAuraDebuffColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_TARGET_AURADEBUFF" />
+									<Attribute name="SETTING" value="colors_targetAuras_debuff" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-57" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_HeaderPetColors" inherits="DHUD_OptionsTemplate_Header">
+								<Attributes>
+									<Attribute name="LTEXT" value="HEADER_COLORS_PET" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="5" y="-83" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_PetHealthColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_PET_HEALTH" />
+									<Attribute name="SETTING" value="colors_pet_health" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-107" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_PetHealthShieldColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_PET_HEALTHSHIELD" />
+									<Attribute name="SETTING" value="colors_pet_healthShield" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-133" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_PetHealthAbsorbColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_PET_HEALTHHEALABSORB" />
+									<Attribute name="SETTING" value="colors_pet_healthAbsorb" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-159" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_PetHealthHealColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_PET_HEALTHHEALINCOMING" />
+									<Attribute name="SETTING" value="colors_pet_healthHeal" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-185" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_PetManaColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_PET_MANA" />
+									<Attribute name="SETTING" value="colors_pet_mana" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-211" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_PetFocusColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_PET_FOCUS" />
+									<Attribute name="SETTING" value="colors_pet_focus" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-237" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_HeaderAlternativePowerColors" inherits="DHUD_OptionsTemplate_Header">
+								<Attributes>
+									<Attribute name="LTEXT" value="HEADER_COLORS_ALTERNATIVEPOWER" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="5" y="-263" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_AlternativeEclipseColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine7">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_ALTERNATIVEPOWER_ECLIPSE" />
+									<Attribute name="SETTING" value="colors_player_eclipse" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-287" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_AlternativeBurningEmberColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_ALTERNATIVEPOWER_BURNINGEMBERS" />
+									<Attribute name="SETTING" value="colors_player_burningEmbers" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-313" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_AlternativeDemonicFuryColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_ALTERNATIVEPOWER_DEMONICFURY" />
+									<Attribute name="SETTING" value="colors_player_demonicFury" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-339" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+						</Frames>
+					</Frame>
+				</Frames>
+			</Frame>
+			<Frame name="$parent_UnitTextsTab" inherits="DHUD_OptionsTemplate_Tab">
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="5" y="-5073" />
+					</Anchor>
+				</Anchors>
+				<Frames>
+					<Frame name="$parent_Page1" inherits="DHUD_OptionsTemplate_TabPage">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset x="-450" />
+							</Anchor>
+						</Anchors>
+						<Frames>
+							<Frame name="$parent_HeaderPlayerUnitTexts" inherits="DHUD_OptionsTemplate_Header">
+								<Attributes>
+									<Attribute name="LTEXT" value="HEADER_UNITTEXTS_PLAYER" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="5" y="-10" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_PlayerHealthUnitText" inherits="DHUD_OptionsTemplate_UnitText">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_UNITTEXTS_PLAYER_HEALTH" />
+									<Attribute name="SETTING" value="unitTexts_player_health" />
+									<Attribute name="SETTINGTYPE" value="health" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="10" y="-36" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_PlayerPowerUnitText" inherits="DHUD_OptionsTemplate_UnitText">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_UNITTEXTS_PLAYER_POWER" />
+									<Attribute name="SETTING" value="unitTexts_player_power" />
+									<Attribute name="SETTINGTYPE" value="power" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="10" y="-88" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_PlayerAltPowerUnitText" inherits="DHUD_OptionsTemplate_UnitText">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_UNITTEXTS_PLAYER_ALTPOWER" />
+									<Attribute name="SETTING" value="unitTexts_player_altpower" />
+									<Attribute name="SETTINGTYPE" value="power" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="10" y="-140" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_PlayerOtherPowerUnitText" inherits="DHUD_OptionsTemplate_UnitText">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_UNITTEXTS_PLAYER_OTHERPOWER" />
+									<Attribute name="SETTING" value="unitTexts_player_other" />
+									<Attribute name="SETTINGTYPE" value="power" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="10" y="-192" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_PlayerCastTimeUnitText" inherits="DHUD_OptionsTemplate_UnitText">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_UNITTEXTS_PLAYER_CASTTIME" />
+									<Attribute name="SETTING" value="unitTexts_player_castTime" />
+									<Attribute name="SETTINGTYPE" value="castTime" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="10" y="-244" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_PlayerCastDelayUnitText" inherits="DHUD_OptionsTemplate_UnitText">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_UNITTEXTS_PLAYER_CASTDELAY" />
+									<Attribute name="SETTING" value="unitTexts_player_castDelay" />
+									<Attribute name="SETTINGTYPE" value="castDelay" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="10" y="-296" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_PlayerCastNameUnitText" inherits="DHUD_OptionsTemplate_UnitText">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_UNITTEXTS_PLAYER_CASTNAME" />
+									<Attribute name="SETTING" value="unitTexts_player_castSpellName" />
+									<Attribute name="SETTINGTYPE" value="castSpellName" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="10" y="-348" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_HeaderTargetUnitTexts" inherits="DHUD_OptionsTemplate_Header">
+								<Attributes>
+									<Attribute name="LTEXT" value="HEADER_UNITTEXTS_TARGET" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="5" y="-400" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_TargetHealthUnitText" inherits="DHUD_OptionsTemplate_UnitText">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_UNITTEXTS_TARGET_HEALTH" />
+									<Attribute name="SETTING" value="unitTexts_target_health" />
+									<Attribute name="SETTINGTYPE" value="health" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="10" y="-426" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+						</Frames>
+					</Frame>
+					<Frame name="$parent_Page2" inherits="DHUD_OptionsTemplate_TabPage">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset x="50" />
+							</Anchor>
+						</Anchors>
+						<Frames>
+							<Frame name="$parent_HeaderTargetUnitTexts" inherits="DHUD_OptionsTemplate_Header">
+								<Attributes>
+									<Attribute name="LTEXT" value="HEADER_UNITTEXTS_TARGET" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="5" y="-10" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_TargetPowerUnitText" inherits="DHUD_OptionsTemplate_UnitText">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_UNITTEXTS_TARGET_POWER" />
+									<Attribute name="SETTING" value="unitTexts_target_power" />
+									<Attribute name="SETTINGTYPE" value="power" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="10" y="-36" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_TargetCastTimeUnitText" inherits="DHUD_OptionsTemplate_UnitText">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_UNITTEXTS_TARGET_CASTTIME" />
+									<Attribute name="SETTING" value="unitTexts_target_castTime" />
+									<Attribute name="SETTINGTYPE" value="castTime" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="10" y="-88" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_TargetCastDelayUnitText" inherits="DHUD_OptionsTemplate_UnitText">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_UNITTEXTS_TARGET_CASTDELAY" />
+									<Attribute name="SETTING" value="unitTexts_player_castDelay" />
+									<Attribute name="SETTINGTYPE" value="castDelay" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="10" y="-140" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_TargetCastNameUnitText" inherits="DHUD_OptionsTemplate_UnitText">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_UNITTEXTS_TARGET_CASTNAME" />
+									<Attribute name="SETTING" value="unitTexts_player_castSpellName" />
+									<Attribute name="SETTINGTYPE" value="castSpellName" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="10" y="-192" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_TargetInfoUnitText" inherits="DHUD_OptionsTemplate_UnitText">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_UNITTEXTS_TARGET_INFO" />
+									<Attribute name="SETTING" value="unitTexts_target_info" />
+									<Attribute name="SETTINGTYPE" value="unitInfo" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="10" y="-244" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_HeaderTargetOfTargetUnitTexts" inherits="DHUD_OptionsTemplate_Header">
+								<Attributes>
+									<Attribute name="LTEXT" value="HEADER_UNITTEXTS_TARGETTARGET" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="5" y="-294" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_TargetTargetInfoUnitText" inherits="DHUD_OptionsTemplate_UnitText">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_UNITTEXTS_TARGETTARGET_INFO" />
+									<Attribute name="SETTING" value="unitTexts_targettarget_info" />
+									<Attribute name="SETTINGTYPE" value="unitInfo" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="10" y="-318" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_HeaderPetUnitTexts" inherits="DHUD_OptionsTemplate_Header">
+								<Attributes>
+									<Attribute name="LTEXT" value="HEADER_UNITTEXTS_PET" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="5" y="-368" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_PetHealthUnitText" inherits="DHUD_OptionsTemplate_UnitText">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_UNITTEXTS_PET_HEALTH" />
+									<Attribute name="SETTING" value="unitTexts_pet_health" />
+									<Attribute name="SETTINGTYPE" value="health" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="10" y="-392" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_PetPowerUnitText" inherits="DHUD_OptionsTemplate_UnitText">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_UNITTEXTS_PET_POWER" />
+									<Attribute name="SETTING" value="unitTexts_pet_power" />
+									<Attribute name="SETTINGTYPE" value="power" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="10" y="-440" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+						</Frames>
+					</Frame>
+				</Frames>
+			</Frame>
+			<Frame name="$parent_OffsetsTab" inherits="DHUD_OptionsTemplate_Tab">
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="5" y="-6073" />
+					</Anchor>
+				</Anchors>
+				<Frames>
+					<Frame name="$parent_Page1" inherits="DHUD_OptionsTemplate_TabPage">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset />
+							</Anchor>
+						</Anchors>
+						<Frames>
+							<Frame name="$parent_HeaderOffsets" inherits="DHUD_OptionsTemplate_Header">
+								<Attributes>
+									<Attribute name="LTEXT" value="HEADER_OFFSETS" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="5" y="-10" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_BarDistance" inherits="DHUD_OptionsTemplate_DistanceBox">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_OFFSET_BARDISTANCE" />
+									<Attribute name="SETTING" value="offsets_barDistance" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="10" y="-36" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_HudPosition" inherits="DHUD_OptionsTemplate_PositionBox">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_OFFSET_HUD" />
+									<Attribute name="SETTING" value="offsets_hud" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="10" y="-67" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_TargetInfoPosition" inherits="DHUD_OptionsTemplate_PositionBox">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_OFFSET_TARGETINFO" />
+									<Attribute name="SETTING" value="offsets_targetInfo" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="10" y="-98" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_TargetInfo2Position" inherits="DHUD_OptionsTemplate_PositionBox">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_OFFSET_TARGETINFO2" />
+									<Attribute name="SETTING" value="offsets_targetInfo2" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="10" y="-129" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_LeftBigBarPosition" inherits="DHUD_OptionsTemplate_PositionBox">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_OFFSET_LEFTBIGBAR1" />
+									<Attribute name="SETTING" value="offsets_leftBigBar1" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="10" y="-160" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_LeftBigBar2Position" inherits="DHUD_OptionsTemplate_PositionBox">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_OFFSET_LEFTBIGBAR2" />
+									<Attribute name="SETTING" value="offsets_leftBigBar2" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="10" y="-191" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_LeftSmallBarPosition" inherits="DHUD_OptionsTemplate_PositionBox">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_OFFSET_LEFTSMALLBAR1" />
+									<Attribute name="SETTING" value="offsets_leftSmallBar1" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="10" y="-222" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_LeftSmallBar2Position" inherits="DHUD_OptionsTemplate_PositionBox">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_OFFSET_LEFTSMALLBAR2" />
+									<Attribute name="SETTING" value="offsets_leftSmallBar2" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="10" y="-253" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_RightBigBarPosition" inherits="DHUD_OptionsTemplate_PositionBox">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_OFFSET_RIGHTBIGBAR1" />
+									<Attribute name="SETTING" value="offsets_rightBigBar1" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="10" y="-284" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_RightBigBar2Position" inherits="DHUD_OptionsTemplate_PositionBox">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_OFFSET_RIGHTBIGBAR2" />
+									<Attribute name="SETTING" value="offsets_rightBigBar2" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="10" y="-315" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_RightSmallBarPosition" inherits="DHUD_OptionsTemplate_PositionBox">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_OFFSET_RIGHTSMALLBAR1" />
+									<Attribute name="SETTING" value="offsets_rightSmallBar2" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="10" y="-346" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+							<Frame name="$parent_RightSmallBar2Position" inherits="DHUD_OptionsTemplate_PositionBox">
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_OFFSET_RIGHTSMALLBAR2" />
+									<Attribute name="SETTING" value="offsets_rightSmallBar2" />
+								</Attributes>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="10" y="-377" />
+									</Anchor>
+								</Anchors>
+							</Frame>
+						</Frames>
+					</Frame>
+				</Frames>
+			</Frame>
+			<Button name="$parent_GeneralTabButton" inherits="DHUD_OptionsTemplate_TabButton" text="General">
+				<Attributes>
+					<Attribute name="LTEXT" value="TAB_GENERAL" />
+				</Attributes>
+				<Size>
+					<AbsDimension x="75" y="23" />
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
+						<Offset x="10" y="-44" />
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parent_LayoutsTabButton" inherits="DHUD_OptionsTemplate_TabButton" text="Layouts">
+				<Attributes>
+					<Attribute name="LTEXT" value="TAB_LAYOUTS" />
+				</Attributes>
+				<Size>
+					<AbsDimension x="75" y="23" />
+				</Size>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="DHUD_OptionsFrame_GeneralTabButton" relativePoint="RIGHT" x="-6" />
+				</Anchors>
+			</Button>
+			<Button name="$parent_TimersTabButton" inherits="DHUD_OptionsTemplate_TabButton" text="Layouts">
+				<Attributes>
+					<Attribute name="LTEXT" value="TAB_TIMERS" />
+				</Attributes>
+				<Size>
+					<AbsDimension x="75" y="23" />
+				</Size>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="DHUD_OptionsFrame_LayoutsTabButton" relativePoint="RIGHT" x="-6" />
+				</Anchors>
+			</Button>
+			<Button name="$parent_ColorsTabButton" inherits="DHUD_OptionsTemplate_TabButton" text="Layouts">
+				<Attributes>
+					<Attribute name="LTEXT" value="TAB_COLORS" />
+				</Attributes>
+				<Size>
+					<AbsDimension x="75" y="23" />
+				</Size>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="DHUD_OptionsFrame_TimersTabButton" relativePoint="RIGHT" x="-6" />
+				</Anchors>
+			</Button>
+			<Button name="$parent_UnitTextsTabButton" inherits="DHUD_OptionsTemplate_TabButton" text="Layouts">
+				<Attributes>
+					<Attribute name="LTEXT" value="TAB_UNITTEXTS" />
+				</Attributes>
+				<Size>
+					<AbsDimension x="75" y="23" />
+				</Size>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="DHUD_OptionsFrame_ColorsTabButton" relativePoint="RIGHT" x="-6" />
+				</Anchors>
+			</Button>
+			<Button name="$parent_OffsetsTabButton" inherits="DHUD_OptionsTemplate_TabButton" text="Layouts">
+				<Attributes>
+					<Attribute name="LTEXT" value="TAB_OFFSETS" />
+				</Attributes>
+				<Size>
+					<AbsDimension x="75" y="23" />
+				</Size>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="DHUD_OptionsFrame_UnitTextsTabButton" relativePoint="RIGHT" x="-6" />
+				</Anchors>
+			</Button>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				DHUD_OptionsFrame_LUA:processOptionsFrameOnLoad(self)
+			</OnLoad>
+		</Scripts>
+	</Frame>
+	<Frame name="DHUD_YesNoPopup" hidden="true" parent="DHUD_OptionsFrame" toplevel="true">
+		<Size>
+			<AbsDimension x="145" y="100" />
+		</Size>
+		<Anchors>
+			<Anchor point="TOPLEFT" relativeTo="DHUD_OptionsFrame" relativePoint="TOPRIGHT">
+				<Offset>
+					<AbsDimension x="0" y="0" />
+				</Offset>
+			</Anchor>
+		</Anchors>
+		<Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background" edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
+			<BackgroundInsets>
+				<AbsInset left="4" right="4" top="4" bottom="4" />
+			</BackgroundInsets>
+			<TileSize>
+				<AbsValue val="16" />
+			</TileSize>
+			<EdgeSize>
+				<AbsValue val="16" />
+			</EdgeSize>
+		</Backdrop>
+		<Layers>
+			<Layer>
+				<FontString name="$parent_Text" inherits="GameFontHighlightSmall" text="DHUD_DORESET">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT">
+							<Offset>
+								<AbsDimension x="10" y="-10" />
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Button name="$parent_YesButton" inherits="DHUD_OptionsTemplate_RedButton" text="Yes">
+				<Attributes>
+					<Attribute name="LTEXT" value="BUTTON_YES" />
+				</Attributes>
+				<Anchors>
+					<Anchor point="BOTTOM" relativePoint="BOTTOM">
+						<Offset>
+							<AbsDimension x="0" y="35" />
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parent_NoButton" inherits="DHUD_OptionsTemplate_RedButton" text="No">
+				<Attributes>
+					<Attribute name="LTEXT" value="BUTTON_NO" />
+				</Attributes>
+				<Anchors>
+					<Anchor point="BOTTOM" relativePoint="BOTTOM">
+						<Offset>
+							<AbsDimension x="0" y="10" />
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				DHUD_OptionsFrame_LUA:processYesNoPopupOnLoad(self);
+			</OnLoad>
+		</Scripts>
+	</Frame>
+	<Frame name="DHUD_HelpFrame" hidden="true" parent="DHUD_OptionsFrame" toplevel="true">
+		<Size>
+			<AbsDimension x="150" y="460" />
+		</Size>
+		<Anchors>
+			<Anchor point="LEFT" relativeTo="DHUD_OptionsFrame" relativePoint="RIGHT">
+				<Offset>
+					<AbsDimension x="0" y="0" />
+				</Offset>
+			</Anchor>
+		</Anchors>
+		<Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background" edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
+			<BackgroundInsets>
+				<AbsInset left="4" right="4" top="4" bottom="4" />
+			</BackgroundInsets>
+			<TileSize>
+				<AbsValue val="16" />
+			</TileSize>
+			<EdgeSize>
+				<AbsValue val="16" />
+			</EdgeSize>
+		</Backdrop>
+		<Layers>
+			<Layer>
+				<FontString name="$parent_Text" inherits="GameFontHighlightSmall" text="DHUD_TEXTHELP" justifyH="LEFT">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT">
+							<Offset>
+								<AbsDimension x="10" y="-10" />
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+	</Frame>
+</Ui>

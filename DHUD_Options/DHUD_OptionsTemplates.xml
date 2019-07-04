@@ -1,0 +1,1216 @@
+﻿<Ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.blizzard.com/wow/ui/">
+	<Script file="DHUD_OptionsTemplates.lua" />
+	<Button name="DHUD_OptionsTemplate_ButtonArrowLeft" virtual="true">
+		<Size>
+			<AbsDimension x="23" y="22" />
+		</Size>
+		<NormalTexture file="Interface\Buttons\UI-SpellbookIcon-PrevPage-Up" />
+		<PushedTexture file="Interface\Buttons\UI-SpellbookIcon-PrevPage-Down" />
+		<DisabledTexture file="Interface\Buttons\UI-SpellbookIcon-PrevPage-Disabled" />
+		<HighlightTexture file="Interface\Buttons\UI-Common-MouseHilight" alphaMode="ADD" />
+	</Button>
+	<Button name="DHUD_OptionsTemplate_ButtonArrowRight" virtual="true">
+		<Size>
+			<AbsDimension x="23" y="22" />
+		</Size>
+		<NormalTexture file="Interface\Buttons\UI-SpellbookIcon-NextPage-Up" />
+		<PushedTexture file="Interface\Buttons\UI-SpellbookIcon-NextPage-Down" />
+		<DisabledTexture file="Interface\Buttons\UI-SpellbookIcon-NextPage-Disabled" />
+		<HighlightTexture file="Interface\Buttons\UI-Common-MouseHilight" alphaMode="ADD" />
+	</Button>
+	<Button name="DHUD_OptionsTemplate_RedButton" inherits="OptionsButtonTemplate" virtual="true">
+		<Attributes>
+			<Attribute name="LTEXT" value="BUTTON_PROFILES" />
+		</Attributes>
+		<Size>
+			<AbsDimension x="75" y="23" />
+		</Size>
+		<Scripts>
+			<OnLoad>
+				DHUD_OptionsTemplates_LUA:processRedButtonOnLoad(self);
+			</OnLoad>
+		</Scripts>
+	</Button>
+	<Frame name="DHUD_OptionsTemplate_Header" virtual="true">
+		<Size>
+			<AbsDimension x="150" y="20" />
+		</Size>
+		<Layers>
+			<Layer level="OVERLAY">
+				<FontString name="$parent_Text" inherits="GameFontHighlight" parentKey="textField" text="Header:" justifyH="LEFT">
+					<Size>
+						<AbsDimension x="150" y="20" />
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativePoint="TOPLEFT" />
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad>
+				DHUD_OptionsTemplates_LUA:processHeaderOnLoad(self);
+			</OnLoad>
+		</Scripts>
+	</Frame>
+	<Frame name="DHUD_OptionsTemplate_Tab" virtual="true">
+		<Size x="490" y="524" />
+		<Frames>
+			<Button name="$parent_ScrollLeft" inherits="DHUD_OptionsTemplate_ButtonArrowLeft">
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" relativeTo="$parent" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="8" y="8" />
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parent_ScrollRight" inherits="DHUD_OptionsTemplate_ButtonArrowRight">
+				<Anchors>
+					<Anchor point="BOTTOMRIGHT" relativeTo="$parent" relativePoint="BOTTOMRIGHT">
+						<Offset>
+							<AbsDimension x="-8" y="8" />
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				DHUD_OptionsTemplates_LUA:processTabOnLoad(self);
+			</OnLoad>
+		</Scripts>
+	</Frame>
+	<Frame name="DHUD_OptionsTemplate_TabPage" virtual="true">
+		<Size x="490" y="524" />
+		<Scripts>
+			<OnLoad>
+				DHUD_OptionsTemplates_LUA:processTabPageOnLoad(self);
+			</OnLoad>
+		</Scripts>
+	</Frame>
+	<Button name="DHUD_OptionsTemplate_TabButton" virtual="true">
+		<Size>
+			<AbsDimension x="70" y="50" />
+		</Size>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture name="$parent_LeftActive" file="Interface\AddOns\DHUD_Options\tab1">
+					<Size>
+						<AbsDimension x="20" y="50" />
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset>
+								<AbsDimension x="0" y="0" />
+							</Offset>
+						</Anchor>
+					</Anchors>
+					<TexCoords left="0" right="0.2" top="0" bottom="1" />
+				</Texture>
+				<Texture name="$parent_MiddleActive" file="Interface\AddOns\DHUD_Options\tab1">
+					<Size>
+						<AbsDimension x="32" y="50" />
+					</Size>
+					<Anchors>
+						<Anchor point="LEFT" relativeTo="$parent_LeftActive" relativePoint="RIGHT" />
+					</Anchors>
+					<TexCoords left="0.2" right="0.8" top="0" bottom="1" />
+				</Texture>
+				<Texture name="$parent_RightActive" file="Interface\AddOns\DHUD_Options\tab1">
+					<Size>
+						<AbsDimension x="20" y="50" />
+					</Size>
+					<Anchors>
+						<Anchor point="LEFT" relativeTo="$parent_MiddleActive" relativePoint="RIGHT" />
+					</Anchors>
+					<TexCoords left="0.8" right="1" top="0" bottom="1" />
+				</Texture>
+				<Texture name="$parent_Left" hidden="true" file="Interface\AddOns\DHUD_Options\tab2">
+					<Size>
+						<AbsDimension x="20" y="50" />
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset>
+								<AbsDimension x="0" y="0" />
+							</Offset>
+						</Anchor>
+					</Anchors>
+					<TexCoords left="0" right="0.2" top="0" bottom="1" />
+				</Texture>
+				<Texture name="$parent_Middle" hidden="true" file="Interface\AddOns\DHUD_Options\tab2">
+					<Size>
+						<AbsDimension x="32" y="50" />
+					</Size>
+					<Anchors>
+						<Anchor point="LEFT" relativeTo="$parent_Left" relativePoint="RIGHT" />
+					</Anchors>
+					<TexCoords left="0.2" right="0.8" top="0" bottom="1" />
+				</Texture>
+				<Texture name="$parent_Right" hidden="true" file="Interface\AddOns\DHUD_Options\tab2">
+					<Size>
+						<AbsDimension x="20" y="50" />
+					</Size>
+					<Anchors>
+						<Anchor point="LEFT" relativeTo="$parent_Middle" relativePoint="RIGHT" />
+					</Anchors>
+					<TexCoords left="0.8" right="1" top="0" bottom="1" />
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad>
+				DHUD_OptionsTemplates_LUA:processTabButtonOnLoad(self);
+			</OnLoad>
+		</Scripts>
+		<HighlightTexture name="$parent_HighlightTexture" file="Interface\PaperDollInfoFrame\UI-Character-Tab-Highlight" alphaMode="ADD">
+			<Size>
+				<AbsDimension x="4" y="38" />
+			</Size>
+			<Anchors>
+				<Anchor point="BOTTOM">
+					<Offset>
+						<AbsDimension x="1" y="-10" />
+					</Offset>
+				</Anchor>
+			</Anchors>
+		</HighlightTexture>
+		<ButtonText name="$parent_Text" inherits="GameFontNormalSmall">
+			<Size>
+				<AbsDimension x="0" y="13" />
+			</Size>
+			<Anchors>
+				<Anchor point="BOTTOM">
+					<Offset>
+						<AbsDimension x="0" y="3" />
+					</Offset>
+				</Anchor>
+			</Anchors>
+			<Color r="1" g="1" b="1" />
+		</ButtonText>
+		<HighlightFont name="$parent_HighlightText" inherits="GameFontHighlightSmall">
+			<Size>
+				<AbsDimension x="0" y="13" />
+			</Size>
+			<Anchors>
+				<Anchor point="BOTTOM">
+					<Offset>
+						<AbsDimension x="0" y="5" />
+					</Offset>
+				</Anchor>
+			</Anchors>
+		</HighlightFont>
+		<DisabledFont name="$parent_DisabledText" inherits="GameFontHighlightSmall">
+			<Size>
+				<AbsDimension x="0" y="13" />
+			</Size>
+			<Anchors>
+				<Anchor point="BOTTOM">
+					<Offset>
+						<AbsDimension x="0" y="5" />
+					</Offset>
+				</Anchor>
+			</Anchors>
+		</DisabledFont>
+	</Button>
+	<CheckButton name="DHUD_OptionsTemplate_CheckBox" inherits="OptionsCheckButtonTemplate" virtual="true" text="CheckBox">
+		<Size>
+			<AbsDimension x="25" y="25" />
+		</Size>
+		<HitRectInsets>
+			<AbsInset left="0" right="0" top="0" bottom="0" />
+		</HitRectInsets>
+		<Scripts>
+			<OnLoad>
+				DHUD_OptionsTemplates_LUA:processCheckBoxOnLoad(self);
+			</OnLoad>
+		</Scripts>
+		<NormalColor r="1" g="1" b="1" />
+		<HighlightColor r="1" g="1" b="1" />
+	</CheckButton>
+	<Slider name="DHUD_OptionsTemplate_Slider" inherits="OptionsSliderTemplate" virtual="true" minValue="0" maxValue="0">
+		<Size>
+			<AbsDimension x="135" y="16" />
+		</Size>
+		<Scripts>
+			<OnLoad>
+				DHUD_OptionsTemplates_LUA:processSliderOnLoad(self);
+			</OnLoad>
+		</Scripts>
+	</Slider>
+	<EditBox name="DHUD_OptionsTemplate_SmallEditBox" virtual="true" letters="5" autoFocus="false">
+		<Size>
+			<AbsDimension x="40" y="20" />
+		</Size>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture name="$parent_BorderLeft" file="Interface\Common\Common-Input-Border">
+					<Size>
+						<AbsDimension x="8" y="20" />
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset>
+								<AbsDimension x="-5" y="0" />
+							</Offset>
+						</Anchor>
+					</Anchors>
+					<TexCoords left="0" right="0.0625" top="0" bottom="0.625" />
+				</Texture>
+				<Texture name="$parent_BorderRight" file="Interface\Common\Common-Input-Border">
+					<Size>
+						<AbsDimension x="8" y="20" />
+					</Size>
+					<Anchors>
+						<Anchor point="RIGHT">
+							<Offset>
+								<AbsDimension x="0" y="0" />
+							</Offset>
+						</Anchor>
+					</Anchors>
+					<TexCoords left="0.9375" right="1" top="0" bottom="0.625" />
+				</Texture>
+				<Texture name="$parent_BorderMiddle" file="Interface\Common\Common-Input-Border">
+					<Size>
+						<AbsDimension x="10" y="20" />
+					</Size>
+					<Anchors>
+						<Anchor point="LEFT" relativeTo="$parent_BorderLeft" relativePoint="RIGHT" />
+						<Anchor point="RIGHT" relativeTo="$parent_BorderRight" relativePoint="LEFT" />
+					</Anchors>
+					<TexCoords left="0.0625" right="0.9375" top="0" bottom="0.625" />
+				</Texture>
+			</Layer>
+			<Layer>
+				<FontString name="$parent_Text" inherits="GameFontNormalSmall" text="test text">
+					<Size>
+						<AbsDimension x="0" y="13" />
+					</Size>
+					<Anchors>
+						<Anchor point="LEFT">
+							<Offset>
+								<AbsDimension x="60" y="0" />
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<FontString inherits="ChatFontNormal" />
+	</EditBox>
+	<CheckButton name="DHUD_OptionsTemplate_RadioButton" virtual="true" text="RadioButton">
+		<Size>
+			<AbsDimension x="16" y="16" />
+		</Size>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<FontString name="$parentText" inherits="GameFontNormalSmall">
+					<Anchors>
+						<Anchor point="LEFT" relativePoint="RIGHT">
+							<Offset>
+								<AbsDimension x="5" y="0" />
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad>
+				DHUD_OptionsTemplates_LUA:processRadioButtonOnLoad(self);
+			</OnLoad>
+		</Scripts>
+		<NormalTexture file="Interface\Buttons\UI-RadioButton">
+			<TexCoords left="0" right="0.25" top="0" bottom="1" />
+		</NormalTexture>
+		<HighlightTexture file="Interface\Buttons\UI-RadioButton" alphaMode="ADD">
+			<TexCoords left="0.5" right="0.75" top="0" bottom="1" />
+		</HighlightTexture>
+		<CheckedTexture file="Interface\Buttons\UI-RadioButton">
+			<TexCoords left="0.25" right="0.5" top="0" bottom="1" />
+		</CheckedTexture>
+	</CheckButton>
+	<Frame name="DHUD_OptionsTemplate_DropdownFramesData" inherits="UIDropDownMenuTemplate" virtual="true">
+		<Size>
+			<AbsDimension x="200" y="20" />
+		</Size>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<FontString name="$parent_Label" inherits="GameFontNormalSmall" text="DropDown">
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT">
+							<Offset>
+								<AbsDimension x="21" y="0" />
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad>
+				DHUD_OptionsTemplates_LUA:processDropDownFramesDataOnLoad(self);
+			</OnLoad>
+		</Scripts>
+	</Frame>
+	<Frame name="DHUD_OptionsTemplate_DropdownFramesPosition" inherits="UIDropDownMenuTemplate" virtual="true">
+		<Size>
+			<AbsDimension x="120" y="20" />
+		</Size>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<FontString name="$parent_Label" inherits="GameFontNormalSmall" text="DropDownPos">
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT">
+							<Offset>
+								<AbsDimension x="21" y="0" />
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad>
+				DHUD_OptionsTemplates_LUA:processDropDownFramesPositionOnLoad(self);
+			</OnLoad>
+		</Scripts>
+	</Frame>
+	<CheckButton name="DHUD_OptionsTemplate_LayoutsRadioButton" inherits="DHUD_OptionsTemplate_RadioButton" virtual="true" text="RadioButton">
+		<Scripts>
+			<OnLoad>
+				DHUD_OptionsTemplates_LUA:processLayoutsRadioButtonOnLoad(self);
+			</OnLoad>
+		</Scripts>
+	</CheckButton>
+	<Frame name="DHUD_OptionsTemplate_SpellListTextBox" virtual="true">
+		<Size>
+			<AbsDimension x="235" y="46"/>
+		</Size>
+		<Backdrop bgFile="Interface\ChatFrame\ChatFrameBackground" edgeFile="Interface\Buttons\UI-SliderBar-Border" tile="true">
+			<BackgroundInsets>
+				<AbsInset left="3" right="22" top="6" bottom="6" />
+			</BackgroundInsets>
+			<TileSize>
+				<AbsValue val="16" />
+			</TileSize>
+			<EdgeSize>
+				<AbsValue val="9" />
+			</EdgeSize>
+		</Backdrop>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<FontString name="$parent_Label" inherits="GameFontNormalSmall" text="EditBox">
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT">
+							<Offset>
+								<AbsDimension x="0" y="0" />
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<ScrollFrame name="$parent_ScrollFrame" inherits="UIPanelScrollFrameTemplate">
+				<Size>
+					<AbsDimension x="200" y="33"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT">
+						<Offset>
+							<AbsDimension x="8" y="-7"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<ScrollChild>
+					<EditBox name="$parent_Text" multiLine="true" letters="255" autoFocus="false" enableMouse="true">
+						<Size>
+							<AbsDimension x="200" y="33"/>
+						</Size>
+						<FontString font="Fonts\ARIALN.TTF">
+							<Color r="1" g="1" b="1"/>
+							<FontHeight>
+								<AbsValue val="12"/>
+							</FontHeight>
+						</FontString>
+					</EditBox>
+				</ScrollChild>
+			</ScrollFrame>
+			<Button name="$parent_Clicker">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT">
+						<Offset>
+							<AbsDimension x="-80" y="-8"/>
+						</Offset>
+					</Anchor>
+					<Anchor point="BOTTOMRIGHT" relativeTo="$parent" relativePoint="BOTTOMRIGHT">
+						<Offset>
+							<AbsDimension x="-8" y="8"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				DHUD_OptionsTemplates_LUA:processSpellListTextBoxOnLoad(self);
+			</OnLoad>
+		</Scripts>
+	</Frame>
+	<Frame name="DHUD_OptionsTemplate_ColorsLine3" virtual="true">
+		<Size>
+			<AbsDimension x="360" y="20"/>
+		</Size>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<FontString name="$parent_Text" inherits="GameFontNormalSmall" justifyH="LEFT" text="Color">
+					<Size>
+						<AbsDimension x="150" y="16"/>
+					</Size>
+					<Anchors>
+						<Anchor point="LEFT" relativePoint="LEFT">
+							<Offset>
+								<AbsDimension x="-100" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Button name="$parent_1">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT">
+						<Offset>
+							<AbsDimension x="0" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Backdrop edgeFile="Interface\Tooltips\UI-Tooltip-Border">
+					<EdgeSize>
+						<AbsValue val="8"/>
+					</EdgeSize>
+				</Backdrop>
+				<Layers>
+					<Layer level="ARTWORK">
+						<Texture name="$parentTexture">
+							<Size>
+								<AbsDimension y="15" x="15"/>
+							</Size>
+							<Anchors>
+								<Anchor point="CENTER"></Anchor>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+				<HighlightTexture file="Interface\Buttons\CheckButtonHilight" alphaMode="ADD"></HighlightTexture>
+			</Button>
+			<Button name="$parent_2">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOP" relativeTo="$parent" relativePoint="TOP">
+						<Offset>
+							<AbsDimension x="0" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Backdrop edgeFile="Interface\Tooltips\UI-Tooltip-Border">
+					<EdgeSize>
+						<AbsValue val="8"/>
+					</EdgeSize>
+				</Backdrop>
+				<Layers>
+					<Layer level="ARTWORK">
+						<Texture name="$parentTexture">
+							<Size>
+								<AbsDimension y="15" x="15"/>
+							</Size>
+							<Anchors>
+								<Anchor point="CENTER"></Anchor>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+				<HighlightTexture file="Interface\Buttons\CheckButtonHilight" alphaMode="ADD"></HighlightTexture>
+			</Button>
+			<Button name="$parent_3">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativeTo="$parent" relativePoint="TOPRIGHT">
+						<Offset>
+							<AbsDimension x="0" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Backdrop edgeFile="Interface\Tooltips\UI-Tooltip-Border">
+					<EdgeSize>
+						<AbsValue val="8"/>
+					</EdgeSize>
+				</Backdrop>
+				<Layers>
+					<Layer level="ARTWORK">
+						<Texture name="$parentTexture">
+							<Size>
+								<AbsDimension y="15" x="15"/>
+							</Size>
+							<Anchors>
+								<Anchor point="CENTER"></Anchor>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+				<HighlightTexture file="Interface\Buttons\CheckButtonHilight" alphaMode="ADD"></HighlightTexture>
+			</Button>
+			<Frame name="$parent_G1">
+				<Size>
+					<AbsDimension x="50" y="10"/>
+				</Size>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parent_1" relativePoint="RIGHT">
+					</Anchor>
+					<Anchor point="RIGHT" relativeTo="$parent_2" relativePoint="LEFT">
+					</Anchor>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture name="$parentTexture" file="Interface\ChatFrame\ChatFrameBackground"/>
+					</Layer>
+				</Layers>
+			</Frame>
+			<Frame name="$parent_G2">
+				<Size>
+					<AbsDimension x="50" y="10"/>
+				</Size>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parent_2" relativePoint="RIGHT">
+					</Anchor>
+					<Anchor point="RIGHT" relativeTo="$parent_3" relativePoint="LEFT">
+					</Anchor>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture name="$parentTexture" file="Interface\ChatFrame\ChatFrameBackground"/>
+					</Layer>
+				</Layers>
+			</Frame>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				DHUD_OptionsTemplates_LUA:processColorsLineOnLoad(self);
+			</OnLoad>
+		</Scripts>
+	</Frame>
+	<Frame name="DHUD_OptionsTemplate_ColorsLine7" virtual="true">
+		<Size>
+			<AbsDimension x="360" y="20"/>
+		</Size>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<FontString name="$parent_Text" inherits="GameFontNormalSmall" justifyH="LEFT" text="Color">
+					<Size>
+						<AbsDimension x="150" y="16"/>
+					</Size>
+					<Anchors>
+						<Anchor point="LEFT" relativePoint="LEFT">
+							<Offset>
+								<AbsDimension x="-100" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Button name="$parent_1">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT">
+						<Offset>
+							<AbsDimension x="0" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Backdrop edgeFile="Interface\Tooltips\UI-Tooltip-Border">
+					<EdgeSize>
+						<AbsValue val="8"/>
+					</EdgeSize>
+				</Backdrop>
+				<Layers>
+					<Layer level="ARTWORK">
+						<Texture name="$parentTexture">
+							<Size>
+								<AbsDimension y="15" x="15"/>
+							</Size>
+							<Anchors>
+								<Anchor point="CENTER"></Anchor>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+				<HighlightTexture file="Interface\Buttons\CheckButtonHilight" alphaMode="ADD"></HighlightTexture>
+			</Button>
+			<Button name="$parent_2">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT">
+						<Offset>
+							<AbsDimension x="75" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Backdrop edgeFile="Interface\Tooltips\UI-Tooltip-Border">
+					<EdgeSize>
+						<AbsValue val="8"/>
+					</EdgeSize>
+				</Backdrop>
+				<Layers>
+					<Layer level="ARTWORK">
+						<Texture name="$parentTexture">
+							<Size>
+								<AbsDimension y="15" x="15"/>
+							</Size>
+							<Anchors>
+								<Anchor point="CENTER"></Anchor>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+				<HighlightTexture file="Interface\Buttons\CheckButtonHilight" alphaMode="ADD"></HighlightTexture>
+			</Button>
+			<Button name="$parent_3">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT">
+						<Offset>
+							<AbsDimension x="150" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Backdrop edgeFile="Interface\Tooltips\UI-Tooltip-Border">
+					<EdgeSize>
+						<AbsValue val="8"/>
+					</EdgeSize>
+				</Backdrop>
+				<Layers>
+					<Layer level="ARTWORK">
+						<Texture name="$parentTexture">
+							<Size>
+								<AbsDimension y="15" x="15"/>
+							</Size>
+							<Anchors>
+								<Anchor point="CENTER"></Anchor>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+				<HighlightTexture file="Interface\Buttons\CheckButtonHilight" alphaMode="ADD"></HighlightTexture>
+			</Button>
+			<Button name="$parent_4">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOP" relativeTo="$parent" relativePoint="TOP">
+						<Offset>
+							<AbsDimension x="0" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Backdrop edgeFile="Interface\Tooltips\UI-Tooltip-Border">
+					<EdgeSize>
+						<AbsValue val="8"/>
+					</EdgeSize>
+				</Backdrop>
+				<Layers>
+					<Layer level="ARTWORK">
+						<Texture name="$parentTexture">
+							<Size>
+								<AbsDimension y="15" x="15"/>
+							</Size>
+							<Anchors>
+								<Anchor point="CENTER"></Anchor>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+				<HighlightTexture file="Interface\Buttons\CheckButtonHilight" alphaMode="ADD"></HighlightTexture>
+			</Button>
+			<Button name="$parent_5">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativeTo="$parent" relativePoint="TOPRIGHT">
+						<Offset>
+							<AbsDimension x="-150" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Backdrop edgeFile="Interface\Tooltips\UI-Tooltip-Border">
+					<EdgeSize>
+						<AbsValue val="8"/>
+					</EdgeSize>
+				</Backdrop>
+				<Layers>
+					<Layer level="ARTWORK">
+						<Texture name="$parentTexture">
+							<Size>
+								<AbsDimension y="15" x="15"/>
+							</Size>
+							<Anchors>
+								<Anchor point="CENTER"></Anchor>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+				<HighlightTexture file="Interface\Buttons\CheckButtonHilight" alphaMode="ADD"></HighlightTexture>
+			</Button>
+			<Button name="$parent_6">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativeTo="$parent" relativePoint="TOPRIGHT">
+						<Offset>
+							<AbsDimension x="-75" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Backdrop edgeFile="Interface\Tooltips\UI-Tooltip-Border">
+					<EdgeSize>
+						<AbsValue val="8"/>
+					</EdgeSize>
+				</Backdrop>
+				<Layers>
+					<Layer level="ARTWORK">
+						<Texture name="$parentTexture">
+							<Size>
+								<AbsDimension y="15" x="15"/>
+							</Size>
+							<Anchors>
+								<Anchor point="CENTER"></Anchor>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+				<HighlightTexture file="Interface\Buttons\CheckButtonHilight" alphaMode="ADD"></HighlightTexture>
+			</Button>
+			<Button name="$parent_7">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativeTo="$parent" relativePoint="TOPRIGHT">
+						<Offset>
+							<AbsDimension x="0" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Backdrop edgeFile="Interface\Tooltips\UI-Tooltip-Border">
+					<EdgeSize>
+						<AbsValue val="8"/>
+					</EdgeSize>
+				</Backdrop>
+				<Layers>
+					<Layer level="ARTWORK">
+						<Texture name="$parentTexture">
+							<Size>
+								<AbsDimension y="15" x="15"/>
+							</Size>
+							<Anchors>
+								<Anchor point="CENTER"></Anchor>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+				<HighlightTexture file="Interface\Buttons\CheckButtonHilight" alphaMode="ADD"></HighlightTexture>
+			</Button>
+			<Frame name="$parent_G1">
+				<Size>
+					<AbsDimension x="50" y="10"/>
+				</Size>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parent_1" relativePoint="RIGHT">
+					</Anchor>
+					<Anchor point="RIGHT" relativeTo="$parent_2" relativePoint="LEFT">
+					</Anchor>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture name="$parentTexture" file="Interface\ChatFrame\ChatFrameBackground"/>
+					</Layer>
+				</Layers>
+			</Frame>
+			<Frame name="$parent_G2">
+				<Size>
+					<AbsDimension x="50" y="10"/>
+				</Size>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parent_2" relativePoint="RIGHT">
+					</Anchor>
+					<Anchor point="RIGHT" relativeTo="$parent_3" relativePoint="LEFT">
+					</Anchor>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture name="$parentTexture" file="Interface\ChatFrame\ChatFrameBackground"/>
+					</Layer>
+				</Layers>
+			</Frame>
+			<Frame name="$parent_G3">
+				<Size>
+					<AbsDimension x="50" y="10"/>
+				</Size>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parent_3" relativePoint="RIGHT">
+					</Anchor>
+					<Anchor point="RIGHT" relativeTo="$parent_4" relativePoint="LEFT">
+					</Anchor>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture name="$parentTexture" file="Interface\ChatFrame\ChatFrameBackground"/>
+					</Layer>
+				</Layers>
+			</Frame>
+			<Frame name="$parent_G4">
+				<Size>
+					<AbsDimension x="50" y="10"/>
+				</Size>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parent_4" relativePoint="RIGHT">
+					</Anchor>
+					<Anchor point="RIGHT" relativeTo="$parent_5" relativePoint="LEFT">
+					</Anchor>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture name="$parentTexture" file="Interface\ChatFrame\ChatFrameBackground"/>
+					</Layer>
+				</Layers>
+			</Frame>
+			<Frame name="$parent_G5">
+				<Size>
+					<AbsDimension x="50" y="10"/>
+				</Size>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parent_5" relativePoint="RIGHT">
+					</Anchor>
+					<Anchor point="RIGHT" relativeTo="$parent_6" relativePoint="LEFT">
+					</Anchor>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture name="$parentTexture" file="Interface\ChatFrame\ChatFrameBackground"/>
+					</Layer>
+				</Layers>
+			</Frame>
+			<Frame name="$parent_G6">
+				<Size>
+					<AbsDimension x="50" y="10"/>
+				</Size>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parent_6" relativePoint="RIGHT">
+					</Anchor>
+					<Anchor point="RIGHT" relativeTo="$parent_7" relativePoint="LEFT">
+					</Anchor>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture name="$parentTexture" file="Interface\ChatFrame\ChatFrameBackground"/>
+					</Layer>
+				</Layers>
+			</Frame>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				DHUD_OptionsTemplates_LUA:processColorsLineOnLoad(self);
+			</OnLoad>
+		</Scripts>
+	</Frame>
+	<Frame name="DHUD_OptionsTemplate_UnitText" virtual="true">
+		<Size>
+			<AbsDimension x="330" y="46"/>
+		</Size>
+		<Backdrop bgFile="Interface\ChatFrame\ChatFrameBackground" edgeFile="Interface\Buttons\UI-SliderBar-Border" tile="true">
+			<BackgroundInsets>
+				<AbsInset left="3" right="22" top="6" bottom="6" />
+			</BackgroundInsets>
+			<TileSize>
+				<AbsValue val="16" />
+			</TileSize>
+			<EdgeSize>
+				<AbsValue val="9" />
+			</EdgeSize>
+		</Backdrop>
+		<Frames>
+			<ScrollFrame name="$parent_ScrollFrame" inherits="UIPanelScrollFrameTemplate">
+				<Size>
+					<AbsDimension x="295" y="33"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT">
+						<Offset>
+							<AbsDimension x="8" y="-7"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<ScrollChild>
+					<EditBox name="$parent_Text" multiLine="true" letters="255" autoFocus="false" enableMouse="true">
+						<Size>
+							<AbsDimension x="295" y="33"/>
+						</Size>
+						<FontString font="Fonts\ARIALN.TTF">
+							<Color r="1" g="1" b="1"/>
+							<FontHeight>
+								<AbsValue val="12"/>
+							</FontHeight>
+						</FontString>
+					</EditBox>
+				</ScrollChild>
+			</ScrollFrame>
+			<Button name="$parent_Clicker">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT">
+						<Offset>
+							<AbsDimension x="-80" y="-8"/>
+						</Offset>
+					</Anchor>
+					<Anchor point="BOTTOMRIGHT" relativeTo="$parent" relativePoint="BOTTOMRIGHT">
+						<Offset>
+							<AbsDimension x="-8" y="8"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Frame name="$parent_DropDown" inherits="UIDropDownMenuTemplate" hidden="false">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativePoint="TOPRIGHT" relativeTo="$parent">
+						<Offset>
+							<AbsDimension x="-10" y="-15"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Size>
+					<AbsDimension x="128" y="16" />
+				</Size>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<FontString name="$parent_Label" inherits="GameFontNormalSmall" text="DropDown">
+							<Anchors>
+								<Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT">
+									<Offset>
+										<AbsDimension x="21" y="0" />
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+			</Frame>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				DHUD_OptionsTemplates_LUA:processUnitTextOnLoad(self);
+			</OnLoad>
+		</Scripts>
+	</Frame>
+	<EditBox name="DHUD_OptionsTemplate_MiniEditBox" letters="5" historyLines="0" autoFocus="false" virtual="true">
+		<Size>
+			<AbsDimension x="40" y="20"/>
+		</Size>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture name="$parentLeft" file="Interface\Common\Common-Input-Border">
+					<Size>
+						<AbsDimension x="8" y="20"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset>
+								<AbsDimension x="-5" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+					<TexCoords left="0" right="0.0625" top="0" bottom="0.625"/>
+				</Texture>
+				<Texture name="$parentRight" file="Interface\Common\Common-Input-Border">
+					<Size>
+						<AbsDimension x="8" y="20"/>
+					</Size>
+					<Anchors>
+						<Anchor point="RIGHT">
+							<Offset>
+								<AbsDimension x="0" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+					<TexCoords left="0.9375" right="1.0" top="0" bottom="0.625"/>
+				</Texture>
+				<Texture name="$parentMiddle" file="Interface\Common\Common-Input-Border">
+					<Size>
+						<AbsDimension x="10" y="20"/>
+					</Size>
+					<Anchors>
+						<Anchor point="LEFT" relativeTo="$parentLeft" relativePoint="RIGHT"/>
+						<Anchor point="RIGHT" relativeTo="$parentRight" relativePoint="LEFT"/>
+					</Anchors>
+					<TexCoords left="0.0625" right="0.9375" top="0" bottom="0.625"/>
+				</Texture>
+			</Layer>
+		</Layers>
+		<FontString inherits="ChatFontNormal"/>
+	</EditBox>
+	<Frame name="DHUD_OptionsTemplate_DistanceBox" virtual="true">
+		<Size>
+			<AbsDimension x="250" y="25"/>
+		</Size>
+		<Layers>
+			<Layer level="ARTWORK">
+				<FontString name="$parent_Text" inherits="GameFontNormalSmall" text="Distance Text">
+					<Size>
+						<AbsDimension x="0" y="13"/>
+					</Size>
+					<Anchors>
+						<Anchor point="LEFT">
+							<Offset>
+								<AbsDimension x="83" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Button name="$parent_DecButton" inherits="DHUD_OptionsTemplate_ButtonArrowLeft">
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parent" relativePoint="LEFT">
+						<Offset>
+							<AbsDimension x="0" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<EditBox name="$parent_MiniEditBox" inherits="DHUD_OptionsTemplate_MiniEditBox">
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parent" relativePoint="LEFT">
+						<Offset>
+							<AbsDimension x="23" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</EditBox>
+			<Button name="$parent_IncButton" inherits="DHUD_OptionsTemplate_ButtonArrowRight">
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parent" relativePoint="LEFT">
+						<Offset>
+							<AbsDimension x="60" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				DHUD_OptionsTemplates_LUA:processDistanceBoxOnLoad(self);
+			</OnLoad>
+		</Scripts>
+	</Frame>
+	<Frame name="DHUD_OptionsTemplate_PositionBox" virtual="true">
+		<Size>
+			<AbsDimension x="300" y="25"/>
+		</Size>
+		<Layers>
+			<Layer level="ARTWORK">
+				<FontString name="$parent_Text" inherits="GameFontNormalSmall" text="Position Text">
+					<Size>
+						<AbsDimension x="0" y="13"/>
+					</Size>
+					<Anchors>
+						<Anchor point="LEFT">
+							<Offset>
+								<AbsDimension x="166" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Button name="$parent_DecButton" inherits="DHUD_OptionsTemplate_ButtonArrowLeft">
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parent" relativePoint="LEFT">
+						<Offset>
+							<AbsDimension x="0" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<EditBox name="$parent_MiniEditBox" inherits="DHUD_OptionsTemplate_MiniEditBox">
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parent" relativePoint="LEFT">
+						<Offset>
+							<AbsDimension x="23" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</EditBox>
+			<Button name="$parent_IncButton" inherits="DHUD_OptionsTemplate_ButtonArrowRight">
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parent" relativePoint="LEFT">
+						<Offset>
+							<AbsDimension x="60" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<Button name="$parent_DecButton2" inherits="DHUD_OptionsTemplate_ButtonArrowLeft">
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parent" relativePoint="LEFT">
+						<Offset>
+							<AbsDimension x="80" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			<EditBox name="$parent_MiniEditBox2" inherits="DHUD_OptionsTemplate_MiniEditBox">
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parent" relativePoint="LEFT">
+						<Offset>
+							<AbsDimension x="103" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</EditBox>
+			<Button name="$parent_IncButton2" inherits="DHUD_OptionsTemplate_ButtonArrowRight">
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parent" relativePoint="LEFT">
+						<Offset>
+							<AbsDimension x="140" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				DHUD_OptionsTemplates_LUA:processPositionBoxOnLoad(self);
+			</OnLoad>
+		</Scripts>
+	</Frame>
+</Ui>

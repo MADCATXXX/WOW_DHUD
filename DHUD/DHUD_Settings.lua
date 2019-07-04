@@ -94,7 +94,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			-- change outline of the text corresponding to inner right small bar
 			["rightSmallBar1"] = { 0, 0, { range = { 0, 2, 1 } } },
 			-- change outline of the text corresponding to outer right small bar
-			["rightSmallBar2"] = { 9, 0, { range = { 6, 30, 1 } } },
+			["rightSmallBar2"] = { 0, 0, { range = { 0, 2, 1 } } },
 			-- change outline of the text corresponding to target info
 			["targetInfo1"] = { 0, 0, { range = { 0, 2, 1 } } },
 			-- change outline of the text corresponding to target of target info
@@ -161,7 +161,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			-- change text size of the delay text in cast bars
 			["castBarsDelay"] = { 10, 0, { range = { 6, 30, 1 } } },
 			-- change text size of the spell text in cast bars
-			["castBarsSpell"] = { 10, 0, { range = { 6, 30, 1 } } },
+			["castBarsSpell"] = { 12, 0, { range = { 6, 30, 1 } } },
 		}, 1 },
 		-- allows to show or hide frames with icons
 		["icons"] = { {
@@ -333,7 +333,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				-- allows to change color of spell circle when it shows debuff
 				["buff"] = { { "FFFF00", "FFFF00", "FFFF00" }, 3 },
 				-- allows to change color of spell circle when it shows buff
-				["debuff"] = { { "ffffff", "ffffff", "eeeeee" }, 3 },
+				["debuff"] = { { "FFFF00", "FFFF00", "FFFF00" }, 3 },
 				-- allows to change color of player applied spells
 				["appliedByPlayer"] = { { "ffffff", "ffffff", "eeeeee" }, 3 },
 			}, 1 },
@@ -445,7 +445,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			-- cast delay text
 			["castDelay1"] = "<color(\"ff0000\")><delay></color>",
 			-- cast spell name text
-			["castSpellName1"] = "<color(\"ffffff\")><spellname(\"|cffff0000Interrupted|r\")></color>",
+			["castSpellName1"] = "<color(\"ffffff\")><spellname(\"|cff\" .. \"ff0000\" .. \"Interrupted\" .. \"|\" .. \"r\")></color>",
 		}, 2 },
 		-- allows to change bar textures
 		["textures"] = { {
@@ -502,9 +502,9 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			-- allows to show tooltips when mouse is over some aura
 			["showTooltips"] = { true, 0 },
 			-- allows to show timers on target buffs
-			["showTimersOnTargetBuffs"] = { false, 0 },
+			["showTimersOnTargetBuffs"] = { true, 0 },
 			-- allows to show timers on target debuffs
-			["showTimersOnTargetDeBuffs"] = { false, 0 },
+			["showTimersOnTargetDeBuffs"] = { true, 0 },
 		}, 1 },
 		-- list with options for health
 		["healthBarOptions"] = { {
@@ -575,15 +575,25 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			["dataTrackersMap"] = { },
 			-- data that can be shown on bars
 			["bars"] = { "playerHealth", "playerPower", "targetHealth", "targetPower", "petHealth", "petPower",
-						 "characterInVehicleHealth", "characterInVehiclePower" },
+						 "characterInVehicleHealth", "characterInVehiclePower", "druidMana", "druidEnergy", "druidEclipse",
+						 "monkMana", "monkEnergy", "warlockBurningEmbers", "warlockDemonicFury" },
 			-- data that can be shown on cast bars
 			["castBars"] = { "playerCastBar", "targetCastBar" },
-			-- data that can be shown on resource frames
-			["resource"] = { "comboPoints", "dkRunes", "paladinHolyPower", "monkChi", "priestSpheres", "warlockShards" },
-			-- data that can be shown on spell circles
-			["spellCircles"] = { "playerShortAuras", "targetShortAuras", "cooldowns" },
+			-- data that can be shown on side slots
+			["sideSlots"] = { "playerComboPoints", "playerShortAuras", "targetShortAuras", "playerCooldowns", "monkChi", "warlockSoulShards", "paladinHolyPower", "priestShadowOrbs", "deathKnightRunes" },
 			-- data that can be shown on spell rectangles
 			["spellRectangles"] = { "targetBuffs", "targetDebuffs" },
+			-- data that can be shown in unit info frames
+			["unitInfo"] = { "targetInfo", "targetOfTargetInfo" },
+			-- available position for certain frames
+			["positions"] = {
+				-- position of dragon
+				["dragon"] = { "LEFT", "RIGHT" },
+				-- position of self state icons
+				["selfState"] = { "LEFT", "RIGHT" },
+				-- position of target state icons
+				["targetState"] = { "CENTER" },
+			},
 		}, 2 },
 		-- list with default layouts
 		["layouts"] = { {
@@ -797,10 +807,14 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 	-- custom getters
 	getters = {
 	},
+	-- defines if settings preview is active
+	previewActive = false,
 	-- numeric version of the addon at which saved vars was saved last time
 	savedVarsVersion = 0,
 	-- table name where additional saved vars are saved
 	SAVED_VARS_ADDITIONAL_TABLE_NAME = "_additional",
+	-- reference to created frames with settings for blizzard interface addon tab
+	blizzardInterfaceAddonTab = nil,
 })
 
 --- Custom getter to read frames data settings
@@ -932,7 +946,7 @@ function DHUDSettings:searchCustomSetterOrGetter(settingName, funcList)
 	return nil;
 end
 
---- Get value of default setting
+--- Get default value of setting
 -- @param settingName name of the setting
 -- @param tableDefault this setting default table or nil
 -- @return real default value and table default value
@@ -953,6 +967,20 @@ function DHUDSettings:getSettingDefaultValue(settingName, tableDefault)
 	self.settings[settingName] = currentVar;
 	-- return calculated default value
 	return getterValue, tableValue;
+end
+
+--- Defines if settings is set to default value
+-- @return true if setting is default, false otherwise
+function DHUDSettings:isSettingDefaultValue(settingName)
+	local valueStored = self.settings[settingName];
+	--print("isSettingDefaultValue settingName " .. settingName .. ", valueStored " .. MCTableToString(valueStored));
+	-- setting not exists?
+	if (valueStored == nil) then
+		return true;
+	end
+	local tableDefault = self:getValueDefaultTable(settingName);
+	--print("isSettingDefaultValue tableDefault[1] " .. MCTableToString(tableDefault[1]));
+	return MCCompareTables(valueStored, tableDefault[1]);
 end
 
 --- Set value of the setting
@@ -1009,12 +1037,18 @@ function DHUDSettings:setValueInternal(name, value)
 		end
 	-- setting contains array of fixed size and order
 	elseif (tableType == self.SETTING_TYPE_ARRAY_FIXEDORDERSIZE or tableType == self.SETTING_TYPE_ARRAY_FIXEDORDER) then
-		-- compare arrays
-		for i, v in ipairs(value) do
-			if (v ~= tableValue[i]) then
-				-- values are different
-				valueForSavedVars = value;
-				break;
+		-- check array lenghts
+		if (#value ~= #tableValue) then
+			-- values are different
+			valueForSavedVars = value;
+		else
+			-- compare arrays
+			for i, v in ipairs(value) do
+				if (v ~= tableValue[i]) then
+					-- values are different
+					valueForSavedVars = value;
+					break;
+				end
 			end
 		end
 	-- setting contains list or map, saved vars should contain only difference from it
@@ -1059,8 +1093,9 @@ function DHUDSettings:setValueInternal(name, value)
 	end
 	-- save saved var
 	self:getSavedVars()[name] = valueForSavedVars;
+	--print("valueForSavedVars " .. MCTableToString(valueForSavedVars));
 	-- save
-	if (valueForSavedVars) then
+	if (valueForSavedVars ~= nil) then
 		self.settings[name] = value;
 	else
 		self.settings[name] = tableOrigValue;
@@ -1314,7 +1349,7 @@ function DHUDSettings:processSavedVars()
 			v = self:applyRestrictionsToValue(v, settingDefaultValue, defaultTable);
 			if (v ~= nil) then
 				-- standard setting?
-				if (settingType == self.SETTING_TYPE_VALUE or settingType == self.SETTING_TYPE_ARRAY_FIXEDORDERSIZE) then
+				if (settingType == self.SETTING_TYPE_VALUE or settingType == self.SETTING_TYPE_ARRAY_FIXEDORDERSIZE or settingType == self.SETTING_TYPE_ARRAY_FIXEDORDER) then
 					self.settings[k] = v;
 				-- list setting, variable contains arrays with added and removed values
 				else
@@ -1410,13 +1445,27 @@ function DHUDSettings:resetToDefaults()
 	end
 end
 
+--- Function to reset settings to default values
+function DHUDSettings:reloadSavedVars()
+	self:processDefaultSettingsTable();
+	self:processSavedVars();
+end
+
 --- Start preview of current settings
 function DHUDSettings:previewStart()
+	if (self.previewActive) then
+		return;
+	end
+	self.previewActive = true;
 	self:dispatchEvent(self.eventStartPreview);
 end
 
 --- Stop preview of current settings
 function DHUDSettings:previewStop()
+	if (not self.previewActive) then
+		return;
+	end
+	self.previewActive = false;
 	self:dispatchEvent(self.eventStopPreview);
 end
 
@@ -1705,7 +1754,45 @@ function DHUDSettings:SlashCommandHandler(args)
 	end
 end
 
+-----------------------------
+-- Blizzard interface menu --
+-----------------------------
 
+--- Create addon tab in blizzard interface menu
+function DHUDSettings:createBlizzardInterfaceOptions()
+	-- frame with settings
+	local frame = CreateFrame("Frame", "DHUD_InterfaceOptions");
+	frame.name = "DHUD";
+	-- title frame
+	local textField = frame:CreateFontString("DHUD_InterfaceOptions_TitleText", "ARTWORK", "GameFontNormalLarge");
+	textField:SetText("DHUD");
+	textField:SetJustifyH("LEFT");
+	textField:SetJustifyV("TOP");
+	textField:SetPoint("TOPLEFT", 16, -16);
+	frame.titleTextField = textField;
+	-- open options button
+	local button = CreateFrame("Button", "DHUD_InterfaceOptions_OpenOptionsButton", frame, "OptionsButtonTemplate");
+	button:SetText("Open Options");
+	button:SetWidth(180);
+	button:SetHeight(22);
+	button:SetPoint("TOPLEFT", frame.titleTextField, "BOTTOMLEFT", 0, -10);
+	button:SetScript("OnClick", function()
+		InterfaceOptionsFrame_Show();
+		HideUIPanel(GameMenuFrame);
+		DHUDMain:openSettings();
+	end)
+	-- slash command text
+	local textField = frame:CreateFontString("DHUD_InterfaceOptions_SlashTipText", "ARTWORK", "GameFontNormalSmall");
+	textField:SetText("/dhud");
+	textField:SetNonSpaceWrap(true);
+	textField:SetPoint("LEFT", button, "RIGHT", 10, 0);
+	textField:SetTextColor(1, 1, 0.49, 1);
+	frame.slashTextField = command;
+	
+	-- add to options
+	self.blizzardInterfaceAddonTab = frame;
+	InterfaceOptions_AddCategory(frame);
+end
 
 -----------------------------------------
 -- Non Addon Specific Settings Handler --

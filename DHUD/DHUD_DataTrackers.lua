@@ -161,9 +161,6 @@ function DHUDDataTrackerHelper:init()
 		end
 		--print("UNIT_ENTERED_VEHICLE");
 		-- force event rethrow, as VEHICLE_PASSENGERS_CHANGED set it at incorrect time
-		if (helper.isInVehicle) then
-			helper.isInVehicle = false;
-		end
 		helper:setIsInVehicle(UnitHasVehicleUI("player"));
 	end
 	function self.eventsFrame:UNIT_EXITED_VEHICLE(unitId)
@@ -270,7 +267,7 @@ end
 
 --- set isInVehicle variable
 function DHUDDataTrackerHelper:setIsInVehicle(isInVehicle)
-	if (self.isInVehicle == isInVehicle) then
+	if (self.isInVehicle == isInVehicle and (not isInVehicle)) then -- if set to true than redispatch event again (e.g. passenger seat changed)
 		return;
 	end
 	self.isInVehicle = isInVehicle;
@@ -1992,7 +1989,7 @@ end
 --- Update maximum power for unit
 function DHUDSpecificPowerTracker:updateMaxPower()
 	local powerMax;
-	if (self.precision ~= 1) then
+	if (self.precision ~= 0) then
 		powerMax = UnitPowerMax(self.unitId, self.resourceType, true);
 		powerMax = powerMax / (10 ^ self.precision);
 	else

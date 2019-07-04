@@ -2,11 +2,11 @@
 ## X-Min-Interface: 50000
 ## Title: Drathals HUD Options
 ## Author: MADCAT, Markus Inger (Drathal/Silberklinge), Howie (Caeryn)
-## Version: v1.5.50000f
-## Notes: Drathals HUD Options.
+## Version: v2.0.50300.37
+## Notes: Options addon for Drathals HUD, loaded on demand.
 ## Dependencies: DHUD
 ## LoadOnDemand: 1
-## X-Curse-Packaged-Version: DHUDv1550000f
+## X-Curse-Packaged-Version: DHUDv2050300_37
 ## X-Curse-Project-Name: DHUD for 5.0
 ## X-Curse-Project-ID: dhud-3_0
 ## X-Curse-Repository-ID: wow/dhud-3_0/mainline
@@ -15,13 +15,14 @@
 embeds.xml
 #@end-no-lib-strip@
 
-localization.lua
 ..\..\FrameXML\Fonts.xml
 ..\..\FrameXML\UIDropDownMenuTemplates.xml
 ..\..\FrameXML\UIDropDownMenu.xml
 ..\..\FrameXML\UIPanelTemplates.xml
 ..\..\FrameXML\OptionsFrameTemplates.xml
 ..\..\FrameXML\CharacterFrameTemplates.xml
-DHUD_Templates.xml
+localization\enGB.lua
+localization\ruRU.lua
 DHUD_Options.lua
-DHUD_Options.xml
+DHUD_OptionsTemplates.xml
+DHUD_OptionsFrame.xml

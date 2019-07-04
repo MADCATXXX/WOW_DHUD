@@ -25,10 +25,7 @@
 -- TODO:
 -- Trinket ICDS, RPPM, check: http://www.curse.com/addons/wow/extracd
 -- Shaman totems?
--- blizzard interface menu?
--- SpellActivationOverlayFrame ?
 -- Shadow/Glow Special Effect: http://www.wowinterface.com/downloads/info18479-rSetBackdrop.html#info
--- layouts
 
 ----------
 -- Code --
@@ -55,18 +52,19 @@ end
 --- Open settings panel, loading addon in the process if required
 function DHUDMain:openSettings()
 	-- check if addon is loaded
-	if (not DHUDOptionsFrame) then
+	if (not DHUD_OptionsFrame) then
 		local res = LoadAddOn("DHUD_Options");
 		if (res == nil) then
 			self:print("DHUD Options addon is disabled, please enable it first");
 			return;
 		end
+		return;
 	end
     -- toggle visibility
-	if (DHUDOptionsFrame:IsVisible()) then
-		DHUDOptionsFrame:Hide();
+	if (DHUD_OptionsFrame:IsVisible()) then
+		DHUD_OptionsFrame:Hide();
 	else
-		DHUDOptionsFrame:Show();
+		DHUD_OptionsFrame:Show();
 	end
 end
 
@@ -158,6 +156,8 @@ function DHUDMain:main()
 	DHUDGUI:init();
 	-- create minimap icon
 	self:createMinimapButton();
+	-- add options to blizzard interface tab
+	DHUDSettings:createBlizzardInterfaceOptions();
 	-- print information on addon load
 	self:print("Version " .. self.version .. " loaded");
 end

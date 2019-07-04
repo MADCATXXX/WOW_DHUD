@@ -1,3 +1,41 @@
+Ace3 Release - Revision r1086 (May 21st, 2013)
+----------------------------------------------
+- AceAddon-3.0: Improved behavior when loading modules during game startup, ensures proper loading order
+
+Ace3 Release - Revision r1083 (March 4th, 2013)
+-----------------------------------------------
+- AceTimer-3.0: Fixed an issue that caused the parameter list passed to the callback to be cut off at nil values
+- AceGUI-3.0: InlineGroup: The title attribute is properly reset for recycled objects
+
+Ace3 Release - Revision r1078 (February 10th, 2013)
+---------------------------------------------------
+- AceTimer-3.0: Re-write based on AnimationTimers
+- AceHook-3.0: Improved checks/error messages when trying to hook a script on a "nil" frame
+- AceDBOptions-3.0: Added Italian locale
+- AceGUI-3.0: BlizOptionsGroup: Fixed the "default" button callback
+- AceGUI-3.0: Colorpicker: The colorpicker is now clamped to the screen
+
+Ace3 Release - Revision r1061 (August 27th, 2012)
+-------------------------------------------------
+- AceConfigDialog-3.0: Try to avoid potential taints in static popup dialogs
+- AceConfigDialog-3.0: Sort multiselects with "radio" style
+- AceGUI-3.0: Support for WoW 5.0
+- AceGUI-3.0: MultiLineEditBox: Support shift-click'ing items/spells/etc. into the editbox
+- AceGUI-3.0: Label: Fix text alignment (Ticket #301)
+- AceGUI-3.0: Checkbox: Description text on a disable checkbox should look disabled (Ticket #304)
+- AceGUI-3.0: Keybinding: Ensure the Keybinding popup is on the top level (Ticket #305)
+
+Ace3 Release - Revision r1041 (November 29th, 2011)
+---------------------------------------------------
+- AceDB-3.0: Added locale and factionrealmregion profile keys
+- AceSerializer-3.0: Removed support for NaN, as WoW 4.3 does no longer allow it.
+- AceGUI-3.0: Frame: Add :EnableResize (Ticket #214)
+
+Ace3 Release - Revision r1032 (June 29th, 2011)
+-----------------------------------------------
+- AceTab-3.0: Improvements to Match handling (Ticket #255 and #256)
+- AceGUI-3.0: DropDown layout fix with hidden labels (Ticket #234)
+
 Ace3 Release - Revision r1025 (April 27th, 2011)
 ------------------------------------------------
 - AceComm-3.0: Updated for 4.1 changes - now handles RegisterAddonMessagePrefix internally for you.
