@@ -896,6 +896,13 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			-- lua code to be executed when addon is loaded, can be used to increase camera max distance and set other things
 			["luaStartUp"] = { "SetCVar(\"cameraDistanceMaxFactor\", 4);", 0 },
 		}, 1 },
+		-- reference to codes that can be used at start up
+		["luaStartUpCodes"] = { {
+			-- increases maximum camera distance to highest value
+			["cameraMaxDistance"] = "SetCVar(\"cameraDistanceMaxFactor\", 4);",
+			-- hide recruit a friend rewards on logon, can be usefull when you don't want to use reward until new mount for RAF is available
+			["hideRAF"] = "",
+		}, 2 },
 	},
 	-- settings table in following format: setting = value
 	settings = {

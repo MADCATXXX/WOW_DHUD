@@ -1,12 +1,12 @@
-## Interface: 60100
+## Interface: 60200
 ## X-Min-Interface: 50000
 ## Title: Drathals HUD Options
 ## Author: MADCAT, Markus Inger (Drathal/Silberklinge), Howie (Caeryn)
-## Version: v2.0.60100.52
+## Version: v2.0.60200.53
 ## Notes: Options addon for Drathals HUD, loaded on demand.
 ## Dependencies: DHUD
 ## LoadOnDemand: 1
-## X-Curse-Packaged-Version: DHUDv2060100_52
+## X-Curse-Packaged-Version: DHUDv2060200_53
 ## X-Curse-Project-Name: DHUD for 6.0
 ## X-Curse-Project-ID: dhud-3_0
 ## X-Curse-Repository-ID: wow/dhud-3_0/mainline

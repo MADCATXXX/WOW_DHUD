@@ -1,3 +1,4 @@
+-hide healing when at maximum health?
 -help for startup lua code, e.g. code to hide raf, or maybe frame with click to add scripts
 -conditions for buffs prioritization
 -diminishing returns as part of AuraTracker?
@@ -6,6 +7,10 @@
 -other textures support (renetair from DHUD4)
 -custom timer tracker for bandits guile that will update auras list (e.g. addCustomTimerTracker), add white bijou icon that always atleast one, doesn't drop with time
 -GCD tracker as part of helper and add support of it to cooldowns and spell cast tracker
+
+changelog 2.0.60200.53:
+-updated toc to 60200
+-added templates for startup lua code, e.g. hide Recruia A Friend reward, this are not in settings yet
 
 changelog 2.0.60100.52:
 -updated toc to 60100
