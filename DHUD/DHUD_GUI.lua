@@ -1507,6 +1507,10 @@ end
 DHUDGUI = {
 	-- current bar texture
 	barsTexture	= 2,
+	-- defines if bars background texture should be shown
+	backgroundTexture = true,
+	-- distance between bars divided by two, this number holds bar offset from center, so distance is two times higher
+	barsDistanceDiv2 = 0,
 	-- list with information about textures
 	textures = {
 		-- path to background with 0 big bars and 0 small
@@ -1752,6 +1756,8 @@ function DHUDGUI:createFrame(name, parentName, relativePointThis, relativePointP
 	frame:SetWidth(width);
 	frame:SetHeight(height);
 	frame:EnableMouse(false);
+	-- save relative point information, it will be used for offset settings
+	frame.relativeInfo = { relativePointThis, parentName, relativePointParent, offsetX, offsetY };
 	-- update frame strata and level, if you set your frameStrata to "BACKGROUND" it will be blocked from receiving mouse events unless you set frameLevel to 1 or more
 	-- Possible values are, from lowest to highest, 'higher' being layered on top of the 'lower' ones at runtime.
 	frame:SetFrameStrata(frameStrata);
@@ -2578,7 +2584,7 @@ end
 -- @param frame reference to frame that should be repositioned, otherwise all elements are repositioned
 function DHUDGUI:repositionSpellCircleFramesBigLeft(frame)
 	local group, indexBegin, indexEnd = self:repositionProcessParams(self.frameGroups.spellCirclesBigLeft, frame);
-	self:repositionCircleFramesAroundHud(group, indexBegin, indexEnd, 16 * self.scale[self.SCALE_SPELL_CIRCLES], DHUDEllipseMath.HUD_BAR_WIDTH + 2, 0, true);
+	self:repositionCircleFramesAroundHud(group, indexBegin, indexEnd, 16, self.scale[self.SCALE_SPELL_CIRCLES], DHUDEllipseMath.HUD_BAR_WIDTH + 2, 0, true);
 end
 
 --- Create spell circle near right big bar
@@ -2593,7 +2599,7 @@ end
 -- @param frame reference to frame that should be repositioned, otherwise all elements are repositioned
 function DHUDGUI:repositionSpellCircleFramesBigRight(frame)
 	local group, indexBegin, indexEnd = self:repositionProcessParams(self.frameGroups.spellCirclesBigRight, frame);
-	self:repositionCircleFramesAroundHud(group, indexBegin, indexEnd, 16 * self.scale[self.SCALE_SPELL_CIRCLES], DHUDEllipseMath.HUD_BAR_WIDTH + 2, 0, false);
+	self:repositionCircleFramesAroundHud(group, indexBegin, indexEnd, 16, self.scale[self.SCALE_SPELL_CIRCLES], DHUDEllipseMath.HUD_BAR_WIDTH + 2, 0, false);
 end
 
 --- Create spell circle near left big bar
@@ -2609,7 +2615,7 @@ end
 function DHUDGUI:repositionSpellCircleFramesSmallLeft(frame)
 	local group, indexBegin, indexEnd = self:repositionProcessParams(self.frameGroups.spellCirclesSmallLeft, frame);
 	local hasSmallBar = bit.band(self.backgroundLeft, self.BACKGROUND_BAR_SMALL1) ~= 0;
-	self:repositionCircleFramesAroundHud(group, indexBegin, indexEnd, 16 * self.scale[self.SCALE_SPELL_CIRCLES], -2, -DHUDEllipseMath.HUD_BAR_WIDTH - DHUDEllipseMath.HUD_SMALLBAR_WIDTH - (hasSmallBar and 3 or 0), true);
+	self:repositionCircleFramesAroundHud(group, indexBegin, indexEnd, 16, self.scale[self.SCALE_SPELL_CIRCLES], -2, -DHUDEllipseMath.HUD_BAR_WIDTH - DHUDEllipseMath.HUD_SMALLBAR_WIDTH - (hasSmallBar and 3 or 0), true);
 end
 
 --- Create spell circle near right small bar
@@ -2625,7 +2631,7 @@ end
 function DHUDGUI:repositionSpellCircleFramesSmallRight(frame)
 	local group, indexBegin, indexEnd = self:repositionProcessParams(self.frameGroups.spellCirclesSmallRight, frame);
 	local hasSmallBar = bit.band(self.backgroundRight, self.BACKGROUND_BAR_SMALL1) ~= 0;
-	self:repositionCircleFramesAroundHud(group, indexBegin, indexEnd, 16 * self.scale[self.SCALE_SPELL_CIRCLES], -2, -DHUDEllipseMath.HUD_BAR_WIDTH - DHUDEllipseMath.HUD_SMALLBAR_WIDTH - (hasSmallBar and 3 or 0), false);
+	self:repositionCircleFramesAroundHud(group, indexBegin, indexEnd, 16, self.scale[self.SCALE_SPELL_CIRCLES], -2, -DHUDEllipseMath.HUD_BAR_WIDTH - DHUDEllipseMath.HUD_SMALLBAR_WIDTH - (hasSmallBar and 3 or 0), false);
 end
 
 --- Create left spell rectangle near bottom text
@@ -2640,7 +2646,7 @@ end
 -- @param frame reference to frame that should be repositioned, otherwise all elements are repositioned
 function DHUDGUI:repositionSpellRectangleFramesLeft(frame)
 	local group, indexBegin, indexEnd = self:repositionProcessParams(self.frameGroups.spellRectanglesLeft, frame);
-	self:repositionRectangleFramesAroundFrame(group, indexBegin, indexEnd, 20 * self.scale[self.SCALE_SPELL_RECTANGLES], 20 * self.scale[self.SCALE_SPELL_RECTANGLES], 8, 1, 10, true, "DHUD_Center_TextInfo1", "TOPRIGHT", "TOPLEFT");
+	self:repositionRectangleFramesAroundFrame(group, indexBegin, indexEnd, 20, 20, self.scale[self.SCALE_SPELL_RECTANGLES], 8, 1, 10, true, "DHUD_Center_TextInfo1", "TOPRIGHT", "TOPLEFT");
 end
 
 --- Create left spell rectangle near bottom text
@@ -2655,7 +2661,7 @@ end
 -- @param frame reference to frame that should be repositioned, otherwise all elements are repositioned
 function DHUDGUI:repositionSpellRectangleFramesRight(frame)
 	local group, indexBegin, indexEnd = self:repositionProcessParams(self.frameGroups.spellRectanglesRight, frame);
-	self:repositionRectangleFramesAroundFrame(group, indexBegin, indexEnd, 20 * self.scale[self.SCALE_SPELL_RECTANGLES], 20 * self.scale[self.SCALE_SPELL_RECTANGLES], 8, 1, 5, false, "DHUD_Center_TextInfo1", "TOPLEFT", "TOPRIGHT");
+	self:repositionRectangleFramesAroundFrame(group, indexBegin, indexEnd, 20, 20, self.scale[self.SCALE_SPELL_RECTANGLES], 8, 1, 5, false, "DHUD_Center_TextInfo1", "TOPLEFT", "TOPRIGHT");
 end
 
 --- Create combo point frame near left big bar
@@ -2671,7 +2677,7 @@ end
 -- @return frame created
 function DHUDGUI:repositionComboPointFramesBigLeft(frame)
 	local group, indexBegin, indexEnd = self:repositionProcessParams(self.frameGroups.comboPointsBigLeft, frame);
-	self:repositionCircleFramesAroundHud(group, indexBegin, indexEnd, 10 * self.scale[self.SCALE_RESOURCES], DHUDEllipseMath.HUD_BAR_WIDTH + 2, 0, true, 0);
+	self:repositionCircleFramesAroundHud(group, indexBegin, indexEnd, 10, self.scale[self.SCALE_RESOURCES], DHUDEllipseMath.HUD_BAR_WIDTH + 2, 0, true, 0);
 end
 
 --- Create combo point frame near right big bar
@@ -2687,7 +2693,7 @@ end
 -- @return frame created
 function DHUDGUI:repositionComboPointFramesBigRight(frame)
 	local group, indexBegin, indexEnd = self:repositionProcessParams(self.frameGroups.comboPointsBigRight, frame);
-	self:repositionCircleFramesAroundHud(group, indexBegin, indexEnd, 10 * self.scale[self.SCALE_RESOURCES], DHUDEllipseMath.HUD_BAR_WIDTH + 2, 0, false, 0);
+	self:repositionCircleFramesAroundHud(group, indexBegin, indexEnd, 10, self.scale[self.SCALE_RESOURCES], DHUDEllipseMath.HUD_BAR_WIDTH + 2, 0, false, 0);
 end
 
 --- Create combo point frame near left small bar
@@ -2704,7 +2710,7 @@ end
 function DHUDGUI:repositionComboPointFramesSmallLeft(frame)
 	local group, indexBegin, indexEnd = self:repositionProcessParams(self.frameGroups.comboPointsSmallLeft, frame);
 	local hasSmallBar = bit.band(self.backgroundLeft, self.BACKGROUND_BAR_SMALL1) ~= 0;
-	self:repositionCircleFramesAroundHud(group, indexBegin, indexEnd, 10 * self.scale[self.SCALE_RESOURCES], -2, -DHUDEllipseMath.HUD_BAR_WIDTH - DHUDEllipseMath.HUD_SMALLBAR_WIDTH, true, 0);
+	self:repositionCircleFramesAroundHud(group, indexBegin, indexEnd, 10, self.scale[self.SCALE_RESOURCES], -2, -DHUDEllipseMath.HUD_BAR_WIDTH - DHUDEllipseMath.HUD_SMALLBAR_WIDTH, true, 0);
 end
 
 --- Create combo point frame near right small bar
@@ -2721,7 +2727,7 @@ end
 function DHUDGUI:repositionComboPointFramesSmallRight(frame)
 	local group, indexBegin, indexEnd = self:repositionProcessParams(self.frameGroups.comboPointsSmallRight, frame);
 	local hasSmallBar = bit.band(self.backgroundRight, self.BACKGROUND_BAR_SMALL1) ~= 0;
-	self:repositionCircleFramesAroundHud(group, indexBegin, indexEnd, 10 * self.scale[self.SCALE_RESOURCES], -2, -DHUDEllipseMath.HUD_BAR_WIDTH - DHUDEllipseMath.HUD_SMALLBAR_WIDTH, false, 0);
+	self:repositionCircleFramesAroundHud(group, indexBegin, indexEnd, 10, self.scale[self.SCALE_RESOURCES], -2, -DHUDEllipseMath.HUD_BAR_WIDTH - DHUDEllipseMath.HUD_SMALLBAR_WIDTH, false, 0);
 end
 
 --- Create rune frame near left big bar
@@ -2737,7 +2743,7 @@ end
 -- @return frame created
 function DHUDGUI:repositionRuneFramesBigLeft(frame)
 	local group, indexBegin, indexEnd = self:repositionProcessParams(self.frameGroups.runesBigLeft, frame);
-	self:repositionCircleFramesAroundHud(group, indexBegin, indexEnd, 15 * self.scale[self.SCALE_RESOURCES], DHUDEllipseMath.HUD_BAR_WIDTH + 2, 0, true, 0);
+	self:repositionCircleFramesAroundHud(group, indexBegin, indexEnd, 15, self.scale[self.SCALE_RESOURCES], DHUDEllipseMath.HUD_BAR_WIDTH + 2, 0, true, 0);
 end
 
 --- Create rune frame near right big bar
@@ -2753,7 +2759,7 @@ end
 -- @return frame created
 function DHUDGUI:repositionRuneFramesBigRight(frame)
 	local group, indexBegin, indexEnd = self:repositionProcessParams(self.frameGroups.runesBigRight, frame);
-	self:repositionCircleFramesAroundHud(group, indexBegin, indexEnd, 15 * self.scale[self.SCALE_RESOURCES], DHUDEllipseMath.HUD_BAR_WIDTH + 2, 0, false, 0);
+	self:repositionCircleFramesAroundHud(group, indexBegin, indexEnd, 15, self.scale[self.SCALE_RESOURCES], DHUDEllipseMath.HUD_BAR_WIDTH + 2, 0, false, 0);
 end
 
 --- Create rune frame near left small bar
@@ -2770,7 +2776,7 @@ end
 function DHUDGUI:repositionRuneFramesSmallLeft(frame)
 	local group, indexBegin, indexEnd = self:repositionProcessParams(self.frameGroups.runesSmallLeft, frame);
 	local hasSmallBar = bit.band(self.backgroundLeft, self.BACKGROUND_BAR_SMALL1) ~= 0;
-	self:repositionCircleFramesAroundHud(group, indexBegin, indexEnd, 15 * self.scale[self.SCALE_RESOURCES], -2, -DHUDEllipseMath.HUD_BAR_WIDTH - DHUDEllipseMath.HUD_SMALLBAR_WIDTH, true, 0);
+	self:repositionCircleFramesAroundHud(group, indexBegin, indexEnd, 15, self.scale[self.SCALE_RESOURCES], -2, -DHUDEllipseMath.HUD_BAR_WIDTH - DHUDEllipseMath.HUD_SMALLBAR_WIDTH, true, 0);
 end
 
 --- Create rune frame near right small bar
@@ -2787,7 +2793,7 @@ end
 function DHUDGUI:repositionRuneFramesSmallRight(frame)
 	local group, indexBegin, indexEnd = self:repositionProcessParams(self.frameGroups.runesSmallRight, frame);
 	local hasSmallBar = bit.band(self.backgroundRight, self.BACKGROUND_BAR_SMALL1) ~= 0;
-	self:repositionCircleFramesAroundHud(group, indexBegin, indexEnd, 15 * self.scale[self.SCALE_RESOURCES], -2, -DHUDEllipseMath.HUD_BAR_WIDTH - DHUDEllipseMath.HUD_SMALLBAR_WIDTH, false, 0);
+	self:repositionCircleFramesAroundHud(group, indexBegin, indexEnd, 15, self.scale[self.SCALE_RESOURCES], -2, -DHUDEllipseMath.HUD_BAR_WIDTH - DHUDEllipseMath.HUD_SMALLBAR_WIDTH, false, 0);
 end
 
 --- Reposition spell circles around all bars
@@ -2808,6 +2814,12 @@ end
 function DHUDGUI:repositionResourceFramesAll()
 	self:repositionComboPointFramesAll();
 	self:repositionRuneFramesAll();
+end
+
+--- Reposition all circle frames around all bars
+function DHUDGUI:repositionCircleFramesAll()
+	self:repositionResourceFramesAll();
+	self:repositionSpellCircleFramesAll();
 end
 
 --- Reposition combo points around all bars
@@ -2845,11 +2857,12 @@ end
 -- @param indexBegin index of first frame in group to reposition
 -- @param indexEnd index of last frame in group to reposition
 -- @param elementRadius radius of circle frame
+-- @param scale scale of the frame, required to place at correct position as wow changes position of the frame with scale
 -- @param baseOffset offset of first circles from HUD base ellipse (this offset will be used to calculate numFit and arcHeight vars)
 -- @param additionalOffset additional offset of first circles from HUD base ellipse
 -- @param mirrorPosition mirror position acros y-axis?
 -- @param angleOffset if not nil then first frame will be position angle will be offset by amount specified
-function DHUDGUI:repositionCircleFramesAroundHud(group, indexBegin, indexEnd, elementRadius, baseOffset, additionalOffset, mirrorPosition, angleOffset)
+function DHUDGUI:repositionCircleFramesAroundHud(group, indexBegin, indexEnd, elementRadius, scale, baseOffset, additionalOffset, mirrorPosition, angleOffset)
 	-- noting to do
 	if (indexEnd < 1) then
 		return;
@@ -2862,8 +2875,11 @@ function DHUDGUI:repositionCircleFramesAroundHud(group, indexBegin, indexEnd, el
 	if (baseOffset < 0) then
 		offsetSign = -1;
 	end
+	-- recalc size
+	elementRadius = elementRadius * scale;
 	-- calculate position
 	local x, y;
+	local framesOffsetX = self.barsDistanceDiv2;
 	local angle;
 	DHUDEllipseMath:setDefaultEllipse();
 	DHUDEllipseMath:adjustRadiusX(baseOffset + (elementRadius) * offsetSign);
@@ -2890,9 +2906,10 @@ function DHUDGUI:repositionCircleFramesAroundHud(group, indexBegin, indexEnd, el
 				-- calculate angle for index
 				angle = angleBegin + angleStep * (index - (numFitted - numFit) - 0.5); -- -1 since index start from 0; +0.5 for half of the radius of first element
 				x, y = DHUDEllipseMath:calculatePositionInAddonCoordinates(angle);
+				x = x + framesOffsetX;
 				-- set position
-				--print("frame " .. index .. " angle " .. angle .. " set to " .. x .. ", " .. y);
-				group[index]:SetPoint("CENTER", "DHUD_UIParent", "CENTER", mirrorSign * x, y);
+				--print("frame " .. index .. " angle " .. angle .. " set to " .. MCTableToString(x) .. ", " .. MCTableToString(y));
+				group[index]:SetPoint("CENTER", "DHUD_UIParent", "CENTER", mirrorSign * x / scale, y / scale);
 				-- increase index
 				index = index + 1;
 				-- check for iteration end
@@ -2914,6 +2931,7 @@ end
 -- @param indexEnd index of last frame in group to reposition
 -- @param elementWidth width of rectangle frames
 -- @param elementHeight height of rectangle frames
+-- @param scale scale of the frame, required to place at correct position as wow changes position of the frame with scale
 -- @param numFitWidth number of frames to be fit in width
 -- @param offset offset between elements (space)
 -- @param offsetFirstX offset for first frame, x - axis
@@ -2921,12 +2939,15 @@ end
 -- @param parentName name of the parent frame, this frame will be inserted to parent container (should be bottom textField)
 -- @param relativePointThis relative point of frame to be used as attach point
 -- @param relativePointParent relative point of parent frame to be used as attach point
-function DHUDGUI:repositionRectangleFramesAroundFrame(group, indexBegin, indexEnd, elementWidth, elementHeight, numFitWidth, offset, offsetFirstX, toTheLeft, parentName, relativePointThis, relativePointParent)
+function DHUDGUI:repositionRectangleFramesAroundFrame(group, indexBegin, indexEnd, elementWidth, elementHeight, scale, numFitWidth, offset, offsetFirstX, toTheLeft, parentName, relativePointThis, relativePointParent)
 	-- noting to do
 	if (indexEnd < 1) then
 		return;
 	end
 	local positionSign = toTheLeft and -1 or 1;
+	-- recalc size
+	elementWidth = elementWidth * scale;
+	elementHeight = elementHeight * scale;
 	-- calculate position
 	local x, y;
 	local numFitted = 0;
@@ -2949,7 +2970,7 @@ function DHUDGUI:repositionRectangleFramesAroundFrame(group, indexBegin, indexEn
 				y = -(elementWidth + offset) * iterationY;
 				-- set position
 				--print("frame " .. index .. " angle " .. angle .. " set to " .. x .. ", " .. y);
-				group[index]:SetPoint(relativePointThis, parentName, relativePointParent, positionSign * x, y);
+				group[index]:SetPoint(relativePointThis, parentName, relativePointParent, positionSign * x / scale, y / scale);
 				-- increase index
 				index = index + 1;
 				-- check for iteration end
@@ -3058,8 +3079,8 @@ function DHUDGUI:changeBarsBackground(leftBarsMask, rightBarsMask)
 		return;
 	end
 	-- get texture params
-	local textureNameLeft = self:processBackgroundBarsMaskToTextureName(leftBarsMask);
-	local textureNameRight = self:processBackgroundBarsMaskToTextureName(rightBarsMask);
+	local textureNameLeft = self.backgroundTexture and self:processBackgroundBarsMaskToTextureName(leftBarsMask) or "BackgroundBars0B0S";
+	local textureNameRight = self.backgroundTexture and self:processBackgroundBarsMaskToTextureName(rightBarsMask) or "BackgroundBars0B0S";
 	-- update texture on the left
 	local path, x0, x1, y0, y1 = unpack(self.textures[textureNameLeft]);
 	local frame = self.frames["DHUD_Left_BarsBackground"];
@@ -3130,7 +3151,8 @@ end
 -- @param list list with frames and groups to hide when dead
 function DHUDGUI:hideFramesWhenDead(list)
 	for i, v in ipairs(list) do
-		if (#v > 0) then
+		-- determine if it's table or frame
+		if (v.GetName == nil) then
 			for i2, v2 in ipairs(v) do
 				v2:DHide(self.FRAME_VISIBLE_REASON_ALIVE);
 			end
@@ -3324,10 +3346,10 @@ function DHUDGUI:processFrameFontOutlineSetting(settingName, settingId, variable
 	functionOnSettingChange(self, nil);
 end
 
---- Process setting, that contains frame position and listen to it's changes
+--- Process setting, that contains frame position id and listen to it's changes
 -- @param settingName name of the setting
 -- @param ... list of functions to invoke
-function DHUDGUI:processFramePositionSetting(settingName, ...)
+function DHUDGUI:processFramePositionIdSetting(settingName, ...)
 	local functions = { ... };
 	-- create function
 	local functionOnSettingChange = function(self, e)
@@ -3342,10 +3364,68 @@ function DHUDGUI:processFramePositionSetting(settingName, ...)
 	functionOnSettingChange(self, nil);
 end
 
+--- Process setting, that contains frame offset and listen to it's changes
+-- @param settingName name of the setting
+-- @param frame frame to change offset for
+function DHUDGUI:processFrameOffsetSetting(settingName, frame)
+	-- create function
+	local functionOnSettingChange = function(self, e)
+		local offset = DHUDSettings:getValue(settingName);
+		local frameRelativeInfo = frame.relativeInfo;
+		-- update frame position
+		frame:SetPoint(frameRelativeInfo[1], frameRelativeInfo[2], frameRelativeInfo[3], frameRelativeInfo[4] + offset[1], frameRelativeInfo[5] + offset[2]);
+	end
+	-- listen
+	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. settingName, self, functionOnSettingChange);
+	functionOnSettingChange(self, nil);
+end
+
+--- Process setting, that contains frames horizontal distance and listen to it's changes
+-- @param settingName name of the setting
+-- @param frameLeft left frame to change distance from
+-- @param frameRight right frame to change distance to
+-- @param saveToVarName if not nil, then setting will also be saved to var specified
+-- @param onChange function that should be invoked once setting is changed
+function DHUDGUI:processFrameHDistanceSetting(settingName, frameLeft, frameRight, saveToVarName, onChange)
+	-- create function
+	local functionOnSettingChange = function(self, e)
+		local distance = DHUDSettings:getValue(settingName);
+		local frameLeftRelativeInfo = frameLeft.relativeInfo;
+		local frameRightRelativeInfo = frameRight.relativeInfo;
+		-- update frame position
+		frameLeft:SetPoint(frameLeftRelativeInfo[1], frameLeftRelativeInfo[2], frameLeftRelativeInfo[3], frameLeftRelativeInfo[4] - distance, frameLeftRelativeInfo[5]);
+		frameRight:SetPoint(frameRightRelativeInfo[1], frameRightRelativeInfo[2], frameRightRelativeInfo[3], frameRightRelativeInfo[4] + distance, frameRightRelativeInfo[5]);
+		-- update var if any
+		if (saveToVarName ~= nil) then
+			self[saveToVarName] = distance;
+		end
+		-- invoke update func if any
+		if (onChange ~= nil) then
+			onChange(self);
+		end
+	end
+	-- listen
+	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. settingName, self, functionOnSettingChange);
+	functionOnSettingChange(self, nil);
+end
 
 --- textures setting has changed, update gui
 function DHUDGUI:onTexturesSetting(e)
 	self:changeBarsTextures(DHUDSettings:getValue("textures_barTexture"));
+end
+
+--- textures setting has changed, update gui
+function DHUDGUI:onBackgroundTextureSetting(e)
+	local before = self.backgroundTexture;
+	self.backgroundTexture = DHUDSettings:getValue("textures_barBackground");
+	if (before ~= self.backgroundTexture) then
+		-- force update
+		local leftBarsMask = self.backgroundLeft;
+		local rightBarsMask = self.backgroundRight;
+		self.backgroundLeft = -1;
+		self.backgroundRight = -1;
+		DHUDGUI:changeBarsBackground(leftBarsMask, rightBarsMask);
+	end
 end
 
 --- Create most of the static frames, that aren't going to change
@@ -3475,11 +3555,13 @@ function DHUDGUI:init()
 	DHUDGUIBarAnimationHelper:STATIC_init()
 	-- initialize textures settings track
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "textures_barTexture", self, self.onTexturesSetting);
+	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "textures_barBackground", self, self.onBackgroundTextureSetting);
 	self:onTexturesSetting(nil);
+	self:onBackgroundTextureSetting(nil);
 	-- initialize icon positions track
-	self:processFramePositionSetting("framesData_iconPositions_dragon", self.repositionTargetUnitEliteIcon);
-	self:processFramePositionSetting("framesData_iconPositions_selfState", self.repositionSelfUnitPvPIcon, self.repositionSelfUnitStateIcon);
-	self:processFramePositionSetting("framesData_iconPositions_targetState", self.repositionTargetUnitInfoStateIcons);
+	self:processFramePositionIdSetting("framesData_iconPositions_dragon", self.repositionTargetUnitEliteIcon);
+	self:processFramePositionIdSetting("framesData_iconPositions_selfState", self.repositionSelfUnitPvPIcon, self.repositionSelfUnitStateIcon);
+	self:processFramePositionIdSetting("framesData_iconPositions_targetState", self.repositionTargetUnitInfoStateIcons);
 	-- initialize scale settings track
 	self:processFrameScaleSetting("scale_main", self.SCALE_MAIN, nil, nil, self.frames["DHUD_UIParent"]);
 	self:processFrameScaleSetting("scale_spellCircles", self.SCALE_SPELL_CIRCLES, self.repositionSpellCircleFramesAll, self.frameGroups.spellCircles, nil);
@@ -3523,6 +3605,19 @@ function DHUDGUI:init()
 	self:processFrameFontOutlineSetting("outlines_castBarsTime", nil, nil, self.frameGroups["castTime"], nil);
 	self:processFrameFontOutlineSetting("outlines_castBarsDelay", nil, nil, self.frameGroups["castDelay"], nil);
 	self:processFrameFontOutlineSetting("outlines_castBarsSpell", nil, nil, self.frameGroups["castSpellName"], nil);
+	-- initialize offset setting track
+	self:processFrameOffsetSetting("offsets_hud", self.frames["DHUD_UIParent"]);
+	self:processFrameOffsetSetting("offsets_targetInfo", self.frames["DHUD_Center_TextInfo1"]);
+	self:processFrameOffsetSetting("offsets_targetInfo2", self.frames["DHUD_Center_TextInfo2"]);
+	self:processFrameOffsetSetting("offsets_leftBigBar1", self.frames["DHUD_Left_TextBig1"]);
+	self:processFrameOffsetSetting("offsets_leftBigBar2", self.frames["DHUD_Left_TextBig2"]);
+	self:processFrameOffsetSetting("offsets_leftSmallBar1", self.frames["DHUD_Left_TextSmall1"]);
+	self:processFrameOffsetSetting("offsets_leftSmallBar2", self.frames["DHUD_Left_TextSmall2"]);
+	self:processFrameOffsetSetting("offsets_rightBigBar1", self.frames["DHUD_Right_TextBig1"]);
+	self:processFrameOffsetSetting("offsets_rightBigBar2", self.frames["DHUD_Right_TextBig2"]);
+	self:processFrameOffsetSetting("offsets_rightSmallBar1", self.frames["DHUD_Right_TextSmall1"]);
+	self:processFrameOffsetSetting("offsets_rightSmallBar2", self.frames["DHUD_Right_TextSmall2"]);
+	self:processFrameHDistanceSetting("offsets_barDistance", self.frames["DHUD_Left_BarsBackground"], self.frames["DHUD_Right_BarsBackground"], "barsDistanceDiv2", self.repositionCircleFramesAll);
 	-- initialize gui manager
 	DHUDGUIManager:init();
 	-- debug
@@ -3800,6 +3895,14 @@ end
 --- Show preview data
 function DHUDGuiSlotManager:showPreviewData()
 	-- to be overriden
+end
+
+--- Clear preview data
+function DHUDGuiSlotManager:clearPreviewData()
+	-- to be overriden
+	self:onDataTrackerChange();
+	self:onDataUnitChange();
+	self:onDataChange();
 end
 
 --- Return true if this slot is regenerating something or false otherwise
@@ -4176,6 +4279,11 @@ function DHUDGuiBarManager:getHealthShield()
 	return self.STATIC_showHealthShield and self.currentDataTracker.amountExtra or 0;
 end
 
+--- Get health shield max amount if settings allow this
+function DHUDGuiBarManager:getHealthShieldMax()
+	return self.STATIC_showHealthShield and self.currentDataTracker.amountExtraMax or 0;
+end
+
 --- Get health heal absorb amount if settings allow this
 function DHUDGuiBarManager:getHealthHealAbsorb()
 	return self.STATIC_showHealthHealAbsorb and self.currentDataTracker.amountHealAbsorb or 0;
@@ -4201,8 +4309,9 @@ function DHUDGuiBarManager:updateHealth()
 	end
 	-- calculate amount total plus absorbed
 	local amountTotalPlusAbsorbed = amountTotal;
-	if (amount + self.currentDataTracker.amountExtraMax > amountTotal) then
-		amountTotalPlusAbsorbed = amount + self.currentDataTracker.amountExtraMax;
+	local amountShieldMax = self:getHealthShieldMax();
+	if (amount + amountShieldMax > amountTotal) then
+		amountTotalPlusAbsorbed = amount + amountShieldMax;
 	end
 	-- update heights
 	self.valuesHeight[1] = amountNonAbsorbed / amountTotalPlusAbsorbed;
@@ -5048,6 +5157,8 @@ DHUDSpellRectanglesManager = MCCreateSubClass(DHUDGuiSlotManager, {
 	aurasType = 2,
 	-- reference to timers colorize function
 	timersColorizeFunc = nil,
+	-- defines if timers time text should be shown
+	showTimersText = true,
 	-- allows to show buff timers on spell rectangles
 	STATIC_showBuffTimers = true,
 	-- allows to show debuff timers on spell rectangles
@@ -5070,7 +5181,7 @@ function DHUDSpellRectanglesManager:STATIC_onDebuffTimersSetting(e)
 	self.STATIC_showDebuffTimers = DHUDSettings:getValue("aurasOptions_showTimersOnTargetDeBuffs");
 end
 
---- Initialize DHUDGUIBarAnimationHelper class
+--- Initialize DHUDSpellRectanglesManager class
 function DHUDSpellRectanglesManager:STATIC_init()
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "aurasOptions_showTimersOnTargetBuffs", self, self.STATIC_onBuffTimersSetting);
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "aurasOptions_showTimersOnTargetDeBuffs", self, self.STATIC_onDebuffTimersSetting);
@@ -5135,20 +5246,10 @@ function DHUDSpellRectanglesManager:colorizeUnknownTimer(timer)
 	return DHUDColorizeTools:colorizePercentUsingTable(timer[2] / timer[3], t);
 end
 
---- defines if timers text should be shown
-function DHUDSpellRectanglesManager:getIsTimersTextShown()
-	if (self.aurasType == self.AURAS_TYPE_BUFFS) then
-		return self.STATIC_showBuffTimers;
-	elseif (self.aurasType == self.AURAS_TYPE_DEBUFFS) then
-		return self.STATIC_showDebuffTimers;
-	end
-	return true;
-end
-
 --- Function to update spell rectangles data
 -- @param timers list with timers
 function DHUDSpellRectanglesManager:updateSpellRectangles(timers)
-	local showTimersText = self:getIsTimersTextShown();
+	local showTimersText = self.showTimersText;
 	timers = timers or self.currentDataTracker:filterTimers(self.currentDataTrackerHelperFunction, self.dataTrackersListSettingName, true);
 	self.group:setFramesShown(#timers);
 	-- update icons and times, { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder }
@@ -5169,15 +5270,14 @@ end
 
 --- Function to update spell circle times
 function DHUDSpellRectanglesManager:updateSpellRectanglesTime()
-	-- do not show text?
-	local showTimersText = self:getIsTimersTextShown();
-	if (not showTimersText) then
-		return;
-	end
 	-- filter timers
 	local timers, changed = self.currentDataTracker:filterTimers(self.currentDataTrackerHelperFunction, self.dataTrackersListSettingName);
 	if (changed) then
 		self:updateSpellRectangles(timers);
+		return;
+	end
+	-- do not show text?
+	if (not self.showTimersText) then
 		return;
 	end
 	-- update icons and times, { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder }
@@ -5207,12 +5307,15 @@ function DHUDSpellRectanglesManager:onDataTrackerChange(e)
 	if (self.currentDataTrackerHelperFunction == DHUDTimersFilterHelperSettingsHandler.filterBuffAuras) then
 		self.aurasType = self.AURAS_TYPE_BUFFS;
 		self.timersColorizeFunc = self.colorizeTargetBuffsTimer;
+		self.showTimersText = self.STATIC_showBuffTimers;
 	elseif (self.currentDataTrackerHelperFunction == DHUDTimersFilterHelperSettingsHandler.filterDebuffAuras) then
 		self.aurasType = self.AURAS_TYPE_DEBUFFS;
 		self.timersColorizeFunc = self.colorizeTargetDebuffsTimer;
+		self.showTimersText = self.STATIC_showDebuffTimers;
 	else
 		self.aurasType = self.AURAS_TYPE_OTHER;
 		self.timersColorizeFunc = self.colorizeUnknownTimer;
+		self.showTimersText = true;
 	end
 end
 
@@ -5224,6 +5327,15 @@ function DHUDSpellRectanglesManager:onExistanceChange()
 	end
 end
 
+--- timers setting has changed, update data
+function DHUDSpellRectanglesManager:onTimersSettingChange(e)
+	if (self.currentDataTracker == nil) then
+		return;
+	end
+	self:onDataTrackerChange(nil);
+	self:onDataChange(nil);
+end
+
 --- Initialize side info manager
 -- @param spellRectanglesGroupName name of the group with spell circles to use
 -- @param settingName name of the setting that holds data trackers list
@@ -5233,6 +5345,9 @@ function DHUDSpellRectanglesManager:init(spellRectanglesGroupName, settingName)
 	self:setDataTrackerListSetting(settingName);
 	-- track color settings change (for spell rectangles)
 	self:trackColorSettingsChanges();
+	-- track timer settings change
+	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "aurasOptions_showTimersOnTargetBuffs", self, self.onTimersSettingChange);
+	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "aurasOptions_showTimersOnTargetDeBuffs", self, self.onTimersSettingChange);
 end
 
 --- Show preview data
@@ -5266,7 +5381,46 @@ DHUDIconsManager = MCCreateClass{
 	selfInfoTracker = nil,
 	-- reference to target info tracker
 	targetInfoTracker = nil,
+	-- defines if resting icon should be visible
+	STATIC_restingIcon = true,
+	-- defines if combat icon should be visible
+	STATIC_combatIcon = true,
+	-- defines if player pvp icon should be visible
+	STATIC_playerPvPIcon = true,
+	-- defines if target pvp icon should be visible
+	STATIC_targetPvPIcon = true,
+	-- defines if target elite icon should be visible
+	icons_targetEliteIcon = true,
+	-- defines if target raid icon should be visible
+	icons_targetRaidIcon = true,
+	-- defines if target spec role icon should be visible
+	icons_targetSpecRoleIcon = true,
+	-- defines if target spec icon should be visible
+	icons_targetSpecIcon = true,
 }
+
+--- Process icon setting
+-- @param settingName name of the setting
+-- @param varName name of the variable to fill
+function DHUDIconsManager:STATIC_processIconSetting(settingName, varName)
+	local process = function(self, e)
+		self[varName] = DHUDSettings:getValue(settingName);
+	end
+	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. settingName, self, process);
+	process(self, nil);
+end
+
+--- Initialize DHUDIconsManager class
+function DHUDIconsManager:STATIC_init()
+	self:STATIC_processIconSetting("icons_restingIcon", "STATIC_restingIcon");
+	self:STATIC_processIconSetting("icons_combatIcon", "STATIC_combatIcon");
+	self:STATIC_processIconSetting("icons_playerPvPIcon", "STATIC_playerPvPIcon");
+	self:STATIC_processIconSetting("icons_targetPvPIcon", "STATIC_targetPvPIcon");
+	self:STATIC_processIconSetting("icons_targetEliteIcon", "STATIC_targetEliteIcon");
+	self:STATIC_processIconSetting("icons_targetRaidIcon", "STATIC_targetRaidIcon");
+	self:STATIC_processIconSetting("icons_targetSpecRoleIcon", "STATIC_targetSpecRoleIcon");
+	self:STATIC_processIconSetting("icons_targetSpecIcon", "STATIC_targetSpecIcon");
+end
 
 --- Create new icons manager
 function DHUDIconsManager:new()
@@ -5284,9 +5438,9 @@ end
 function DHUDIconsManager:onSelfDataChanged(e)
 	-- update state icon
 	local textureName = "";
-	if (self.selfInfoTracker.isInCombat) then
+	if (self.selfInfoTracker.isInCombat and self.STATIC_combatIcon) then
 		textureName = "BlizzardPlayerInCombat";
-	elseif (self.selfInfoTracker.isResting) then
+	elseif (self.selfInfoTracker.isResting and self.STATIC_restingIcon) then
 		textureName = "BlizzardPlayerResting";
 	end
 	-- update texture
@@ -5302,7 +5456,7 @@ function DHUDIconsManager:onSelfDataChanged(e)
 	-- update pvp
 	textureName = "";
 	local pvp = self.selfInfoTracker.pvpState;
-	if (pvp ~= DHUDUnitInfoTracker.UNIT_PVP_STATE_OFF) then
+	if (pvp ~= DHUDUnitInfoTracker.UNIT_PVP_STATE_OFF and self.STATIC_playerPvPIcon) then
 		if (pvp == DHUDUnitInfoTracker.UNIT_PVP_STATE_FFA) then
 			textureName = "BlizzardPvPArena";
 		else
@@ -5331,12 +5485,14 @@ end
 --- target data changed, update icons
 function DHUDIconsManager:onTargetDataChanged(e)
 	-- check elite
-	local elite = self.targetInfoTracker.eliteType;
 	local textureName = "";
-	if (elite == DHUDUnitInfoTracker.UNIT_ELITE_TYPE_BOSS or elite == DHUDUnitInfoTracker.UNIT_ELITE_TYPE_ELITE) then
-		textureName = "TargetEliteDragon";
-	elseif (elite == DHUDUnitInfoTracker.UNIT_ELITE_TYPE_RAREELITE or elite == DHUDUnitInfoTracker.UNIT_ELITE_TYPE_RARE) then
-		textureName = "TargetRareDragon";
+	local elite = self.targetInfoTracker.eliteType;
+	if (self.STATIC_targetEliteIcon) then
+		if (elite == DHUDUnitInfoTracker.UNIT_ELITE_TYPE_BOSS or elite == DHUDUnitInfoTracker.UNIT_ELITE_TYPE_ELITE) then
+			textureName = "TargetEliteDragon";
+		elseif (elite == DHUDUnitInfoTracker.UNIT_ELITE_TYPE_RAREELITE or elite == DHUDUnitInfoTracker.UNIT_ELITE_TYPE_RARE) then
+			textureName = "TargetRareDragon";
+		end
 	end
 	-- update dragon texture
 	if (textureName ~= "") then
@@ -5349,7 +5505,7 @@ function DHUDIconsManager:onTargetDataChanged(e)
 	-- update target icons
 	local numIcons = 0;
 	local pvp = self.targetInfoTracker.pvpState;
-	if (pvp ~= DHUDUnitInfoTracker.UNIT_PVP_STATE_OFF) then
+	if (pvp ~= DHUDUnitInfoTracker.UNIT_PVP_STATE_OFF and self.STATIC_targetPvPIcon) then
 		numIcons = numIcons + 1;
 		if (pvp == DHUDUnitInfoTracker.UNIT_PVP_STATE_FFA) then
 			textureName = "BlizzardPvPArena";
@@ -5370,7 +5526,7 @@ function DHUDIconsManager:onTargetDataChanged(e)
 		texture:SetTexCoord(x0, x1, y0, y1);
 	end
 	local raidIcon = self.targetInfoTracker.raidIcon;
-	if (raidIcon ~= 0) then
+	if (raidIcon ~= 0 and self.STATIC_targetRaidIcon) then
 		numIcons = numIcons + 1;
 		textureName = "BlizzardRaidIcon" .. raidIcon;
 		local path, x0, x1, y0, y1 = unpack(DHUDGUI.textures[textureName]);
@@ -5384,13 +5540,21 @@ function DHUDIconsManager:onTargetDataChanged(e)
 	self.targetStateGroup.reposition(DHUDGUI);
 end
 
--- target data no longer exists or started to exists
+--- target data no longer exists or started to exists
 function DHUDIconsManager:onTargetDataExistanceChanged(e)
 	local exists = self.targetInfoTracker.isExists;
 	-- hide frames if no data is available
 	if (not exists) then
 		self.targetDragonFrame:DHide();
 		self.targetStateGroup:setFramesShown(0);
+	end
+end
+
+--- icon settings has changed, update
+function DHUDIconsManager:onIconsSettingChange(e)
+	self:onSelfDataChanged(nil);
+	if (self.targetInfoTracker.isExists) then
+		self:onTargetDataChanged(nil);
 	end
 end
 
@@ -5410,6 +5574,8 @@ function DHUDIconsManager:init(selfPvPFrameName, selfStateFrameName, targetDrago
 	self.targetInfoTracker:addEventListener(DHUDDataTrackerEvent.EVENT_EXISTANCE_CHANGED, self, self.onTargetDataExistanceChanged);
 	self:onSelfDataChanged(nil);
 	self:onTargetDataChanged(nil);
+	-- track settings change
+	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_GROUP_SETTING_CHANGED_PREFIX .. "icons", self, self.onIconsSettingChange);
 end
 
 --------------------------
@@ -5577,7 +5743,7 @@ end
 
 --- current data tracker data changed
 function DHUDCastBarManager:onDataChange(e)
-	-- check if atleast one cast was used
+	-- check if atleast one cast was made
 	if (not self.isExists) then
 		if (self.currentDataTracker.hasCasted) then
 			self.isExists = true;
@@ -5687,8 +5853,18 @@ end
 function DHUDCastBarManager:showPreviewData()
 	-- just show all ui elements
 	for i, v in ipairs(self.group) do
-		v:Show();
+		v:DShow();
 	end
+end
+
+--- Clear preview data
+function DHUDCastBarManager:clearPreviewData()
+	-- hide all ui elements
+	for i, v in ipairs(self.group) do
+		v:DHide();
+	end
+	-- call super
+	DHUDGuiSlotManager.clearPreviewData(self);
 end
 
 -----------------
@@ -5780,6 +5956,8 @@ function DHUDGUIManager:init()
 	DHUDGuiBarManager:STATIC_init();
 	DHUDUnitInfoManager:STATIC_init();
 	DHUDSideInfoManager:STATIC_init();
+	DHUDSpellRectanglesManager:STATIC_init();
+	DHUDIconsManager:STATIC_init();
 	DHUDCastBarManager:STATIC_init();
 	-- create bar managers
 	self.leftBigBar1 = DHUDGuiBarManager:new();
@@ -5818,15 +5996,6 @@ function DHUDGUIManager:init()
 	self:processAlphaSetting(self.ALPHA_TYPE_HASTARGET, "alpha_hasTarget");
 	self:processAlphaSetting(self.ALPHA_TYPE_REGENERATING, "alpha_regen");
 	self:processAlphaSetting(self.ALPHA_TYPE_OTHER, "alpha_outOfCombat");
-	-- track values required to change alpha and visibility
-	DHUDDataTrackers.helper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_COMBAT_STATE_CHANGED, self, self.onCombatState);
-	DHUDDataTrackers.helper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_TARGET_UPDATED, self, self.onTargetUpdated);
-	DHUDDataTrackers.helper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_ATTACK_STATE_CHANGED, self, self.onAttackState);
-	DHUDDataTrackers.helper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_DEATH_STATE_CHANGED, self, self.onDeathState);
-	self:onAttackState(nil);
-	self:onCombatState(nil);
-	self:onTargetUpdated(nil);
-	self:onDeathState(nil);
 	-- listen to preview settings
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_START_PREVIEW, self, self.onPreviewStart);
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_STOP_PREVIEW, self, self.onPreviewStop);
@@ -5852,6 +6021,15 @@ function DHUDGUIManager:init()
 	self.leftRectangles:init("spellRectanglesLeft", "framesData_leftRectangles");
 	self.rightRectangles:init("spellRectanglesRight", "framesData_rightRectangles");
 	self.icons:init("DHUD_Icon_SelfUnitIconPvP", "DHUD_Icon_SelfUnitIconState", "DHUD_Icon_TargetEliteDragon", "targetIcons");
+	-- track values required to change alpha and visibility
+	DHUDDataTrackers.helper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_COMBAT_STATE_CHANGED, self, self.onCombatState);
+	DHUDDataTrackers.helper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_TARGET_UPDATED, self, self.onTargetUpdated);
+	DHUDDataTrackers.helper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_ATTACK_STATE_CHANGED, self, self.onAttackState);
+	DHUDDataTrackers.helper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_DEATH_STATE_CHANGED, self, self.onDeathState);
+	self:onAttackState(nil);
+	self:onCombatState(nil);
+	self:onTargetUpdated(nil);
+	self:onDeathState(nil);
 end
 
 --- Shows tooltip for circle frame specified
@@ -5993,25 +6171,19 @@ function DHUDGUIManager:onPreviewStop(e)
 	-- stop cast bars preview
 	for i, v in ipairs(self.castBarManagers) do
 		if (v.currentDataTracker ~= nil) then
-			v:onDataTrackerChange();
-			v:onDataUnitChange();
-			v:onDataChange();
+			v:clearPreviewData();
 		end
 	end
 	-- stop side info preview
 	for i, v in ipairs(self.sideManagers) do
 		if (v.currentDataTracker ~= nil) then
-			v:onDataTrackerChange();
-			v:onDataUnitChange();
-			v:onDataChange();
+			v:clearPreviewData();
 		end
 	end
 	-- stop rectangles preview
 	for i, v in ipairs(self.rectangleManagers) do
 		if (v.currentDataTracker ~= nil) then
-			v:onDataTrackerChange();
-			v:onDataUnitChange();
-			v:onDataChange();
+			v:clearPreviewData();
 		end
 	end
 end

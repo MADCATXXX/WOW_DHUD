@@ -43,6 +43,8 @@ DHUDDataTrackerHelperEvent = MCCreateSubClass(MADCATEvent, {
 	EVENT_RESTING_STATE_CHANGED = "resting",
 	-- dispatched when player enters or leaves pet battle
 	EVENT_PETBATTLE_STATE_CHANGED = "petBattle",
+	-- dispatched when player is entering world, all data trackers should update them selves
+	EVENT_ENTERING_WORLD = "enteringWorld",
 })
 
 --- Create new tracker helper event
@@ -80,6 +82,8 @@ DHUDDataTrackerHelper = MCCreateSubClass(MADCATEventDispatcher, {
 	playerSpecialization	= 0,
 	-- defines if player character is in vehicle with vehicle ui
 	isInVehicle			= false,
+	-- id of the player casting unit, "vehicle" when in vehicle or "player" otherwise
+	playerCasterUnitId	= "player",
 	-- defines if player has pet or not
 	isPetAvailable		= false,
 	-- defines if player has something in target or not
@@ -127,6 +131,7 @@ function DHUDDataTrackerHelper:constructor()
 	self.eventResting = DHUDDataTrackerHelperEvent:new(DHUDDataTrackerHelperEvent.EVENT_RESTING_STATE_CHANGED);
 	self.eventPetBattle =  DHUDDataTrackerHelperEvent:new(DHUDDataTrackerHelperEvent.EVENT_PETBATTLE_STATE_CHANGED);
 	self.eventSpecialization = DHUDDataTrackerHelperEvent:new(DHUDDataTrackerHelperEvent.EVENT_SPECIALIZATION_CHANGED);
+	self.eventEnteringWorld = DHUDDataTrackerHelperEvent:new(DHUDDataTrackerHelperEvent.EVENT_ENTERING_WORLD);
 	-- call super constructor
 	MADCATEventDispatcher.constructor(self);
 end
@@ -152,6 +157,7 @@ function DHUDDataTrackerHelper:init()
 	self.eventsFrame:RegisterEvent("PLAYER_UPDATE_RESTING");
 	self.eventsFrame:RegisterEvent("PET_BATTLE_OPENING_START");
 	self.eventsFrame:RegisterEvent("PET_BATTLE_CLOSE");
+	self.eventsFrame:RegisterEvent("PLAYER_ENTERING_WORLD");
 	-- initialize player class
 	_, self.playerClass = UnitClass("player");
 	-- process events
@@ -227,6 +233,10 @@ function DHUDDataTrackerHelper:init()
 	function self.eventsFrame:PET_BATTLE_CLOSE()
 		helper:setIsInPetBattle(false);
 	end
+	function self.eventsFrame:PLAYER_ENTERING_WORLD()
+		--print("PLAYER_ENTERING_WORLD");
+		helper:onEnteringWorld();
+	end
 	-- initialize other values
 	self.isInCombat = UnitAffectingCombat("player");
 	self.isResting = IsResting() == 1;
@@ -271,6 +281,7 @@ function DHUDDataTrackerHelper:setIsInVehicle(isInVehicle)
 		return;
 	end
 	self.isInVehicle = isInVehicle;
+	self.playerCasterUnitId = isInVehicle and "vehicle" or "player";
 	self:dispatchEvent(self.eventVehicleState);
 end
 
@@ -349,6 +360,11 @@ function DHUDDataTrackerHelper:setPlayerSpecialization(playerSpecialization)
 	end
 	self.playerSpecialization = playerSpecialization;
 	self:dispatchEvent(self.eventSpecialization);
+end
+
+--- player is entering world
+function DHUDDataTrackerHelper:onEnteringWorld()
+	self:dispatchEvent(self.eventEnteringWorld);
 end
 
 --- Get cached spell data for spell Id specified
@@ -558,10 +574,17 @@ function DHUDDataTracker:changeTrackingState(enable)
 	self.isTracking = enable;
 	if (enable) then
 		self:startTracking();
+		trackingHelper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_ENTERING_WORLD, self, self.onEnteringWorld);
 		self:updateData();
 	else
 		self:stopTracking();
+		trackingHelper:removeEventListener(DHUDDataTrackerHelperEvent.EVENT_ENTERING_WORLD, self, self.onEnteringWorld);
 	end
+end
+
+--- character is entering world, update
+function DHUDDataTracker:onEnteringWorld(e)
+	self:updateData();
 end
 
 -- override for tracking purposes
@@ -1524,6 +1547,7 @@ end
 function DHUDAurasTracker:updateAuras()
 	--print("updateAuras Buffs");
 	local timerMs = trackingHelper.timerMs;
+	local playerCasterUnitId = trackingHelper.playerCasterUnitId;
 	-- create variables
 	local name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, canPurge, consolidate, spellId, canBeCastByPlayer, isCastByBoss, isCastByPlayer;
 	local timer;
@@ -1538,7 +1562,7 @@ function DHUDAurasTracker:updateAuras()
 		end
 		timer = self:findTimer(i, spellId);
 		-- fill timer info, { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder }
-		timer[1] = self.TIMER_TYPE_MASK_BUFF + (self.debuffTypeMask[debuffType] or 0) + (canPurge and self.TIMER_TYPE_MASK_IS_PURGABLE or 0) + (unitCaster == "player" and self.TIMER_TYPE_MASK_IS_CAST_BY_PLAYER or 0); -- type
+		timer[1] = self.TIMER_TYPE_MASK_BUFF + (self.debuffTypeMask[debuffType] or 0) + (canPurge and self.TIMER_TYPE_MASK_IS_PURGABLE or 0) + (unitCaster == playerCasterUnitId and self.TIMER_TYPE_MASK_IS_CAST_BY_PLAYER or 0); -- type
 		timer[2] = expirationTime - timerMs; -- timeLeft
 		timer[3] = duration; -- duration
 		timer[4] = spellId; -- id
@@ -1563,7 +1587,8 @@ function DHUDAurasTracker:updateAuras()
 		end
 		timer = self:findTimer(i, spellId);
 		-- fill timer info, { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder }
-		timer[1] = self.TIMER_TYPE_MASK_DEBUFF + (self.debuffTypeMask[debuffType] or 0) + (canPurge and self.TIMER_TYPE_MASK_IS_PURGABLE or 0) + (unitCaster == "player" and self.TIMER_TYPE_MASK_IS_CAST_BY_PLAYER or 0); -- type
+		--print("name " .. name .. ", unitCaster " .. unitCaster);
+		timer[1] = self.TIMER_TYPE_MASK_DEBUFF + (self.debuffTypeMask[debuffType] or 0) + (canPurge and self.TIMER_TYPE_MASK_IS_PURGABLE or 0) + (unitCaster == playerCasterUnitId and self.TIMER_TYPE_MASK_IS_CAST_BY_PLAYER or 0); -- type
 		timer[2] = expirationTime - timerMs; -- timeLeft
 		timer[3] = duration; -- duration
 		timer[4] = spellId; -- id
@@ -2870,10 +2895,6 @@ DHUDDataTrackers = {
 						tracker:updateComboPoints(tracker.comboPoints);
 					end
 				end
-				-- update data on entering world to clear stored combopoints
-				function self.eventsFrame:PLAYER_ENTERING_WORLD()
-					tracker:updateData();
-				end
 			end
 			-- init unit ids
 			self:initPlayerOrVehicleUnitId();
@@ -2885,7 +2906,6 @@ DHUDDataTrackers = {
 			-- listen to game events
 			self.eventsFrame:RegisterEvent("UNIT_COMBO_POINTS");
 			if (trackingHelper.playerClass == "ROGUE") then
-				self.eventsFrame:RegisterEvent("PLAYER_ENTERING_WORLD");
 				self.eventsFrame:RegisterEvent("UNIT_AURA");
 			end
 			trackingHelper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_COMBAT_STATE_CHANGED, self, self.onCombatState);
@@ -2897,7 +2917,6 @@ DHUDDataTrackers = {
 			-- stop listening to game events
 			self.eventsFrame:UnregisterEvent("UNIT_COMBO_POINTS");
 			if (trackingHelper.playerClass == "ROGUE") then
-				self.eventsFrame:UnregisterEvent("PLAYER_ENTERING_WORLD");
 				self.eventsFrame:UnregisterEvent("UNIT_AURA");
 			end
 			trackingHelper:removeEventListener(DHUDDataTrackerHelperEvent.EVENT_COMBAT_STATE_CHANGED, self, self.onCombatState);
@@ -3181,10 +3200,6 @@ DHUDDataTrackers = {
 			-- process rune type change
 			function self.eventsFrame:RUNE_TYPE_UPDATE()
 				tracker:updateRuneTypes();
-			end
-			-- update data on entering world to clear rune types
-			function self.eventsFrame:PLAYER_ENTERING_WORLD()
-				tracker:updateData();
 			end
 			-- init unit ids
 			self:initPlayerNotInVehicleOrNoneUnitId();

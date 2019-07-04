@@ -632,11 +632,18 @@ function DHUD_OptionsTemplates_LUA:processSpellListTextBoxOnLoad(frame)
 		-- update setting
 		local text = textBox:GetText();
 		local newValue = { strsplit("[,\n]", text) };
+		--print("newValue " .. MCTableToString(newValue));
 		-- remove excess spaces
 		local removeLeadingAndTrailingWhiteSpace = "^%s*(.-)%s*$";
-		for i, v in ipairs(newValue) do
-			newValue[i] = v:match(removeLeadingAndTrailingWhiteSpace);
+		local n = #newValue;
+		for i = n, 1, -1 do
+			newValue[i] = newValue[i]:match(removeLeadingAndTrailingWhiteSpace);
+			-- empty string are not required
+			if (newValue[i] == "") then
+				table.remove(newValue, i);
+			end
 		end
+		--print("newValue new " .. MCTableToString(newValue));
 		-- save value
 		DHUDOptions:setSettingValue(setting, newValue);
 		--print("newVal " .. MCTableToString(newValue));

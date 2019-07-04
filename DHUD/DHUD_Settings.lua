@@ -229,7 +229,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				-- allows to change color of player health shield on bars
 				["healthShield"] = { { "FFFFFF", "FFFFFF", "FFFFFF" }, 3 },
 				-- allows to change color of player health absorbed on bars
-				["healthAbsorb"] = { { "FF0000", "FF0000", "FF0000" }, 3 },
+				["healthAbsorb"] = { { "FF0080", "FF0080", "FF0080" }, 3 },
 				-- allows to change color of player health incoming heal on bars
 				["healthHeal"] = { { "0000FF", "0000FF", "0000FF" }, 3 },
 				-- allows to change color of player mana on bars
@@ -256,7 +256,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				-- allows to change color of target health shield on bars
 				["healthShield"] = { { "aaaaaa", "aaaaaa", "aaaaaa" }, 3 },
 				-- allows to change color of target health absorbed on bars
-				["healthAbsorb"] = { { "aa0000", "aa0000", "aa0000" }, 3 },
+				["healthAbsorb"] = { { "aa0055", "aa0055", "aa0055" }, 3 },
 				-- allows to change color of target health incoming heal on bars
 				["healthHeal"] = { { "0000aa", "0000aa", "0000aa" }, 3 },
 				-- allows to change color of target health on bars when target is not tapped by player
@@ -279,7 +279,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				-- allows to change color of pet health shield on bars
 				["healthShield"] = { { "FFFFFF", "FFFFFF", "FFFFFF" }, 3 },
 				-- allows to change color of pet health absorbed on bars
-				["healthAbsorb"] = { { "FF0000", "FF0000", "FF0000" }, 3 },
+				["healthAbsorb"] = { { "FF0080", "FF0080", "FF0080" }, 3 },
 				-- allows to change color of pet health incoming heal on bars
 				["healthHeal"] = { { "0000FF", "0000FF", "0000FF" }, 3 },
 				-- allows to change color of target mana on bars
@@ -1445,10 +1445,19 @@ function DHUDSettings:resetToDefaults()
 	end
 end
 
---- Function to reset settings to default values
+--- Function to reload saved vars, they can be modified by dhud options addon
 function DHUDSettings:reloadSavedVars()
+	-- copy setting table
+	local settingsCopy = MCCreateTableDeepCopy(self.settings);
+	-- read saved vars
 	self:processDefaultSettingsTable();
 	self:processSavedVars();
+	-- redispatch events for required settings
+	for k, v in pairs(settingsCopy) do
+		if (MCCompareTables(v, self.settings[k]) == false) then
+			self:setValueInternal(k, self.settings[k]);
+		end
+	end
 end
 
 --- Start preview of current settings
@@ -1512,17 +1521,26 @@ DHUDTimersFilterHelperSettingsHandler = {
 	-- black list with player auras
 	blackListPlayerAuras = {
 	},
+	-- priority list with player auras
+	priorityListPlayerAuras = {
+	},
 	-- white list with target auras
 	whiteListTargetAuras = {
 	},
 	-- black list with target auras
 	blackListTargetAuras = {
 	},
+	-- priority list with target auras
+	priorityListTargetAuras = {
+	},
 	-- white list with target cooldowns
 	whiteListPlayerCooldowns = {
 	},
 	-- black list with player cooldowns
 	blackListPlayerCooldowns = {
+	},
+	-- priority list with player cooldowns
+	priorityListPlayerCooldowns = {
 	},
 	-- show auras with charges?
 	aurasWithCharges = false,
@@ -1543,12 +1561,13 @@ DHUDTimersFilterHelperSettingsHandler = {
 -- @return nil if timer is not required or number for timer sorting order
 function DHUDTimersFilterHelperSettingsHandler.filterPlayerShortAuras(timer)
 	local self = DHUDTimersFilterHelperSettingsHandler;
+	local name = timer[6];
 	-- check blacklist
-	if (self.blackListPlayerAuras[timer[6]] == true) then
+	if (self.blackListPlayerAuras[name] ~= nil) then
 		return nil;
 	end
 	-- check white list
-	if (self.whiteListPlayerAuras[timer[6]] == nil) then
+	if (self.whiteListPlayerAuras[name] == nil) then
 		-- do not show debuffs?
 		if (not self.playerDebuffs and (bit.band(timer[1], DHUDAurasTracker.TIMER_TYPE_MASK_DEBUFF) ~= 0)) then
 			return nil;
@@ -1558,7 +1577,11 @@ function DHUDTimersFilterHelperSettingsHandler.filterPlayerShortAuras(timer)
 			return nil;
 		end
 	end
-	return (bit.band(timer[1], DHUDAurasTracker.TIMER_TYPE_MASK_BUFF) ~= 0) and 1 or 2;
+	local priority = self.priorityListPlayerAuras[name];
+	if (priority ~= nil) then
+		return priority;
+	end
+	return (bit.band(timer[1], DHUDAurasTracker.TIMER_TYPE_MASK_BUFF) ~= 0) and 1001 or 1002;
 end
 
 --- Filter target auras list to show only short auras (not a class function, self is nil!)
@@ -1566,12 +1589,13 @@ end
 -- @return nil if timer is not required or number for timer sorting order
 function DHUDTimersFilterHelperSettingsHandler.filterTargetShortAuras(timer)
 	local self = DHUDTimersFilterHelperSettingsHandler;
+	local name = timer[6];
 	-- check blacklist
-	if (self.blackListTargetAuras[timer[6]] == true) then
+	if (self.blackListTargetAuras[name] ~= nil) then
 		return nil;
 	end
 	-- check white list
-	if (self.whiteListPlayerAuras[timer[6]] == nil) then
+	if (self.whiteListTargetAuras[name] == nil) then
 		-- show only player applied spells
 		local mask = DHUDAurasTracker.TIMER_TYPE_MASK_IS_CAST_BY_PLAYER; -- DHUDAurasTracker.TIMER_TYPE_MASK_DEBUFF + 
 		--print("name is " .. timer[6] .. ", type is " .. timer[1]);
@@ -1583,7 +1607,11 @@ function DHUDTimersFilterHelperSettingsHandler.filterTargetShortAuras(timer)
 			return nil;
 		end
 	end
-	return (bit.band(timer[1], DHUDAurasTracker.TIMER_TYPE_MASK_DEBUFF) ~= 0) and 1 or 2;
+	local priority = self.priorityListTargetAuras[name];
+	if (priority ~= nil) then
+		return priority;
+	end
+	return (bit.band(timer[1], DHUDAurasTracker.TIMER_TYPE_MASK_IS_CAST_BY_PLAYER) ~= 0) and 1001 or 1002;
 end
 
 --- Filter only buff auras
@@ -1614,22 +1642,28 @@ end
 -- @return nil if timer is not required or number for timer sorting order
 function DHUDTimersFilterHelperSettingsHandler.filterPlayerCooldowns(timer)
 	local self = DHUDTimersFilterHelperSettingsHandler;
+	local name = timer[6];
 	local isItem = bit.band(timer[1], DHUDCooldownsTracker.TIMER_TYPE_MASK_ITEM) ~= 0;
+	local slotId = timer[5];
 	--print("timer is " .. MCTableToString(timer));
 	--print("item black list " .. MCTableToString(self.blackListPlayerCooldowns["_slot"]) .. ", id " .. MCTableToString(timer[5]) .. ", isBlacklisted " .. MCTableToString(self.blackListPlayerCooldowns["_slot"][timer[5]] == true));
 	-- check blacklist
-	if (self.blackListPlayerCooldowns[timer[6]] == true or (isItem and self.blackListPlayerCooldowns["_slot"][timer[5]] == true)) then
+	if (self.blackListPlayerCooldowns[name] ~= nil or (isItem and self.blackListPlayerCooldowns["_slot"][slotId] ~= nil)) then
 		return nil;
 	end
 	-- check white list
-	if (self.whiteListPlayerCooldowns[timer[6]] == nil and ((not isItem) or self.whiteListPlayerCooldowns["_slot"][timer[5]] == nil)) then
+	if (self.whiteListPlayerCooldowns[name] == nil and ((not isItem) or self.whiteListPlayerCooldowns["_slot"][slotId] == nil)) then
 		-- if duration is too high or too low then return
 		if (timer[3] < self.cooldownsDurationMin or timer[3] > self.cooldownsDurationMax or (isItem and (not self.cooldownsItem))) then
 			return nil;
 		end
 	end
-	-- cooldownsItem
-	return (bit.band(timer[1], DHUDCooldownsTracker.TIMER_TYPE_MASK_SPELL) ~= 0) and 1 or 2;
+	--print("priorityListPlayerCooldowns " .. MCTableToString(self.priorityListPlayerCooldowns));
+	local priority = self.priorityListPlayerCooldowns[name] or (isItem and self.priorityListPlayerCooldowns["_slot"][slotId] or nil);
+	if (priority ~= nil) then
+		return priority;
+	end
+	return (bit.band(timer[1], DHUDCooldownsTracker.TIMER_TYPE_MASK_SPELL) ~= 0) and 1001 or 1002;
 end
 
 --- Process setting with white or black list
@@ -1646,12 +1680,13 @@ function DHUDTimersFilterHelperSettingsHandler:processSpellListSetting(settingNa
 		end
 		-- save new values
 		for i, v in ipairs(list) do
-			table[v] = true;
+			table[v] = i;
 		end
 		-- process table
 		if (additionalProcessFunc ~= nil) then
 			additionalProcessFunc(self, table);
 		end
+		--print("settingName " .. settingName .. ", table " .. MCTableToString(table));
 	end
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. settingName, self, process);
 	process(self, nil);
@@ -1680,7 +1715,7 @@ function DHUDTimersFilterHelperSettingsHandler:processItemSlotList(t)
 			local slot = strsub(k, indexS + 6, indexE - 1);
 			slot = tonumber(slot); -- required as number
 			--print("found slot " .. slot);
-			slots[slot] = true;
+			slots[slot] = v;
 		end
 	end
 	t["_slot"] = slots;
@@ -1691,10 +1726,13 @@ function DHUDTimersFilterHelperSettingsHandler:init()
 	-- spell lists
 	self:processSpellListSetting("shortAurasOptions_playerAurasWhiteList", "whiteListPlayerAuras");
 	self:processSpellListSetting("shortAurasOptions_playerAurasBlackList", "blackListPlayerAuras");
+	self:processSpellListSetting("shortAurasOptions_playerAurasPriorityList", "priorityListPlayerAuras");
 	self:processSpellListSetting("shortAurasOptions_targetAurasWhiteList", "whiteListTargetAuras");
 	self:processSpellListSetting("shortAurasOptions_targetAurasBlackList", "blackListTargetAuras");
+	self:processSpellListSetting("shortAurasOptions_targetAurasPriorityList", "priorityListTargetAuras");
 	self:processSpellListSetting("shortAurasOptions_cooldownsWhiteList", "whiteListPlayerCooldowns", self.processItemSlotList);
 	self:processSpellListSetting("shortAurasOptions_cooldownsBlackList", "blackListPlayerCooldowns", self.processItemSlotList);
+	self:processSpellListSetting("shortAurasOptions_cooldownsPriorityList", "priorityListPlayerCooldowns", self.processItemSlotList);
 	-- conditions
 	self:processConditionSetting("shortAurasOptions_aurasWithCharges", "aurasWithCharges");
 	self:processConditionSetting("shortAurasOptions_aurasTimeLeftMax", "aurasTimeLeftMax");

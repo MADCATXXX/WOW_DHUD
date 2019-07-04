@@ -1,3 +1,18 @@
+changelog 2.0.50300.38:
+-Target short auras are now correctly shown when player is in vehicle
+-Fixed exception when hiding frames for dead state
+-All data should now be correctly updated after player encouters loading screen
+-Settings should now correctly aplly when changing profiles
+-Icon settings are now handled by the addon
+-Target buffs and debuffs timers settings are now handled by the addon
+-Background texture setting is now handled by the addon
+-Offset settings are now handled by the addon
+-Scale settings should now correctly scale circle and rectangle frames
+-Castbar preview should now correctly disappear
+-Target short auras white list is now correctly handled
+-Short auras priority lists are now handled by the addon
+-Health bar should no longer display wrong health percent when shield is active, but display shields setting is off
+
 changelog 2.0.50300.37:
 -DHUD Settings addon rewrited to be compatible with new DHUD addon.
 
