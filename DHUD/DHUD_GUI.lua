@@ -488,10 +488,8 @@ DHUDColorizeTools = {
 	COLOR_ID_TYPE_RUNIC_POWER = 6,
 	-- constant for eclipse power type
 	COLOR_ID_TYPE_ECLIPSE = 8,
-	-- constant for burning embers power type
-	COLOR_ID_TYPE_BURNING_EMBERS = 14,
-	-- constant for demonic fury power type
-	COLOR_ID_TYPE_DEMONIC_FURY = 15,
+	-- constant for maelstorm power type
+	COLOR_ID_TYPE_MAELSTROM = 11,
 	-- constant for custom stagger power type
 	COLOR_ID_TYPE_CUSTOM_VENGEANCE = 100,
 	-- constant for custom stagger power type
@@ -564,8 +562,7 @@ DHUDColorizeTools = {
 		[3] = "ENERGY",
 		[6] = "RUNIC_POWER",
 		[8] = "ECLIPSE",
-		[14] = "BURNING_EMBERS",
-		[15] = "DEMONIC_FURY",
+		[11] = "MAELSTROM",
 	}
 }
 
@@ -825,10 +822,9 @@ function DHUDColorizeTools:init()
 	self:processSetting(self.COLOR_ID_TYPE_RUNIC_POWER + self.COLOR_ID_UNIT_TARGET, "colors_target_runicPower");
 	-- eclipse
 	self:processSetting(self.COLOR_ID_TYPE_ECLIPSE + self.COLOR_ID_UNIT_SELF, "colors_player_eclipse");
-	-- burning embers
-	self:processSetting(self.COLOR_ID_TYPE_BURNING_EMBERS + self.COLOR_ID_UNIT_SELF, "colors_player_burningEmbers");
-	-- demonic fury
-	self:processSetting(self.COLOR_ID_TYPE_DEMONIC_FURY + self.COLOR_ID_UNIT_SELF, "colors_player_demonicFury");
+	-- maelstorm
+	self:processSetting(self.COLOR_ID_TYPE_MAELSTROM + self.COLOR_ID_UNIT_SELF, "colors_player_maelstrom");
+	self:processSetting(self.COLOR_ID_TYPE_MAELSTROM + self.COLOR_ID_UNIT_TARGET, "colors_target_maelstrom");
 	-- vengeance
 	self:processSetting(self.COLOR_ID_TYPE_CUSTOM_VENGEANCE + self.COLOR_ID_UNIT_SELF, "colors_player_vengeance");
 	-- stagger
@@ -1657,7 +1653,7 @@ DHUDGUI = {
 		-- blizzard death-knight rune "Unholy"
 		["BlizzardDeathKnightRuneUnholy"] = { "Interface\\PlayerFrame\\UI-PlayerFrame-Deathknight-Unholy", 0, 1, 0, 1 },
 		-- blizzard death-knight rune "Death"
-		["BlizzardDeathKnightRuneDeath"] = { "Interface\\PlayerFrame\\UI-PlayerFrame-Deathknight-Death", 0, 1, 0, 1 },
+		["BlizzardDeathKnightRuneDeath"] = { "Interface\\PlayerFrame\\UI-PlayerFrame-Deathknight-SingleRune", 0, 1, 0, 1 }, -- UI-PlayerFrame-Deathknight-Death
 		-- blizzard rectangle border texture
 		["BlizzardOverlayRectangleBorder"] = { "Interface\\Buttons\\UI-Debuff-Border", 0, 1, 0, 1 },
 	},

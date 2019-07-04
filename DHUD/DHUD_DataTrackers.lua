@@ -952,11 +952,9 @@ DHUDPowerTracker = MCCreateSubClass(DHUDDataTracker, {
 		[8]		= "ECLIPSE",
 		[9]		= "HOLY_POWER",
 		[10]	= "ALTERNATE_POWER",
-		[11]	= "DARK_FORCE",
+		[11]	= "MAELSTROM",
 		[12]	= "LIGHT_FORCE",
 		[13]	= "SHADOW_ORBS",
-		[14]	= "BURNING_EMBERS",
-		[15]	= "DEMONIC_FURY",
 	},
 	-- table with base percents for resource types, all unset resource types will be treated as 0
 	BASE_PERCENT_FOR_RESOURCE_TYPE = {
@@ -2786,7 +2784,7 @@ function DHUDGuardiansTracker:updateGuardians()
 	local canHaveTwoAlternativeGuardians = false;
 	if (trackingHelper.playerClass == "SHAMAN") then
 		durationPassive = self.SHAMAN_PASSIVE_TOTEMS_DURATION;
-		canHaveTwoAlternativeGuardians = select(2, GetTalentRowSelectionInfo(3)) == 8; -- TotemicPersistance
+		canHaveTwoAlternativeGuardians = false; -- select(2, GetTalentRowSelectionInfo(3)) == 8; -- TotemicPersistance
 	end
 	-- iterate
 	self:findSourceTimersBegin(0);
@@ -4432,7 +4430,7 @@ DHUDDataTrackers = {
 			local runeType; -- 1 : RUNETYPE_BLOOD, 2 : RUNETYPE_CHROMATIC, 3 : RUNETYPE_FROST, 4 : RUNETYPE_DEATH
 			-- update runes
 			for i = 1, 6, 1 do
-				runeType = GetRuneType(i);
+				runeType = 4; -- GetRuneType(i);
 				local rune = self.runes[i];
 				rune[1] = runeType;
 			end
@@ -4661,27 +4659,8 @@ DHUDDataTrackers = {
 		------------------
 		WARLOCK.selfSoulShards = DHUDSpecificPowerTracker:new();
 		WARLOCK.selfSoulShards:setResourceType(7, "SOUL_SHARDS");
-		WARLOCK.selfSoulShards:initPlayerSpecsOnly(1);
 		WARLOCK.selfSoulShards:initPlayerNotInVehicleOrNoneUnitId();
-		WARLOCK.selfSoulShards.precision = 2;
-		
-		--------------------
-		-- Burning embers --
-		--------------------
-		WARLOCK.selfBurningEmbers = DHUDSpecificPowerTracker:new();
-		WARLOCK.selfBurningEmbers:setResourceType(14, "BURNING_EMBERS");
-		WARLOCK.selfBurningEmbers:initPlayerSpecsOnly(3);
-		WARLOCK.selfBurningEmbers:initPlayerNotInVehicleOrNoneUnitId();
-		WARLOCK.selfBurningEmbers.precision = 1;
-		WARLOCK.selfBurningEmbers.updateFrequently = false;
-
-		------------------
-		-- Demonic fury --
-		------------------
-		WARLOCK.selfDemonicFury = DHUDSpecificPowerTracker:new();
-		WARLOCK.selfDemonicFury:setResourceType(15, "DEMONIC_FURY");
-		WARLOCK.selfDemonicFury:initPlayerSpecsOnly(2);
-		WARLOCK.selfDemonicFury:initPlayerNotInVehicleOrNoneUnitId();
+		WARLOCK.selfSoulShards.precision = 0;
 	end,
 	-- trackers that are used by paladin
 	PALADIN = { },
@@ -4716,6 +4695,14 @@ DHUDDataTrackers = {
 	fillSHAMAN = function(self, charclass)
 		-- fill table with trackers
 		local SHAMAN = self.SHAMAN;
+		---------------------------------------
+		-- Mana for enhancment and elemental --
+		---------------------------------------
+		SHAMAN.selfMana = DHUDSpecificPowerTracker:new();
+		SHAMAN.selfMana:setResourceType(0, "MANA");
+		SHAMAN.selfMana:initPlayerNotInVehicleOrNoneUnitId();
+		SHAMAN.selfMana:initTrackIfNotMain();
+
 		------------
 		-- Totems --
 		------------

@@ -1,6 +1,9 @@
 -7.0 changes:
 -UnitIsTapped(unit) and UnitIsTappedByPlayer(unit) removed, use UnitIsTapDenied()
 - check DHUDUnitInfoTracker .isNPC and .communityTagged
+- check canHaveTwoAlternativeGuardians , shaman resource bar + mana?
+- check runeType
+- http://www.wowinterface.com/forums/showthread.php?t=53140
 -UnitPowerMax(unit) now always required power type, e.g. UnitPowerMax(unit, UnitPowerType(unit))
 -texture:SetTexture(r, g, b, a) changes into texture:SetColorTexture(r, g, b, a)
 - tga not loaded ? http://www.wowinterface.com/downloads/info22128-BLPNGConverter.html
@@ -30,6 +33,11 @@
 -cooldowns for passive items? scan tooltips, but only on item change (updateData still requires to scan but other events not)
 -disable mouse over when casting aoe (or make option to disable mouse or enable only with certain key modifiers)?
 -other textures support (renetair from DHUD4)
+
+changelog 2.0.70000.56:
+-death knight compatibility - updated rune types, also changed default value for font outline on resource bar
+-shaman compatibility - updated resource type
+-warlock compatibility - updated resource types
 
 changelog 2.0.70000.55:
 -minor fixes (tagging check)

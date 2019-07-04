@@ -110,7 +110,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			-- change outline of the stacks text in in the spell rectangles
 			["spellRectanglesStacks"] = { 1, 0, { range = { 0, 2, 1 } } },
 			-- change outline of the time text on resource frames, e.g. death knight rune time left
-			["resourceTime"] = { 0, 0, { range = { 0, 2, 1 } } },
+			["resourceTime"] = { 1, 0, { range = { 0, 2, 1 } } },
 			-- change outline of the time text in cast bars
 			["castBarsTime"] = { 0, 0, { range = { 0, 2, 1 } } },
 			-- change outline of the delay text in cast bars
@@ -246,10 +246,8 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				["focus"] = { { "aa4400", "aa4400", "aa4400" }, 3 },
 				-- allows to change color of player druid eclipse on bars
 				["eclipse"] = { { "fcea1e", "d89d3f", "d29835", "ffffff", "4c80ba", "79c9ec", "d9ffff" }, 3 },
-				-- allows to change color of player warlock burining embers on bars
-				["burningEmbers"] = { { "00FFFF", "0000FF", "FF00FF" }, 3 },
-				-- allows to change color of player warlock demonic fury on bars
-				["demonicFury"] = { { "00FFFF", "0000FF", "FF00FF" }, 3 },
+				-- allows to change color of player shaman maelstrom on bars
+				["maelstrom"] = { { "00a2d6", "00a2d6", "00a2d6" }, 3 },
 				-- allows to change color of player tank vengeance on bars
 				["vengeance"] = { { "FF00FF", "FF00FF", "FF00FF" }, 3 },
 				-- allows to change color of player monk stagger on bars
@@ -277,6 +275,8 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				["runicPower"] = { { "004060", "004060", "004060" }, 3 },
 				-- allows to change color of target focus on bars
 				["focus"] = { { "aa4400", "aa4400", "aa4400" }, 3 },
+				-- allows to change color of player shaman maelstrom on bars
+				["maelstrom"] = { { "00a2d6", "00a2d6", "00a2d6" }, 3 },
 			}, 1 },
 			-- list with colors to visualize pet data on bars
 			["pet"] = { {
@@ -504,8 +504,8 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				5277, -- Rogue: Evasion, increased dodge chance by 100%
 				115176,	-- Monk: Zen Meditation, reduces magic damage by 90%
 				--122470, -- Monk: Touch of Karma, redirects all damage to enemy
-				30823, -- Shaman: Shamanistic Rage, reduces all damage by 30%
-				110913, -- Warlock: Dark Bargain, prevents all damage, 50% of the damage will be dealed after buff expires
+				--30823, -- Shaman: Shamanistic Rage, reduces all damage by 30%
+				--110913, -- Warlock: Dark Bargain, prevents all damage, 50% of the damage will be dealed after buff expires
 				104773, -- Warlock: Unending Resolve, reduces all damage by 40%
 				871, -- Warrior: Shield Wall, reduces damage by 60%
 				118038, -- Warrior: Die by the Sword, reduces damage by 20% and increases parry by 100%
@@ -610,7 +610,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			-- data that can be shown on bars
 			["bars"] = { "playerHealth", "playerPower", "targetHealth", "targetPower", "petHealth", "petPower",
 						 "characterInVehicleHealth", "characterInVehiclePower", "druidMana", "druidEnergy", "druidEclipse",
-						 "monkMana", "monkEnergy", "warlockBurningEmbers", "warlockDemonicFury", "tankVengeance", "monkStagger" },
+						 "monkMana", "monkEnergy", "tankVengeance", "monkStagger" },
 			-- data that can be shown on cast bars
 			["castBars"] = { "playerCastBar", "targetCastBar" },
 			-- data that can be shown on side slots
@@ -712,7 +712,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 					-- what to show on the left outer side info
 					["leftOuterSideInfo"] = { "warlockSoulShards", "vehicleComboPoints" },
 					-- what to show on inner right small bar
-					["rightSmallBar1"] = { "characterInVehiclePower", "warlockBurningEmbers", "warlockDemonicFury", "petPower" },
+					["rightSmallBar1"] = { "characterInVehiclePower", "petPower" },
 				},
 				-- warrior overrides
 				["WARRIOR"] = {
@@ -742,6 +742,8 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				["SHAMAN"] = {
 					-- what to show on the left outer side info
 					["leftOuterSideInfo"] = { "shamanTotems", "vehicleComboPoints" },
+					-- what to show on inner right small bar
+					["rightSmallBar1"] = { "characterInVehiclePower", "shamanMana", "petPower" },
 				},
 			},
 			-- layout that shows player on the left and target on the right
@@ -825,7 +827,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 					-- what to show on the left outer side info
 					["rightOuterSideInfo"] = { "warlockSoulShards", "vehicleComboPoints" },
 					-- what to show on inner left small bar
-					["leftSmallBar1"] = { "characterInVehiclePower", "warlockBurningEmbers", "warlockDemonicFury", "petPower" },
+					["leftSmallBar1"] = { "characterInVehiclePower", "petPower" },
 					-- what to show on outer left small bar
 					["leftSmallBar2"] = { "characterInVehicleHealth", "petHealth" },
 				},
@@ -863,6 +865,8 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				["SHAMAN"] = {
 					-- what to show on the left outer side info
 					["rightOuterSideInfo"] = { "shamanTotems", "vehicleComboPoints" },
+					-- what to show on inner left small bar
+					["leftSmallBar1"] = { "characterInVehiclePower", "shamanMana", "petPower" },
 				},
 			},
 		}, 2 },
@@ -1367,8 +1371,6 @@ function DHUDSettings:mapDataTrackers()
 	trackersTable["monkStagger"] = { DHUDDataTrackers.MONK.selfStagger };
 	-- specific to warlock
 	trackersTable["warlockSoulShards"] = { DHUDDataTrackers.WARLOCK.selfSoulShards };
-	trackersTable["warlockBurningEmbers"] = { DHUDDataTrackers.WARLOCK.selfBurningEmbers };
-	trackersTable["warlockDemonicFury"] = { DHUDDataTrackers.WARLOCK.selfDemonicFury };
 	-- specific to paladin
 	trackersTable["paladinHolyPower"] = { DHUDDataTrackers.PALADIN.selfHolyPower };
 	-- specific to priest
@@ -1377,6 +1379,7 @@ function DHUDSettings:mapDataTrackers()
 	trackersTable["deathKnightRunes"] = { DHUDDataTrackers.DEATHKNIGHT.selfRunes };
 	-- specific to shaman
 	trackersTable["shamanTotems"] =  { DHUDDataTrackers.SHAMAN.selfTotems, DHUDTimersFilterHelperSettingsHandler.filterTotemGuardians };
+	trackersTable["shamanMana"] = { DHUDDataTrackers.SHAMAN.selfMana };
 end
 
 --- Initialize single setting from table
