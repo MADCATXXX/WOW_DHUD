@@ -5974,7 +5974,7 @@ DHUDCastBarManager = MCCreateSubClass(DHUDGuiSlotManager, {
 	-- defines if data exists?
 	isExists	= false,
 	-- defines if cast bar info is currently visible
-	castBarInfoVisible = false,
+	castBarInfoVisible = true,
 	-- defines if cast bar info should be visible
 	castBarInfoShouldBeVisible = false,
 	-- id of the unit from DHUDColorizeTools constants

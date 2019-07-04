@@ -416,48 +416,60 @@ end
 
 --- Get cached spell data for spell Id specified
 -- @param spellId spell id of the spell
--- @return spellData to be used in other functions
-function DHUDDataTrackerHelper:getSpellData(spellId)
+-- @param silent if true than error message will not be printed (game can report broken ids too)
+-- @return spellData to be used in other functions { name, rank, icon, castTime, minRange, maxRange }
+function DHUDDataTrackerHelper:getSpellData(spellId, silent)
 	local spellData = self.spellIdData[spellId];
 	if (spellData) then
 		return spellData;
 	end
 	spellData = { GetSpellInfo(spellId) };
+	if (#spellData == 0) then
+		if (not silent) then
+			DHUDMain:print("[E] Spell with id " .. spellId .. " is nil!");
+			--geterrorhandler()("DHUD: [E] Spell with id " .. spellId .. " is nil!");
+		end
+		spellData = { "id:" .. tostring(spellId), 1, "", 0, 0, 0 };
+	end
 	self.spellIdData[spellId] = spellData;
-	--[[if (spellData == nil) then
-		print("Spell with id " .. spellId .. " is nil!");
-	end]]--
 	return spellData;
 end
 
 --- Get cached spell name for spell Id specified
 -- @param spellId spell id of the spell
+-- @param silent if true than error message will not be printed (game can report broken ids too)
 -- @return spellName to be used in UnitBuff function
-function DHUDDataTrackerHelper:getSpellName(spellId)
-	return self:getSpellData(spellId)[1];
+function DHUDDataTrackerHelper:getSpellName(spellId, silent)
+	return self:getSpellData(spellId, silent)[1];
 end
 
 --- Get cached item data for item Id specified
 -- @param itemId item id of the item
--- @return itemData to be used in other functions
-function DHUDDataTrackerHelper:getItemData(itemId)
+-- @param silent if true than error message will not be printed (game can report broken ids too)
+-- @return itemData to be used in other functions { "itemName", "itemLink", itemRarity, itemLevel, itemMinLevel, "itemType", "itemSubType", itemStackCount, "itemEquipLoc", "invTexture", "itemSellPrice" }
+function DHUDDataTrackerHelper:getItemData(itemId, silent)
 	local itemData = self.itemIdData[itemId];
 	if (itemData) then
 		return itemData;
 	end
 	itemData = { GetItemInfo(itemId) };
+	if (#itemData == 0) then
+		if (not silent) then
+			DHUDMain:print("[E] Item with id " .. spellId .. " is nil!");
+			--geterrorhandler()("DHUD: [E] Item with id " .. spellId .. " is nil!");
+		end
+		itemData = { "id:" .. tostring(itemId), "", 0, 0, 0, "", "", 0, "", "", "" };
+	end
 	self.itemIdData[itemId] = itemData;
-	--[[if (itemData == nil) then
-		print("Item with id " .. itemId .. " is nil!");
-	end]]--
 	return itemData;
 end
 
 --- Get cached item name for item Id specified
 -- @param itemId item id of the item
+-- @param silent if true than error message will not be printed (game can report broken ids too)
 -- @return itemName to be used in other functions
-function DHUDDataTrackerHelper:getItemName(itemId)
-	return self:getItemData(itemId)[1];
+function DHUDDataTrackerHelper:getItemName(itemId, silent)
+	return self:getItemData(itemId, silent)[1];
 end
 
 --- Get spell info on the target unit for spellId specified (this function is just here in case of equal spell names for different spell ids)
@@ -1278,6 +1290,7 @@ end
 
 --- Update all data for current unitId
 function DHUDHealthTracker:updateData()
+	self:setAmountExtra(0); -- this will update shield amount max
 	self:updateAbsorbs();
 	self:updateIncomingHeal();
 	self:updateAbsorbedHeal();
@@ -2247,7 +2260,7 @@ function DHUDCooldownsTracker:updateSpellCooldowns()
 		for i = bookOffset, n, 1 do
 			-- get spell info
 			spellType, spellId = GetSpellBookItemInfo(i, BOOKTYPE_SPELL);
-			spellData = trackingHelper:getSpellData(spellId);
+			spellData = trackingHelper:getSpellData(spellId, true);
 			-- check spells with charges
 			charges, maxCharges, startTime, duration = GetSpellCharges(spellData[1]);
 			if (charges ~= nil and (maxCharges - charges) > 0) then
@@ -2293,7 +2306,7 @@ function DHUDCooldownsTracker:updateSpellCooldowns()
 			for j = 1, flyoutNumSlots, 1 do
 				-- get spell info
 				spellId, flyoutIsKnown = GetFlyoutSlotInfo(flyoutId, j);
-				spellData = trackingHelper:getSpellData(spellId);
+				spellData = trackingHelper:getSpellData(spellId, true);
 				-- check spells with charges
 				charges, maxCharges, startTime, duration = GetSpellCharges(spellData[1]);
 				if (charges ~= nil and (maxCharges - charges) > 0) then
@@ -2360,7 +2373,7 @@ function DHUDCooldownsTracker:updatePetCooldowns()
 			autocastAllowed, autocastEnabled = GetSpellAutocast(i, BOOKTYPE_PET);
 			--print("i " .. i .. ", spellType " .. MCTableToString(spellType) .. ", spellId " .. MCTableToString(spellId) .. ", autocastEnabled " .. MCTableToString(autocastEnabled));
 			if (not autocastEnabled) then
-				spellData = trackingHelper:getSpellData(spellId);
+				spellData = trackingHelper:getSpellData(spellId, true);
 				-- check usual cooldown
 				startTime, duration, enable = GetSpellCooldown(i, BOOKTYPE_PET);
 				-- valid cooldown?
@@ -2448,7 +2461,7 @@ function DHUDCooldownsTracker:updateActionBarCooldowns()
 				actionType, spellId, actionSubType = GetActionInfo(i);
 				if (actionType == "spell") then
 					cooldownId = cooldownId + 1;
-					spellData = trackingHelper:getSpellData(spellId);
+					spellData = trackingHelper:getSpellData(spellId, true);
 					timer = self:findTimer(cooldownId, spellId);
 					-- fill timer info, { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder }
 					timer[1] = self.TIMER_TYPE_MASK_SPELL + self.TIMER_TYPE_MASK_ACTIVE; -- type
@@ -2479,7 +2492,7 @@ function DHUDCooldownsTracker:updateActionBarCooldowns()
 					actionType, spellId, actionSubType = GetActionInfo(i);
 					if (actionType == "spell") then
 						cooldownId = cooldownId + 1;
-						spellData = trackingHelper:getSpellData(spellId);
+						spellData = trackingHelper:getSpellData(spellId, true);
 						timer = self:findTimer(cooldownId, spellId);
 						-- fill timer info, { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder }
 						timer[1] = self.TIMER_TYPE_MASK_SPELL + self.TIMER_TYPE_MASK_ACTIVE; -- type
@@ -4555,6 +4568,7 @@ DHUDDataTrackers = {
 		PRIEST.selfShadowOrbs:setResourceType(13, "SHADOW_ORBS");
 		PRIEST.selfShadowOrbs:initPlayerSpecsOnly(3);
 		PRIEST.selfShadowOrbs:initPlayerNotInVehicleOrNoneUnitId();
+		PRIEST.selfShadowOrbs.canRegenerate = false;
 		PRIEST.selfShadowOrbs.updateFrequently = false;
 	end,
 	-- trackers that are used by shaman
@@ -4592,6 +4606,8 @@ DHUDDataTrackers = {
 			stacks = 1,
 			-- current bandits guile state (0 - white, 3 - red)
 			state = 0,
+			-- last processed combat event time, since game can report absord and damage events on one cast
+			lastProcessedCombatEventTime = 0,
 		})
 		
 		--- Create new runes tracker for player and vehicle
@@ -4611,19 +4627,27 @@ DHUDDataTrackers = {
 			self.banditsGuileSpellData = trackingHelper:getSpellData(self.BANDITS_GUILE_SPELL_ID);
 			-- process units max health points change event
 			function self.combatEventsFrame:SPELL_DAMAGE(timestamp, hideCaster, sourceGUID, ...)
-				--print("SPELL_INTERRUPT sourceName " .. MCTableToString(sourceName) .. ", destName " .. MCTableToString(destName) .. ", spellSchool " .. MCTableToString(spellSchool) .. ", extraSchool " .. MCTableToString(extraSchool));
 				if (sourceGUID ~= trackingHelper.guids[tracker.unitId]) then
 					return;
 				end
-				--print("SPELL_DAMAGE " .. MCTableToString({ ... }));
 				local spellId = select(8, ...);
 				local multistrike = select(21, ...);
-				if (multistrike == true or tracker.SINISTER_STRIKE_SPELL_ID ~= spellId) then
+				if (tracker.SINISTER_STRIKE_SPELL_ID ~= spellId or multistrike == true) then
 					return;
 				end
-				tracker.stacks = tracker.stacks + 1;
-				--print("UNIT_SPELLCAST_SUCCEEDED " .. spellId .. ", stacks " .. tracker.stacks);
-				tracker:updateBanditsGuile();
+				--print("SPELL_DAMAGE " .. MCTableToString({ ... }));
+				tracker:processSinisterDamageAndAbsorb();
+			end
+			function self.combatEventsFrame:SPELL_ABSORBED(timestamp, hideCaster, sourceGUID, ...)
+				if (sourceGUID ~= trackingHelper.guids[tracker.unitId]) then
+					return;
+				end
+				local spellId = select(8, ...);
+				if (tracker.SINISTER_STRIKE_SPELL_ID ~= spellId) then
+					return;
+				end
+				--print("SPELL_ABSORBED " .. MCTableToString({ ... }));
+				tracker:processSinisterDamageAndAbsorb();
 			end
 			-- init unit ids
 			self:initPlayerNotInVehicleOrNoneUnitId();
@@ -4665,6 +4689,25 @@ DHUDDataTrackers = {
 			timer[7] = self.stacks;
 		end
 		
+		--- process sinister damage and absorb events
+		function DHUDBanditsGuileTracker:processSinisterDamageAndAbsorb()
+			local timerMs = trackingHelper.timerMs;
+			if (timerMs - self.lastProcessedCombatEventTime > 0.75) then
+				--print("timeDiff " .. (timerMs - self.lastProcessedCombatEventTime));
+				self.lastProcessedCombatEventTime = timerMs;
+				self.stacks = self.stacks + 1;
+				self:updateBanditsGuile();
+			end
+		end
+
+		--- character is entering world, update
+		function DHUDBanditsGuileTracker:onEnteringWorld(e)
+			self.state = 0;
+			self.stacks = 1;
+			-- call super
+			DHUDDataTracker.onEnteringWorld(self, e); -- this will cause updateData
+		end
+		
 		--- update bandits guile state
 		function DHUDBanditsGuileTracker:updateBanditsGuile()
 			self:processDataChanged();
@@ -4674,12 +4717,14 @@ DHUDDataTrackers = {
 		function DHUDBanditsGuileTracker:startTracking()
 			--print("banditsGuile start");
 			self.combatEventsFrame:RegisterEvent("SPELL_DAMAGE");
+			self.combatEventsFrame:RegisterEvent("SPELL_ABSORBED");
 		end
 
 		--- Stop tracking data
 		function DHUDBanditsGuileTracker:stopTracking()
 			--print("banditsGuile stop");
 			self.combatEventsFrame:UnregisterEvent("SPELL_DAMAGE");
+			self.combatEventsFrame:UnregisterEvent("SPELL_ABSORBED");
 		end
 
 		--- Update all data for current unitId

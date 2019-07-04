@@ -1,3 +1,4 @@
+-help for startup lua code, e.g. code to hide raf, or maybe frame with click to add scripts
 -conditions for buffs prioritization
 -diminishing returns as part of AuraTracker?
 -cooldowns for passive items? scan tooltips, but only on item change (updateData still requires to scan but other events not)
@@ -5,6 +6,13 @@
 -other textures support (renetair from DHUD4)
 -custom timer tracker for bandits guile that will update auras list (e.g. addCustomTimerTracker), add white bijou icon that always atleast one, doesn't drop with time
 -GCD tracker as part of helper and add support of it to cooldowns and spell cast tracker
+
+changelog 2.0.60100.52:
+-updated toc to 60100
+-maximum amount of shield will be updated on target switch (this bug was noticable on Korag boss fight)
+-rogue's bandit's guile tracking is now reset when entering instances, etc...
+-rogue's bandit's guile will also be updated when damage is fully absorbed (e.g. fighting discipline priest in arena)
+-dhud will now print chat error messages when programmed spell ids are no longer valid
 
 changelog 2.0.60000.51:
 -fixed target cast bar info after gcd updates

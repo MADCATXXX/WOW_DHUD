@@ -1,13 +1,13 @@
 ## Author: MADCAT, Markus Inger (Drathal/Silberklinge), Howie (Caeryn)
-## Interface: 60000
+## Interface: 60100
 ## Notes: Head-Up Display with all possible information about player and it's target
 ## Title: Drathals HUD
-## Version: v2.0.60000.51
+## Version: v2.0.60100.52
 ## SavedVariables: DHUDODB3
 ## SavedVariablesPerCharacter: DHUD_SavedVars
-## X-Curse-Packaged-Version: DHUDv2060000_51
+## X-Curse-Packaged-Version: DHUDv2060100_52
 ## X-Curse-Project-ID: dhud-3_0
-## X-Curse-Project-Name: DHUD for 5.0
+## X-Curse-Project-Name: DHUD for 6.0
 ## X-Curse-Repository-ID: wow/dhud-3_0/mainline
 ## X-Min-Interface: 50000
 DHUD_LibClasses.lua
