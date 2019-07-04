@@ -5065,12 +5065,16 @@ function DHUDSideInfoManager:changeSpellCircleAnimationFunction()
 			-- check for priority
 			if (timer[self.dataTrackersListSettingName] ~= nil) then
 				local timerMs = DHUDDataTrackers.helper.timerMs;
-				--print("duration of " .. timer[6] .. " is " .. timer[3]);
+				--print("duration of " .. timer[6] .. " is " .. timer[3] .. " timeLeft " .. timer[2]);
 				-- read animation data
 				local guiData = timer[self.timerAnimationVarName];
 				if (guiData == nil) then
 					guiData = { 0, 0, true, 0 }; -- timeUpdatedAt, animPercentStep, endAnimDirectionDown, disappearAnimAlphaStart
 					timer[self.timerAnimationVarName] = guiData;
+				end
+				-- timers with duration of 0 doesn't need to be animated
+				if (timer[3] == 0) then
+					return;
 				end
 				-- animate disappear
 				if ((timer[2] <= 1) and self.STATIC_animatePriorityAurasDisappear) then
@@ -5969,10 +5973,14 @@ DHUDCastBarManager = MCCreateSubClass(DHUDGuiSlotManager, {
 	helper		= nil,
 	-- defines if data exists?
 	isExists	= false,
+	-- defines if cast bar info is currently visible
+	castBarInfoVisible = false,
 	-- id of the unit from DHUDColorizeTools constants
 	unitColorId = 0,
 	-- allows to show or hide player cast bar info
 	STATIC_showPlayerCastBarInfo = true,
+	-- allows to show or hide player gcd
+	STATIC_showPlayerGcd = true,
 	-- allows to always show cast bar background texture
 	STATIC_alwaysShowCastBarBackground = true,
 	-- map with functions that are available to output cast info to text
@@ -5982,6 +5990,11 @@ DHUDCastBarManager = MCCreateSubClass(DHUDGuiSlotManager, {
 --- show player cast bar info setting changed
 function DHUDCastBarManager:STATIC_onSelfCastBarInfoSettingChange(e)
 	self.STATIC_showPlayerCastBarInfo = DHUDSettings:getValue("misc_showPlayerCastBarInfo");
+end
+
+--- show player cast bar gcd setting changed
+function DHUDCastBarManager:STATIC_onSelfCastBarGcdSettingChange(e)
+	self.STATIC_showPlayerGcd = DHUDSettings:getValue("misc_showGcdOnPlayerCastBar");
 end
 
 --- always show cast bar background setting changed
@@ -6000,9 +6013,11 @@ function DHUDCastBarManager:STATIC_init()
 	self.FUNCTIONS_MAP_CASTINFO["delay"] = self.createTextDelay;
 	self.FUNCTIONS_MAP_CASTINFO["spellname"] = self.createTextSpellName;
 	-- listen to settings
+	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "misc_showGcdOnPlayerCastBar", self, self.STATIC_onSelfCastBarGcdSettingChange);
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "misc_showPlayerCastBarInfo", self, self.STATIC_onSelfCastBarInfoSettingChange);
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "misc_alwaysShowCastBarBackground", self, self.STATIC_onAlwaysShowCastBarBackgroundSettingChange);
 	self:STATIC_onSelfCastBarInfoSettingChange(nil);
+	self:STATIC_onSelfCastBarGcdSettingChange(nil);
 	self:STATIC_onAlwaysShowCastBarBackgroundSettingChange(nil);
 end
 
@@ -6084,7 +6099,7 @@ function DHUDCastBarManager:createTextSpellName(this, canceledText, interruptedT
 	interruptedByPlayerText = interruptedByPlayerText or "|cff0000ffINTERRUPTED BY ME|r";
 	local value = this.currentDataTracker.spellName;
 	local finishState = this.currentDataTracker.finishState;
-	if (not this.currentDataTracker.isCasting) then
+	if (not this.currentDataTracker.isCasting and (not this.currentDataTracker.isGcd or not this.STATIC_showPlayerGcd)) then
 		if (finishState == DHUDSpellCastTracker.SPELL_FINISH_STATE_INTERRUPTED) then
 			local interruptState = this.currentDataTracker.interruptState;
 			if (interruptState == DHUDSpellCastTracker.SPELL_INTERRUPT_STATE_CANCELED) then
@@ -6108,7 +6123,7 @@ end
 function DHUDCastBarManager:colorizeCastBar(valueHeight)
 	local colors;
 	-- return another color if interrupted
-	if (not self.currentDataTracker.isCasting) then
+	if (not self.currentDataTracker.isCasting and (not self.currentDataTracker.isGcd or not self.STATIC_showPlayerGcd)) then
 		if (self.currentDataTracker.finishState == DHUDSpellCastTracker.SPELL_FINISH_STATE_INTERRUPTED) then
 			colors = DHUDColorizeTools:getColorTableForId(DHUDColorizeTools.COLOR_ID_TYPE_CASTBAR_INTERRUPTED + self.unitColorId);
 			return DHUDColorizeTools:colorizePercentUsingTable(valueHeight, colors);
@@ -6140,6 +6155,10 @@ end
 --- Change visibility of cast info frames
 -- @param visible defines if cast info frames should be visible
 function DHUDCastBarManager:changeCastInfoVisibility(visible)
+	if (self.castBarInfoVisible == visible)	then
+		return;
+	end
+	self.castBarInfoVisible = visible;
 	if (visible) then
 		self.group[DHUDGUI.CASTBAR_GROUP_INDEX_SPELLNAME]:DShow(DHUDGUI.FRAME_VISIBLE_REASON_ENABLED);
 		self.group[DHUDGUI.CASTBAR_GROUP_INDEX_ICON]:DShow(DHUDGUI.FRAME_VISIBLE_REASON_ENABLED);
@@ -6171,9 +6190,13 @@ function DHUDCastBarManager:onDataChange(e)
 	else
 		icon.border:Show();
 	end
+	self:changeCastInfoVisibility(self.STATIC_showPlayerCastBarInfo);
 	-- update animation state
 	if (self.currentDataTracker.isCasting) then
 		self.helper:startCastBarAnimation(self.currentDataTracker.timeTotal);
+	elseif (self.currentDataTracker.isGcd and self.STATIC_showPlayerGcd) then
+		self.helper:startCastBarAnimation(self.currentDataTracker.timeTotal);
+		self:changeCastInfoVisibility(false);
 	else
 		local finishState = self.currentDataTracker.finishState;
 		if (finishState == DHUDSpellCastTracker.SPELL_FINISH_STATE_SUCCEDED) then
@@ -6231,12 +6254,12 @@ function DHUDCastBarManager:onExistanceChange()
 	DHUDGUIManager:onSlotExistanceStateChanged();
 end
 
---- cast bar info setting changed, update
-function DHUDCastBarManager:onCastBarInfoSettingChange(e)
+--- cast bar setting changed, update
+function DHUDCastBarManager:onCastBarSettingChange(e)
 	if (self.currentDataTracker == nil) then
 		return;
 	end
-	self:onDataTrackerChange(nil); -- this will cause to hide or show player cast bar info
+	self:onDataTrackerChange(nil); -- this will cause to hide or show player cast bar info or gcd
 end
 
 --- cast bar background setting changed, update
@@ -6260,7 +6283,8 @@ function DHUDCastBarManager:init(groupName, settingName)
 	-- initialize setting name
 	self:setDataTrackerListSetting(settingName);
 	-- track cast bar info setting change
-	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "misc_showPlayerCastBarInfo", self, self.onCastBarInfoSettingChange);
+	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "misc_showGcdOnPlayerCastBar", self, self.onCastBarSettingChange);
+	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "misc_showPlayerCastBarInfo", self, self.onCastBarSettingChange);
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "misc_alwaysShowCastBarBackground", self, self.onCastBarBackgroundSettingChange);
 	-- track color settings change
 	self:trackColorSettingsChanges();

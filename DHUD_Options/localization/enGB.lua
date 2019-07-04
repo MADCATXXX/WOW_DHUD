@@ -267,12 +267,19 @@ L["SETTING_HEALTHBAR_HEALINCOMING_TOOLTIP"] = "If checked then summary of incomi
 
 -- general misc options
 L["HEADER_MISC"] = "Miscellaneous:";
+L["HEADER_CASTBARS"] = "Cast bars:";
 
 L["SETTING_MISC_ANIMATEBARS"] = "Animate bars";
 L["SETTING_MISC_ANIMATEBARS_TOOLTIP"] = "If checked then bars will be animated, otherwise data will be shown instantly";
 
 L["SETTING_MISC_REVERSECASTBARS"] = "Reverse Cast Bars";
 L["SETTING_MISC_REVERSECASTBARS_TOOLTIP"] = "If checked then cast bars animation will be reversed for spell casts";
+
+L["SETTING_MISC_SHOWGCDONPLAYERCASTBAR"] = "Show GCD";
+L["SETTING_MISC_SHOWGCDONPLAYERCASTBAR_TOOLTIP"] = "If checked then player cast bar will display global cooldown";
+
+L["SETTING_MISC_USECUSTOMAURASTRACKERS"] = "Custom Auras Tracking";
+L["SETTING_MISC_USECUSTOMAURASTRACKERS_TOOLTIP"] = "If checked then some auras (e.g. rogue Bandits Guile) will be tracked by custom trackers";
 
 L["SETTING_MISC_SHOWPLAYERCASTINFO"] = "Player Cast Info";
 L["SETTING_MISC_SHOWPLAYERCASTINFO_TOOLTIP"] = "If checked then cast info will be also shown for player casts";

@@ -151,10 +151,12 @@ function DHUDMain:main()
 	self.versionInt = tonumber(strsub(self.version, strfind(self.version, "%.[^%.]*$") + 1)); -- search for last dot and substring int version
 	-- slash commands
 	self:SlashCommandHandlerInit();
-	-- init data trackers
-	DHUDDataTrackers:init();
+	-- create data trackers
+	DHUDDataTrackers:createTrackers();
 	-- init settings
 	DHUDSettings:init();
+	-- init data trackers
+	DHUDDataTrackers:init();
 	-- init gui
 	DHUDGUI:init();
 	-- create minimap icon

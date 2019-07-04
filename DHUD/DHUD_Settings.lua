@@ -870,6 +870,10 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			["animateBars"] = { true, 0 },
 			-- allows to reverse casting bar animation
 			["reverseCastingBars"] = { false, 0 },
+			-- allows to show gcd on player cast bar
+			["showGcdOnPlayerCastBar"] = { false, 0 },
+			-- allows to track auras with custom trackers to better update auras like Rogue Bandits Guile
+			["useCustomAurasTrackers"] = { true, 0 },
 			-- allows all timers to show milliseconds instead of seconds (when 10 or less seconds left)
 			["textTimerShowMilliSeconds"] = { true, 0 },
 			-- allows all numbers to be shortened (for numbers that use more than 5 chars)

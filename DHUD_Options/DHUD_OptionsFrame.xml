@@ -992,43 +992,10 @@
 									<Attribute name="SETTING" value="misc_animateBars" />
 								</Attributes>
 							</CheckButton>
-							<CheckButton name="$parent_ReverseCastBarsCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
-								<Anchors>
-									<Anchor point="TOPLEFT">
-										<Offset x="335" y="-231" />
-									</Anchor>
-								</Anchors>
-								<Attributes>
-									<Attribute name="LTEXT" value="SETTING_MISC_REVERSECASTBARS" />
-									<Attribute name="SETTING" value="misc_reverseCastingBars" />
-								</Attributes>
-							</CheckButton>
-							<CheckButton name="$parent_PlayerCastInfoCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
-								<Anchors>
-									<Anchor point="TOPLEFT">
-										<Offset x="335" y="-262" />
-									</Anchor>
-								</Anchors>
-								<Attributes>
-									<Attribute name="LTEXT" value="SETTING_MISC_SHOWPLAYERCASTINFO" />
-									<Attribute name="SETTING" value="misc_showPlayerCastBarInfo" />
-								</Attributes>
-							</CheckButton>
-							<CheckButton name="$parent_AlwaysShowCastBarBackgroundCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
-								<Anchors>
-									<Anchor point="TOPLEFT">
-										<Offset x="335" y="-293" />
-									</Anchor>
-								</Anchors>
-								<Attributes>
-									<Attribute name="LTEXT" value="SETTING_MISC_ALWAYSSHOWCASTBARBACKGROUND" />
-									<Attribute name="SETTING" value="misc_alwaysShowCastBarBackground" />
-								</Attributes>
-							</CheckButton>
 							<CheckButton name="$parent_ShowMillisecondsCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="335" y="-324" />
+										<Offset x="335" y="-231" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -1039,7 +1006,7 @@
 							<CheckButton name="$parent_ShortNumbersCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="335" y="-355" />
+										<Offset x="335" y="-262" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -1050,7 +1017,7 @@
 							<CheckButton name="$parent_MinimapCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="335" y="-386" />
+										<Offset x="335" y="-293" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -1061,7 +1028,7 @@
 							<CheckButton name="$parent_HideInPetBattlesCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="335" y="-417" />
+										<Offset x="335" y="-324" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -1069,10 +1036,21 @@
 									<Attribute name="SETTING" value="misc_hideInPetBattles" />
 								</Attributes>
 							</CheckButton>
+							<CheckButton name="$parent_UseCustomAurasTrackersCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="335" y="-355" />
+									</Anchor>
+								</Anchors>
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_MISC_USECUSTOMAURASTRACKERS" />
+									<Attribute name="SETTING" value="misc_useCustomAurasTrackers" />
+								</Attributes>
+							</CheckButton>
 							<Frame name="$parent_MouseConditionsMask" inherits="DHUD_OptionsTemplate_DropdownMask">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="325" y="-448" />
+										<Offset x="325" y="-386" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -1080,6 +1058,69 @@
 									<Attribute name="SETTING" value="misc_mouseConditionsMask" />
 								</Attributes>
 							</Frame>
+						</Frames>
+					</Frame>
+					<Frame name="$parent_Page3" inherits="DHUD_OptionsTemplate_TabPage">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset />
+							</Anchor>
+						</Anchors>
+						<Frames>
+							<Frame name="$parent_HeaderCastBars" inherits="DHUD_OptionsTemplate_Header">
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="5" y="-10" />
+									</Anchor>
+								</Anchors>
+								<Attributes>
+									<Attribute name="LTEXT" value="HEADER_CASTBARS" />
+								</Attributes>
+							</Frame>
+							<CheckButton name="$parent_ReverseCastBarsCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="10" y="-28" />
+									</Anchor>
+								</Anchors>
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_MISC_REVERSECASTBARS" />
+									<Attribute name="SETTING" value="misc_reverseCastingBars" />
+								</Attributes>
+							</CheckButton>
+							<CheckButton name="$parent_PlayerCastInfoCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="10" y="-59" />
+									</Anchor>
+								</Anchors>
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_MISC_SHOWPLAYERCASTINFO" />
+									<Attribute name="SETTING" value="misc_showPlayerCastBarInfo" />
+								</Attributes>
+							</CheckButton>
+							<CheckButton name="$parent_AlwaysShowCastBarBackgroundCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="10" y="-90" />
+									</Anchor>
+								</Anchors>
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_MISC_ALWAYSSHOWCASTBARBACKGROUND" />
+									<Attribute name="SETTING" value="misc_alwaysShowCastBarBackground" />
+								</Attributes>
+							</CheckButton>
+							<CheckButton name="$parent_ShowGCDOnPlayerCastBarCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="10" y="-121" />
+									</Anchor>
+								</Anchors>
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_MISC_SHOWGCDONPLAYERCASTBAR" />
+									<Attribute name="SETTING" value="misc_showGcdOnPlayerCastBar" />
+								</Attributes>
+							</CheckButton>
 						</Frames>
 					</Frame>
 				</Frames>

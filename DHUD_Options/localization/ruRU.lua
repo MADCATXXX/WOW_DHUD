@@ -269,6 +269,7 @@ L["SETTING_HEALTHBAR_HEALINCOMING_TOOLTIP"] = "Позволяет показыв
 
 -- general misc options
 L["HEADER_MISC"] = "Прочие:";
+L["HEADER_CASTBARS"] = "Панели закл.:";
 
 L["SETTING_MISC_ANIMATEBARS"] = "Анимировать панели";
 L["SETTING_MISC_ANIMATEBARS_TOOLTIP"] = "Позволяет анимировать панели с данными, иначе данные будут отображены сразу";
@@ -278,6 +279,12 @@ L["SETTING_MISC_REVERSECASTBARS_TOOLTIP"] = "Позволяет обратить
 
 L["SETTING_MISC_SHOWPLAYERCASTINFO"] = "Инф. о закл. игрока";
 L["SETTING_MISC_SHOWPLAYERCASTINFO_TOOLTIP"] = "Позволяет отображать информацию о заклинании произносимом игроком";
+
+L["SETTING_MISC_SHOWGCDONPLAYERCASTBAR"] = "Показ. ГКД";
+L["SETTING_MISC_SHOWGCDONPLAYERCASTBAR_TOOLTIP"] = "Позволяет отображать глобальное время восстановления заклинаний на панели произнесения заклинаний";
+
+L["SETTING_MISC_USECUSTOMAURASTRACKERS"] = "Улучш. отслеж. аур";
+L["SETTING_MISC_USECUSTOMAURASTRACKERS_TOOLTIP"] = "Позволяет отслеживать некоторые ауры (напр. Коварство бандитов разбойников) дополнительно обрабатывая их";
 
 L["SETTING_MISC_ALWAYSSHOWCASTBARBACKGROUND"] = "Фон панели закл.";
 L["SETTING_MISC_ALWAYSSHOWCASTBARBACKGROUND_TOOLTIP"] = "Позволяет рисовать фоновую текстуру под панелью произнесения заклинаний независимо от возможности произнесения заклинаний боевой еденицей";

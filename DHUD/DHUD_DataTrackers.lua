@@ -750,13 +750,12 @@ function DHUDDataTracker:processDataChangedInstant()
 	self:dispatchEvent(self.eventDataChanged);
 end
 
-
 --- End of tick for processDataChanged function, dispatch event if needed
 function DHUDDataTracker:onDataChangedTick(e)
 	self.isQueriedDataEventWaiting = false;
 	trackingHelper:removeEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE_FREQUENT, self, self.onDataChangedTick);
 	if (self.isQueriedDataEvent and self.isExists) then -- check for datatracker existance or otherwise it will give wrong info
-		self:dispatchEvent(self.eventDataChanged);
+		self:processDataChangedInstant();
 	end
 end
 
@@ -1296,7 +1295,7 @@ function DHUDHealthTracker:attachCreditTracker(infoTracker)
 	self.creditInfoTracker = infoTracker;
 	-- add listener to new tracker
 	if (infoTracker ~= nil and self.isTracking) then
-		self.creditInfoTracker:removeEventListener(DHUDDataTrackerEvent.EVENT_DATA_CHANGED, self, self.updateTagging);
+		self.creditInfoTracker:addEventListener(DHUDDataTrackerEvent.EVENT_DATA_CHANGED, self, self.updateTagging);
 		self:updateTagging();
 	end
 end
@@ -1317,6 +1316,8 @@ DHUDTimersTracker = MCCreateSubClass(DHUDDataTracker, {
 	sourceInfo			= nil,
 	-- time at which timers was updated
 	timeUpdatedAt		= 0,
+	-- custom trackers list
+	customTrackers		= nil,
 	-- table to describe inactive timer when timers are grouped using groupTimersByTime function
 	GROUP_INACTIVE_TIMER = { },
 })
@@ -1327,6 +1328,7 @@ function DHUDTimersTracker:constructor()
 	self.timers = { };
 	self.filteredTimers = { };
 	self.sources = { };
+	self.customTrackers = { };
 	-- custom events
 	self.eventDataTimersChanged = DHUDDataTrackerEvent:new(DHUDDataTrackerEvent.EVENT_DATA_TIMERS_UPDATED, self);
 	-- call super constructor
@@ -1338,6 +1340,7 @@ function DHUDTimersTracker:onUpdateTime()
 	local timerMs = trackingHelper.timerMs;
 	local timeUpdatedAt = self.timeUpdatedAt;
 	local diff = timerMs - timeUpdatedAt;
+	self.timeUpdatedAt = timerMs;
 	-- already updated by data update
 	if (diff == 0 or #self.timers == 0) then
 		return;
@@ -1347,7 +1350,6 @@ function DHUDTimersTracker:onUpdateTime()
 		-- update time left
 		v[2] = v[2] - diff;
 	end
-	self.timeUpdatedAt = timerMs;
 	-- dispatch time update event
 	self:dispatchEvent(self.eventDataTimersChanged);
 end
@@ -1425,8 +1427,10 @@ end
 -- do not invoke this function twice if timer was returned once
 -- @param id id of the data, e.g. buff spell id
 -- @param createIfNone defines if timer should be created if not found
+-- @param inUse defines if timer can already be in use
 -- @return table with data about timer
-function DHUDTimersTracker:findTimerByIdOnly(id, createIfNone)
+function DHUDTimersTracker:findTimerByIdOnly(id, createIfNone, inUse)
+	inUse = (inUse == nil) and false or inUse;
 	local indexBegin = self.sourceInfo[1];
 	local numTimers = self.sourceInfo[2];
 	local indexLast = indexBegin + numTimers - 1;
@@ -1434,7 +1438,7 @@ function DHUDTimersTracker:findTimerByIdOnly(id, createIfNone)
 	for i = indexBegin, indexLast, 1 do
 		timer = self.timers[i];
 		-- not already used?
-		if (timer[10] ~= true) then
+		if (timer[10] == inUse) then
 			-- check id
 			if (timer[4] == id) then
 				timer[10] = true; -- set iterating flag
@@ -1498,6 +1502,8 @@ end
 --- Function that should be invoked after iterating over findTimer (internal use only)
 -- @param sourceId id of the source, number
 function DHUDTimersTracker:findSourceTimersEnd(sourceId)
+	-- update custom data trackers before finishing
+	self:updateCustomTrackersData(sourceId);
 	--print("findSourceTimersEnd");
 	local sourceInfo = self.sources[sourceId];
 	-- remove all timers that no longer exists in source
@@ -1717,6 +1723,49 @@ function DHUDTimersTracker:filterTimers(func, cacheKey, forceUpdate)
 	return filtered, changed;
 end
 
+--- update custom trackers data for timers group specified
+-- @param timersGroup timers group to be updated
+function DHUDTimersTracker:updateCustomTrackersData(timersGroup)
+	if (#self.customTrackers ~= 0) then
+		for i, v in ipairs(self.customTrackers) do
+			if (v[2] == timersGroup) then
+				v[1]:updateTimers();
+			end
+		end
+	end
+end
+
+--- process custom timer tracker data change
+function DHUDTimersTracker:onUpdateCustomTracker(e)
+	
+end
+
+--- add custom tracker for better timers tracking
+-- @param customTracker custom tracker to use
+function DHUDTimersTracker:addCustomTracker(customTracker, timersGroup)
+	if (customTracker ~= nil) then
+		local customTrackerInfo = { customTracker, timersGroup };
+		table.insert(self.customTrackers, customTrackerInfo);
+		customTracker:addEventListener(DHUDDataTrackerEvent.EVENT_DATA_TIMERS_UPDATED, self, self.onUpdateCustomTracker);
+	end
+end
+
+--- remove custom tracker that allowed better timers tracking
+-- @param customTracker custom tracker to use
+function DHUDTimersTracker:removeCustomTracker(customTracker, timersGroup)
+	if (customTracker ~= nil) then
+		-- search for tracker
+		for i, v in ipairs(self.customTrackers) do
+			-- delete tracker
+			if v[1] == customTracker and v[2] == timersGroup then
+				table.remove(self.customTrackers, i);
+				break;
+			end
+		end
+		customTracker:removeEventListener(DHUDDataTrackerEvent.EVENT_DATA_TIMERS_UPDATED, self, self.onUpdateCustomTracker);
+	end
+end
+
 --- Compare function for table.sort, must return a boolean value specifying whether the first argument should be before the second argument in the sequence (not a class function, self is nil!)
 -- @param a first argument
 -- @param b second argument
@@ -1735,6 +1784,135 @@ end
 function DHUDTimersTracker:stopTracking()
 	-- stop listening to game events
 	trackingHelper:removeEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE, self, self.onUpdateTime);
+end
+
+-----------------------------------
+-- Unit auras tracker base class --
+-----------------------------------
+
+--- Base class for tracking of custom timer, e.g. rogue's bandits guile
+DHUDCustomTimerTracker = MCCreateSubClass(DHUDDataTracker, {
+	-- define if tracking by this class is allowed
+	STATIC_trackingAllowed = true,
+	-- timer id's to change
+	timerIdsToUpdate = nil,
+	-- timers tracker to update
+	timersTracker = nil,
+	-- timers group to update
+	timersGroup = 0,
+	-- defines if this tracker currently updates timers tracker that was attached
+	trackingAllowed = false,
+})
+
+--- allow tracking setting has changed
+function DHUDCustomTimerTracker:STATIC_onCustomAurasTrackersAllowedChange(e)
+	self.STATIC_trackingAllowed = DHUDSettings:getValue("misc_useCustomAurasTrackers");
+end
+
+--- Initialize DHUDCustomTimerTracker static values
+function DHUDCustomTimerTracker:STATIC_init()
+	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "misc_useCustomAurasTrackers", self, self.STATIC_onCustomAurasTrackersAllowedChange);
+	self:onCustomAurasTrackerAllowedChange(nil);
+end
+
+--- Constructor of timers tracker
+function DHUDCustomTimerTracker:constructor()
+	-- init tables
+	self.timerIdsToUpdate = { };
+	-- custom events
+	self.eventDataTimersChanged = DHUDDataTrackerEvent:new(DHUDDataTrackerEvent.EVENT_DATA_TIMERS_UPDATED, self);
+	-- call super constructor
+	DHUDDataTracker.constructor(self);
+end
+
+--- get default timer if required, to be overriden by subclasses
+-- @return default timer if required
+function DHUDCustomTimerTracker:getDefaultTimer()
+	return nil;
+end
+
+--- create default timer
+-- @param id of the timer
+-- @return default timer
+function DHUDCustomTimerTracker:createDefaultTimer(id)
+	return self.timersTracker:findTimerByIdOnly(id, true, false);
+end
+
+--- Update timer with custom data
+-- @param timer timer to be updated { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder, grouped, groupData }
+-- @return default timer
+function DHUDCustomTimerTracker:updateTimer(timer)
+	
+end
+
+--- update timers tracker timers
+-- @param timersTracker timers tracker to update
+function DHUDCustomTimerTracker:updateTimers()
+	--print("updateTimers");
+	-- search for timer to be updated
+	local timer;
+	for i, v in ipairs(self.timerIdsToUpdate) do
+		timer = self.timersTracker:findTimerByIdOnly(v, false, true);
+		if (timer ~= nil) then
+			--print("update timer by id found " .. v);
+			break;
+		end
+	end
+	-- check if we should create default timer
+	if (timer == nil) then
+		--print("update timer by id not found ");
+		timer = self:getDefaultTimer();
+		if (timer == nil) then
+			return;
+		end
+	end
+	-- update timer
+	self:updateTimer(timer);
+end
+
+-- allow timer tracking
+function DHUDCustomTimerTracker:allowTimerTracking(allow)
+	print("isExists " .. MCTableToString(self.isExists) .. ", allowed " .. MCTableToString(self.STATIC_trackingAllowed) .. ", timersTracker " .. (timersTracker ~= nil and "true" or "false") .. " = allow " .. MCTableToString(allow));
+	if (self.trackingAllowed == allow or self.timersTracker == nil) then
+		return;
+	end
+	self.trackingAllowed = allow;
+	if (allow) then
+		self.timersTracker:addCustomTracker(self, self.timersGroup);
+	else
+		self.timersTracker:removeCustomTracker(self, self.timersGroup);
+	end
+end
+
+--- set isExists variable
+function DHUDCustomTimerTracker:setIsExists(isExists)
+	-- call super
+	DHUDDataTracker.setIsExists(self, isExists);
+	-- update tracking
+	self:allowTimerTracking(isExists and self.STATIC_trackingAllowed);
+end
+
+--- process settings change
+function DHUDCustomTimerTracker:onCustomAurasTrackerAllowedChange(e)
+	self:allowTimerTracking(self.isExists and self.STATIC_trackingAllowed);
+end
+
+--- attach custom timer tracker to timers tracker
+-- @param timersTracker timers tracker that should be updated by this tracker
+-- @param timersGroup timersGroup to update
+function DHUDCustomTimerTracker:attachToTimersTrackerIfAllowed(timersTracker, timersGroup)
+	if (self.timersTracker ~= nil) then
+		self.timersTracker:removeCustomTracker(self, self.timersGroup);
+		DHUDSettings:removeEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "misc_useCustomAurasTrackers", self, functionOnSettingChange);
+	end
+	self.timersTracker = timersTracker;
+	self.timersGroup = timersGroup;
+	self.eventDataTimersChanged.timersGroup = timersGroup;
+	-- listen for settings change
+	if (timersTracker ~= nil) then
+		DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "misc_useCustomAurasTrackers", self, functionOnSettingChange);
+		self:onCustomAurasTrackerAllowedChange(nil);
+	end
 end
 
 -----------------------------------
@@ -1907,6 +2085,10 @@ DHUDCooldownsTracker = MCCreateSubClass(DHUDTimersTracker, {
 	schoolLockType					= 0,
 	-- time at which schools was locked?
 	schoolLockTime					= 0,
+	-- time at which gcd will end
+	gcdTimeLeft						= 0,
+	-- time that defines current player gcd
+	gcdTimeTotal					= 0,
 })
 
 --- Create new unit cooldowns tracker, unitId should be specified after constructor
@@ -1961,7 +2143,13 @@ end
 
 --- Time passed, update all timers
 function DHUDCooldownsTracker:onUpdateTime()
-	-- nothing to update?
+	-- update gcd
+	local timerMs = trackingHelper.timerMs;
+	local timeDiff = timerMs - self.timeUpdatedAt;
+	self.gcdTimeLeft = self.gcdTimeLeft - timeDiff;
+	-- call super
+	DHUDTimersTracker.onUpdateTime(self);
+	-- no timers to update?
 	if (#self.timers == 0) then
 		return;
 	end
@@ -1981,8 +2169,6 @@ function DHUDCooldownsTracker:onUpdateTime()
 	if (self:containsTimerWithNegativeDuration(3)) then
 		self:updatePetCooldowns();
 	end
-	-- call super
-	DHUDTimersTracker.onUpdateTime(self);
 end
 
 --- Function that should decide if timers are required to be grouped
@@ -2024,6 +2210,7 @@ function DHUDCooldownsTracker:updateSpellCooldowns()
 	local timerMs = trackingHelper.timerMs;
 	-- create variables
 	local cooldownId = 0;
+	local gcdUpdated = false;
 	local startTime, duration, enable, charges, maxCharges, cooldownCharges;
 	local spellType, spellId, spellData;
 	local flyoutId, flyoutName, flyoutDecription, flyoutNumSlots, flyoutIsKnown;
@@ -2057,23 +2244,31 @@ function DHUDCooldownsTracker:updateSpellCooldowns()
 				cooldownCharges = 1;
 			end
 			-- valid cooldown?
-			if (startTime ~= nil and duration > 1.5 and duration ~= invalidDuration) then
-				cooldownId = cooldownId + 1;
-				timer = self:findTimer(cooldownId, spellId);
-				-- degroup timers if their duration has changed, for spells like "Death from above"
-				if (timer[13] ~= nil and timer[3] ~= duration) then
-					timer[12] = nil;
-					timer[13] = nil;
+			if (startTime ~= nil) then
+				if (duration <= 1.5) then
+					if (not gcdUpdated and duration > 0) then
+						self.gcdTimeLeft = startTime + duration - timerMs; -- timeLeft
+						self.gcdTimeTotal = duration; -- duration
+						gcdUpdated = true;
+					end
+				elseif (duration ~= invalidDuration) then
+					cooldownId = cooldownId + 1;
+					timer = self:findTimer(cooldownId, spellId);
+					-- degroup timers if their duration has changed, for spells like "Death from above"
+					if (timer[13] ~= nil and timer[3] ~= duration) then
+						timer[12] = nil;
+						timer[13] = nil;
+					end
+					-- fill timer info, { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder }
+					timer[1] = self.TIMER_TYPE_MASK_SPELL + self.TIMER_TYPE_MASK_ACTIVE; -- type
+					timer[2] = startTime + duration - timerMs; -- timeLeft
+					timer[3] = duration; -- duration
+					timer[4] = spellId; -- id
+					timer[5] = spellId; -- tooltipId
+					timer[6] = spellData[1]; -- name
+					timer[7] = cooldownCharges; -- stacks
+					timer[8] = spellData[3]; -- texture
 				end
-				-- fill timer info, { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder }
-				timer[1] = self.TIMER_TYPE_MASK_SPELL + self.TIMER_TYPE_MASK_ACTIVE; -- type
-				timer[2] = startTime + duration - timerMs; -- timeLeft
-				timer[3] = duration; -- duration
-				timer[4] = spellId; -- id
-				timer[5] = spellId; -- tooltipId
-				timer[6] = spellData[1]; -- name
-				timer[7] = cooldownCharges; -- stacks
-				timer[8] = spellData[3]; -- texture
 			end
 		end
 		-- number of flyout spells like mage portals and shaman totems (spelltype = FLYOUT)
@@ -2109,6 +2304,10 @@ function DHUDCooldownsTracker:updateSpellCooldowns()
 					timer[8] = spellData[3]; -- texture
 				end
 			end
+		end
+		-- update gcd if it wasn't updated
+		if (not gcdUpdated) then
+			self.gcdTimeLeft = 0; -- timeLeft
 		end
 		-- iterate over similiar cooldowns and reintegrate them together
 		self:groupTimersByTime(0, self, self.groupSpellCooldowns);
@@ -2252,26 +2451,39 @@ function DHUDCooldownsTracker:updateActionBarCooldowns()
 		end
 	-- update vehicle cooldowns
 	elseif (self.unitId == "vehicle") then
+		local gcdUpdated = false;
 		-- iterate
 		for i = 133, 138, 1 do
 			startTime, duration, enable = GetActionCooldown(i);
-			if (startTime ~= nil and duration > 1.5) then
-				actionType, spellId, actionSubType = GetActionInfo(i);
-				if (actionType == "spell") then
-					cooldownId = cooldownId + 1;
-					spellData = trackingHelper:getSpellData(spellId);
-					timer = self:findTimer(cooldownId, spellId);
-					-- fill timer info, { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder }
-					timer[1] = self.TIMER_TYPE_MASK_SPELL + self.TIMER_TYPE_MASK_ACTIVE; -- type
-					timer[2] = startTime + duration - timerMs; -- timeLeft
-					timer[3] = duration; -- duration
-					timer[4] = spellId; -- id
-					timer[5] = spellId; -- tooltipId
-					timer[6] = spellData[1]; -- name
-					timer[7] = 0; -- stacks
-					timer[8] = spellData[3]; -- texture
+			if (startTime ~= nil) then
+				if (duration <= 1.5) then
+					if (not gcdUpdated and duration > 0) then
+						self.gcdTimeLeft = startTime + duration - timerMs; -- timeLeft
+						self.gcdTimeTotal = duration; -- duration
+						gcdUpdated = true;
+					end
+				else
+					actionType, spellId, actionSubType = GetActionInfo(i);
+					if (actionType == "spell") then
+						cooldownId = cooldownId + 1;
+						spellData = trackingHelper:getSpellData(spellId);
+						timer = self:findTimer(cooldownId, spellId);
+						-- fill timer info, { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder }
+						timer[1] = self.TIMER_TYPE_MASK_SPELL + self.TIMER_TYPE_MASK_ACTIVE; -- type
+						timer[2] = startTime + duration - timerMs; -- timeLeft
+						timer[3] = duration; -- duration
+						timer[4] = spellId; -- id
+						timer[5] = spellId; -- tooltipId
+						timer[6] = spellData[1]; -- name
+						timer[7] = 0; -- stacks
+						timer[8] = spellData[3]; -- texture
+					end
 				end
 			end
+		end
+		-- update gcd if it wasn't updated
+		if (not gcdUpdated) then
+			self.gcdTimeLeft = 0; -- timeLeft
 		end
 	end
 	-- stop
@@ -2384,6 +2596,8 @@ end
 
 --- Time passed, update all timers
 function DHUDGuardiansTracker:onUpdateTime()
+	-- call super
+	DHUDTimersTracker.onUpdateTime(self);
 	-- nothing to update?
 	if (#self.timers == 0) then
 		return;
@@ -2392,8 +2606,6 @@ function DHUDGuardiansTracker:onUpdateTime()
 	if (self:containsTimerWithNegativeDuration(1)) then
 		self:updateGuardians();
 	end
-	-- call super
-	DHUDTimersTracker.onUpdateTime(self);
 end
 
 --- Update guardians info
@@ -2857,6 +3069,8 @@ DHUDSpellCastTracker = MCCreateSubClass(DHUDDataTracker, {
 	hasCasted			= false,
 	-- defines if current unit is casting or channgeling something or not
 	isCasting			= false,
+	-- defines if current unit is having global cooldown
+	isGcd				= false,
 	-- defines if current spell is channeling
 	isChannelSpell		= false,
 	-- defines if current spell is interruptable, e.g. no lock
@@ -2881,6 +3095,8 @@ DHUDSpellCastTracker = MCCreateSubClass(DHUDDataTracker, {
 	interruptedTime		= 0,
 	-- time at which this tracker was updated
 	timeUpdatedAt		= 0,
+	-- time at which gcd was updated
+	timeGcdUpdatedAt	= 0,
 	-- name of the spell being casted
 	spellName			= "",
 	-- path to the texture associated with spell
@@ -2901,6 +3117,8 @@ DHUDSpellCastTracker = MCCreateSubClass(DHUDDataTracker, {
 	SPELL_INTERRUPT_STATE_KICKED_BY_PLAYER = 2,
 	-- combat event frame to listen to combat events
 	combatEventsFrame				= nil,
+	-- cooldowns tracker to track gcds
+	cooldownsTracker				= nil,
 })
 
 --- Create new spell cast tracker, unitId should be specified after constructor
@@ -3017,9 +3235,37 @@ function DHUDSpellCastTracker:init()
 	end
 end
 
+-- process gcd update
+function DHUDSpellCastTracker:updateGcd(e)
+	if (self.cooldownsTracker == nil) then
+		return;
+	end
+	-- do not updated gcd when casting
+	if (self.isCasting) then
+		self.isGcd = false;
+		return;
+	end
+	local timeLeft = self.cooldownsTracker.gcdTimeLeft;
+	if (timeLeft > 0) then
+		self.timeProgress = timeLeft;
+		self.timeTotal = self.cooldownsTracker.gcdTimeTotal;
+		self.timeUpdatedAt = self.cooldownsTracker.timeUpdatedAt;
+		self.delay = 0;
+		self.isChannelSpell = true;
+		self.isGcd = true;
+	else
+		if (self.isGcd) then
+			self.finishState = SPELL_FINISH_STATE_NOT_CASTING;
+		end
+		self.isGcd = false;
+	end
+	-- process data change
+	self:processDataChanged();
+end
+
 --- Game time updated, update spell cast progress, updated every 100 ms, animation should use it's own timer
 function DHUDSpellCastTracker:onUpdateTime()
-	if (self.isCasting == false) then
+	if (self.isCasting == false and self.isGcd == false) then
 		return;
 	end
 	local timerMs = trackingHelper.timerMs;
@@ -3035,6 +3281,12 @@ function DHUDSpellCastTracker:onUpdateTime()
 	end
 	-- update timeUpdated var
 	self.timeUpdatedAt = timerMs;
+	-- update gcd
+	if (self.isGcd and self.timeProgress <= 0) then
+		self.finishState = SPELL_FINISH_STATE_NOT_CASTING;
+		self.isGcd = false;
+		self:processDataChanged();
+	end
 	-- dispatch event
 	self:dispatchEvent(self.eventDataTimersChanged);
 end
@@ -3225,6 +3477,8 @@ function DHUDSpellCastTracker:updateSpellCastStop()
 			self:updateSpellChannelContinue();
 		end
 	end
+	-- update gcd
+	self:updateGcd();
 	-- process data change
 	self:processDataChanged();
 end
@@ -3248,6 +3502,9 @@ function DHUDSpellCastTracker:startTracking()
 	self.eventsFrame:RegisterEvent("UNIT_SPELLCAST_STOP");
 	self.eventsFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED");
 	trackingHelper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE, self, self.onUpdateTime);
+	if (self.cooldownsTracker ~= nil) then
+		self.cooldownsTracker:addEventListener(DHUDDataTrackerEvent.EVENT_DATA_CHANGED, self, self.updateGcd);
+	end
 end
 
 --- Stop tracking data
@@ -3269,6 +3526,9 @@ function DHUDSpellCastTracker:stopTracking()
 	self.eventsFrame:UnregisterEvent("UNIT_SPELLCAST_STOP");
 	self.eventsFrame:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED");
 	trackingHelper:removeEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE, self, self.onUpdateTime);
+	if (self.cooldownsTracker ~= nil) then
+		self.cooldownsTracker:removeEventListener(DHUDDataTrackerEvent.EVENT_DATA_CHANGED, self, self.updateGcd);
+	end
 end
 
 --- Update all data for current unitId
@@ -3283,6 +3543,21 @@ end
 function DHUDSpellCastTracker:setUnitId(unitId, dispatchUnitChange)
 	self.hasCasted = false;
 	DHUDDataTracker.setUnitId(self, unitId, dispatchUnitChange); -- call super
+end
+
+--- Attach cooldowns tracker to track gcd inside this tracker
+function DHUDSpellCastTracker:attachCooldownsTracker(cooldownsTracker)
+	-- remove listener from old tracker
+	if (self.cooldownsTracker ~= nil) then
+		self.cooldownsTracker:removeEventListener(DHUDDataTrackerEvent.EVENT_DATA_CHANGED, self, self.updateGcd);
+		self.isGcd = false;
+	end
+	self.cooldownsTracker = cooldownsTracker;
+	-- add listener to new tracker
+	if (cooldownsTracker ~= nil and self.isTracking) then
+		self.cooldownsTracker:addEventListener(DHUDDataTrackerEvent.EVENT_DATA_CHANGED, self, self.updateGcd);
+		self:updateGcd();
+	end
 end
 
 -----------------------
@@ -3859,12 +4134,6 @@ DHUDDataTrackers = {
 		--------------------
 		ALL.petPower = DHUDMainPowerTracker:new();
 		ALL.petPower:initPetOrNoneUnitId();
-		
-		----------------------
-		-- Player cast info --
-		----------------------
-		ALL.selfCast = DHUDSpellCastTracker:new();
-		ALL.selfCast:initPlayerOrVehicleUnitId();
 
 		----------------------
 		-- Target cast info --
@@ -3921,6 +4190,13 @@ DHUDDataTrackers = {
 		-----------------------------
 		ALL.selfCooldowns = DHUDCooldownsTracker:new();
 		ALL.selfCooldowns:initPlayerOrVehicleUnitId();
+
+		----------------------
+		-- Player cast info --
+		----------------------
+		ALL.selfCast = DHUDSpellCastTracker:new();
+		ALL.selfCast:initPlayerOrVehicleUnitId();
+		ALL.selfCast:attachCooldownsTracker(ALL.selfCooldowns);
 
 		---------------
 		-- Range (?) --
@@ -4137,7 +4413,7 @@ DHUDDataTrackers = {
 			
 		})
 		
-		--- Create new runes tracker for player and vehicle
+		--- Create new stagger tracker
 		function DHUDStaggerTracker:new()
 			local o = self:defconstructor();
 			o:constructor();
@@ -4279,28 +4555,148 @@ DHUDDataTrackers = {
 		SHAMAN.selfTotems = DHUDGuardiansTracker:new();
 		SHAMAN.selfTotems:initPlayerNotInVehicleOrNoneUnitId();
 	end,
+	-- trackers that are used by rogue
+	ROGUE = { },
+	fillROGUE = function(self, charclass)
+		-- fill table with trackers
+		local ROGUE = self.ROGUE;
+
+		-------------------
+		-- Bandits Guile --
+		-------------------
+		DHUDBanditsGuileTracker = MCCreateSubClass(DHUDCustomTimerTracker, {
+			-- ids of the bandits guile spell progress
+			BANDITS_GUILE_PROGRESS_SPELL_IDS = { 84745, 84746, 84747 },
+			-- id of the bandits guile spell
+			BANDITS_GUILE_SPELL_ID = 84654,
+			-- id of the sinister strike spell
+			SINISTER_STRIKE_SPELL_ID = 1752,
+			-- data about bandits guile ability { name, rank, icon, castTime, minRange, maxRange }
+			banditsGuileSpellData = nil,
+			-- current stack count
+			stacks = 1,
+			-- current bandits guile state (0 - white, 3 - red)
+			state = 0,
+		})
+		
+		--- Create new runes tracker for player and vehicle
+		function DHUDBanditsGuileTracker:new()
+			local o = self:defconstructor();
+			o:constructor();
+			return o;
+		end
+		
+		--- Initialize bandits guile tracking
+		function DHUDBanditsGuileTracker:init()
+			local tracker = self;
+			self.timerIdsToUpdate = self.BANDITS_GUILE_PROGRESS_SPELL_IDS;
+			self.banditsGuileSpellData = trackingHelper:getSpellData(self.BANDITS_GUILE_SPELL_ID);
+			-- process units max health points change event
+			function self.eventsFrame:UNIT_SPELLCAST_SUCCEEDED(unitId, spell, rank, lineId, spellId)
+				if (tracker.unitId ~= unitId) then
+					return;
+				end
+				if (tracker.SINISTER_STRIKE_SPELL_ID ~= spellId) then
+					return;
+				end
+				tracker.stacks = tracker.stacks + 1;
+				--print("UNIT_SPELLCAST_SUCCEEDED " .. spellId .. ", stacks " .. tracker.stacks);
+				tracker:updateBanditsGuile();
+			end
+			-- init unit ids
+			self:initPlayerNotInVehicleOrNoneUnitId();
+			self:initPlayerSpecsOnly(2);
+			self:attachToTimersTrackerIfAllowed(DHUDDataTrackers.ALL.selfAuras, 0);
+		end
+
+		--- get default timer if required, to be overriden by subclasses
+		-- @return default timer if required
+		function DHUDBanditsGuileTracker:getDefaultTimer()
+			local timer = self:createDefaultTimer(self.BANDITS_GUILE_SPELL_ID);
+			timer[8] = "Interface\\Icons\\inv_bijou_silver"; -- white bijou
+			timer[4] = self.BANDITS_GUILE_SPELL_ID;
+			return timer;
+		end
+
+		--- Update timer with custom data
+		-- @param timer timer to be updated { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder, grouped, groupData }
+		-- @return default timer
+		function DHUDBanditsGuileTracker:updateTimer(timer)
+			-- update name
+			timer[6] = self.banditsGuileSpellData[1];
+			--print("timer[6] " .. timer[6]);
+			-- if spell id is not at current state then reset stack count
+			local spellId = timer[4];
+			local index = 0;
+			for i, v in pairs(self.BANDITS_GUILE_PROGRESS_SPELL_IDS) do
+				if (v == spellId) then
+					index = i;
+					break;
+				end
+			end
+			--print("index " .. index .. ", state " .. self.state .. ", stacks " .. self.stacks);
+			if (index ~= self.state or index == 3) then
+				self.state = index;
+				self.stacks = 1;
+			end
+			-- update stacks
+			timer[7] = self.stacks;
+		end
+		
+		--- update bandits guile state
+		function DHUDBanditsGuileTracker:updateBanditsGuile()
+			self:processDataChanged();
+		end
+
+		--- Start tracking data
+		function DHUDBanditsGuileTracker:startTracking()
+			--print("banditsGuile start");
+			self.eventsFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED");
+		end
+
+		--- Stop tracking data
+		function DHUDBanditsGuileTracker:stopTracking()
+			--print("banditsGuile stop");
+			self.eventsFrame:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED");
+		end
+
+		--- Update all data for current unitId
+		function DHUDBanditsGuileTracker:updateData()
+			self:updateBanditsGuile();
+		end
+		ROGUE.selfBanditsGuile = DHUDBanditsGuileTracker:new();
+	end,
 	-- reference to data helper
 	helper = nil,
-	-- initialize all trackers
-	-- @param class class of game character
-	init = function(self)
+	-- create all trackers
+	createTrackers = function(self)
 		-- init tracking helper
 		trackingHelper:init();
 		self.helper = trackingHelper;
 		local charclass = trackingHelper.playerClass;
 		-- init trackers for any class
 		self:fillAll(charclass);
-		for i, v in pairs(self.ALL) do
-			v:init();
-		end
 		-- init trackers for specific class
 		local fillClassSpecific = self["fill" .. charclass];
 		if (fillClassSpecific ~= nil) then
 			fillClassSpecific(self, charclass);
-			for i, v in pairs(self[charclass]) do
+		end
+		--print("DataTrackers inited for class: " .. charclass);
+	end,
+	-- initialize all trackers
+	init = function(self)
+		local charclass = trackingHelper.playerClass;
+		-- init static class variables
+		DHUDCustomTimerTracker:STATIC_init();
+		-- init trackers
+		for i, v in pairs(self.ALL) do
+			v:init();
+		end
+		local classSpecific = self[charclass];
+		if (classSpecific ~= nil) then
+			for i, v in pairs(classSpecific) do
 				v:init();
 			end
 		end
-		--print("DataTrackers inited for class: " .. charclass);
 	end,
 }
