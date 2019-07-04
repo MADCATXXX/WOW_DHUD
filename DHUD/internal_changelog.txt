@@ -1,3 +1,7 @@
+changelog 1.5.40000g MADCAT revision25:
+-added option to track player debuffs on target like it's done for player buffs
+-fixed player buffs tooltips when in vehicle
+
 changelog 1.5.40000f MADCAT revision24:
 -added option to change color of hunters focus resource (player)
 -added tracking for warlock shards

@@ -4,7 +4,7 @@ DHUD modification for WotLK and Cataclysm by MADCAT
 -----------------------------------------------------------------------------------]]--
 
 -- Init Vars --
-DHUD_VERSION    = "Version: 1.5.40000f";
+DHUD_VERSION    = "Version: 1.5.40000g";
 DHUD_TEXT_EMPTY = "";
 DHUD_TEXT_HP2   = "<color_hp><hp_value></color>";
 DHUD_TEXT_HP3   = "<color_hp><hp_value></color>/<hp_max>";
@@ -55,6 +55,7 @@ DHUD = {
     mcpetmaxenergy    = 0,
 	mcenemycasting	  = nil,
 	mcinvehicle		  = nil,
+	mcMainTrackTarget = "player",
 	mctargetcancast	  = nil,
 	mcdkrune1		  = 1,
 	mcdkrune2		  = 1,
@@ -62,7 +63,7 @@ DHUD = {
 	mcdkrune4		  = 2,
 	mcdkrune5		  = 3,
 	mcdkrune6		  = 3,
-	mccpmoved    = 0,
+	mccpmoved		  = 0,
     -- mcplenergy     = 0,
     --
     playerbufffilter  = "HELPFUL",
@@ -280,6 +281,7 @@ DHUD = {
                 ["showauras"]          = 1,
                 ["showauratips"]       = 1,
                 ["showplayerbuffs"]    = 1,
+				["showtargetdebuffs"]  = 1,
                 ["castingbar"]         = 1,
 				["enemycastingbar"]	   = 1,
 				["castingbarinfo"]	   = 0,
@@ -451,6 +453,7 @@ function DHUD:OnEvent(event, arg1, arg2, arg3)
     -- zoning    
     elseif event == "PLAYER_ENTERING_WORLD" then
 		self.mcinvehicle = 0;
+		self.mcMainTrackTarget = "player";
         self.enter = 1;
         if self:firstload() then return; end       
         if self.issetup ~= 2 then return; end
@@ -467,8 +470,10 @@ function DHUD:OnEvent(event, arg1, arg2, arg3)
 			local hasUI = UnitHasVehicleUI("player")
 			if hasUI then
 				self.mcinvehicle = 1;
+				self.mcMainTrackTarget = "pet";
 			else
 				self.mcinvehicle = 0;
+				self.mcMainTrackTarget = "player";
 			end			
 			self:UpdateValues("DHUD_PetHealth_Text");
 		end
@@ -476,6 +481,7 @@ function DHUD:OnEvent(event, arg1, arg2, arg3)
 		if arg1 == "player" then
 			--self:print("MainEvent: "..event);
 			self.mcinvehicle = 0;
+			self.mcMainTrackTarget = "player";
 			if DHUD_Settings["animatebars"] == 1 then
 				DHUD_Settings["animatebars"] = 0;
 				self:UpdateValues("DHUD_PlayerHealth_Text");
@@ -501,8 +507,10 @@ function DHUD:OnEvent(event, arg1, arg2, arg3)
 		local hasUI = UnitHasVehicleUI("player")
 		if hasUI then
 			self.mcinvehicle = 1;
+			self.mcMainTrackTarget = "pet";
 		else
 			self.mcinvehicle = 0;
+			self.mcMainTrackTarget = "player";
 			if DHUD_Settings["animatebars"] == 1 then
 				DHUD_Settings["animatebars"] = 0;
 				self:UpdateValues("DHUD_PlayerHealth_Text");
@@ -1334,8 +1342,11 @@ function DHUD:OnUpdate(elapsed)
     	self:MCUpdatePetEnergy();
 	end
     end
-    --
+    -- Update Player Buffs
     self:PlayerAuras();
+	
+	-- Update Target Debuffs
+	self:TargetPlayerDebuff();
 	
 	--UpdateDebuffTimers,CPU consuming.
 	if DHUD_Settings["debufftimer"] == 1 and self.Target == 1 then
@@ -1535,6 +1546,32 @@ function DHUD:init()
     DHUD_PlayerBuff6_Text:SetFont( self.defaultfont, DHUD_Settings["fontsizeplayerbuff"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["playerbuffoutline"] ]);
     DHUD_PlayerBuff7_Text:SetFont( self.defaultfont, DHUD_Settings["fontsizeplayerbuff"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["playerbuffoutline"] ]);
     DHUD_PlayerBuff8_Text:SetFont( self.defaultfont, DHUD_Settings["fontsizeplayerbuff"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["playerbuffoutline"] ]);
+    DHUD_PlayerBuff9_Text:SetFont( self.defaultfont, DHUD_Settings["fontsizeplayerbuff"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["playerbuffoutline"] ]);
+    DHUD_PlayerBuff10_Text:SetFont( self.defaultfont, DHUD_Settings["fontsizeplayerbuff"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["playerbuffoutline"] ]);
+    DHUD_PlayerBuff11_Text:SetFont( self.defaultfont, DHUD_Settings["fontsizeplayerbuff"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["playerbuffoutline"] ]);
+    DHUD_PlayerBuff12_Text:SetFont( self.defaultfont, DHUD_Settings["fontsizeplayerbuff"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["playerbuffoutline"] ]);
+    DHUD_PlayerBuff13_Text:SetFont( self.defaultfont, DHUD_Settings["fontsizeplayerbuff"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["playerbuffoutline"] ]);
+    DHUD_PlayerBuff14_Text:SetFont( self.defaultfont, DHUD_Settings["fontsizeplayerbuff"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["playerbuffoutline"] ]);
+    DHUD_PlayerBuff15_Text:SetFont( self.defaultfont, DHUD_Settings["fontsizeplayerbuff"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["playerbuffoutline"] ]);
+    DHUD_PlayerBuff16_Text:SetFont( self.defaultfont, DHUD_Settings["fontsizeplayerbuff"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["playerbuffoutline"] ]);
+    DHUD_PlayerBuff17_Text:SetFont( self.defaultfont, DHUD_Settings["fontsizeplayerbuff"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["playerbuffoutline"] ]);
+    DHUD_PlayerBuff18_Text:SetFont( self.defaultfont, DHUD_Settings["fontsizeplayerbuff"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["playerbuffoutline"] ]);
+    DHUD_PlayerBuff19_Text:SetFont( self.defaultfont, DHUD_Settings["fontsizeplayerbuff"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["playerbuffoutline"] ]);
+    DHUD_PlayerBuff20_Text:SetFont( self.defaultfont, DHUD_Settings["fontsizeplayerbuff"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["playerbuffoutline"] ]);
+    DHUD_PlayerBuff21_Text:SetFont( self.defaultfont, DHUD_Settings["fontsizeplayerbuff"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["playerbuffoutline"] ]);
+    DHUD_PlayerBuff22_Text:SetFont( self.defaultfont, DHUD_Settings["fontsizeplayerbuff"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["playerbuffoutline"] ]);
+    DHUD_PlayerBuff23_Text:SetFont( self.defaultfont, DHUD_Settings["fontsizeplayerbuff"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["playerbuffoutline"] ]);
+    DHUD_PlayerBuff24_Text:SetFont( self.defaultfont, DHUD_Settings["fontsizeplayerbuff"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["playerbuffoutline"] ]);
+	
+	-- player buffs
+    DHUD_TargetDeBuff1_Text:SetFont( self.defaultfont, DHUD_Settings["fontsizeplayerbuff"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["playerbuffoutline"] ]);
+    DHUD_TargetDeBuff2_Text:SetFont( self.defaultfont, DHUD_Settings["fontsizeplayerbuff"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["playerbuffoutline"] ]);
+    DHUD_TargetDeBuff3_Text:SetFont( self.defaultfont, DHUD_Settings["fontsizeplayerbuff"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["playerbuffoutline"] ]);
+    DHUD_TargetDeBuff4_Text:SetFont( self.defaultfont, DHUD_Settings["fontsizeplayerbuff"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["playerbuffoutline"] ]);
+    DHUD_TargetDeBuff5_Text:SetFont( self.defaultfont, DHUD_Settings["fontsizeplayerbuff"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["playerbuffoutline"] ]);
+    DHUD_TargetDeBuff6_Text:SetFont( self.defaultfont, DHUD_Settings["fontsizeplayerbuff"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["playerbuffoutline"] ]);
+    DHUD_TargetDeBuff7_Text:SetFont( self.defaultfont, DHUD_Settings["fontsizeplayerbuff"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["playerbuffoutline"] ]);
+    DHUD_TargetDeBuff8_Text:SetFont( self.defaultfont, DHUD_Settings["fontsizeplayerbuff"] / DHUD_Settings["scale"], self.Outline[ DHUD_Settings["playerbuffoutline"] ]);
       
     -- Hide Blizz Target Frame
     if DHUD_Settings["btarget"] == 0 then
@@ -2098,10 +2135,10 @@ function DHUD:transform(name)
                 if (not frame:IsVisible()) then return; end
                 if DHUD_Settings["showauratips"] == 0 then return; end
                 GameTooltip:SetOwner(frame, "ANCHOR_BOTTOMRIGHT");
-				if frame.hasdebuff == 1 then
-                    GameTooltip:SetUnitDebuff("player", frame.id);
+                if frame.hasdebuff == 1 then
+                    GameTooltip:SetUnitDebuff(frame.unit, frame.id);
                 else
-                    GameTooltip:SetUnitBuff("player", frame.id);
+                    GameTooltip:SetUnitBuff(frame.unit, frame.id);
                 end
             end );
  
@@ -2398,9 +2435,9 @@ function DHUD:createFrame(name)
                 if DHUD_Settings["showauratips"] == 0 then return; end
                 GameTooltip:SetOwner(frame, "ANCHOR_BOTTOMRIGHT");
                 if frame.hasdebuff == 1 then
-                    GameTooltip:SetUnitDebuff("player", frame.id);
+                    GameTooltip:SetUnitDebuff(frame.unit, frame.id);
                 else
-                    GameTooltip:SetUnitBuff("player", frame.id);
+                    GameTooltip:SetUnitBuff(frame.unit, frame.id);
                 end
             end );
  
@@ -2565,14 +2602,8 @@ end;
 
 -- show / hide combopoints
 function DHUD:UpdateCombos()
-	local points;
-	if (not self.mcinvehicle or self.mcinvehicle == 0) then
-		points = GetComboPoints("player","target")
-		--self:print("Points: " .. points);
-	elseif self.mcinvehicle == 1 then
-		points = GetComboPoints("pet","target")
-		--self:print("Points: " .. points);
-	end
+	local points = GetComboPoints(self.mcMainTrackTarget,"target")
+	--self:print("Points: " .. points);
 	if points == 0 then 
         DHUD_Combo1:Hide();
         DHUD_Combo2:Hide();
@@ -2731,20 +2762,11 @@ function DHUD:PlayerAuras()
     if DHUD_Settings["showplayerbuffs"] == 1 and _G[buffframe .. "1"]:IsVisible() then
         for i = 1, countbd do
             -- WotLK GetPlayerBuff changed to UnitBuff
-			if (not self.mcinvehicle or self.mcinvehicle == 0) then
-				--show debuffs
-				if DHUD_Settings["playerdebuffs"] == 1 and i>40 then
-					buffI, _, pbtexture, pbcount, pbtype, _, pbtimeLeft  = UnitDebuff( "player", i-40, self.playerbufffilter );
-				else
-					buffI, _, pbtexture, pbcount, pbtype, _, pbtimeLeft  = UnitBuff( "player", i, self.playerbufffilter );
-				end
-           	elseif self.mcinvehicle == 1 then
-				--show debuffs
-				if DHUD_Settings["playerdebuffs"] == 1 and i>40 then
-					buffI, _, pbtexture, pbcount, pbtype, _, pbtimeLeft  = UnitDebuff( "pet", i-40, self.playerbufffilter );
-				else
-					buffI, _, pbtexture, pbcount, pbtype, _, pbtimeLeft  = UnitBuff( "pet", i, self.playerbufffilter );
-				end
+			--show debuffs
+			if DHUD_Settings["playerdebuffs"] == 1 and i>40 then
+				buffI, _, pbtexture, pbcount, pbtype, _, pbtimeLeft  = UnitDebuff( self.mcMainTrackTarget, i-40 ); -- , self.playerbufffilter
+			else
+				buffI, _, pbtexture, pbcount, pbtype, _, pbtimeLeft  = UnitBuff( self.mcMainTrackTarget, i ); -- , self.playerbufffilter
 			end
 			
 			-- don't show empty frames
@@ -2776,7 +2798,7 @@ function DHUD:PlayerAuras()
 					button.id = i;
 				end
                
-                button.unit = "player";
+                button.unit = self.mcMainTrackTarget;
                 
                 icon       = _G[button:GetName()];
                 icon:SetNormalTexture(pbtexture);
@@ -2817,7 +2839,90 @@ function DHUD:PlayerAuras()
     for j = j, 24 do
         button = _G[buffframe..j];
         button.hasdebuff = nil;
-        button.unit = "player";
+        button.unit = self.mcMainTrackTarget;
+        button.id = j;
+
+        button:Hide();
+    end
+	
+end
+
+
+-- update target Debuffs
+function DHUD:TargetPlayerDebuff()
+
+    local i, icon, button, pbtimeLeft, pbtexture, pbcount, pbtype, pbCaster;
+    --local pbrank, pbdebuffType, pbduration;
+    local j = 1;
+    local buffText;
+	local buffCountText;
+    local buffframe = "DHUD_TargetDeBuff";--"DHUD_TargetDeBuff";
+    local color = {};
+	local countbd = 40;
+    -- Target DeBuffs
+    if DHUD_Settings["showtargetdebuffs"] == 1 and _G[buffframe .. "1"]:IsVisible() then
+        for i = 1, countbd do
+			buffI, _, pbtexture, pbcount, pbtype, _, pbtimeLeft, pbCaster  = UnitDebuff( "target", i ); -- , self.playerbufffilter
+			
+			--[[if (buffI == nil) then
+				DHUD:print("buffI is nil");
+			else
+				DHUD:print("buffI is " .. buffI .. " caster " .. pbCaster);
+			end]]--
+			-- don't show empty frames
+            if (buffI == nil or pbCaster ~= self.mcMainTrackTarget) then pbtimeLeft=0; 
+			else 
+			pbtimeLeft = pbtimeLeft - GetTime();
+			
+            if (pbtimeLeft > 0 and pbtimeLeft < DHUD_Settings["playerbufftimefilter"]) or (DHUD_Settings["buffswithcharges"]==1 and pbcount>1) then
+				button = _G[buffframe..j];
+				
+				color.r, color.g, color.b = self:Colorize("aura_player", pbtimeLeft / 20);
+				button.hasdebuff = 1;
+				button.id = i;
+               
+                button.unit = "target";
+                
+                icon       = _G[button:GetName()];
+                icon:SetNormalTexture(pbtexture);
+                
+                buffBorder = _G[button:GetName().."_Border"];
+                buffBorder:SetVertexColor(color.r, color.g, color.b);
+                buffBorder:Show();
+                
+                buffText   = _G[button:GetName().."_Text"];
+				if pbtimeLeft > 0 then
+				    buffText:SetText("|cff"..DHUD_DecToHex(color.r, color.g, color.b)..DHUD_FormatTime(pbtimeLeft));
+				else
+					buffText:SetText("");
+				end
+                
+				if (pbcount > 1) then
+					buffCountText   = _G[button:GetName().."_CountText"];
+	                buffCountText:SetText("|cff"..DHUD_DecToHex(1, 1, 1)..pbcount);
+				else
+					buffCountText   = _G[button:GetName().."_CountText"];
+	                buffCountText:SetText("");
+				end
+                button:Show();
+                
+                -- limited number of buff slots
+                if j == 8 then
+                    self:print("You have reached the target debuff limit. Contact MADCAT and ask for more buff slots");
+                    break;
+                else
+                    j = j + 1;
+                end
+		end
+            end
+        end
+    end
+
+    -- hide the buttons not used
+    for j = j, 8 do
+        button = _G[buffframe..j];
+        button.hasdebuff = 1;
+        button.unit = "target";
         button.id = j;
 
         button:Hide();
@@ -3601,6 +3706,22 @@ function DHUD:setAlpha(mode)
         _G["DHUD_PlayerBuff14"]:Hide();
         _G["DHUD_PlayerBuff15"]:Hide();
         _G["DHUD_PlayerBuff16"]:Hide();
+        _G["DHUD_PlayerBuff17"]:Hide();
+        _G["DHUD_PlayerBuff18"]:Hide();
+        _G["DHUD_PlayerBuff19"]:Hide();
+        _G["DHUD_PlayerBuff20"]:Hide();
+        _G["DHUD_PlayerBuff21"]:Hide();
+        _G["DHUD_PlayerBuff22"]:Hide();
+        _G["DHUD_PlayerBuff23"]:Hide();
+        _G["DHUD_PlayerBuff24"]:Hide();
+		_G["DHUD_TargetDeBuff1"]:Hide();
+        _G["DHUD_TargetDeBuff2"]:Hide();
+        _G["DHUD_TargetDeBuff3"]:Hide();
+        _G["DHUD_TargetDeBuff4"]:Hide();
+        _G["DHUD_TargetDeBuff5"]:Hide();
+        _G["DHUD_TargetDeBuff6"]:Hide();
+        _G["DHUD_TargetDeBuff7"]:Hide();
+        _G["DHUD_TargetDeBuff8"]:Hide();
 		_G["DHUD_Rune1_Text"]:Hide();
 		_G["DHUD_Rune2_Text"]:Hide();
 		_G["DHUD_Rune3_Text"]:Hide();
@@ -3633,6 +3754,22 @@ function DHUD:setAlpha(mode)
         _G["DHUD_PlayerBuff14"]:Show();
         _G["DHUD_PlayerBuff15"]:Show();
         _G["DHUD_PlayerBuff16"]:Show();
+        _G["DHUD_PlayerBuff17"]:Show();
+        _G["DHUD_PlayerBuff18"]:Show();
+        _G["DHUD_PlayerBuff19"]:Show();
+        _G["DHUD_PlayerBuff20"]:Show();
+        _G["DHUD_PlayerBuff21"]:Show();
+        _G["DHUD_PlayerBuff22"]:Show();
+        _G["DHUD_PlayerBuff23"]:Show();
+        _G["DHUD_PlayerBuff24"]:Show();
+		_G["DHUD_TargetDeBuff1"]:Show();
+        _G["DHUD_TargetDeBuff2"]:Show();
+        _G["DHUD_TargetDeBuff3"]:Show();
+        _G["DHUD_TargetDeBuff4"]:Show();
+        _G["DHUD_TargetDeBuff5"]:Show();
+        _G["DHUD_TargetDeBuff6"]:Show();
+        _G["DHUD_TargetDeBuff7"]:Show();
+        _G["DHUD_TargetDeBuff8"]:Show();
 		_G["DHUD_Rune1_Text"]:Show();
 		_G["DHUD_Rune2_Text"]:Show();
 		_G["DHUD_Rune3_Text"]:Show();

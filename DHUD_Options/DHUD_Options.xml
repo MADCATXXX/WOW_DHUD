@@ -1433,13 +1433,19 @@
                                 <Offset><AbsDimension x="0" y="-25"/></Offset>
                         </Anchor></Anchors>
                     </CheckButton>
+					<!-- checkbox showtargetdebuffs -->
+					<CheckButton name="DHUD_Check_showtargetdebuffs" inherits="DHUD_Check_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Check_playerdebuffscolorize">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                        </Anchor></Anchors>
+                    </CheckButton>
 					
 					<!-- ................... -->
                     <!-- Header Scale        -->
                     <!-- ................... -->
                     <Frame name="DHUD_Header_madcat2scale" inherits="DHUD_HeaderTemplate">
                         <Scripts><OnLoad>
-                                DHUDO_Header_OnLoad(self, 10,-340);
+                                DHUDO_Header_OnLoad(self, 10,-365);
                         </OnLoad></Scripts>
                     </Frame>
 
