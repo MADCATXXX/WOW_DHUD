@@ -1,3 +1,12 @@
+changelog 1.5.30000k MADCAT Revision13:
+-fixed getTypUnit error(hellicopter in Howling Fjord) caused by blizzard function returning UnitPowerType=-1, there is no such power type :).
+-added mirror layouts to standart layouts for those who want DK_Runes on the right side, etc...
+-added color change option for DK Runic Power.
+-If color settings in saved variables are damaged DHUD will use default ones instead.
+-fixed changing color in options to not produce error on next login.
+-DHUD will change texture for units that can cast but have nomana only if they have hitpoints(probably will help with report string "PH_PM_TM" error)
+-Background texture and HUD color now changes instantly on act of Druid shapeshift.
+
 Changelog 1.5.30000j MADCAT Revision12:
 -added option to show buffs with charges
 -fixed some background textures, it should fix "DHUD: Please report MadCat this String: ph_pm_eh_th_tm" message

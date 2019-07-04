@@ -1016,13 +1016,20 @@
                             </Anchor>
                         </Anchors>
                      </Frame>
+					 <Frame name="DHUD_Colorbox_runic_power_player" inherits="DHUD_Colorbox_Template">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Colorbox_energy_player" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="0" y="-20"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                     </Frame>
 
                     <!-- ................... -->
                     <!-- Header colorspet    -->
                     <!-- ................... -->
                     <Frame name="DHUD_Header_colorspet" inherits="DHUD_HeaderTemplate">
                         <Scripts><OnLoad>
-                                DHUDO_Header_OnLoad(10,-185);
+                                DHUDO_Header_OnLoad(10,-195);
                         </OnLoad></Scripts>
                     </Frame>
 
@@ -1090,10 +1097,18 @@
                             </Anchor>
                         </Anchors>
                      </Frame>
+					 
+					 <Frame name="DHUD_Colorbox_runic_power_target" inherits="DHUD_Colorbox_Template">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Colorbox_energy_target" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="0" y="-20"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                     </Frame>
 
                     <Frame name="DHUD_Colorbox_focus_target" inherits="DHUD_Colorbox_Template">
                         <Anchors>
-                            <Anchor point="TOPLEFT" relativeTo="DHUD_Colorbox_energy_target" relativePoint="TOPLEFT">
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Colorbox_runic_power_target" relativePoint="TOPLEFT">
                                 <Offset><AbsDimension x="0" y="-20"/></Offset>
                             </Anchor>
                         </Anchors>
@@ -1112,7 +1127,7 @@
                     <!-- ................... -->
                     <Frame name="DHUD_Header_colorsother" inherits="DHUD_HeaderTemplate">
                         <Scripts><OnLoad>
-                                DHUDO_Header_OnLoad(10,-435);
+                                DHUDO_Header_OnLoad(10,-445);
                         </OnLoad></Scripts>
                     </Frame>
 
@@ -1188,6 +1203,42 @@
             				        DHUD_RADIO_layout2:SetChecked(1);
             				    else
             				        DHUD_RADIO_layout2:SetChecked(nil);
+            				    end
+            				</OnLoad>
+            				<OnClick>DHUD_RadioButton_OnClick( this:GetID() )</OnClick>
+            			</Scripts>
+            		</CheckButton>
+					<CheckButton name="DHUD_RADIO_layout3" inherits="DHUD_RadioButtonTemplate" id="3">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_RADIO_layout2" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                            </Anchor>
+                        </Anchors>
+            			<Scripts>
+            				<OnLoad>
+            				    getglobal(this:GetName().."Text"):SetText("|cff88ff88DHUD Layout1|r (Mirror)");
+            				    if DHUD:GetConfig("layouttyp") == "DHUD_StandardMirror_Layout" then
+            				        DHUD_RADIO_layout3:SetChecked(1);
+            				    else
+            				        DHUD_RADIO_layout3:SetChecked(nil);
+            				    end
+            				</OnLoad>
+            				<OnClick>DHUD_RadioButton_OnClick( this:GetID() )</OnClick>
+            			</Scripts>
+            		</CheckButton>
+					<CheckButton name="DHUD_RADIO_layout4" inherits="DHUD_RadioButtonTemplate" id="4">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_RADIO_layout3" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                            </Anchor>
+                        </Anchors>
+            			<Scripts>
+            				<OnLoad>
+            				    getglobal(this:GetName().."Text"):SetText("|cff88ff88DHUD Layout2|r (Mirror)");
+            				    if DHUD:GetConfig("layouttyp") == "DHUD_PlayerLeftMirror_Layout" then
+            				        DHUD_RADIO_layout4:SetChecked(1);
+            				    else
+            				        DHUD_RADIO_layout4:SetChecked(nil);
             				    end
             				</OnLoad>
             				<OnClick>DHUD_RadioButton_OnClick( this:GetID() )</OnClick>

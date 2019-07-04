@@ -3,7 +3,7 @@ DHUDDROPDOWNSELECTED = "";
 
 --Ace3 Profile Support
 local AppName = "DHUDO"
-local VERSION = AppName .. "v 1.5.30000j"
+local VERSION = AppName .. "v 1.5.30000k"
 
 local AceConfig = LibStub("AceConfig-3.0")
 local AceDBOptions = LibStub("AceDBOptions-3.0")
@@ -70,11 +70,11 @@ local defaults = {
                 ["DHUD_Target_Text"]       = "<color_level><level><elite></color> <color_reaction><name></color> [<color_class><class><type><pet><npc></color>] <pvp>",
                 ["DHUD_TargetTarget_Text"] = "<color_level><level><elite></color> <color_reaction><name></color> [<color_class><class><type><pet><npc></color>] <pvp>",
 				["DHUD_Rune1_Text"]		   = "<color>ffff00<Rune1CD></color>",
-				["DHUD_Rune2_Text"]		   = "<color>ffff00<Rune1CD></color>",
-				["DHUD_Rune3_Text"]		   = "<color>ffff00<Rune1CD></color>",
-				["DHUD_Rune4_Text"]		   = "<color>ffff00<Rune1CD></color>",
-				["DHUD_Rune5_Text"]		   = "<color>ffff00<Rune1CD></color>",
-				["DHUD_Rune6_Text"]		   = "<color>ffff00<Rune1CD></color>",
+				["DHUD_Rune2_Text"]		   = "<color>ffff00<Rune2CD></color>",
+				["DHUD_Rune3_Text"]		   = "<color>ffff00<Rune3CD></color>",
+				["DHUD_Rune4_Text"]		   = "<color>ffff00<Rune4CD></color>",
+				["DHUD_Rune5_Text"]		   = "<color>ffff00<Rune5CD></color>",
+				["DHUD_Rune6_Text"]		   = "<color>ffff00<Rune6CD></color>",
                                 
                 ["playerhpoutline"]     = 1,
                 ["playermanaoutline"]   = 1,
@@ -133,6 +133,8 @@ local defaults = {
                                         rage_target   = { "aa0000", "aa0000", "aa0000" }, --
                                         energy_player = { "FFFF00", "FFFF00", "FFFF00" }, --
                                         energy_target = { "aaaa00", "aaaa00", "aaaa00" }, --
+										runic_power_player  = { "004060", "004060", "004060" }, --
+										runic_power_target  = { "004060", "004060", "004060" }, --
                                         focus_target  = { "aa4400", "aa4400", "aa4400" }, --
                                         focus_pet     = { "aa4400", "aa4400", "aa4400" }, --
                                         castbar       = { "00FF00", "88FF00", "FFFF00" }, --
@@ -155,6 +157,13 @@ function DHUDO:LoadDHUDSettingsToDB()
 	for k, v in pairs(DHUD_Settings) do
         db[k] = DHUD_Settings[k];
     end
+end
+
+function DHUDO:ResetColorSettings()
+	for k, v in pairs(defaults.profile["colors"]) do
+		DHUD_Settings["colors"][k] = defaults.profile["colors"][k];
+		db["colors"][k] = defaults.profile["colors"][k];
+	end
 end
 
 function DHUDO:SetDBSetting(key,value)
@@ -380,12 +389,20 @@ end
 function DHUD_RadioButton_OnClick(index)
 	DHUD_RADIO_layout1:SetChecked(nil);
 	DHUD_RADIO_layout2:SetChecked(nil);
+	DHUD_RADIO_layout3:SetChecked(nil);
+	DHUD_RADIO_layout4:SetChecked(nil);
 	if index == 1 then
 		DHUD_RADIO_layout1:SetChecked(1);
 		DHUD:transformFrames("DHUD_Standard_Layout");
-	else
+	elseif index == 2 then
 		DHUD_RADIO_layout2:SetChecked(1);
 		DHUD:transformFrames("DHUD_PlayerLeft_Layout");
+	elseif index == 3 then
+		DHUD_RADIO_layout3:SetChecked(1);
+		DHUD:transformFrames("DHUD_StandardMirror_Layout");
+	elseif index == 4 then
+		DHUD_RADIO_layout4:SetChecked(1);
+		DHUD:transformFrames("DHUD_PlayerLeftMirror_Layout");
 	end
 end
 
@@ -396,6 +413,13 @@ function DHUDO_ColorPicker_ColorChanged()
     DHUD_Settings["colors"][ColorPickerFrame.objname][ColorPickerFrame.objindex] = DHUD_DecToHex(r,g,b);
 	db["colors"][ColorPickerFrame.objname][ColorPickerFrame.objindex] = DHUD_DecToHex(r,g,b);
     --getglobal(ColorPickerFrame.tohue):SetTexture(r,g,b);
+	-- revision13: Copy other colors to options or it will cause an error(hadn't helped)
+	--DEFAULT_CHAT_FRAME:AddMessage("objname: ".. ColorPickerFrame.objname .. " objindex: " .. ColorPickerFrame.objindex);
+	--if not(ColorPickerFrame.objindex == 1) then
+	--	DHUD_Settings["colors"][ColorPickerFrame.objname][1] = DHUD_Settings["colors"][ColorPickerFrame.objname][1];
+	--	db["colors"][ColorPickerFrame.objname][1] = DHUD_Settings["colors"][ColorPickerFrame.objname][1];
+	--end
+	
     DHUDO_changeG(ColorPickerFrame.objname);
     DHUD:init();
 end

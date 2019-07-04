@@ -1,8 +1,8 @@
-## Interface: 30000
-## Title: Drathals HUD [|cffffffffv1.5.30000j|r]
+## Interface: 30008
+## Title: Drathals HUD [|cffffffffv1.5.30000k|r]
 ## Author: Markus Inger (Drathal/Silberklinge), Howie (Caeryn)
 ## Maintained By: Mad Cat
-## Version: v1.5.30000j
+## Version: v1.5.30000k
 ## Notes: Drathals HUD. 
 ## SavedVariables: DHUDODB3
 ## SavedVariablesPerCharacter: DHUD_Settings
@@ -11,6 +11,8 @@ localization.lua
 MyMinimapButton.lua
 layout\DHUD_Layout.lua
 layout\DHUD_Layout_2.lua
+layout\DHUD_Layout_3.lua
+layout\DHUD_Layout_4.lua
 DHUD_Commands.lua
 DHUD_Vars.lua
 DHUD_Misc.lua

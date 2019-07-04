@@ -1,4 +1,4 @@
-TODO:
+TODO(revision12):
 \/ : DK regen alpha - turn off text.
 \/ : Set debuff timers to nill on turn off.
 \/ : DK RUNES

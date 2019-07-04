@@ -4,7 +4,7 @@ DHUD modification for WotLK Beta by MADCAT
 -----------------------------------------------------------------------------------]]--
 
 -- Init Vars --
-DHUD_VERSION    = "Version: 1.5.30000j";
+DHUD_VERSION    = "Version: 1.5.30000k";
 DHUD_TEXT_EMPTY = "";
 DHUD_TEXT_HP2   = "<color_hp><hp_value></color>";
 DHUD_TEXT_HP3   = "<color_hp><hp_value></color>/<hp_max>";
@@ -212,7 +212,7 @@ DHUD = {
                       "UNIT_SPELLCAST_CHANNEL_START","UNIT_SPELLCAST_CHANNEL_UPDATE","UNIT_SPELLCAST_DELAYED","UNIT_SPELLCAST_FAILED",
                       "UNIT_SPELLCAST_INTERRUPTED","UNIT_SPELLCAST_START","UNIT_SPELLCAST_STOP","UNIT_SPELLCAST_CHANNEL_STOP",
                       "PLAYER_UPDATE_RESTING","UNIT_PVP_UPDATE","PLAYER_PET_CHANGED","UNIT_PVP_STATUS","PLAYER_UNGHOST",
-                      "UNIT_HAPPINESS", "UNIT_ENTERED_VEHICLE", "UNIT_EXITED_VEHICLE", "VEHICLE_PASSENGERS_CHANGED" --, "COMPANION_UPDATE" , "UNIT_ENTERING_VEHICLE"
+                      "UNIT_HAPPINESS", "UNIT_ENTERED_VEHICLE", "UNIT_EXITED_VEHICLE", "VEHICLE_PASSENGERS_CHANGED", "UPDATE_SHAPESHIFT_FORM" --"UPDATE_SHAPESHIFT_FORMS"--, "COMPANION_UPDATE" , "UNIT_ENTERING_VEHICLE"
     },
 
     -- movable farme
@@ -297,11 +297,11 @@ DHUD = {
                 ["DHUD_Target_Text"]       = "<color_level><level><elite></color> <color_reaction><name></color> [<color_class><class><type><pet><npc></color>] <pvp>",
                 ["DHUD_TargetTarget_Text"] = "<color_level><level><elite></color> <color_reaction><name></color> [<color_class><class><type><pet><npc></color>] <pvp>",
 				["DHUD_Rune1_Text"]		   = "<color>ffff00<Rune1CD></color>",
-				["DHUD_Rune2_Text"]		   = "<color>ffff00<Rune1CD></color>",
-				["DHUD_Rune3_Text"]		   = "<color>ffff00<Rune1CD></color>",
-				["DHUD_Rune4_Text"]		   = "<color>ffff00<Rune1CD></color>",
-				["DHUD_Rune5_Text"]		   = "<color>ffff00<Rune1CD></color>",
-				["DHUD_Rune6_Text"]		   = "<color>ffff00<Rune1CD></color>",
+				["DHUD_Rune2_Text"]		   = "<color>ffff00<Rune2CD></color>",
+				["DHUD_Rune3_Text"]		   = "<color>ffff00<Rune3CD></color>",
+				["DHUD_Rune4_Text"]		   = "<color>ffff00<Rune4CD></color>",
+				["DHUD_Rune5_Text"]		   = "<color>ffff00<Rune5CD></color>",
+				["DHUD_Rune6_Text"]		   = "<color>ffff00<Rune6CD></color>",
 				
                 ["playerhpoutline"]     = 1,
                 ["playermanaoutline"]   = 1,
@@ -360,6 +360,8 @@ DHUD = {
                                         rage_target   = { "aa0000", "aa0000", "aa0000" }, --
                                         energy_player = { "FFFF00", "FFFF00", "FFFF00" }, --
                                         energy_target = { "aaaa00", "aaaa00", "aaaa00" }, --
+										runic_power_player  = { "004060", "004060", "004060" }, --
+										runic_power_target  = { "004060", "004060", "004060" }, --
                                         focus_target  = { "aa4400", "aa4400", "aa4400" }, --
                                         focus_pet     = { "aa4400", "aa4400", "aa4400" }, --
                                         castbar       = { "00FF00", "88FF00", "FFFF00" }, --
@@ -405,6 +407,13 @@ function DHUD:OnEvent()
 	--if event == "UNIT_ENTERED_VEHICLE" or event == "UNIT_EXITED_VEHICLE" or event == "UNIT_ENTERING_VEHICLE" or event == "VEHICLE_PASSENGERS_CHANGED" or event == "COMPANION_UPDATE" then
 	--    if arg1 then
 	--	self:print("MainEvent: "..event .. " arg1: " .. arg1);
+	--	else
+	--		self:print("MainEvent: "..event .. " arg1: nill");
+	--	end
+	--end
+	--if event =="UPDATE_SHAPESHIFT_FORM" or event =="UPDATE_SHAPESHIFT_FORMS" then
+	--	if arg1 then
+	--		self:print("MainEvent: "..event .. " arg1: " .. arg1);
 	--	else
 	--		self:print("MainEvent: "..event .. " arg1: nill");
 	--	end
@@ -561,7 +570,19 @@ function DHUD:OnEvent()
     -- target changed   
     elseif event == "PLAYER_TARGET_CHANGED" then  
         self:TargetChanged();
-    -- update target Auras
+		
+    --update texture after shapeshift anc  HUD color
+	elseif event =="UPDATE_SHAPESHIFT_FORM" then
+		mcplenergy = UnitMana("player");
+		mcplmaxenergy = UnitManaMax("player");
+		local value = tonumber(mcplenergy/mcplmaxenergy);
+		local typunit = DHUD:getTypUnit("player","mana");
+		local color = DHUD_DecToHex(DHUD:Colorize(typunit,value));
+		local bar  = self.text2bar["DHUD_PlayerMana_Text"];
+		self:SetBarColor(bar,value);
+    	self:ChangeBackgroundTexture();	
+		
+	-- update target Auras
     elseif (event == "UNIT_AURA" and arg1 == "target") then
         self:TargetAuras();
     -- update Combopoints
@@ -705,6 +726,11 @@ function DHUD:OnEvent()
                 this.delay     = this.delay + delay;
                 
                 local time = GetTime();
+				--fixes attempt to work with nil value endtime
+				if (not this.endTime) then
+					this.endTime=time
+				end
+				
                 if (time > this.endTime) then
                     time = this.endTime
                 end
@@ -854,6 +880,7 @@ function DHUD:OnEvent()
                 this.enemydelay     = this.enemydelay + enemydelay;
                 
                 local time = GetTime();
+				--fixes attempt to work with nil value enemyendtime
 				if (not this.enemyendTime) then
 					this.enemyendTime=time
 				end
@@ -1380,6 +1407,12 @@ function DHUD:prepareColors()
         local color2 = {};
         local h0, h1, h2;  
         h0, h1, h2 = unpack(DHUD_Settings["colors"][k]);
+		if not h0 or not h1 or not h2 then
+			self:print("One of color settings is damaged, reseting to default");
+			self:OptionsFrame_Toggle();
+			DHUDO:ResetColorSettings();
+			self:OptionsFrame_Toggle();
+		end
 		--mcdebug
 		--[[if h0 or h1 or h2 then
 			self:print("h0: ".. h0 .. " h1: " .. h1 .. " h2: " .. h2 .. " k: " .. k);
@@ -1775,7 +1808,7 @@ end
 
 -- Transform Frames
 function DHUD:transformFrames(layout)
-    if layout == "DHUD_Standard_Layout" or layout == "DHUD_PlayerLeft_Layout" then
+    if layout == "DHUD_Standard_Layout" or layout == "DHUD_PlayerLeft_Layout" or layout == "DHUD_StandardMirror_Layout" or layout == "DHUD_PlayerLeftMirror_Layout" then
         self:SetConfig( "layouttyp", layout );
         self:setLayout();
     
@@ -2327,7 +2360,12 @@ function DHUD:getTypUnit(unit,typ)
     -- what power type?
     if typ == "mana" then
         if UnitPowerType(unit) then
+			--self:print("Unit Power Type: "..UnitPowerType(unit) .. " unit: " .. unit);
             typ = self.powertypes[ UnitPowerType(unit)+1 ];
+			-- Hellicopter in Howling Fjord returns UnitPowerType = -1; fixing it
+			if not typ then
+				typ = self.powertypes [4];
+			end
         end
     end
     -- create index
@@ -3134,7 +3172,8 @@ function DHUD:ChangeBackgroundTexture()
         if self.has_pet_mana      then what = what.."_em"; end
         if self.has_target_health then what = what.."_th"; end
         if self.has_target_mana   then what = what.."_tm"; end
-		if not (self.has_target_mana) and mctargetcancast == 1 then what = what.."_tm"; end
+		-- Create DHUD Background for enemyes that can cast
+		if not (self.has_target_mana) and mctargetcancast == 1 and self.has_target_health then what = what.."_tm"; end
 		
         
         local texture,x0,x1,y0,y1;
@@ -3555,6 +3594,23 @@ function DHUD:SetDefaultConfig(key)
             end
         end
     end
+	
+	-- Copy default colors for those settings that didn't change fully
+	if (key == "colors") then
+		for k, v in pairs(self.Config_default["colors"]) do
+			--self:print("k: " .. k);
+			--self:print("Color: " .. DHUD_Settings["colors"][k][1]);
+			if not DHUD_Settings["colors"][k][1] then
+				DHUD_Settings["colors"][k][1] = self.Config_default["colors"][k][1]
+			end
+			if not DHUD_Settings["colors"][k][2] then
+				DHUD_Settings["colors"][k][2] = self.Config_default["colors"][k][2]
+			end
+			if not DHUD_Settings["colors"][k][3] then
+				DHUD_Settings["colors"][k][3] = self.Config_default["colors"][k][3]
+			end
+		end
+	end
 end
 
 -- SlashCommand Handler
