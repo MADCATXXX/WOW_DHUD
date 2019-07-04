@@ -49,7 +49,7 @@
 
 	<Button name="DHUD_TabButtonTemplate" virtual="true">
 		<Size>
-            <AbsDimension x="115" y="32"/>
+            <AbsDimension x="70" y="32"/>
         </Size>
         <Layers>
         	<Layer level="BACKGROUND">
@@ -175,7 +175,7 @@
             <OnLoad>
                 this:SetText(DHUDO_locale[this:GetName()]);
                 getglobal(this:GetName().."HighlightTexture"):SetWidth(this:GetTextWidth() + 31);
-                PanelTemplates_TabResize(-15, nil, nil, 150);
+				<!--Before WotLK PanelTemplates_TabResize(-15, nil, nil, 150);-->
             </OnLoad>
             <OnClick>
                 PanelTemplates_SetTab(DHUDOptionsFrame, this:GetID());
@@ -510,13 +510,13 @@
                                 DHUD:SetConfig( name , this:GetText() );
                                 
                                 UIDropDownMenu_SetSelectedID( dropdown, 1 );
-                                UIDropDownMenu_SetText( DHUDO_SELECTION[name]["table"][1] , dropdown);
+                                UIDropDownMenu_SetText( dropdown, DHUDO_SELECTION[name]["table"][1] );
                                 
                                 for key, str in pairs(DHUDO_SELECTION[name]["values"]) do
                                     if DHUD:GetConfig(name) == str then
                                         UIDropDownMenu_SetSelectedID( dropdown, key );
                                         droptext = DHUDO_SELECTION[name]["table"][key];
-                                        UIDropDownMenu_SetText(droptext, dropdown);
+                                        UIDropDownMenu_SetText( dropdown, droptext );
                                     end
                                 end
                                 
@@ -586,13 +586,13 @@
                 dropdown.tooltipText = tipptext;
                 
                 UIDropDownMenu_SetSelectedID( dropdown, 1 );
-                UIDropDownMenu_SetText( DHUDO_SELECTION[this.setting_name]["table"][1] , dropdown);
+                UIDropDownMenu_SetText( dropdown, DHUDO_SELECTION[this.setting_name]["table"][1] );
                 
                 for key, str in ipairs(DHUDO_SELECTION[this.setting_name]["values"]) do
                     if DHUD:GetConfig(this.setting_name) == str then
                         UIDropDownMenu_SetSelectedID( dropdown, key );
                         droptext = DHUDO_SELECTION[this.setting_name]["table"][key];
-                        UIDropDownMenu_SetText(droptext, dropdown);
+                        UIDropDownMenu_SetText( dropdown , droptext );
                     end
                 end
 

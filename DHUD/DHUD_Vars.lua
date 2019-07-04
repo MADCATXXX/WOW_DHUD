@@ -102,23 +102,7 @@ DHUD_variables = {
                 local h;
                 
                 if unit == "target" then
-                    -- mobhealth2
-                    if MobHealth_GetTargetCurHP then
-                        h = MobHealth_GetTargetCurHP();
-                    -- mobinfo
-                    elseif MobHealth_PPP and UnitName(unit) and UnitLevel(unit) then
-                        local mi = UnitName(unit)..":"..UnitLevel(unit);
-                        local p = MobHealth_PPP(mi);
-                        h = math.floor(UnitHealth(unit) * p + 0.5);
-                    -- telos mobhealth
-                    elseif MobHealthDB and UnitName(unit) and UnitLevel(unit) then
-                        local mi = UnitName(unit)..":"..UnitLevel(unit);
-                        local p = DHUD_MobHealth_PPP(mi);
-                        h = math.floor(UnitHealth(unit) * p + 0.5);
-                    -- blizz
-                    else
-                        h = UnitHealth(unit);
-                    end
+                    h = UnitHealth(unit);
                 else
                     h = UnitHealth(unit);
                 end
@@ -139,23 +123,7 @@ DHUD_variables = {
                 local h;
                 
                 if unit == "target" then
-                    -- mobhealth2
-                    if MobHealth_GetTargetMaxHP and UnitHealth(unit) > 0 then
-                        h = MobHealth_GetTargetMaxHP();
-                    -- mobinfo
-                    elseif MobHealth_PPP and UnitName(unit) and UnitLevel(unit) then
-                        local mi = UnitName(unit)..":"..UnitLevel(unit);
-                        local p = MobHealth_PPP(mi);
-                        h = math.floor(100 * p + 0.5);
-                    -- telos mobhealth
-                    elseif MobHealthDB and UnitName(unit) and UnitLevel(unit) then
-                        local mi = UnitName(unit)..":"..UnitLevel(unit);
-                        local p = DHUD_MobHealth_PPP(mi);
-                        h = math.floor(100 * p + 0.5);
-                    -- blizz
-                    else
-                        h = UnitHealthMax(unit);
-                    end
+                    h = UnitHealthMax(unit);
                 else
                     h = UnitHealthMax(unit);
                 end
@@ -176,27 +144,8 @@ DHUD_variables = {
                 local m;
                 
                 if unit == "target" then
-                    -- mobhealth2
-                    if MobHealth_GetTargetMaxHP and UnitHealth(unit) > 0 then
-                        m = MobHealth_GetTargetMaxHP();
-                        h = MobHealth_GetTargetCurHP();
-                    -- mobinfo
-                    elseif MobHealth_PPP and UnitName(unit) and UnitLevel(unit) then
-                        local mi = UnitName(unit)..":"..UnitLevel(unit);
-                        local p = MobHealth_PPP(mi);
-                        m = math.floor(100 * p + 0.5);
-                        h = math.floor(UnitHealth(unit) * p + 0.5);
-                    -- telos mobhealth
-                    elseif MobHealthDB and UnitName(unit) and UnitLevel(unit) then
-                        local mi = UnitName(unit)..":"..UnitLevel(unit);
-                        local p = DHUD_MobHealth_PPP(mi);
-                        m = math.floor(100 * p + 0.5);
-                        h = math.floor(UnitHealth(unit) * p + 0.5);
-                    -- blizz
-                    else
-                        m = UnitHealthMax(unit);
-                        h = UnitHealth(unit);
-                    end
+                    m = UnitHealthMax(unit);
+                    h = UnitHealth(unit);
                 else
                     m = UnitHealthMax(unit);
                     h = UnitHealth(unit);

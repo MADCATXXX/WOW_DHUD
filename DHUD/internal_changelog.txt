@@ -1,3 +1,14 @@
+Changelog 1.5.30000c Beta1:
+-Pet Mana Updated every 0.1sec
+-removed MobInfo, MobHealth, MobHealth2 support, nolonger needed
+-fixed tab shifting
+-fixed "..\FrameXML\UIPanelTemplates.lua line 32: attempt to index local 'tab' (a number value)" error when opening options.
+
+Changelog 1.5.30000b Beta0:
+-rewrited functions to work with 3.0 interface
+-Added basic support for DK
+-Player Mana Updated every 0.1 sec
+
 Changelog 1.3.20000 Beta1:
 - Fixed a bug with tab 3 of the options where the dropdown menu was not properly synchronized with the actual value
 - Added options to colorize the player buffs

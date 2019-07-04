@@ -4,7 +4,7 @@ DHUD modification for WotLK Beta by MADCAT
 -----------------------------------------------------------------------------------]]--
 
 -- Init Vars --
-DHUD_VERSION    = "Version: 1.5.30000b";
+DHUD_VERSION    = "Version: 1.5.30000c";
 DHUD_TEXT_EMPTY = "";
 DHUD_TEXT_HP2   = "<color_hp><hp_value></color>";
 DHUD_TEXT_HP3   = "<color_hp><hp_value></color>/<hp_max>";
@@ -399,6 +399,7 @@ function DHUD:OnEvent()
 		end
         elseif arg1 == "pet" then
             self:UpdateValues("DHUD_PetMana_Text");
+		mcpetmaxenergy = UnitManaMax("pet");
         end
         
         -- Druidbar support
@@ -843,6 +844,11 @@ function DHUD:OnUpdate()
     -- self:triggerTextEvent("DHUD_PlayerMana_Text");
     -- Self writed function
     self:MCUpdatePlayerEnergy();
+    
+    -- MADCAT pet energy update
+    if self.has_pet_mana == 1 then
+    	self:MCUpdatePetEnergy();
+    end
     --
     self:PlayerAuras();
 end
@@ -960,6 +966,7 @@ function DHUD:init()
     
     -- Madcat Update Energy Information
     mcplmaxenergy = UnitManaMax("player");
+    mcpetmaxenergy = UnitManaMax("pet");
     -- mcplenergy = UnitMana("player");
                     
     -- Update Combos
@@ -1119,23 +1126,6 @@ function DHUD:init()
         CastingBarFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE");
         CastingBarFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP");
     end;
-   
-    -- hide mobhealth frame?
-    if DHUD_Settings["btarget"] == 0 then     
-        if (MI2_MobHealthFrame) then
-            MI2_MobHealthFrame:Hide();
-        end
-        if (MobHealthFrame) then
-            MobHealthFrame:Hide();
-        end  
-    else
-        if (MI2_MobHealthFrame) then
-            MI2_MobHealthFrame:Show();
-        end
-        if (MobHealthFrame) then
-            MobHealthFrame:Show();
-        end  
-    end     
    
     -- update Alpha
     self.inCombat = nil;
@@ -2103,6 +2093,47 @@ function DHUD:MCUpdatePlayerEnergy()
     font:SetText(text);
     -- end
 end
+
+-- ######MADCAT: UpdatePetEnergy smoothly
+function DHUD:MCUpdatePetEnergy()
+    this.unit = getglobal("DHUD_PetMana_Text").unit;
+    this.vars = getglobal("DHUD_PetMana_Text").vars;
+    this.text = getglobal("DHUD_PetMana_Text").text;
+    
+    local font = getglobal("DHUD_PetMana_Text".."_Text");
+    
+    local text  = this.text;
+    local mcpetenergy = UnitMana("pet");
+    if (mcpetenergy>mcpetmaxenergy) then
+		mcpetenergy=mcpetmaxenergy;
+    end
+
+    -- Update Bar
+    value = tonumber(mcpetenergy/mcpetmaxenergy);
+    local bar  = self.text2bar["DHUD_PetMana_Text"];
+    self.bar_values[bar] = value;
+    if DHUD_Settings["animatebars"] == 0 or set then
+        self.bar_anim[bar] = value;
+        self:SetBarHeight(bar,value); 
+        self:SetBarColor(bar,value);
+    end       
+    
+    -- Set text
+    value = math.floor(value * 100);
+    local typunit = DHUD:getTypUnit(this.unit,"mana");
+    local color = DHUD_DecToHex(DHUD:Colorize(typunit,100));
+    text = DHUD:gsub(text, '<color_mp>', "|cff"..color);
+    text = DHUD:gsub(text, '<mp_value>', mcpetenergy);
+    text = DHUD:gsub(text, '</color>', '|r');
+    text = DHUD:gsub(text, '<color>', '|cff');
+    text = DHUD:gsub(text, '<mp_percent>', value.."%%");
+    -- text = string.gsub(text, "  "," ");
+    -- text = string.gsub(text,"(^%s+)","");
+    -- text = string.gsub(text,"(%s+$)","");
+    font:SetText(text);
+    -- end
+end
+
 
 	
 

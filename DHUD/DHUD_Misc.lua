@@ -77,25 +77,6 @@ function DHUD_tablecopy(tbl)
   --return setmetatable(t, DHUD_tablecopy(getmetatable(tbl)))
 end
 
--- telos mobhealth support
-function DHUD_MobHealth_PPP(index)
-    if( index and MobHealthDB[index] ) then
-        local s, e;
-        local pts;
-        local pct;
-        
-        s, e, pts, pct = string.find(MobHealthDB[index], "^(%d+)/(%d+)$");
-        if( pts and pct ) then
-            pts = pts + 0;
-            pct = pct + 0;
-            if( pct ~= 0 ) then
-                return pts / pct;
-            end
-        end
-    end
-    return 0;
-end
-
 function DHUD_FormatTime(secs)
 	--day
 	if secs >= 86400 then
