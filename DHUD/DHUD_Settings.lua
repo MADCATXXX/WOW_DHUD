@@ -502,6 +502,8 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				33206, -- Priest: Pain Supression, reduces all damage by 40%
 				31224, -- Rogue: Cloak of Shadows, prevents all magic damage to target
 				5277, -- Rogue: Evasion, increased dodge chance by 100%
+				115176,	-- Monk: Zen Meditation, reduces magic damage by 90%
+				--122470, -- Monk: Touch of Karma, redirects all damage to enemy
 				30823, -- Shaman: Shamanistic Rage, reduces all damage by 30%
 				110913, -- Warlock: Dark Bargain, prevents all damage, 50% of the damage will be dealed after buff expires
 				104773, -- Warlock: Unending Resolve, reduces all damage by 40%
@@ -901,7 +903,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			-- increases maximum camera distance to highest value
 			["cameraMaxDistance"] = "SetCVar(\"cameraDistanceMaxFactor\", 4);",
 			-- hide recruit a friend rewards on logon, can be usefull when you don't want to use reward until new mount for RAF is available
-			["hideRAF"] = "",
+			["hideRAF"] = "if (ProductChoiceFrame.mainAlertFrame ~= nil) then ProductChoiceFrame.mainAlertFrame:Hide(); ProductChoiceFrame.mainAlertFrame:Hide(); ProductChoiceFrame.secondAlertFrame:Hide(); end",
 		}, 2 },
 	},
 	-- settings table in following format: setting = value

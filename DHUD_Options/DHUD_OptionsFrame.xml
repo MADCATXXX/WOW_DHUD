@@ -2896,6 +2896,7 @@
 								<Attributes>
 									<Attribute name="LTEXT" value="SETTING_SERVICE_LUA_ONLOAD" />
 									<Attribute name="SETTING" value="service_luaStartUp" />
+									<Attribute name="HELP" value="HELP_SERVICE_LUASTARTUP" />
 								</Attributes>
 							</Frame>
 							<Frame name="$parent_HeaderBlizzard" inherits="DHUD_OptionsTemplate_Header">

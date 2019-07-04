@@ -36,6 +36,7 @@ L["HELP_UNITTEXTS_TYPE"] = {
 		"<delay>\nарг1 = префикс закл.\nарг2 = преф. поддерж. з.\n\n" ..
 		"<spellname>\nарг1 = Текст прерывания\n",
 };
+L["HELP_SERVICE_LUASTARTUP"] = "Укажите код для\nисполнения при\nзапуске\n\nПример можно найти в\nфайле DHUD_Settings.lua\nпод ключом\n\"luaStartUpCodes\"\nЛибо написав в чате:\n/dhud debug set_exlua";
 -- tabs
 L["TAB_GENERAL"] = "Общие";
 L["TAB_LAYOUTS"] = "Разметка";

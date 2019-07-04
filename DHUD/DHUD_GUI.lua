@@ -2111,6 +2111,10 @@ function DHUDGUI:createSpellCircleFrame(name)
 	return frame;
 end
 
+function DHUDGUI:createSpellCircleOverlayFrame(name)
+
+end
+
 --- Create spell rectangle frame near bottom text
 -- @param name name of the frame
 -- @param parentName name of the parent frame, this frame will be inserted to parent container (should be bottom textField)

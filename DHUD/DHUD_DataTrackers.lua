@@ -1319,7 +1319,7 @@ end
 
 --- Base class for trackers of timers for player buffs and cooldowns
 DHUDTimersTracker = MCCreateSubClass(DHUDDataTracker, {
-	-- list with timers, that should be shown in GUI, each element is table with following data: { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder } (where type - type of the timer from class consts, id - spell or item id for tooltip)
+	-- list with timers, that should be shown in GUI, each element is table with following data: { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder, grouped, groupData } (where type - type of the timer from class consts, id - spell or item id for tooltip)
 	timers				= nil,
 	-- table with tables of filtered timers, updated on each filterTimers function call
 	filteredTimers		= nil,
@@ -1329,8 +1329,10 @@ DHUDTimersTracker = MCCreateSubClass(DHUDDataTracker, {
 	sourceInfo			= nil,
 	-- time at which timers was updated
 	timeUpdatedAt		= 0,
-	-- custom trackers list
+	-- table with custom trackers, each key is timerGroupId, each value is array with customTracker implementation objects
 	customTrackers		= nil,
+	-- number of custom trackers for perfomance improvement
+	customTrackersCount	= 0,
 	-- table to describe inactive timer when timers are grouped using groupTimersByTime function
 	GROUP_INACTIVE_TIMER = { },
 })
@@ -1342,6 +1344,7 @@ function DHUDTimersTracker:constructor()
 	self.filteredTimers = { };
 	self.sources = { };
 	self.customTrackers = { };
+	self.customTrackersCount = 0;
 	-- custom events
 	self.eventDataTimersChanged = DHUDDataTrackerEvent:new(DHUDDataTrackerEvent.EVENT_DATA_TIMERS_UPDATED, self);
 	-- call super constructor
@@ -1516,7 +1519,9 @@ end
 -- @param sourceId id of the source, number
 function DHUDTimersTracker:findSourceTimersEnd(sourceId)
 	-- update custom data trackers before finishing
-	self:updateCustomTrackersData(sourceId);
+	if (self.customTrackersCount > 0) then
+		self:updateCustomTrackersData(sourceId);
+	end
 	--print("findSourceTimersEnd");
 	local sourceInfo = self.sources[sourceId];
 	-- remove all timers that no longer exists in source
@@ -1739,12 +1744,12 @@ end
 --- update custom trackers data for timers group specified
 -- @param timersGroup timers group to be updated
 function DHUDTimersTracker:updateCustomTrackersData(timersGroup)
-	if (#self.customTrackers ~= 0) then
-		for i, v in ipairs(self.customTrackers) do
-			if (v[2] == timersGroup) then
-				v[1]:updateTimers();
-			end
-		end
+	local customTrackersForGroup = self.customTrackers[timersGroup];
+	if (customTrackersForGroup == nil) then
+		return;
+	end
+	for i, v in ipairs(customTrackersForGroup) do
+		v:updateTimers();
 	end
 end
 
@@ -1766,23 +1771,35 @@ end
 
 --- add custom tracker for better timers tracking
 -- @param customTracker custom tracker to use
+-- @param timersGroup id of the timers group to be updated
 function DHUDTimersTracker:addCustomTracker(customTracker, timersGroup)
 	if (customTracker ~= nil) then
-		local customTrackerInfo = { customTracker, timersGroup };
-		table.insert(self.customTrackers, customTrackerInfo);
+		local customTrackersForGroup = self.customTrackers[timersGroup];
+		if (customTrackersForGroup == nil) then
+			customTrackersForGroup = { };
+			self.customTrackers[timersGroup] = customTrackersForGroup;
+		end
+		table.insert(customTrackersForGroup, customTracker);
+		self.customTrackersCount = self.customTrackersCount + 1;
 		customTracker:addEventListener(DHUDDataTrackerEvent.EVENT_DATA_CHANGED, self, self.onUpdateCustomTracker);
 	end
 end
 
 --- remove custom tracker that allowed better timers tracking
 -- @param customTracker custom tracker to use
+-- @param timersGroup id of the timers group to be updated
 function DHUDTimersTracker:removeCustomTracker(customTracker, timersGroup)
 	if (customTracker ~= nil) then
+		local customTrackersForGroup = self.customTrackers[timersGroup];
+		if (customTrackersForGroup == nil) then
+			return;
+		end
 		-- search for tracker
-		for i, v in ipairs(self.customTrackers) do
+		for i, v in ipairs(customTrackersForGroup) do
 			-- delete tracker
-			if v[1] == customTracker and v[2] == timersGroup then
-				table.remove(self.customTrackers, i);
+			if v == customTracker then
+				table.remove(customTrackersForGroup, i);
+				self.customTrackersCount = self.customTrackersCount - 1;
 				break;
 			end
 		end
@@ -1838,7 +1855,7 @@ end
 --- Initialize DHUDCustomTimerTracker static values
 function DHUDCustomTimerTracker:STATIC_init()
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "misc_useCustomAurasTrackers", self, self.STATIC_onCustomAurasTrackersAllowedChange);
-	self:onCustomAurasTrackerAllowedChange(nil);
+	self:STATIC_onCustomAurasTrackersAllowedChange(nil);
 end
 
 --- Constructor of timers tracker
@@ -1929,16 +1946,140 @@ end
 function DHUDCustomTimerTracker:attachToTimersTrackerIfAllowed(timersTracker, timersGroup)
 	if (self.timersTracker ~= nil) then
 		self.timersTracker:removeCustomTracker(self, self.timersGroup);
-		DHUDSettings:removeEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "misc_useCustomAurasTrackers", self, functionOnSettingChange);
+		DHUDSettings:removeEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "misc_useCustomAurasTrackers", self, self.onCustomAurasTrackerAllowedChange);
 	end
 	self.timersTracker = timersTracker;
 	self.timersGroup = timersGroup;
 	self.eventDataChanged.timersGroup = timersGroup;
 	-- listen for settings change
 	if (timersTracker ~= nil) then
-		DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "misc_useCustomAurasTrackers", self, functionOnSettingChange);
+		DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "misc_useCustomAurasTrackers", self, self.onCustomAurasTrackerAllowedChange);
 		self:onCustomAurasTrackerAllowedChange(nil);
 	end
+end
+
+-----------------------------------------------------
+-- Warlords of Draenor 6.2 Legendary Ring Tracking --
+-----------------------------------------------------
+DHUDWarlordsLegendaryRingTracker = MCCreateSubClass(DHUDCustomTimerTracker, {
+	-- ids of the ring items that enable tracking to ring effects map (damage - strength (Thorasus), damage - intellect (Nithramus), damage - agility (Maalus), tank (Sanctus), heal (Etheralus))
+	RING_ITEM_TO_SPELL_IDS = { ["124634"] = 187614, ["124635"] = 187611, ["124636"] = 187615, ["124637"] = 187613, ["124638"] = 187612 },
+	-- current ring spell id, that is tied to ring item id, 0 - if not equipped
+	currentRingSpellId = 0,
+	-- time at which buff appeared (in order to update time left)
+	buffAppearTime = 0,
+})
+		
+--- Create new legendary ring tracker
+function DHUDWarlordsLegendaryRingTracker:new()
+	local o = self:defconstructor();
+	o:constructor();
+	return o;
+end
+		
+--- Initialize legendary ring tracking
+function DHUDWarlordsLegendaryRingTracker:init()
+	local tracker = self;
+	-- create combat event frame
+	self.combatEventsFrame = MCCreateBlizzCombatEventFrame();
+	-- update vars
+	self.timerIdsToUpdate = self.RING_EFFECT_SPELL_IDS[0];
+	-- process units max health points change event
+	function self.combatEventsFrame:SPELL_DAMAGE(timestamp, hideCaster, sourceGUID, ...)
+		if (sourceGUID ~= trackingHelper.guids[tracker.unitId]) then
+			return;
+		end
+		local spellId = select(8, ...);
+		local multistrike = select(21, ...);
+		if (tracker.SINISTER_STRIKE_SPELL_ID ~= spellId or multistrike == true) then
+			return;
+		end
+		--print("SPELL_DAMAGE " .. MCTableToString({ ... }));
+		tracker:processSinisterDamageAndAbsorb();
+	end
+	function self.combatEventsFrame:SPELL_ABSORBED(timestamp, hideCaster, sourceGUID, ...)
+		if (sourceGUID ~= trackingHelper.guids[tracker.unitId]) then
+			return;
+		end
+		local spellId = select(8, ...);
+		if (tracker.SINISTER_STRIKE_SPELL_ID ~= spellId) then
+			return;
+		end
+		--print("SPELL_ABSORBED " .. MCTableToString({ ... }));
+		tracker:processSinisterDamageAndAbsorb();
+	end
+	-- init unit ids
+	self:initPlayerNotInVehicleOrNoneUnitId();
+	self:attachToTimersTrackerIfAllowed(DHUDDataTrackers.ALL.selfAuras, 0);
+end
+
+--- Update timer with custom data
+-- @param timer timer to be updated { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder, grouped, groupData }
+-- @return default timer
+function DHUDWarlordsLegendaryRingTracker:updateTimer(timer)
+	-- get duration
+	local duration = timer[3];
+	-- check if duration is set (ring used by ourselves)
+	if (duration <= 0) then
+		return; -- no update is required
+	end;
+	-- calculate timeleft
+	local timerMs = trackingHelper.timerMs;
+	local timeDiff = timerMs - self.buffAppearTime;
+	-- check if buff is new or existing one
+	if (timeDiff > 30) then
+		self.buffAppearTime = timerMs;
+		timeDiff = 0;
+	end
+	-- update duration
+	timer[3] = 15;
+	-- update timeLeft
+	timer[2] = 15 - timeDiff;
+	-- update stacksCount with user that initiated Ring (read tooltip?)
+	timer[7] = "";
+end
+		
+--- process sinister damage and absorb events
+function DHUDWarlordsLegendaryRingTracker:processSinisterDamageAndAbsorb()
+	local timerMs = trackingHelper.timerMs;
+	if (timerMs - self.lastProcessedCombatEventTime > 0.75) then
+		--print("timeDiff " .. (timerMs - self.lastProcessedCombatEventTime));
+		self.lastProcessedCombatEventTime = timerMs;
+		self.stacks = self.stacks + 1;
+		self:updateBanditsGuile();
+	end
+end
+		
+--- update bandits guile state
+function DHUDWarlordsLegendaryRingTracker:updateBanditsGuile()
+	self:processDataChanged();
+end
+
+--- Check if this tracker data is exists
+function DHUDWarlordsLegendaryRingTracker:checkIsExists()
+	if (not DHUDCustomTimerTracker.checkIsExists(self)) then -- call super
+		return false;
+	end
+	return (currentRingSpellId ~= 0); -- ring not equipped
+end
+
+--- Start tracking data
+function DHUDWarlordsLegendaryRingTracker:startTracking()
+	--print("banditsGuile start");
+	--self.combatEventsFrame:RegisterEvent("SPELL_DAMAGE");
+	--self.combatEventsFrame:RegisterEvent("SPELL_ABSORBED");
+end
+
+--- Stop tracking data
+function DHUDWarlordsLegendaryRingTracker:stopTracking()
+	--print("banditsGuile stop");
+	--self.combatEventsFrame:UnregisterEvent("SPELL_DAMAGE");
+	--self.combatEventsFrame:UnregisterEvent("SPELL_ABSORBED");
+end
+
+--- Update all data for current unitId
+function DHUDWarlordsLegendaryRingTracker:updateData()
+	self:updateBanditsGuile();
 end
 
 -----------------------------------
@@ -3803,15 +3944,14 @@ end
 --- update unit npc type information
 function DHUDUnitInfoTracker:updateNpcType()
 	self.npcType = UnitCreatureType(self.unitId);
-	self.isNPC = 
+	self.isNPC = false;
 	self:processDataChanged();
 end
 
 --- update unit tagging information
 function DHUDUnitInfoTracker:updateTagging()
-	local tapped = UnitIsTapped(self.unitId);
-	self.tagged = not(tapped and not UnitIsTappedByPlayer(self.unitId));
-	self.communityTagged = UnitIsTappedByAllThreatList(self.unitId) == 1;
+	self.tagged = UnitIsTapDenied(self.unitId);
+	self.communityTagged = true;
 	--print("UnitIsTappedByAllThreatList(self.unitId) " .. MCTableToString(UnitIsTappedByAllThreatList(self.unitId)));
 	self:processDataChanged();
 end
@@ -4674,7 +4814,7 @@ DHUDDataTrackers = {
 			-- if spell id is not at current state then reset stack count
 			local spellId = timer[4];
 			local index = 0;
-			for i, v in pairs(self.BANDITS_GUILE_PROGRESS_SPELL_IDS) do
+			for i, v in ipairs(self.BANDITS_GUILE_PROGRESS_SPELL_IDS) do
 				if (v == spellId) then
 					index = i;
 					break;

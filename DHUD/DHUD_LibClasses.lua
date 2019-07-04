@@ -382,8 +382,8 @@ end
 -- bitwise operations --
 ------------------------
 
---- Class to make bitwise operations. Required since bitwise operations that are provided by WoW API return incorrect results on some operating systems (e.g. Mac: bit.band(7, bit.bnot(12)) = 0 instead of 7)
--- this class may perform slower than C++ implementation, but doesn't return incorrect results
+--- Class to make bitwise operations. Required since bitwise operations that are provided by WoW API return incorrect results on some operating systems (e.g. Mac: bit.band(7, bit.bnot(24)) = 0 instead of 7)
+-- this class may perform slower than C++ implementation, but doesn't return incorrect results ( http://eu.battle.net/wow/en/forum/topic/7714092436 )
 mcbit = {
 }
 

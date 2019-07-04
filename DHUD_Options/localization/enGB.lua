@@ -34,6 +34,7 @@ L["HELP_UNITTEXTS_TYPE"] = {
 		"<delay>\narg1 = cast prefix\narg2 = channel prefix\n\n" ..
 		"<spellname>\narg1 = interrupt text\n",
 };
+L["HELP_SERVICE_LUASTARTUP"] = "Specify the code that will\nrun at addon startup\n\nExample code can be\nfound in\nDHUD_Settings.lua file\nunder \"luaStartUpCodes\"\nkey or by typing:\n/dhud debug set_exlua";
 -- tabs
 L["TAB_GENERAL"] = "General";
 L["TAB_LAYOUTS"] = "Layouts";

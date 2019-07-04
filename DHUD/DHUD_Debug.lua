@@ -589,6 +589,12 @@ function DHUDDebug:testSettings()
 	return nil;
 end
 
+--- function to print startup lua code examples
+function DHUDDebug:testSettingsPrintLua()
+	local text = MCTableToString(DHUDSettings.default["luaStartUpCodes"][1]);
+	DHUDMain:print(text);
+end
+
 -------------------------------------------------
 -- Functions to start/stop debugging something --
 -------------------------------------------------
@@ -639,6 +645,7 @@ function DHUDDebug:SlashCommandHandlerInit()
 	self.slashCommandFunctions["gui_emdraw"] = self.testEllipseMathDraw;
 	self.slashCommandFunctions["gui_ct"] = self.testColorTools;
 	self.slashCommandFunctions["set_test"] = self.testSettings;
+	self.slashCommandFunctions["set_exlua"] = self.testSettingsPrintLua;
 	self.slashCommandFunctions["stop"] = false;
 end
 
