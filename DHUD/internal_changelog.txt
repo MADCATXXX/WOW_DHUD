@@ -1,3 +1,14 @@
+changelog 2.0.50300.34:
+-Updated MyMinimapButton class from version 0.4 to version 1.0 and fixed code to work with MoP
+-Addon code have been rewriten and uses OOP design. Cpu and memory consumption is reduced
+-Code is documented and easily readable.
+-Added new features:
+-Health bars are now able to display shields, incoming heal and absorbed heal.
+-Numbers are now truncated if enabled in settings
+-Cooldowns can be shown like it's done with auras
+-Auras whitelists and blacklists
+-DHUD Settings addon is currenly in process of rewriting, all settings can be set via command line
+
 changelog 1.5.50000f MADCAT revision33:
 -reduced error spam when there are not enough buff frames (this was accidently not included in previous release)
 -rogues will see up to 10 combopoints if specced into corresponding talent

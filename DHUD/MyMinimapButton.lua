@@ -1,4 +1,4 @@
---[[ MyMinimapButton v0.4
+--[[ MyMinimapButton v1.0
 
 	This is an embedded library intended to be used by other mods.
 	It's not a standalone mod.
@@ -6,7 +6,7 @@
 	See MyMinimapButton_API_readme.txt for more info.
 ]]
 
-local version = 4.04
+local version = 5.10
 
 if not MyMinimapButton or MyMinimapButton.Version<version then
 
@@ -25,21 +25,21 @@ if not MyMinimapButton or MyMinimapButton.Version<version then
 		initSettings = initSettings or {}
 		modSettings = modSettings or {}
 		self.Buttons = self.Buttons or {}
-		CreateFrame("Button",modName.."MinimapButton",Minimap)
+
 		local frameName = modName.."MinimapButton"
-		local frame = getglobal(frameName)
+		local frame = CreateFrame("Button",frameName,Minimap)
 		frame:SetWidth(31)
 		frame:SetHeight(31)
-		frame:SetFrameStrata("HIGH")
+		frame:SetFrameStrata("LOW")
+		frame:SetToplevel(1) -- enabled in 1.10.2
 		frame:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight")
-		frame:CreateTexture(frameName.."Icon","BACKGROUND")
-		local icon = getglobal(frameName.."Icon")
+		frame:SetPoint("TOPLEFT",Minimap,"TOPLEFT")
+		local icon = frame:CreateTexture(frameName.."Icon","BACKGROUND")
 		icon:SetTexture(initSettings.icon or "Interface\\Icons\\INV_Misc_QuestionMark")
 		icon:SetWidth(20)
 		icon:SetHeight(20)
 		icon:SetPoint("TOPLEFT",frame,"TOPLEFT",7,-5)
-		frame:CreateTexture(frameName.."Overlay","OVERLAY")
-		local overlay = getglobal(frameName.."Overlay")
+		local overlay = frame:CreateTexture(frameName.."Overlay","OVERLAY")
 		overlay:SetTexture("Interface\\Minimap\\MiniMap-TrackingBorder")
 		overlay:SetWidth(53)
 		overlay:SetHeight(53)
@@ -62,16 +62,21 @@ if not MyMinimapButton or MyMinimapButton.Version<version then
 		frame.rightClick = initSettings.right
 		frame.tooltipText = initSettings.tooltip
 
-		modSettings.drag = modSettings.drag or initSettings.drag or "CIRCLE"
-		modSettings.enabled = modSettings.enabled or initSettings.enabled or "ON"
-		modSettings.position = modSettings.position or initSettings.position or self:GetDefaultPosition()
+		local firstUse = 1
+		for i in pairs(modSettings) do
+			firstUse = nil -- modSettings has been populated before
+		end
+		if firstUse then
+			-- define modSettings from initSettings or default
+			modSettings.drag = initSettings.drag or "CIRCLE"
+			modSettings.enabled = initSettings.enabled or 1
+			modSettings.position = initSettings.position or self:GetDefaultPosition()
+			modSettings.locked = initSettings.locked or nil
+		end
 		frame.modSettings = modSettings
 
 		table.insert(self.Buttons,modName)
-		if frame.modSettings.enabled=="ON" then
-			self:Enable(modName)
-		end
-		frame:Show()
+		self:SetEnable(modName,modSettings.enabled)
 	end,
 
 	-- Changes the icon of the button.
@@ -99,12 +104,48 @@ if not MyMinimapButton or MyMinimapButton.Version<version then
 	end,
 
 	-- Sets the drag route.
-	--   value = "NONE", "CIRCLE", or "SQUARE"
+	--   value = "CIRCLE" or "SQUARE"
 	SetDrag = function(self,modName,value)
 		local button = getglobal(modName.."MinimapButton")
-		if button and (value=="NONE" or value=="CIRCLE" or value=="SQUARE") then
+		if button and (value=="CIRCLE" or value=="SQUARE") then
 			button.modSettings.drag = value
 			self:Move(modName)
+		end
+	end,
+
+	-- Locks minimap button from moving
+	--   value = 0/nil/false or 1/non-nil/true
+	SetLock = function(self,modName,value)
+		local button = getglobal(modName.."MinimapButton")
+		if value==0 then value = nil end
+		if button then
+			button.modSettings.locked = (value and 1) or nil
+		end
+	end,
+
+	-- Enables or disables the minimap button
+	--    value = 0/nil/false or 1/non-nil/true
+	SetEnable = function(self,modName,value)
+		local button = getglobal(modName.."MinimapButton")
+		if value==0 then value = nil end
+		if button then
+			button.modSettings.enabled = (value and 1) or nil
+			if value then
+				button:Show()
+				self:Move(modName,nil,1)
+			else
+				button:Hide()
+			end
+		end
+	end,
+
+	-- Returns a setting of this minimap button
+	--   setting = "LOCKED", "ENABLED", "DRAG" or "POSITION"
+	GetSetting = function(self,modName,setting)
+		local button = getglobal(modName.."MinimapButton")
+		setting = string.lower(setting or "")
+		if button and button.modSettings[setting] then
+			return button.modSettings[setting]
 		end
 	end,
 
@@ -117,30 +158,12 @@ if not MyMinimapButton or MyMinimapButton.Version<version then
 		end
 	end,
 
-	-- Enables the button and shows it.
-	Enable = function(self,modName)
-		local button = getglobal(modName.."MinimapButton")
-		if button then
-			button:Show()
-			button.modSettings.enabled = "ON"
-			self:Move(modName)
-		end
-	end,
-
-	-- Disables the button and hides it.
-	Disable = function(self,modName)
-		local button = getglobal(modName.."MinimapButton")
-		if button then
-			button:Hide()
-			button.modSettings.enabled = "OFF"
-		end
-	end,
-
 	-- Moves the button.
 	--  newPosition = degree angle to display the button (optional)
-	Move = function(self,modName,newPosition)
+	--  force = force move irregardless of locked status
+	Move = function(self,modName,newPosition,force)
 		local button = getglobal(modName.."MinimapButton")
-		if button and button.modSettings.drag~="NONE" then
+		if button and (not button.modSettings.locked or force) then
 			button.modSettings.position = newPosition or button.modSettings.position
 			local xpos,ypos
 			local angle = button.modSettings.position
@@ -167,6 +190,7 @@ if not MyMinimapButton or MyMinimapButton.Version<version then
 				DEFAULT_CHAT_FRAME:AddMessage("positon = "..tostring(button.modSettings.position))
 				DEFAULT_CHAT_FRAME:AddMessage("enabled = "..tostring(button.modSettings.enabled))
 				DEFAULT_CHAT_FRAME:AddMessage("drag = "..tostring(button.modSettings.drag))
+				DEFAULT_CHAT_FRAME:AddMessage("locked = "..tostring(button.modSettings.locked))
 			else
 				DEFAULT_CHAT_FRAME:AddMessage("button not defined")
 			end
@@ -198,18 +222,10 @@ if not MyMinimapButton or MyMinimapButton.Version<version then
 	end,
 
 	OnMouseDown = function(frame)
-		MyMinimapButton:OnMouseDownHandler(frame);
-	end,
-	
-	OnMouseDownHandler = function(self, frame)
 		getglobal(frame:GetName().."Icon"):SetTexCoord(.1,.9,.1,.9)
 	end,
 
 	OnMouseUp = function(frame)
-		MyMinimapButton:OnMouseUpHandler(frame);
-	end,
-	
-	OnMouseUpHandler = function(self, frame)
 		getglobal(frame:GetName().."Icon"):SetTexCoord(0,1,0,1)
 	end,
 
@@ -220,12 +236,12 @@ if not MyMinimapButton or MyMinimapButton.Version<version then
 		GameTooltip:Show()
 	end,
 
-	OnLeave = function()
+	OnLeave = function(frame)
 		GameTooltip:Hide()
 	end,
 
 	OnDragStart = function(frame)
-		MyMinimapButton:OnMouseDownHandler(frame);
+		MyMinimapButton.OnMouseDown(frame)
 		frame:LockHighlight()
 		frame:SetScript("OnUpdate",MyMinimapButton.OnUpdate)
 	end,
@@ -233,7 +249,7 @@ if not MyMinimapButton or MyMinimapButton.Version<version then
 	OnDragStop = function(frame)
 		frame:SetScript("OnUpdate",nil)
 		frame:UnlockHighlight()
-		MyMinimapButton:OnMouseUpHandler(frame);
+		MyMinimapButton.OnMouseUp(frame)
 	end,
 
 	OnUpdate = function(frame)

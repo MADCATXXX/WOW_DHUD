@@ -410,11 +410,11 @@ function DHUD:OnLoad()
     DHUD_EventFrame:RegisterEvent("PLAYER_ENTERING_WORLD");
     DHUD_EventFrame:RegisterEvent("PLAYER_LEAVING_WORLD");
         
-    -- slash handler
-    SLASH_DHUD1 = "/dhud";
-    SlashCmdList["DHUD"] = function(msg)
-        self:SCommandHandler(msg);
-    end  
+    -- slash handler, commented for addon rewrite (rev34)
+    --SLASH_DHUD1 = "/dhud";
+    --SlashCmdList["DHUD"] = function(msg)
+    --    self:SCommandHandler(msg);
+    --end  
    
     -- addon loaded 
     self:print("Loaded "..self.Config_default["version"]);
@@ -479,7 +479,6 @@ function DHUD:OnEvent(event, arg1, arg2, arg3)
         self:init();
 		self:UpdateValues("DHUD_PlayerHealth_Text");
 		self:triggerTextEvent("DHUD_PlayerHealth_Text");
-		
 	
 	--Vehicle support
 	elseif event == "UNIT_ENTERED_VEHICLE" then
@@ -1491,8 +1490,8 @@ function DHUD:setup()
         ToggleDropDownMenu(1, nil, DHUD_Target_DropDown, "DHUD_Target_Text", 25, 10);
     end );
 
-    -- create Minimap Button
-    self:CreateMMB();
+    -- create Minimap Button, commented in rev34 for rewrite
+    --self:CreateMMB();
     
     -- MyAddons Support
     self:myAddons();
@@ -1869,14 +1868,14 @@ function DHUD:init()
 		self.combatLogEventHandler:SetScript("OnEvent", self.onCombatLog);
 	end]]--
     
-    -- minimap button
-    if DHUD_Settings["showmmb"] == 1 then
+    -- minimap button, commented in rev34 for rewrite
+    --[[if DHUD_Settings["showmmb"] == 1 then
         DHUDMinimapButton:Show();
 		DHUDMinimapButton:SetFrameStrata(Minimap:GetFrameStrata());
 		DHUDMinimapButton:SetFrameLevel(Minimap:GetFrameLevel() + 3);	
     else
         DHUDMinimapButton:Hide();
-    end
+    end]]--
     
     -- alter pet manatext when class = DRUID
     if self.player_class == "DRUID" and DHUD_Settings["DHUD_PetMana_Text"] == DHUD_TEXT_MP2 then
