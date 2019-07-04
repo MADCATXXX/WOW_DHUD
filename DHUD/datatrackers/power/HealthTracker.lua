@@ -31,6 +31,8 @@ DHUDHealthTracker = MCCreateSubClass(DHUDPowerTracker, {
 	noCreditForKill		= false,
 	-- reference to tracker which will make tracking of unit tagging
 	creditInfoTracker	= nil,
+	-- if true than this resource will also be updated by onUpdate event, this variable should not be changed during runtime!
+	updateFrequently	= true, -- TODO: check, why UNIT_HEALTH is reporting old value
 })
 
 --- Create new health points tracker, unitId should be specified after constructor
@@ -93,6 +95,12 @@ function DHUDHealthTracker:setNoCreditForKill(noCreditForKill)
 	self:dispatchEvent(self.eventResourceTypeChanged);
 end
 
+--- Game time updated, update unit health
+function DHUDHealthTracker:onUpdateTime()
+	self:updateHealth();
+	self:updateMaxHealth();
+end
+
 --- Start tracking data
 function DHUDHealthTracker:startTracking()
 	-- listen to game events
@@ -102,6 +110,9 @@ function DHUDHealthTracker:startTracking()
 	self.eventsFrame:RegisterEvent("UNIT_AURA");
 	if (self.creditInfoTracker ~= nil) then
 		self.creditInfoTracker:addEventListener(DHUDDataTrackerEvent.EVENT_DATA_CHANGED, self, self.updateTagging);
+	end
+	if (self.updateFrequently) then
+		trackingHelper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE, self, self.onUpdateTime);
 	end
 end
 
@@ -114,6 +125,9 @@ function DHUDHealthTracker:stopTracking()
 	self.eventsFrame:UnregisterEvent("UNIT_AURA");
 	if (self.creditInfoTracker ~= nil) then
 		self.creditInfoTracker:removeEventListener(DHUDDataTrackerEvent.EVENT_DATA_CHANGED, self, self.updateTagging);
+	end
+	if (self.updateFrequently) then
+		trackingHelper:removeEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE, self, self.onUpdateTime);
 	end
 end
 

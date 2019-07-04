@@ -204,9 +204,9 @@ function DHUDDebug:testDataPlayerHealthDestructor()
 	selfHealth:removeEventListener(DHUDDataTrackerEvent.EVENT_DATA_CHANGED, self, self.onDataPlayerHealthChange);
 end
 
--------------------------------
--- Data tracker Player Health --
--------------------------------
+--------------------------------
+-- Data tracker Target Health --
+--------------------------------
 
 --- function for data trackers debugging
 function DHUDDebug:onDataTargetHealthChange(e)
@@ -227,6 +227,48 @@ function DHUDDebug:testDataTargetHealthDestructor()
 	print("testDataTargetHealth - end");
 	local targetHealth = DHUDDataTrackers.ALL.targetHealth;
 	targetHealth:removeEventListener(DHUDDataTrackerEvent.EVENT_DATA_CHANGED, self, self.onDataTargetHealthChange);
+end
+
+-----------------------
+-- UNIT_HEALTH event --
+-----------------------
+
+--- function to debug UNIT_HEALTH event, using mcframe
+function DHUDDebug:test_UNIT_HEALTH_event()
+	print("test_UNIT_HEALTH_event - begin");
+	DHUDDebug.unitHealthFrame = MCCreateBlizzEventFrame();
+	function DHUDDebug.unitHealthFrame:UNIT_HEALTH(unitId)
+		print("testEvent UNIT_HEALTH " .. unitId .. " is " .. UnitHealth(unitId));
+	end
+	DHUDDebug.unitHealthFrame:RegisterEvent("UNIT_HEALTH");
+	-- return destructor
+	return self.test_UNIT_HEALTH_event_destructor;
+end
+
+--- function to stop debugging UNIT_HEALTH event, using mcframe
+function DHUDDebug:test_UNIT_HEALTH_event_destructor()
+	print("test_UNIT_HEALTH_event - end");
+	DHUDDebug.unitHealthFrame:UnregisterEvent("UNIT_HEALTH");
+	DHUDDebug.unitHealthFrame = nil;
+end
+
+--- function to debug UNIT_HEALTH event, using simple logic
+function DHUDDebug:test_UNIT_HEALTH_event2()
+	print("test_UNIT_HEALTH_event2 - begin");
+	DHUDDebug.unitHealthFrame2 = CreateFrame("Frame");
+	DHUDDebug.unitHealthFrame2:SetScript("OnEvent", function (self, event, unitId)
+		print("testEvent2 " .. event .. " " .. unitId .. " is " .. UnitHealth(unitId));
+	end);
+	DHUDDebug.unitHealthFrame2:RegisterEvent("UNIT_HEALTH");
+	-- return destructor
+	return self.test_UNIT_HEALTH_event2_destructor;
+end
+
+--- function to stop debugging UNIT_HEALTH event, using simple logic
+function DHUDDebug:test_UNIT_HEALTH_event2_destructor()
+	print("test_UNIT_HEALTH_event2 - end");
+	DHUDDebug.unitHealthFrame2:UnregisterEvent("UNIT_HEALTH");
+	DHUDDebug.unitHealthFrame2 = nil;
 end
 
 -------------------------------
@@ -636,6 +678,8 @@ function DHUDDebug:SlashCommandHandlerInit()
 	self.slashCommandFunctions["dt_pc"] = self.testDataPlayerCooldowns;
 	self.slashCommandFunctions["dt_ph"] = self.testDataPlayerHealth;
 	self.slashCommandFunctions["dt_th"] = self.testDataTargetHealth;
+	self.slashCommandFunctions["dt_uh"] = self.test_UNIT_HEALTH_event;
+	self.slashCommandFunctions["dt_uh2"] = self.test_UNIT_HEALTH_event2;
 	self.slashCommandFunctions["dt_pp"] = self.testDataPlayerPower;
 	self.slashCommandFunctions["dt_ti"] = self.testDataTargetInfo;
 	self.slashCommandFunctions["dt_pi"] = self.testDataPlayerInfo;

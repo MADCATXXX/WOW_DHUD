@@ -46,6 +46,9 @@
 -other textures support (renetair from DHUD4)
 -add option to place cast info under bar
 
+changelog 2.0.80000.62:
+- health tracker will now be updated frequently due to bug with Blizzard API (UNIT_HEALTH event)
+
 changelog 2.0.80000.61:
 - fixed error with pet cooldowns tracking when info for spell is not available
 
