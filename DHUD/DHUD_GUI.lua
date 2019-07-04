@@ -2972,6 +2972,8 @@ function DHUDGUI:repositionCircleFramesAroundHud(group, indexBegin, indexEnd, el
 				x = x + framesOffsetX;
 				-- set position
 				--print("frame " .. index .. " angle " .. angle .. " set to " .. MCTableToString(x) .. ", " .. MCTableToString(y));
+				group[index].circlePositionX = mirrorSign * x;
+				group[index].circlePositionY = y;
 				group[index]:SetPoint("CENTER", "DHUD_UIParent", "CENTER", mirrorSign * x / scale, y / scale);
 				-- increase index
 				index = index + 1;
@@ -4592,6 +4594,12 @@ DHUDSideInfoManager = MCCreateSubClass(DHUDGuiSlotManager, {
 	STATIC_colorizePlayerShortDebuffs = false,
 	-- defines if player cooldowns lock should be colorized
 	STATIC_colorizePlayerCooldownsLock = false,
+	-- defines if player short auras should be animated at 30% left
+	STATIC_animatePriorityAurasAtEnd = false,
+	-- defines if player short auras should be animated at disappear
+	STATIC_animatePriorityAurasDisappear = false,
+	-- variable name for animation info of timers
+	timerAnimationVarName = nil,
 	-- type of the timers to be shown in spell circles
 	timersType = 3,
 	-- reference to timers colorize function
@@ -4635,13 +4643,29 @@ function DHUDSideInfoManager:STATIC_onColorizePlayerCooldownsLockSettingChange(e
 	self.STATIC_colorizePlayerCooldownsLock = DHUDSettings:getValue("shortAurasOptions_colorizeCooldownsLock");
 end
 
+--- animate priority auras at 30% setting has changed
+function DHUDSideInfoManager:STATIC_onAnimatePriorityAurasAtEndSettingChange(e)
+	self.STATIC_animatePriorityAurasAtEnd = DHUDSettings:getValue("shortAurasOptions_animatePriorityAurasAtEnd");
+	self:changeSpellCircleAnimationFunction();
+end
+
+--- colorize priority auras at disappear setting has changed
+function DHUDSideInfoManager:STATIC_onAnimatePriorityAurasDisappearSettingChange(e)
+	self.STATIC_animatePriorityAurasDisappear = DHUDSettings:getValue("shortAurasOptions_animatePriorityAurasDisappear");
+	self:changeSpellCircleAnimationFunction();
+end
+
 --- Initialize DHUDGuiBarManager static values
 function DHUDSideInfoManager:STATIC_init()
 	-- listen to settings change events
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "shortAurasOptions_colorizePlayerDebuffs", self, self.STATIC_onColorizePlayerDebuffsSettingChange);
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "shortAurasOptions_colorizeCooldownsLock", self, self.STATIC_onColorizePlayerCooldownsLockSettingChange);
+	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "shortAurasOptions_animatePriorityAurasAtEnd", self, self.STATIC_onAnimatePriorityAurasAtEndSettingChange);
+	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "shortAurasOptions_animatePriorityAurasDisappear", self, self.STATIC_onAnimatePriorityAurasDisappearSettingChange);
 	self:STATIC_onColorizePlayerDebuffsSettingChange(nil);
 	self:STATIC_onColorizePlayerCooldownsLockSettingChange(nil);
+	self:STATIC_onAnimatePriorityAurasAtEndSettingChange(nil);
+	self:STATIC_onAnimatePriorityAurasDisappearSettingChange(nil);
 end
 
 --- Create new side info manager
@@ -4665,6 +4689,14 @@ function DHUDSideInfoManager:setCurrentGroup(currentGroup)
 		self.currentGroup:setFramesShown(0);
 	end
 	self.currentGroup = currentGroup;
+end
+
+--- Data trackers list setting has been changed, read it
+function DHUDSideInfoManager:onDataTrackersSettingChange(e)
+	-- call super
+	DHUDGuiSlotManager.onDataTrackersSettingChange(self, e);
+	-- update gui var name
+	self.timerAnimationVarName = "gui" .. (dataTrackersListSettingName or "");
 end
 
 --- Changes color of combo-points to table specified
@@ -4861,6 +4893,107 @@ function DHUDSideInfoManager:colorizeUnknownTimer(timer)
 	return DHUDColorizeTools:colorizePercentUsingTable(timer[2] / timer[3], t);
 end
 
+--- Function to clear spell circle animation
+-- @param spellCircleFrame frame to be updated
+function DHUDSideInfoManager:clearSpellCircleAnimation(spellCircleFrame)
+	if (spellCircleFrame.animatedBySideInfo) then
+		local scale = DHUDGUI.scale[DHUDGUI.SCALE_SPELL_CIRCLES];
+		spellCircleFrame:SetAlpha(1);
+		spellCircleFrame:SetScale(scale);
+		spellCircleFrame:SetPoint("CENTER", "DHUD_UIParent", "CENTER", spellCircleFrame.circlePositionX / scale, spellCircleFrame.circlePositionY / scale);
+		spellCircleFrame.animatedBySideInfo = false;
+	end
+end
+
+--- Function to clear spell circle animation
+-- @param spellCircleFrame frame to be updated
+-- @param timer timer with information about spell circle
+function DHUDSideInfoManager:updateSpellCircleAnimationDisappear(spellCircleFrame, timer)
+	local guiData = timer[self.timerAnimationVarName];
+	-- check for vars init
+	if (guiData[4] == 0) then
+		guiData[4] = spellCircleFrame:GetAlpha();
+	end
+	local scale = DHUDGUI.scale[DHUDGUI.SCALE_SPELL_CIRCLES];
+	-- update according to time left
+	local percent = (1 - timer[2] / 1);
+	spellCircleFrame.animatedBySideInfo = true;
+	spellCircleFrame:SetAlpha(0.1 + guiData[4] * (1 - percent));
+	local newScale = scale * (1 + 0.5 * percent);
+	spellCircleFrame:SetScale(newScale);
+	spellCircleFrame:SetPoint("CENTER", "DHUD_UIParent", "CENTER", spellCircleFrame.circlePositionX / newScale, spellCircleFrame.circlePositionY / newScale);
+end
+
+--- Function to clear spell circle animation
+-- @param spellCircleFrame frame to be updated
+-- @param timer timer with information about spell circle
+function DHUDSideInfoManager:updateSpellCircleAnimationAtEnd(spellCircleFrame, timer)
+	local guiData = timer[self.timerAnimationVarName];
+	local timerMs = DHUDDataTrackers.helper.timerMs;
+	-- check for vars init
+	if (guiData[1] == 0) then
+		self:clearSpellCircleAnimation(spellCircleFrame);
+		guiData[1] = timerMs;
+		guiData[2] = 0;
+		guiData[3] = true;
+	end
+	local timeDiff = timerMs - guiData[1];
+	guiData[1] = timerMs;
+	-- update percent
+	guiData[2] = guiData[2] + timeDiff / 0.5;
+	-- change direction
+	if (guiData[2] > 1) then
+		guiData[2] = math.fmod(guiData[2], 1);
+		guiData[3] = not guiData[3];
+	end
+	-- update according to percent
+	spellCircleFrame.animatedBySideInfo = true;
+	local newAlpha = 0.5 + (guiData[3] and (0.5 * (1 - guiData[2])) or (0.5 * guiData[2]));
+	spellCircleFrame:SetAlpha(newAlpha);
+	guiData[4] = newAlpha;
+end
+
+--- Function to update spell circle animation, code of this function is changed based on settings changeSpellCircleAnimationFunction
+-- @param spellCircleFrame frame to be updated
+-- @param timer timer with information about spell circle
+function DHUDSideInfoManager:updateSpellCircleAnimationFull(spellCircleFrame, timer)
+	
+end
+
+--- Change spell circle animation function according to current settings
+function DHUDSideInfoManager:changeSpellCircleAnimationFunction()
+	if (self.STATIC_animatePriorityAurasAtEnd or self.STATIC_animatePriorityAurasDisappear) then 
+		function self:updateSpellCircleAnimation(spellCircleFrame, timer)
+			self:clearSpellCircleAnimation(spellCircleFrame);
+			-- check for priority
+			if (timer[self.dataTrackersListSettingName] ~= nil) then
+				local timerMs = DHUDDataTrackers.helper.timerMs;
+				--print("duration of " .. timer[6] .. " is " .. timer[3]);
+				-- read animation data
+				local guiData = timer[self.timerAnimationVarName];
+				if (guiData == nil) then
+					guiData = { 0, 0, true, 0 }; -- timeUpdatedAt, animPercentStep, endAnimDirectionDown, disappearAnimAlphaStart
+					timer[self.timerAnimationVarName] = guiData;
+				end
+				-- animate disappear
+				if ((timer[2] <= 1) and self.STATIC_animatePriorityAurasDisappear) then
+					self:updateSpellCircleAnimationDisappear(spellCircleFrame, timer);
+					return;
+				end
+				-- animate blinking
+				if ((timer[2] <= timer[3] * 0.3) and self.STATIC_animatePriorityAurasAtEnd) then
+					self:updateSpellCircleAnimationAtEnd(spellCircleFrame, timer);
+					return;
+				end
+			end
+		end
+	else
+		function self:updateSpellCircleAnimation(spellCircleFrame, timer)
+			self:clearSpellCircleAnimation(spellCircleFrame);
+		end
+	end
+end
+
 --- Function to update spell circle data
 -- @param timers list with timers
 function DHUDSideInfoManager:updateSpellCircles(timers)
@@ -4875,6 +5008,8 @@ function DHUDSideInfoManager:updateSpellCircles(timers)
 		-- colorize
 		local color = self.timersColorizeFunc(self, v);
 		spellCircleFrame.border:SetVertexColor(color[1], color[2], color[3]);
+		-- update animation
+		self:updateSpellCircleAnimation(spellCircleFrame, v);
 		-- update text
 		local time;
 		local withTime = (v[2] >= 0);
@@ -4904,6 +5039,8 @@ function DHUDSideInfoManager:updateSpellCirclesTime()
 		-- colorize
 		local color = self.timersColorizeFunc(self, v);
 		spellCircleFrame.border:SetVertexColor(color[1], color[2], color[3]);
+		-- update animation
+		self:updateSpellCircleAnimation(spellCircleFrame, v);
 		-- update text
 		local time = (v[2] >= 0) and (DHUDColorizeTools:colorToColorizeString(color) .. DHUDTextTools:formatTime(v[2]) .. "|r") or "";
 		spellCircleFrame.textFieldTime:DSetText(time);
@@ -5061,6 +5198,9 @@ function DHUDSideInfoManager:init(runeGroupName, spellCirclesGroupName, comboPoi
 	self:setDataTrackerListSetting(settingName);
 	-- track color settings change (for spell circles)
 	self:trackColorSettingsChanges();
+	-- track animation settings change
+	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "aurasOptions_animatePriorityAurasAtEnd", self, self.onCriticalSettingChange);
+	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "aurasOptions_animatePriorityAurasDisappear", self, self.onCriticalSettingChange);
 end
 
 --- Show preview data

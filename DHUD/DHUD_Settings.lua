@@ -474,7 +474,9 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			-- allows to show auras with charges, regardless of time left
 			["aurasWithCharges"] = { true, 0 },
 			-- maximum time left on aura to be shown in short auras
-			["aurasTimeLeftMax"] = { 60, 0, { range = { 0, 3600, 1 } } },
+			["aurasTimeLeftMax"] = { 180, 0, { range = { 0, 3600, 1 } } },
+			-- allows to show all player buffs, not just self
+			["playerAllBuffs"] = { true, 0 },
 			-- allows to show player debuffs along with player buffs
 			["playerDebuffs"] = { true, 0 },
 			-- allows to colorize player debuffs according to debuff type
@@ -524,6 +526,10 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			["cooldownsPriorityList"] = { { }, 5 },
 			-- allows to colorize player cooldowns according to spell lock type
 			["colorizeCooldownsLock"] = { true, 0 },
+			-- allows to animate short auras at the end of their time (when <30% left)
+			["animatePriorityAurasAtEnd"] = { true, 0 },
+			-- allows to animate short auras when they about to disappear (when <1 sec left)
+			["animatePriorityAurasDisappear"] = { true, 0 },
 		}, 1 },
 		-- list with options for all auras
 		["aurasOptions"] = { {
@@ -1645,6 +1651,8 @@ DHUDTimersFilterHelperSettingsHandler = {
 	cooldownsItem = false,
 	-- auras maximum time left
 	aurasTimeLeftMax = 0,
+	-- allows to show all player buffs, not just self
+	playerAllBuffs = false,
 	-- allows to show short player debuffs
 	playerDebuffs = false,
 	-- cooldowns minimum duration
@@ -1655,7 +1663,7 @@ DHUDTimersFilterHelperSettingsHandler = {
 
 --- Filter player auras list to show only short auras (not a class function, self is nil!)
 -- @param timer timer to filter { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder }
--- @return nil if timer is not required or number for timer sorting order
+-- @return nil if timer is not required or number for timer sorting order (<1000 for priority spells)
 function DHUDTimersFilterHelperSettingsHandler.filterPlayerShortAuras(timer)
 	local self = DHUDTimersFilterHelperSettingsHandler;
 	local name = timer[6];
@@ -1665,6 +1673,10 @@ function DHUDTimersFilterHelperSettingsHandler.filterPlayerShortAuras(timer)
 	end
 	-- check white list
 	if (self.whiteListPlayerAuras[name] == nil) then
+		-- do not show all player buffs?
+		if (not self.playerAllBuffs and (bit.band(timer[1], DHUDAurasTracker.TIMER_TYPE_MASK_BUFF + DHUDAurasTracker.TIMER_TYPE_MASK_IS_CAST_BY_PLAYER) == DHUDAurasTracker.TIMER_TYPE_MASK_BUFF)) then
+			return nil;
+		end
 		-- do not show debuffs?
 		if (not self.playerDebuffs and (bit.band(timer[1], DHUDAurasTracker.TIMER_TYPE_MASK_DEBUFF) ~= 0)) then
 			return nil;
@@ -1683,7 +1695,7 @@ end
 
 --- Filter target auras list to show only short auras (not a class function, self is nil!)
 -- @param timer timer to filter { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder }
--- @return nil if timer is not required or number for timer sorting order
+-- @return nil if timer is not required or number for timer sorting order (<1000 for priority spells)
 function DHUDTimersFilterHelperSettingsHandler.filterTargetShortAuras(timer)
 	local self = DHUDTimersFilterHelperSettingsHandler;
 	local name = timer[6];
@@ -1705,6 +1717,7 @@ function DHUDTimersFilterHelperSettingsHandler.filterTargetShortAuras(timer)
 		end
 	end
 	local priority = self.priorityListTargetAuras[name];
+	--print("name " .. name .. ", table " .. MCTableToString(self.priorityListTargetAuras) .. ", priority " .. priority);
 	if (priority ~= nil) then
 		return priority;
 	end
@@ -1713,30 +1726,30 @@ end
 
 --- Filter only buff auras
 -- @param timer timer to filter { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder }
--- @return nil if timer is not required or number for timer sorting order
+-- @return nil if timer is not required or number for timer sorting order (<1000 for priority spells)
 function DHUDTimersFilterHelperSettingsHandler.filterBuffAuras(timer)
 	local self = DHUDTimersFilterHelperSettingsHandler;
 	if (bit.band(timer[1], DHUDAurasTracker.TIMER_TYPE_MASK_BUFF) == 0) then
 		return nil;
 	end
-	return 1;
+	return 1001;
 end
 
 --- Filter only debuff auras
 -- @param timer timer to filter { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder }
--- @return nil if timer is not required or number for timer sorting order
+-- @return nil if timer is not required or number for timer sorting order (<1000 for priority spells)
 function DHUDTimersFilterHelperSettingsHandler.filterDebuffAuras(timer)
 	local self = DHUDTimersFilterHelperSettingsHandler;
 	if (bit.band(timer[1], DHUDAurasTracker.TIMER_TYPE_MASK_DEBUFF) == 0) then
 		return nil;
 	end
 	--print("name is " .. timer[6] .. ", type is " .. timer[1]);
-	return 1;
+	return 1001;
 end
 
 --- Filter player cooldowns list to show only short cooldowns (not a class function, self is nil!)
 -- @param timer timer to filter { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder }
--- @return nil if timer is not required or number for timer sorting order
+-- @return nil if timer is not required or number for timer sorting order (<1000 for priority spells)
 function DHUDTimersFilterHelperSettingsHandler.filterPlayerCooldowns(timer)
 	local self = DHUDTimersFilterHelperSettingsHandler;
 	local name = timer[6];
@@ -1765,10 +1778,10 @@ end
 
 --- Filter totem guardians
 -- @param timer timer to filter { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder }
--- @return nil if timer is not required or number for timer sorting order
+-- @return nil if timer is not required or number for timer sorting order (<1000 for priority spells)
 function DHUDTimersFilterHelperSettingsHandler.filterTotemGuardians(timer)
 	local self = DHUDTimersFilterHelperSettingsHandler;
-	return (bit.band(timer[1], DHUDGuardiansTracker.TIMER_TYPE_MASK_ACTIVE) ~= 0) and 1 or 2;
+	return (bit.band(timer[1], DHUDGuardiansTracker.TIMER_TYPE_MASK_ACTIVE) ~= 0) and 1001 or 1002;
 end
 
 --- Process setting with white or black list
@@ -1841,6 +1854,7 @@ function DHUDTimersFilterHelperSettingsHandler:init()
 	-- conditions
 	self:processConditionSetting("shortAurasOptions_aurasWithCharges", "aurasWithCharges");
 	self:processConditionSetting("shortAurasOptions_aurasTimeLeftMax", "aurasTimeLeftMax");
+	self:processConditionSetting("shortAurasOptions_playerAllBuffs", "playerAllBuffs");
 	self:processConditionSetting("shortAurasOptions_playerDebuffs", "playerDebuffs");
 	self:processConditionSetting("shortAurasOptions_cooldownsDurationMin", "cooldownsDurationMin");
 	self:processConditionSetting("shortAurasOptions_cooldownsDurationMax", "cooldownsDurationMax");

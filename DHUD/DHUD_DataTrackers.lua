@@ -104,6 +104,8 @@ DHUDDataTrackerHelper = MCCreateSubClass(MADCATEventDispatcher, {
 	spellIdData			= {},
 	-- table with conversion from item id to item data
 	itemIdData			= {},
+	-- table with durations of auras
+	auraIdDurationData = {},
 	-- table with guids for various unit ids, contains guids for player, pet, vehicle and target
 	guids				= {},
 })
@@ -455,6 +457,22 @@ function DHUDDataTrackerHelper:getUnitAuraById(unitId, spellId, fullScan)
 		end
 		return nil;
 	end
+end
+
+--- Get aura duration for spellId specified
+-- @param spellId id of the spell to search
+-- @param duration duration that was returned by the API
+function DHUDDataTrackerHelper:getUnitAuraCorrectDuration(spellId, duration)
+	local currentMax = self.auraIdDurationData[spellId];
+	if (currentMax == nil) then
+		self.auraIdDurationData[spellId] = duration * 1.3;
+		return duration;
+	end
+	if (currentMax < duration) then
+		currentMax = duration;
+		self.auraIdDurationData[spellId] = duration;
+	end
+	return currentMax / 1.3;
 end
 
 --- Get information about player tank spec index
@@ -1371,7 +1389,7 @@ function DHUDTimersTracker:findTimer(sourceIndex, id)
 			end
 		end
 	end
-	-- timer not found, create new { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder }
+	-- timer not found, create new { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder, grouped, groupData }
 	timer = { 0, 0, 0, 0, 0, "", 0, "", true, true, 0 };
 	--print("Timer " .. id .. ", sourceIndex " .. sourceIndex .. ", predictedIndex " ..  indexToCheck .. " was created at " .. indexBounds);
 	table.insert(self.timers, indexBounds, timer);
@@ -1400,7 +1418,7 @@ function DHUDTimersTracker:findTimerByIdOnly(id, createIfNone)
 			end
 		end
 	end
-	-- timer not found, create new { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder } or return
+	-- timer not found, create new { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder, grouped, groupData } or return
 	if (not createIfNone) then
 		return nil;
 	end
@@ -1593,7 +1611,7 @@ end
 
 --- Filter out timers using function specified
 -- @param func funcion that desides if item is required or not, also returning sort order (invoked with data about timer, should return nil if timer is not required or number for timer sorting order)
--- @param cacheKey key to be used when storing results in cache
+-- @param cacheKey key to be used when storing results in cache, and at which will be stored sorting order for prioritizied spells
 -- @param forceUpdate force existsing timers to be refiltered, use for data update only
 -- @return table with sorted timers and boolean that defines if only time was changed
 function DHUDTimersTracker:filterTimers(func, cacheKey, forceUpdate)
@@ -1620,6 +1638,8 @@ function DHUDTimersTracker:filterTimers(func, cacheKey, forceUpdate)
 			if (v[11] == nil) then
 				table.remove(filtered, i);
 				changed = true;
+			elseif (v[11] < 1000) then
+				v[cacheKey] = v[11];
 			end
 		end
 		i = i - 1;
@@ -1636,6 +1656,9 @@ function DHUDTimersTracker:filterTimers(func, cacheKey, forceUpdate)
 				v[11] = sortOrder;
 				table.insert(filtered, v);
 				changed = true;
+				if (v[11] < 1000) then
+					v[cacheKey] = v[11];
+				end
 				--print("inserting " .. v[6] .. " to " .. cacheKey);
 			end
 		end
@@ -1653,6 +1676,9 @@ function DHUDTimersTracker:filterTimers(func, cacheKey, forceUpdate)
 			local v = filtered[i];
 			if (v[10]) then
 				v[11] = func(v) or 0;
+				if (v[11] < 1000) then
+					v[cacheKey] = v[11];
+				end
 			end
 			i = i - 1;
 		end
@@ -1761,7 +1787,7 @@ function DHUDAurasTracker:updateAuras()
 		-- fill timer info, { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder }
 		timer[1] = self.TIMER_TYPE_MASK_BUFF + (self.debuffTypeMask[debuffType] or 0) + (canPurge and self.TIMER_TYPE_MASK_IS_PURGABLE or 0) + (unitCaster == playerCasterUnitId and self.TIMER_TYPE_MASK_IS_CAST_BY_PLAYER or 0); -- type
 		timer[2] = expirationTime - timerMs; -- timeLeft
-		timer[3] = duration; -- duration
+		timer[3] = trackingHelper:getUnitAuraCorrectDuration(spellId, duration); -- duration
 		timer[4] = spellId; -- id
 		timer[5] = i; -- tooltip id
 		timer[6] = name; -- name
@@ -1787,7 +1813,7 @@ function DHUDAurasTracker:updateAuras()
 		--print("name " .. name .. ", unitCaster " .. unitCaster);
 		timer[1] = self.TIMER_TYPE_MASK_DEBUFF + (self.debuffTypeMask[debuffType] or 0) + (canPurge and self.TIMER_TYPE_MASK_IS_PURGABLE or 0) + (unitCaster == playerCasterUnitId and self.TIMER_TYPE_MASK_IS_CAST_BY_PLAYER or 0); -- type
 		timer[2] = expirationTime - timerMs; -- timeLeft
-		timer[3] = duration; -- duration
+		timer[3] = trackingHelper:getUnitAuraCorrectDuration(spellId, duration); -- duration
 		timer[4] = spellId; -- id
 		timer[5] = i; -- tooltip id
 		timer[6] = name; -- name

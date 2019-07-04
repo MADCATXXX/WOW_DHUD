@@ -1460,17 +1460,6 @@
 									<Attribute name="LTEXT" value="HEADER_TIMERS_SHORTAURAS" />
 								</Attributes>
 							</Frame>
-							<CheckButton name="$parent_ShortAurasWithChargesCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
-								<Anchors>
-									<Anchor point="TOPLEFT">
-										<Offset x="10" y="-128" />
-									</Anchor>
-								</Anchors>
-								<Attributes>
-									<Attribute name="LTEXT" value="SETTING_TIMERS_SHORTAURASWITHCHARGES" />
-									<Attribute name="SETTING" value="shortAurasOptions_aurasWithCharges" />
-								</Attributes>
-							</CheckButton>
 							<Slider name="$parent_ShortAurasTimeLeftSlider" inherits="DHUD_OptionsTemplate_Slider" minValue="0" maxValue="0">
 								<Size>
 									<AbsDimension x="455" y="16" />
@@ -1485,31 +1474,21 @@
 									<Attribute name="SETTING" value="shortAurasOptions_aurasTimeLeftMax" />
 								</Attributes>
 							</Slider>
-							<Frame name="$parent_HeaderPlayersShortAuras" inherits="DHUD_OptionsTemplate_Header">
+							<CheckButton name="$parent_ShortAurasWithChargesCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="5" y="-161" />
+										<Offset x="10" y="-128" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
-									<Attribute name="LTEXT" value="HEADER_TIMERS_PLAYERSHORT" />
-								</Attributes>
-							</Frame>
-							<CheckButton name="$parent_PlayerDebuffsCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
-								<Anchors>
-									<Anchor point="TOPLEFT">
-										<Offset x="10" y="-187" />
-									</Anchor>
-								</Anchors>
-								<Attributes>
-									<Attribute name="LTEXT" value="SETTING_TIMERS_PLAYERSHORT_DEBUFFS" />
-									<Attribute name="SETTING" value="shortAurasOptions_playerDebuffs" />
+									<Attribute name="LTEXT" value="SETTING_TIMERS_SHORTAURASWITHCHARGES" />
+									<Attribute name="SETTING" value="shortAurasOptions_aurasWithCharges" />
 								</Attributes>
 							</CheckButton>
 							<CheckButton name="$parent_ColorizePlayerDebuffsCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="246" y="-187" />
+										<Offset x="246" y="-128" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -1517,10 +1496,64 @@
 									<Attribute name="SETTING" value="shortAurasOptions_colorizePlayerDebuffs" />
 								</Attributes>
 							</CheckButton>
+							<CheckButton name="$parent_AnimatePriorityAurasAtEndCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="10" y="-152" />
+									</Anchor>
+								</Anchors>
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_TIMERS_ANIMATEPRIORITYAURASATEND" />
+									<Attribute name="SETTING" value="shortAurasOptions_animatePriorityAurasAtEnd" />
+								</Attributes>
+							</CheckButton>
+							<CheckButton name="$parent_AnimatePriorityAurasDisappearCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="246" y="-152" />
+									</Anchor>
+								</Anchors>
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_TIMERS_ANIMATEPRIORITYAURASDISAPPEAR" />
+									<Attribute name="SETTING" value="shortAurasOptions_animatePriorityAurasDisappear" />
+								</Attributes>
+							</CheckButton>
+							<Frame name="$parent_HeaderPlayersShortAuras" inherits="DHUD_OptionsTemplate_Header">
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="5" y="-171" />
+									</Anchor>
+								</Anchors>
+								<Attributes>
+									<Attribute name="LTEXT" value="HEADER_TIMERS_PLAYERSHORT" />
+								</Attributes>
+							</Frame>
+							<CheckButton name="$parent_PlayerAllBuffsCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="10" y="-197" />
+									</Anchor>
+								</Anchors>
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_TIMERS_PLAYERSHORT_ALLBUFFS" />
+									<Attribute name="SETTING" value="shortAurasOptions_playerAllBuffs" />
+								</Attributes>
+							</CheckButton>
+							<CheckButton name="$parent_PlayerDebuffsCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="246" y="-197" />
+									</Anchor>
+								</Anchors>
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_TIMERS_PLAYERSHORT_DEBUFFS" />
+									<Attribute name="SETTING" value="shortAurasOptions_playerDebuffs" />
+								</Attributes>
+							</CheckButton>
 							<Frame name="$parent_PlayerShortAurasWhiteList" inherits="DHUD_OptionsTemplate_SpellListTextBox">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="5" y="-224" />
+										<Offset x="5" y="-234" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -1531,7 +1564,7 @@
 							<Frame name="$parent_PlayerShortAurasBlackList" inherits="DHUD_OptionsTemplate_SpellListTextBox">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="246" y="-224" />
+										<Offset x="246" y="-234" />
 									</Anchor>
 								</Anchors>
 								<Attributes>

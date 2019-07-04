@@ -429,7 +429,16 @@ L["SETTING_TIMERS_SHORTAURASWITHCHARGES_TOOLTIP"] = "Показывать кор
 L["SETTING_TIMERS_SHORTAURASTIMELEFT"] = "Макс. время коротких аур";
 L["SETTING_TIMERS_SHORTAURASTIMELEFT_TOOLTIP"] = "Максимальное время для коротких аур игрока и цели, чтобы они считались подходящими для отображения на панелях";
 
+L["SETTING_TIMERS_ANIMATEPRIORITYAURASATEND"] = "Аним. приоритет. ауры на 30%";
+L["SETTING_TIMERS_ANIMATEPRIORITYAURASATEND_TOOLTIP"] = "Позволяет анимировать приоритетные ауры, когда на них осталось менее 30% времени";
+
+L["SETTING_TIMERS_ANIMATEPRIORITYAURASDISAPPEAR"] = "Аним. приоритет. ауры на исчез.";
+L["SETTING_TIMERS_ANIMATEPRIORITYAURASDISAPPEAR_TOOLTIP"] = "Позволяет анимировать приоритетные ауры, когда на них осталось меньше 1 секунды";
+
 L["HEADER_TIMERS_PLAYERSHORT"] = "Коротк. Ауры Игрока:";
+
+L["SETTING_TIMERS_PLAYERSHORT_ALLBUFFS"] = "Показ. все баффы";
+L["SETTING_TIMERS_PLAYERSHORT_ALLBUFFS_TOOLTIP"] = "Позволяет отображать все положительные эффекты на игроке, не только сотворенные самим игроком";
 
 L["SETTING_TIMERS_PLAYERSHORT_DEBUFFS"] = "Показ. дебафф";
 L["SETTING_TIMERS_PLAYERSHORT_DEBUFFS_TOOLTIP"] = "Позволяет отображать также и отрицательные эффекты на игроке";

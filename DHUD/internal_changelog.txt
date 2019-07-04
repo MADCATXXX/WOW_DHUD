@@ -1,9 +1,15 @@
--fadeout animation for buffs when they disappear (only priotizied)
 -conditions for buffs prioritization
--colorize buffs on 30% left for WOD
 -diminishing returns as part of AuraTracker?
 -cooldowns for passive items? scan tooltips, but only on item change (updateData still requires to scan but other events not)
 -disable mouse over when casting aoe (or make option to disable mouse or enable only with certain key modifiers)?
+-other textures support (renetair from DHUD4)
+
+changelog 2.0.60000.47:
+-added option to show only player self short buffs, instead of all short buffs
+-changed default value of minimum time for aura to be considered short to 180 up from 60
+-added option to animate prioritizied spell circles at 30% time left, animation: icon is blinking each second
+-added option to animate prioritizied spell circles at 1 second left, animation: icon increases and fades out
+-your opinion and ideas on animations is welcomed
 
 changelog 2.0.60000.46:
 -priest shadow orbs resourse is now restricted to shadow specialization only

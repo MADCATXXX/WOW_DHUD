@@ -427,7 +427,16 @@ L["SETTING_TIMERS_SHORTAURASWITHCHARGES_TOOLTIP"] = "If enabled then short playe
 L["SETTING_TIMERS_SHORTAURASTIMELEFT"] = "Short auras Time Left";
 L["SETTING_TIMERS_SHORTAURASTIMELEFT_TOOLTIP"] = "Maximum time left on the aura to be displayed in short player auras and short target auras";
 
+L["SETTING_TIMERS_ANIMATEPRIORITYAURASATEND"] = "Animate priority auras at 30%";
+L["SETTING_TIMERS_ANIMATEPRIORITYAURASATEND_TOOLTIP"] = "Allows to animate auras that are prioritizied at 30% of their duration";
+
+L["SETTING_TIMERS_ANIMATEPRIORITYAURASDISAPPEAR"] = "Animate priority auras at disappear";
+L["SETTING_TIMERS_ANIMATEPRIORITYAURASDISAPPEAR_TOOLTIP"] = "Allows to animate auras that are prioritizied at 1 second left of their duration";
+
 L["HEADER_TIMERS_PLAYERSHORT"] = "Player Short Auras:";
+
+L["SETTING_TIMERS_PLAYERSHORT_ALLBUFFS"] = "Show All Buffs";
+L["SETTING_TIMERS_PLAYERSHORT_ALLBUFFS_TOOLTIP"] = "If checked then all player buffs will be shown, not just self";
 
 L["SETTING_TIMERS_PLAYERSHORT_DEBUFFS"] = "Show Debuffs";
 L["SETTING_TIMERS_PLAYERSHORT_DEBUFFS_TOOLTIP"] = "If checked then player debuffs will be shown as well";
