@@ -1,0 +1,19 @@
+## Interface: 30000
+## Title: Drathals HUD [|cffffffffv1.5.30000b|r]
+## Author: Markus Inger (Drathal/Silberklinge), Howie (Caeryn)
+## Maintained By: Mad Cat
+## Version: v1.5.30000b
+## Notes: Drathals HUD. 
+## SavedVariablesPerCharacter: DHUD_Settings
+## OptionalDeps: MobInfo2, MobHealth, MobHealth2, myAddOns, DruidBar
+localization.lua
+MyMinimapButton.lua
+layout\DHUD_Layout.lua
+layout\DHUD_Layout_2.lua
+DHUD_Commands.lua
+DHUD_Vars.lua
+DHUD_Misc.lua
+DHUD.lua
+DHUD.xml
+
+

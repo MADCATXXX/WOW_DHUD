@@ -1,0 +1,1362 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+	..\FrameXML\UI.xsd">
+
+
+    <!-- options frame -->
+	<Frame name="DHUDOptionsFrame" toplevel="true" parent="UIParent" enableMouse="true" movable="true" hidden="true">
+		<Size>
+			<AbsDimension x="500" y="600"/>
+		</Size>
+		<Anchors>
+			<Anchor point="CENTER" relativeTo="UIParent" relativePoint="CENTER">
+				<Offset>
+					<AbsDimension x="0" y="0"/>
+				</Offset>
+			</Anchor>
+		</Anchors>
+		<Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background" edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
+			<BackgroundInsets>
+				<AbsInset left="4" right="4" top="4" bottom="4" />
+			</BackgroundInsets>
+			<TileSize>
+				<AbsValue val="16" />
+			</TileSize>
+			<EdgeSize>
+				<AbsValue val="16" />
+			</EdgeSize>
+		</Backdrop>
+		<Layers>
+		    <!-- Logo -->
+            <Layer level="ARTWORK">
+                <Texture name="$parentLogo" file="Interface\AddOns\DHUD_Options\logo">
+                    <Size>
+                        <AbsDimension x="256" y="128"/>
+                    </Size>
+                    <Anchors>
+						<Anchor point="TOP">
+							<Offset>
+								<AbsDimension x="0" y="77"/>
+							</Offset>
+						</Anchor>
+                    </Anchors>
+                    <TexCoords left="0" right="1" top="0" bottom="1"/>
+                </Texture>
+            </Layer>
+			<Layer level="BORDER">
+				<Texture file="Interface\ChatFrame\ChatFrameBackground">
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset>
+								<AbsDimension x="5" y="-5"/>
+							</Offset>
+						</Anchor>
+						<Anchor point="BOTTOMRIGHT" relativeTo="$parent" relativePoint="TOPRIGHT">
+							<Offset>
+								<AbsDimension x="-5" y="-50"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+					<Gradient orientation="VERTICAL">
+						<MinColor r="0.1" g="0.1" b="0.1" a="0"/>
+						<MaxColor r=".25" g=".25" b=".25" a="1"/>
+					</Gradient>
+				</Texture>
+				<Texture file="Interface\ChatFrame\ChatFrameBackground">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="BOTTOMLEFT">
+							<Offset>
+								<AbsDimension x="5" y="50"/>
+							</Offset>
+						</Anchor>
+						<Anchor point="BOTTOMRIGHT">
+							<Offset>
+								<AbsDimension x="-5" y="5"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+					<Gradient orientation="VERTICAL">
+						<MinColor r=".20" g=".20" b=".20" a="1"/>
+						<MaxColor r="0.1" g="0.1" b="0.1" a="0"/>
+
+					</Gradient>
+				</Texture>
+			</Layer>
+            <!-- Version text -->
+			<Layer level="ARTWORK">
+				<FontString name="$parentText" inherits="GameFontHighlightSmall" text="DHUD_VERSION">
+					<Anchors>
+						<Anchor point="TOP">
+							<Offset>
+								<AbsDimension x="0" y="-10"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+            <!-- Tabline -->
+            <Layer level="BORDER">
+                <Texture name="$parentLine" file="Interface\AddOns\DHUD_Options\line">
+                    <Size>
+                        <AbsDimension x="256" y="64"/>
+                    </Size>
+        			<Anchors>
+        				<Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT"><Offset><AbsDimension x="5" y="-30"/></Offset></Anchor>
+        				<Anchor point="TOPRIGHT" relativeTo="$parent" relativePoint="TOPRIGHT"><Offset><AbsDimension x="-5" y="-30"/></Offset></Anchor>
+        			</Anchors>
+                    <TexCoords left="0" right="1" top="0" bottom="1"/>
+                </Texture>
+            </Layer>
+		</Layers>
+
+		<Frames>
+		    <!-- Close Button -->
+			<Button name="$parentCloseButton" inherits="UIPanelCloseButton">
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT">
+						<Offset>
+							<AbsDimension x="0" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+
+            <!-- Reset Button -->
+			<Button name="$parentResetButton" inherits="OptionsButtonTemplate" text="Reset">
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT">
+						<Offset><AbsDimension x="-6" y="-39"/></Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+                         DHUDYesNoFrame:Show();
+					</OnClick>
+				</Scripts>
+			</Button>
+
+			<!-- Page 1 -->
+            <Frame name="DHUD_Tab1" hidden="false" >
+                <Frames>
+
+                    <!-- ................... -->
+                    <!-- Header Blizz Frames -->
+                    <!-- ................... -->
+                    <Frame name="DHUD_Header_blizzard" inherits="DHUD_HeaderTemplate">
+                        <Scripts><OnLoad>
+                                DHUDO_Header_OnLoad(10,-70);
+                        </OnLoad></Scripts>
+                    </Frame>
+
+                    <!-- checkbox bplayer -->
+                    <CheckButton name="DHUD_Check_bplayer" inherits="DHUD_Check_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Header_blizzardText">
+                                <Offset><AbsDimension x="10" y="-25"/></Offset>
+                        </Anchor></Anchors>
+                    </CheckButton>
+
+                    <!-- checkbox bplayer -->
+                    <CheckButton name="DHUD_Check_btarget" inherits="DHUD_Check_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Check_bplayer">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                        </Anchor></Anchors>
+                    </CheckButton>
+
+                    <!-- checkbox bcastingbar -->
+                    <CheckButton name="DHUD_Check_bcastingbar" inherits="DHUD_Check_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Check_btarget">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                        </Anchor></Anchors>
+                    </CheckButton>
+
+
+                    <!-- ............ -->
+                    <!-- Header Icons -->
+                    <!-- ............ -->
+                    <Frame name="DHUD_Header_icons" inherits="DHUD_HeaderTemplate">
+                        <Scripts><OnLoad>
+                                DHUDO_Header_OnLoad(160,-70);
+                        </OnLoad></Scripts>
+                    </Frame>
+
+                    <!-- checkbox showresticon -->
+                    <CheckButton name="DHUD_Check_showresticon" inherits="DHUD_Check_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Header_iconsText">
+                                <Offset><AbsDimension x="10" y="-25"/></Offset>
+                        </Anchor></Anchors>
+                    </CheckButton>
+
+                    <!-- checkbox showcombaticon -->
+                    <CheckButton name="DHUD_Check_showcombaticon" inherits="DHUD_Check_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Check_showresticon">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                        </Anchor></Anchors>
+                    </CheckButton>
+
+                    <!-- checkbox showplayerpvpicon -->
+                    <CheckButton name="DHUD_Check_showplayerpvpicon" inherits="DHUD_Check_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Check_showcombaticon">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                        </Anchor></Anchors>
+                    </CheckButton>
+
+                    <!-- checkbox showtargetpvpicon -->
+                    <CheckButton name="DHUD_Check_showtargetpvpicon" inherits="DHUD_Check_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Check_showplayerpvpicon">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                        </Anchor></Anchors>
+                    </CheckButton>
+
+                    <!-- checkbox showpeticon -->
+                    <CheckButton name="DHUD_Check_showpeticon" inherits="DHUD_Check_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Check_showtargetpvpicon">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                        </Anchor></Anchors>
+                    </CheckButton>
+
+                    <!-- checkbox showeliteicon -->
+                    <CheckButton name="DHUD_Check_showeliteicon" inherits="DHUD_Check_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Check_showpeticon">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                        </Anchor></Anchors>
+                    </CheckButton>
+
+                    <!-- ........... -->
+                    <!-- Header misc -->
+                    <!-- ........... -->
+                    <Frame name="DHUD_Header_misc" inherits="DHUD_HeaderTemplate">
+                        <Scripts><OnLoad>
+                                DHUDO_Header_OnLoad(320,-70);
+                        </OnLoad></Scripts>
+                    </Frame>
+
+                    <!-- checkbox showmmb -->
+                    <CheckButton name="DHUD_Check_showmmb" inherits="DHUD_Check_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Header_miscText">
+                                <Offset><AbsDimension x="10" y="-25"/></Offset>
+                        </Anchor></Anchors>
+                    </CheckButton>
+
+                    <!-- checkbox animatebars -->
+                    <CheckButton name="DHUD_Check_animatebars" inherits="DHUD_Check_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Check_showmmb">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                        </Anchor></Anchors>
+                    </CheckButton>
+
+                    <!-- checkbox barborders -->
+                    <CheckButton name="DHUD_Check_barborders" inherits="DHUD_Check_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Check_animatebars">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                        </Anchor></Anchors>
+                    </CheckButton>
+
+                    <!-- checkbox showauras -->
+                    <CheckButton name="DHUD_Check_showauras" inherits="DHUD_Check_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Check_barborders">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                        </Anchor></Anchors>
+                    </CheckButton>
+
+                    <!-- checkbox swaptargetauras -->
+                    <CheckButton name="DHUD_Check_swaptargetauras" inherits="DHUD_Check_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Check_showauras">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                        </Anchor></Anchors>
+                    </CheckButton>
+
+                    <!-- checkbox showauratips -->
+                    <CheckButton name="DHUD_Check_showauratips" inherits="DHUD_Check_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Check_swaptargetauras">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                        </Anchor></Anchors>
+                    </CheckButton>
+
+                    <!-- checkbox playerbuff -->
+                    <CheckButton name="DHUD_Check_showplayerbuffs" inherits="DHUD_Check_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Check_showauratips">
+                            <Offset><AbsDimension x="0" y="-25"/></Offset>
+                        </Anchor></Anchors>
+                    </CheckButton>
+
+                    <!-- checkbox castingbar -->
+                    <CheckButton name="DHUD_Check_castingbar" inherits="DHUD_Check_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Check_showplayerbuffs">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                        </Anchor></Anchors>
+                    </CheckButton>
+
+                    <!-- checkbox reversecasting -->
+                    <CheckButton name="DHUD_Check_reversecasting" inherits="DHUD_Check_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Check_castingbar">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                        </Anchor></Anchors>
+                    </CheckButton>
+
+                    <!-- checkbox shownpc -->
+                    <CheckButton name="DHUD_Check_shownpc" inherits="DHUD_Check_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Check_reversecasting">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                        </Anchor></Anchors>
+                    </CheckButton>
+
+                    <!-- checkbox showtarget -->
+                    <CheckButton name="DHUD_Check_showtarget" inherits="DHUD_Check_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Check_shownpc">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                        </Anchor></Anchors>
+                    </CheckButton>
+
+                    <!-- checkbox showtargettarget -->
+                    <CheckButton name="DHUD_Check_showtargettarget" inherits="DHUD_Check_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Check_showtarget">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                        </Anchor></Anchors>
+                    </CheckButton>
+
+                    <!-- checkbox showpet -->
+                    <CheckButton name="DHUD_Check_showpet" inherits="DHUD_Check_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Check_showtargettarget">
+                            <Offset><AbsDimension x="0" y="-25"/></Offset>
+                        </Anchor></Anchors>
+                    </CheckButton>
+
+                    <!-- ................... -->
+                    <!-- Header Scale        -->
+                    <!-- ................... -->
+                    <Frame name="DHUD_Header_scale" inherits="DHUD_HeaderTemplate">
+                        <Scripts><OnLoad>
+                                DHUDO_Header_OnLoad(165,-245);
+                        </OnLoad></Scripts>
+                    </Frame>
+
+                    <!-- slider scale -->
+                    <Slider name="DHUD_Slider_scale" inherits="DHUD_Slider_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Header_scaleText">
+                            <Offset><AbsDimension x="10" y="-30"/></Offset>
+                        </Anchor></Anchors>
+                        <Scripts><OnLoad>
+                            DHUDO_FrameSlider_OnLoad( 0.2 , 2, 0.1 );
+                            this.triggertext = 1;
+                        </OnLoad></Scripts>
+                    </Slider>
+
+                    <!-- slider fontsizeplayer -->
+                    <Slider name="DHUD_Slider_fontsizeplayer" inherits="DHUD_Slider_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Slider_scale">
+                            <Offset><AbsDimension x="0" y="-35"/></Offset>
+                        </Anchor></Anchors>
+                        <Scripts><OnLoad>
+                            DHUDO_FrameSlider_OnLoad( 6 , 30 , 1 );
+                            this.triggertext = 1;
+                        </OnLoad></Scripts>
+                    </Slider>
+
+                    <!-- slider fontsizetarget -->
+                    <Slider name="DHUD_Slider_fontsizetarget" inherits="DHUD_Slider_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Slider_fontsizeplayer">
+                            <Offset><AbsDimension x="0" y="-35"/></Offset>
+                        </Anchor></Anchors>
+                        <Scripts><OnLoad>
+                            DHUDO_FrameSlider_OnLoad( 6 , 30 , 1 );
+                            this.triggertext = 1;
+                        </OnLoad></Scripts>
+                    </Slider>
+
+                    <!-- slider fontsizepet -->
+                    <Slider name="DHUD_Slider_fontsizepet" inherits="DHUD_Slider_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Slider_fontsizetarget">
+                            <Offset><AbsDimension x="0" y="-35"/></Offset>
+                        </Anchor></Anchors>
+                        <Scripts><OnLoad>
+                            DHUDO_FrameSlider_OnLoad( 6 , 30 , 1 );
+                            this.triggertext = 1;
+                        </OnLoad></Scripts>
+                    </Slider>
+
+                    <!-- slider fontsizetargetname -->
+                    <Slider name="DHUD_Slider_fontsizetargetname" inherits="DHUD_Slider_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Slider_fontsizepet">
+                            <Offset><AbsDimension x="0" y="-35"/></Offset>
+                        </Anchor></Anchors>
+                        <Scripts><OnLoad>
+                            DHUDO_FrameSlider_OnLoad( 6 , 30 , 1 );
+                            this.triggertext = 1;
+                        </OnLoad></Scripts>
+                    </Slider>
+
+                    <!-- slider fontsizetargettargetname -->
+                    <Slider name="DHUD_Slider_fontsizetargettargetname" inherits="DHUD_Slider_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Slider_fontsizetargetname">
+                            <Offset><AbsDimension x="0" y="-35"/></Offset>
+                        </Anchor></Anchors>
+                        <Scripts><OnLoad>
+                            DHUDO_FrameSlider_OnLoad( 6 , 30 , 1 );
+                            this.triggertext = 1;
+                        </OnLoad></Scripts>
+                    </Slider>
+
+                    <!-- slider fontsizecasttime -->
+                    <Slider name="DHUD_Slider_fontsizecasttime" inherits="DHUD_Slider_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Slider_fontsizetargettargetname">
+                            <Offset><AbsDimension x="0" y="-35"/></Offset>
+                        </Anchor></Anchors>
+                        <Scripts><OnLoad>
+                            DHUDO_FrameSlider_OnLoad( 6 , 30 , 1 );
+                            this.triggertext = 1;
+                        </OnLoad></Scripts>
+                    </Slider>
+
+                    <!-- slider fontsizecastdelay -->
+                    <Slider name="DHUD_Slider_fontsizecastdelay" inherits="DHUD_Slider_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Slider_fontsizecasttime">
+                            <Offset><AbsDimension x="0" y="-35"/></Offset>
+                        </Anchor></Anchors>
+                        <Scripts><OnLoad>
+                            DHUDO_FrameSlider_OnLoad( 6 , 30 , 1 );
+                            this.triggertext = 1;
+                        </OnLoad></Scripts>
+                    </Slider>
+                    
+
+                    <!-- slider fontsizeplayerbuff -->
+                    <Slider name="DHUD_Slider_fontsizeplayerbuff" inherits="DHUD_Slider_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Slider_fontsizecastdelay">
+                            <Offset><AbsDimension x="0" y="-35"/></Offset>
+                        </Anchor></Anchors>
+                        <Scripts><OnLoad>
+                            DHUDO_FrameSlider_OnLoad( 6 , 30 , 1 );
+                            this.triggertext = 1;
+                        </OnLoad></Scripts>
+                    </Slider>
+                    
+                    
+                    
+
+                    <!-- ................... -->
+                    <!-- Header Outlines     -->
+                    <!-- ................... -->
+                    <Frame name="DHUD_Header_outlines" inherits="DHUD_HeaderTemplate">
+                        <Scripts><OnLoad>
+                                DHUDO_Header_OnLoad(10,-175);
+                        </OnLoad></Scripts>
+                    </Frame>
+
+                    <!-- slider playerhpoutline -->
+                    <Slider name="DHUD_Slider_playerhpoutline" inherits="DHUD_Slider_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Header_outlinesText">
+                            <Offset><AbsDimension x="10" y="-30"/></Offset>
+                        </Anchor></Anchors>
+                        <Scripts><OnLoad>
+                            this.triggertext = 1;
+                            this.nullbase = 1;
+                            DHUDO_FrameSlider_OnLoad( 1 , 3 , 1 );
+                        </OnLoad></Scripts>
+                    </Slider>
+
+                    <!-- slider playermanaoutline -->
+                    <Slider name="DHUD_Slider_playermanaoutline" inherits="DHUD_Slider_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Slider_playerhpoutline">
+                            <Offset><AbsDimension x="0" y="-35"/></Offset>
+                        </Anchor></Anchors>
+                        <Scripts><OnLoad>
+                            this.triggertext = 1;
+                            this.nullbase = 1;
+                            DHUDO_FrameSlider_OnLoad( 1 , 3 , 1 );
+                        </OnLoad></Scripts>
+                    </Slider>
+
+                    <!-- slider targethpoutline -->
+                    <Slider name="DHUD_Slider_targethpoutline" inherits="DHUD_Slider_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Slider_playermanaoutline">
+                            <Offset><AbsDimension x="0" y="-35"/></Offset>
+                        </Anchor></Anchors>
+                        <Scripts><OnLoad>
+                            this.triggertext = 1;
+                            this.nullbase = 1;
+                            DHUDO_FrameSlider_OnLoad( 1 , 3 , 1 );
+                        </OnLoad></Scripts>
+                    </Slider>
+
+                    <!-- slider targetmanaoutline -->
+                    <Slider name="DHUD_Slider_targetmanaoutline" inherits="DHUD_Slider_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Slider_targethpoutline">
+                            <Offset><AbsDimension x="0" y="-35"/></Offset>
+                        </Anchor></Anchors>
+                        <Scripts><OnLoad>
+                            this.triggertext = 1;
+                            this.nullbase = 1;
+                            DHUDO_FrameSlider_OnLoad( 1 , 3 , 1 );
+                        </OnLoad></Scripts>
+                    </Slider>
+
+                    <!-- slider pethpoutline -->
+                    <Slider name="DHUD_Slider_pethpoutline" inherits="DHUD_Slider_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Slider_targetmanaoutline">
+                            <Offset><AbsDimension x="0" y="-35"/></Offset>
+                        </Anchor></Anchors>
+                        <Scripts><OnLoad>
+                            this.triggertext = 1;
+                            this.nullbase = 1;
+                            DHUDO_FrameSlider_OnLoad( 1 , 3 , 1 );
+                        </OnLoad></Scripts>
+                    </Slider>
+
+                    <!-- slider petmanaoutline -->
+                    <Slider name="DHUD_Slider_petmanaoutline" inherits="DHUD_Slider_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Slider_pethpoutline">
+                            <Offset><AbsDimension x="0" y="-35"/></Offset>
+                        </Anchor></Anchors>
+                        <Scripts><OnLoad>
+                            this.triggertext = 1;
+                            this.nullbase = 1;
+                            DHUDO_FrameSlider_OnLoad( 1 , 3 , 1 );
+                        </OnLoad></Scripts>
+                    </Slider>
+
+                    <!-- slider targetoutline -->
+                    <Slider name="DHUD_Slider_targetoutline" inherits="DHUD_Slider_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Slider_petmanaoutline">
+                            <Offset><AbsDimension x="0" y="-35"/></Offset>
+                        </Anchor></Anchors>
+                        <Scripts><OnLoad>
+                            this.triggertext = 1;
+                            this.nullbase = 1;
+                            DHUDO_FrameSlider_OnLoad( 1 , 3 , 1 );
+                        </OnLoad></Scripts>
+                    </Slider>
+
+                    <!-- slider targettargetoutline -->
+                    <Slider name="DHUD_Slider_targettargetoutline" inherits="DHUD_Slider_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Slider_targetoutline">
+                            <Offset><AbsDimension x="0" y="-35"/></Offset>
+                        </Anchor></Anchors>
+                        <Scripts><OnLoad>
+                            this.triggertext = 1;
+                            this.nullbase = 1;
+                            DHUDO_FrameSlider_OnLoad( 1 , 3 , 1 );
+                        </OnLoad></Scripts>
+                    </Slider>
+
+                    <!-- slider casttimeoutline -->
+                    <Slider name="DHUD_Slider_casttimeoutline" inherits="DHUD_Slider_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Slider_targettargetoutline">
+                            <Offset><AbsDimension x="0" y="-35"/></Offset>
+                        </Anchor></Anchors>
+                        <Scripts><OnLoad>
+                            this.triggertext = 1;
+                            this.nullbase = 1;
+                            DHUDO_FrameSlider_OnLoad( 1 , 3 , 1 );
+                        </OnLoad></Scripts>
+                    </Slider>
+
+                    <!-- slider castdelayoutline -->
+                    <Slider name="DHUD_Slider_castdelayoutline" inherits="DHUD_Slider_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Slider_casttimeoutline">
+                            <Offset><AbsDimension x="0" y="-35"/></Offset>
+                        </Anchor></Anchors>
+                        <Scripts><OnLoad>
+                            this.triggertext = 1;
+                            this.nullbase = 1;
+                            DHUDO_FrameSlider_OnLoad( 1 , 3 , 1 );
+                        </OnLoad></Scripts>
+                    </Slider>
+
+                    <!-- slider playerbuffoutline -->
+                    <Slider name="DHUD_Slider_playerbuffoutline" inherits="DHUD_Slider_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Slider_castdelayoutline">
+                            <Offset><AbsDimension x="0" y="-35"/></Offset>
+                        </Anchor></Anchors>
+                        <Scripts><OnLoad>
+                            this.triggertext = 1;
+                            this.nullbase = 1;
+                            DHUDO_FrameSlider_OnLoad( 1 , 3 , 1 );
+                        </OnLoad></Scripts>
+                    </Slider>
+
+
+                    <!-- ................... -->
+                    <!-- Header Alpha        -->
+                    <!-- ................... -->
+                    <Frame name="DHUD_Header_alpha" inherits="DHUD_HeaderTemplate">
+                        <Scripts><OnLoad>
+                                DHUDO_Header_OnLoad(320,-415);
+                        </OnLoad></Scripts>
+                    </Frame>
+
+                    <!-- slider oocalpha -->
+                    <Slider name="DHUD_Slider_oocalpha" inherits="DHUD_Slider_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Header_alphaText">
+                            <Offset><AbsDimension x="10" y="-35"/></Offset>
+                        </Anchor></Anchors>
+                        <Scripts><OnLoad>
+                            DHUDO_FrameSlider_OnLoad( 0 , 1 , 0.1 );
+                        </OnLoad></Scripts>
+                    </Slider>
+
+                    <!-- slider combatalpha -->
+                    <Slider name="DHUD_Slider_combatalpha" inherits="DHUD_Slider_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Slider_oocalpha">
+                            <Offset><AbsDimension x="0" y="-35"/></Offset>
+                        </Anchor></Anchors>
+                        <Scripts><OnLoad>
+                            DHUDO_FrameSlider_OnLoad( 0 , 1 , 0.1 );
+                        </OnLoad></Scripts>
+                    </Slider>
+
+                    <!-- slider selectalpha -->
+                    <Slider name="DHUD_Slider_selectalpha" inherits="DHUD_Slider_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Slider_combatalpha">
+                            <Offset><AbsDimension x="0" y="-35"/></Offset>
+                        </Anchor></Anchors>
+                        <Scripts><OnLoad>
+                            DHUDO_FrameSlider_OnLoad( 0 , 1 , 0.1 );
+                        </OnLoad></Scripts>
+                    </Slider>
+
+                   <!-- slider regenalpha -->
+                    <Slider name="DHUD_Slider_regenalpha" inherits="DHUD_Slider_Template">
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Slider_selectalpha">
+                            <Offset><AbsDimension x="0" y="-35"/></Offset>
+                        </Anchor></Anchors>
+                        <Scripts><OnLoad>
+                            DHUDO_FrameSlider_OnLoad( 0 , 1 , 0.1 );
+                        </OnLoad></Scripts>
+                    </Slider>
+
+                </Frames>
+            </Frame>
+
+
+
+			<!-- Page 2 -->
+            <Frame name="DHUD_Tab2" hidden="true" >
+                <Frames>
+
+                    <!-- ........... -->
+                    <!-- Header Pos -->
+                    <!-- ........... -->
+                    <Frame name="DHUD_Header_pos" inherits="DHUD_HeaderTemplate">
+                        <Scripts><OnLoad>
+                                DHUDO_Header_OnLoad(10,-70);
+                        </OnLoad></Scripts>
+                    </Frame>
+
+                    <Frame name="DHUD_Pos_xoffset" inherits="DHUD_PosTemplate">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Header_posText" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="10" y="-25"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                    </Frame>
+
+                    <Frame name="DHUD_Pos_yoffset" inherits="DHUD_PosTemplate">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Header_posText" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="220" y="-25"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                    </Frame>
+
+                    <Frame name="DHUD_Pos_casttextx" inherits="DHUD_PosTemplate">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Pos_xoffset" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                    </Frame>
+
+                    <Frame name="DHUD_Pos_casttexty" inherits="DHUD_PosTemplate">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Pos_xoffset" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="210" y="-25"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                    </Frame>
+
+                     <Frame name="DHUD_Pos_delaytextx" inherits="DHUD_PosTemplate">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Pos_casttextx" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                    </Frame>
+
+                    <Frame name="DHUD_Pos_delaytexty" inherits="DHUD_PosTemplate">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Pos_casttextx" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="210" y="-25"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                    </Frame>
+
+                    <Frame name="DHUD_Pos_targettextx" inherits="DHUD_PosTemplate">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Pos_delaytextx" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                    </Frame>
+
+                    <Frame name="DHUD_Pos_targettexty" inherits="DHUD_PosTemplate">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Pos_delaytextx" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="210" y="-25"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                    </Frame>
+
+                    <Frame name="DHUD_Pos_targettargettextx" inherits="DHUD_PosTemplate">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Pos_targettextx" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                    </Frame>
+
+                    <Frame name="DHUD_Pos_targettargettexty" inherits="DHUD_PosTemplate">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Pos_targettextx" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="210" y="-25"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                    </Frame>
+
+                    <Frame name="DHUD_Pos_hudspacing" inherits="DHUD_PosTemplate">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Pos_targettargettextx" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                    </Frame>
+
+                    <!-- ........... -->
+                    <!-- Header textPos -->
+                    <!-- ........... -->
+                    <Frame name="DHUD_Header_textpos" inherits="DHUD_HeaderTemplate">
+                        <Scripts><OnLoad>
+                                DHUDO_Header_OnLoad(10,-270);
+                        </OnLoad></Scripts>
+                    </Frame>
+
+                    <Frame name="DHUD_Pos_playerhptextx" inherits="DHUD_PosTemplate">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Header_textposText" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="10" y="-25"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                    </Frame>
+
+                    <Frame name="DHUD_Pos_playerhptexty" inherits="DHUD_PosTemplate">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Header_textposText" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="220" y="-25"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                    </Frame>
+
+                    <Frame name="DHUD_Pos_playermanatextx" inherits="DHUD_PosTemplate">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Pos_playerhptextx" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                    </Frame>
+
+                    <Frame name="DHUD_Pos_playermanatexty" inherits="DHUD_PosTemplate">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Pos_playerhptextx" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="210" y="-25"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                    </Frame>
+
+                    <Frame name="DHUD_Pos_targethptextx" inherits="DHUD_PosTemplate">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Pos_playermanatextx" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                    </Frame>
+
+                    <Frame name="DHUD_Pos_targethptexty" inherits="DHUD_PosTemplate">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Pos_playermanatextx" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="210" y="-25"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                    </Frame>
+
+                    <Frame name="DHUD_Pos_targetmanatextx" inherits="DHUD_PosTemplate">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Pos_targethptextx" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                    </Frame>
+
+                    <Frame name="DHUD_Pos_targetmanatexty" inherits="DHUD_PosTemplate">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Pos_targethptextx" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="210" y="-25"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                    </Frame>
+
+                    <Frame name="DHUD_Pos_pethptextx" inherits="DHUD_PosTemplate">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Pos_targetmanatextx" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                    </Frame>
+
+                    <Frame name="DHUD_Pos_pethptexty" inherits="DHUD_PosTemplate">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Pos_targetmanatextx" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="210" y="-25"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                    </Frame>
+
+                    <Frame name="DHUD_Pos_petmanatextx" inherits="DHUD_PosTemplate">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Pos_pethptextx" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                    </Frame>
+
+                    <Frame name="DHUD_Pos_petmanatexty" inherits="DHUD_PosTemplate">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Pos_pethptextx" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="210" y="-25"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                    </Frame>
+                    
+                    
+                    <!-- ........... -->
+                    <!-- Header textPos -->
+                    <!-- ........... -->
+                    <Frame name="DHUD_Header_filter" inherits="DHUD_HeaderTemplate">
+                        <Scripts><OnLoad>
+                                DHUDO_Header_OnLoad(10,-470);
+                        </OnLoad></Scripts>
+                    </Frame>
+                    
+                    <!-- slider playermanaoutline -->
+                    <Slider name="DHUD_Slider_playerbufftimefilter" inherits="DHUD_Slider_Template">
+                        <Size><AbsDimension x="450" y="16"/></Size>	
+                        <Anchors><Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeTo="DHUD_Header_filterText">
+                            <Offset><AbsDimension x="10" y="-35"/></Offset>
+                        </Anchor></Anchors>
+                        <Scripts><OnLoad>
+                            this.triggertext = 1;
+                            --this.nullbase = 1;
+                            DHUDO_FrameSlider_OnLoad( 0 , 3600 , 10 );
+                        </OnLoad></Scripts>
+                    </Slider>
+
+                </Frames>
+            </Frame>
+
+			<!-- Page 3 -->
+            <Frame name="DHUD_Tab3" hidden="true" >
+                <Frames>
+
+                    <!-- ........... -->
+                    <!-- Header Text -->
+                    <!-- ........... -->
+                    <Frame name="DHUD_Header_text" inherits="DHUD_HeaderTemplate">
+                        <Scripts><OnLoad>
+                                DHUDO_Header_OnLoad(10,-70);
+                        </OnLoad></Scripts>
+                    </Frame>
+
+                    <Frame name="DHUD_Edit_DHUD_PlayerHealth_Text" inherits="DHUD_Edit_Template" virtual="true">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Header_textText" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="10" y="-25"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                    </Frame>
+
+                    <Frame name="DHUD_Edit_DHUD_PlayerMana_Text" inherits="DHUD_Edit_Template" virtual="true">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Edit_DHUD_PlayerHealth_Text" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="0" y="-45"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                    </Frame>
+
+                    <Frame name="DHUD_Edit_DHUD_TargetHealth_Text" inherits="DHUD_Edit_Template" virtual="true">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Edit_DHUD_PlayerMana_Text" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="0" y="-45"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                    </Frame>
+
+                    <Frame name="DHUD_Edit_DHUD_TargetMana_Text" inherits="DHUD_Edit_Template" virtual="true">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Edit_DHUD_TargetHealth_Text" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="0" y="-45"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                    </Frame>
+
+                    <Frame name="DHUD_Edit_DHUD_PetHealth_Text" inherits="DHUD_Edit_Template" virtual="true">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Edit_DHUD_TargetMana_Text" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="0" y="-45"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                    </Frame>
+
+                    <Frame name="DHUD_Edit_DHUD_PetMana_Text" inherits="DHUD_Edit_Template" virtual="true">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Edit_DHUD_PetHealth_Text" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="0" y="-45"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                    </Frame>
+
+                    <Frame name="DHUD_Edit_DHUD_Target_Text" inherits="DHUD_Edit_Template" virtual="true">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Edit_DHUD_PetMana_Text" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="0" y="-45"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                    </Frame>
+
+                    <Frame name="DHUD_Edit_DHUD_TargetTarget_Text" inherits="DHUD_Edit_Template" virtual="true">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Edit_DHUD_Target_Text" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="0" y="-45"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                    </Frame>
+
+                     <Frame name="DHUD_Edit_DHUD_Casttime_Text" inherits="DHUD_Edit_Template" virtual="true">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Edit_DHUD_TargetTarget_Text" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="0" y="-45"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                    </Frame>
+
+                     <Frame name="DHUD_Edit_DHUD_Castdelay_Text" inherits="DHUD_Edit_Template" virtual="true">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Edit_DHUD_Casttime_Text" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="0" y="-45"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                    </Frame>
+
+                </Frames>
+            </Frame>
+
+			<!-- Page 4 -->
+            <Frame name="DHUD_Tab4" hidden="true" >
+                <Frames>
+
+                    <!-- ................... -->
+                    <!-- Header colorsplayer -->
+                    <!-- ................... -->
+                    <Frame name="DHUD_Header_colorsplayer" inherits="DHUD_HeaderTemplate">
+                        <Scripts><OnLoad>
+                                DHUDO_Header_OnLoad(10,-70);
+                        </OnLoad></Scripts>
+                    </Frame>
+
+                    <Frame name="DHUD_Colorbox_health_player" inherits="DHUD_Colorbox_Template">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Header_colorsplayerText" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="110" y="-25"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                     </Frame>
+
+                    <Frame name="DHUD_Colorbox_mana_player" inherits="DHUD_Colorbox_Template">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Colorbox_health_player" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="0" y="-20"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                     </Frame>
+
+                    <Frame name="DHUD_Colorbox_rage_player" inherits="DHUD_Colorbox_Template">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Colorbox_mana_player" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="0" y="-20"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                     </Frame>
+
+                    <Frame name="DHUD_Colorbox_energy_player" inherits="DHUD_Colorbox_Template">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Colorbox_rage_player" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="0" y="-20"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                     </Frame>
+
+                    <!-- ................... -->
+                    <!-- Header colorspet    -->
+                    <!-- ................... -->
+                    <Frame name="DHUD_Header_colorspet" inherits="DHUD_HeaderTemplate">
+                        <Scripts><OnLoad>
+                                DHUDO_Header_OnLoad(10,-185);
+                        </OnLoad></Scripts>
+                    </Frame>
+
+                    <Frame name="DHUD_Colorbox_health_pet" inherits="DHUD_Colorbox_Template">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Header_colorspetText" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="110" y="-25"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                     </Frame>
+
+                    <Frame name="DHUD_Colorbox_mana_pet" inherits="DHUD_Colorbox_Template">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Colorbox_health_pet" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="0" y="-20"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                     </Frame>
+
+                    <Frame name="DHUD_Colorbox_focus_pet" inherits="DHUD_Colorbox_Template">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Colorbox_mana_pet" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="0" y="-20"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                     </Frame>
+
+                    <!-- ................... -->
+                    <!-- Header colorstarget -->
+                    <!-- ................... -->
+                    <Frame name="DHUD_Header_colorstarget" inherits="DHUD_HeaderTemplate">
+                        <Scripts><OnLoad>
+                                DHUDO_Header_OnLoad(10,-285);
+                        </OnLoad></Scripts>
+                    </Frame>
+
+                    <Frame name="DHUD_Colorbox_health_target" inherits="DHUD_Colorbox_Template">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Header_colorstargetText" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="110" y="-20"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                     </Frame>
+
+                    <Frame name="DHUD_Colorbox_mana_target" inherits="DHUD_Colorbox_Template">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Colorbox_health_target" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="0" y="-20"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                     </Frame>
+
+                    <Frame name="DHUD_Colorbox_rage_target" inherits="DHUD_Colorbox_Template">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Colorbox_mana_target" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="0" y="-20"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                     </Frame>
+
+                    <Frame name="DHUD_Colorbox_energy_target" inherits="DHUD_Colorbox_Template">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Colorbox_rage_target" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="0" y="-20"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                     </Frame>
+
+                    <Frame name="DHUD_Colorbox_focus_target" inherits="DHUD_Colorbox_Template">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Colorbox_energy_target" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="0" y="-20"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                     </Frame>
+
+                    <Frame name="DHUD_Colorbox_tapped" inherits="DHUD_Colorbox_Template">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Colorbox_focus_target" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="0" y="-20"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                     </Frame>
+
+                    <!-- ................... -->
+                    <!-- Header colorsother -->
+                    <!-- ................... -->
+                    <Frame name="DHUD_Header_colorsother" inherits="DHUD_HeaderTemplate">
+                        <Scripts><OnLoad>
+                                DHUDO_Header_OnLoad(10,-435);
+                        </OnLoad></Scripts>
+                    </Frame>
+
+                    <Frame name="DHUD_Colorbox_castbar" inherits="DHUD_Colorbox_Template">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Header_colorsotherText" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="110" y="-20"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                     </Frame>
+
+                    <Frame name="DHUD_Colorbox_channelbar" inherits="DHUD_Colorbox_Template">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Colorbox_castbar" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="0" y="-20"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                     </Frame>
+
+                    <Frame name="DHUD_Colorbox_aura_player" inherits="DHUD_Colorbox_Template">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Colorbox_channelbar" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="0" y="-20"/></Offset>
+                            </Anchor>
+                        </Anchors>
+                     </Frame>
+
+
+                </Frames>
+            </Frame>
+
+			<!-- Page 5 -->
+            <Frame name="DHUD_Tab5" hidden="true" >
+                <Frames>
+
+                    <!-- ................... -->
+                    <!-- Header Layout       -->
+                    <!-- ................... -->
+                    <Frame name="DHUD_Header_layout" inherits="DHUD_HeaderTemplate">
+                        <Scripts><OnLoad>
+                                DHUDO_Header_OnLoad(10,-70);
+                        </OnLoad></Scripts>
+                    </Frame>
+
+            		<CheckButton name="DHUD_RADIO_layout1" inherits="DHUD_RadioButtonTemplate" id="1">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_Header_layoutText" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="10" y="-35"/></Offset>
+                            </Anchor>
+                        </Anchors>
+            			<Scripts>
+            				<OnLoad>
+            				    getglobal(this:GetName().."Text"):SetText("|cff88ff88DHUD Bubbles|r (Hitpoints Left - Mana Right)");
+            				    if DHUD:GetConfig("layouttyp") == "DHUD_Standard_Layout" then
+            				        DHUD_RADIO_layout1:SetChecked(1);
+            				    else
+            				        DHUD_RADIO_layout1:SetChecked(nil);
+            				    end
+            				</OnLoad>
+            				<OnClick>DHUD_RadioButton_OnClick( this:GetID() )</OnClick>
+            			</Scripts>
+            		</CheckButton>
+            		<CheckButton name="DHUD_RADIO_layout2" inherits="DHUD_RadioButtonTemplate" id="2">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeTo="DHUD_RADIO_layout1" relativePoint="TOPLEFT">
+                                <Offset><AbsDimension x="0" y="-25"/></Offset>
+                            </Anchor>
+                        </Anchors>
+            			<Scripts>
+            				<OnLoad>
+            				    getglobal(this:GetName().."Text"):SetText("|cff88ff88DHUD Bubbles|r (Player Left - Target Right)");
+            				    if DHUD:GetConfig("layouttyp") == "DHUD_PlayerLeft_Layout" then
+            				        DHUD_RADIO_layout2:SetChecked(1);
+            				    else
+            				        DHUD_RADIO_layout2:SetChecked(nil);
+            				    end
+            				</OnLoad>
+            				<OnClick>DHUD_RadioButton_OnClick( this:GetID() )</OnClick>
+            			</Scripts>
+            		</CheckButton>
+
+                </Frames>
+            </Frame>
+
+            <!-- Tabbutton -->
+			<Button name="$parentTab1" inherits="DHUD_TabButtonTemplate" id="1">
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset><AbsDimension x="10" y="-30"/></Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+
+            <!-- Tabbutton -->
+			<Button name="$parentTab2" inherits="DHUD_TabButtonTemplate" id="2">
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parentTab1" relativePoint="RIGHT"></Anchor>
+				</Anchors>
+			</Button>
+
+            <!-- Tabbutton -->
+			<Button name="$parentTab3" inherits="DHUD_TabButtonTemplate" id="3">
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parentTab2" relativePoint="RIGHT"></Anchor>
+				</Anchors>
+			</Button>
+
+            <!-- Tabbutton -->
+			<Button name="$parentTab4" inherits="DHUD_TabButtonTemplate" id="4">
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parentTab3" relativePoint="RIGHT"></Anchor>
+				</Anchors>
+			</Button>
+
+            <!-- Tabbutton -->
+			<Button name="$parentTab5" inherits="DHUD_TabButtonTemplate" id="5">
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parentTab4" relativePoint="RIGHT"></Anchor>
+				</Anchors>
+			</Button>
+
+	   </Frames>
+
+		<Scripts>
+		    <OnLoad>
+		        DHUDO_OnLoad();
+		    </OnLoad>
+			<OnMouseDown>
+				if (arg1 == "LeftButton") then
+					this:StartMoving();
+				end
+			</OnMouseDown>
+			<OnMouseUp>
+				if (arg1 == "LeftButton") then
+					this:StopMovingOrSizing();
+				end
+			</OnMouseUp>
+			<OnShow>
+			</OnShow>
+			<OnHide>
+			</OnHide>
+		</Scripts>
+
+	</Frame>
+
+
+
+	<Frame name="DHUDYesNoFrame" toplevel="true" parent="DHUDOptionsFrame" hidden="true">
+		<Size>
+			<AbsDimension x="145" y="100"/>
+		</Size>
+		<Anchors>
+			<Anchor point="TOPLEFT" relativeTo="DHUDOptionsFrame" relativePoint="TOPRIGHT">
+				<Offset>
+					<AbsDimension x="0" y="0"/>
+				</Offset>
+			</Anchor>
+		</Anchors>
+		<Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background" edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
+			<BackgroundInsets>
+				<AbsInset left="4" right="4" top="4" bottom="4" />
+			</BackgroundInsets>
+			<TileSize>
+				<AbsValue val="16" />
+			</TileSize>
+			<EdgeSize>
+				<AbsValue val="16" />
+			</EdgeSize>
+		</Backdrop>
+        <Layers>
+    		<Layer level="ARTWORK">
+    			<FontString name="$parentText" inherits="GameFontHighlightSmall" justifyH="CENTER" text="DHUD_DORESET">
+            		<Anchors>
+            			<Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT">
+            				<Offset>
+            					<AbsDimension x="10" y="-10"/>
+            				</Offset>
+            			</Anchor>
+            		</Anchors>
+    			</FontString>
+    		</Layer>
+		</Layers>
+		<Frames>
+
+            <!-- Reset Button -->
+			<Button name="$parentYesButton" inherits="OptionsButtonTemplate" text="Yes">
+				<Anchors>
+					<Anchor point="BOTTOM" relativePoint="BOTTOM">
+						<Offset><AbsDimension x="0" y="35"/></Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+					    DHUD:reset();
+					    DHUDYesNoFrame:Hide();
+				        DHUDOptionsFrame:Hide();
+                		DHUDOptionsFrame:Show();
+					</OnClick>
+				</Scripts>
+			</Button>
+
+            <!-- Reset Button -->
+			<Button name="$parentNoButton" inherits="OptionsButtonTemplate" text="No">
+				<Anchors>
+					<Anchor point="BOTTOM" relativePoint="BOTTOM">
+						<Offset><AbsDimension x="0" y="10"/></Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+					    DHUDYesNoFrame:Hide();
+					</OnClick>
+				</Scripts>
+			</Button>
+
+		</Frames>
+    </Frame>
+
+
+
+	<Frame name="DHUDHelpFrame" toplevel="true" parent="DHUDOptionsFrame" hidden="true">
+		<Size>
+			<AbsDimension x="150" y="430"/>
+		</Size>
+		<Anchors>
+			<Anchor point="LEFT" relativeTo="DHUDOptionsFrame" relativePoint="RIGHT">
+				<Offset>
+					<AbsDimension x="0" y="0"/>
+				</Offset>
+			</Anchor>
+		</Anchors>
+		<Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background" edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
+			<BackgroundInsets>
+				<AbsInset left="4" right="4" top="4" bottom="4" />
+			</BackgroundInsets>
+			<TileSize>
+				<AbsValue val="16" />
+			</TileSize>
+			<EdgeSize>
+				<AbsValue val="16" />
+			</EdgeSize>
+		</Backdrop>
+        <Layers>
+    		<Layer level="ARTWORK">
+    			<FontString name="$parentText" inherits="GameFontHighlightSmall" justifyH="LEFT" text="DHUD_TEXTHELP">
+            		<Anchors>
+            			<Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT">
+            				<Offset>
+            					<AbsDimension x="10" y="-10"/>
+            				</Offset>
+            			</Anchor>
+            		</Anchors>
+    			</FontString>
+    		</Layer>
+		</Layers>
+    </Frame>
+
+
+
+
+
+
+</Ui>

@@ -1,0 +1,15 @@
+Changelog 1.3.20000 Beta1:
+- Fixed a bug with tab 3 of the options where the dropdown menu was not properly synchronized with the actual value
+- Added options to colorize the player buffs
+- Added a the player buff colors to the DHUD Options and default config
+- Added a toggle for targetoftarget in DHUD Options
+- Added playerbuffs to layout2/transform
+- Upped the limit of the player buffs from 8 to 16
+- Upped the maximum player buff time threshold from 600 seconds to 3600 seconds.
+
+Changelog 1.3.20000 Beta0:
+- Added duration filtered player buffs which can be configured to show only buffs with less than X seconds remaining
+- Added the player buff time threshold. Only buffs less than this time will be shown. Auras with no duration like Devotion and Trueshot will not be shown. Item buffs will not be shown. Debuffs will not be shown.
+- Added the ability to change font sizes and font outlines for player buffs
+- Added a text template for target of target
+- Fixed a bug where it was not possible to type a negative number into the offsets
