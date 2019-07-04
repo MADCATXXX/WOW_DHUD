@@ -24,7 +24,6 @@
 -- http://www.mmo-champion.com/threads/1304330-RPPM-reset-time
 -- TODO:
 -- Trinket ICDS, RPPM, check: http://www.curse.com/addons/wow/extracd
--- Shaman totems?
 -- Shadow/Glow Special Effect: http://www.wowinterface.com/downloads/info18479-rSetBackdrop.html#info
 -- Range and direction: http://www.curse.com/addons/wow/direction-arrow , http://www.curse.com/addons/wow/range-display , GetMapInfo(), GetPlayerMapPosition(unitId)
 -- arrow graphics http://www.wowinterface.com/downloads/info7032-TomTom.html
@@ -73,6 +72,7 @@ end
 
 ----------------------------
 -- Slash command handlers --
+-- @endregion
 ----------------------------
 
 --- Initialize slash commands handling

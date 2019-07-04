@@ -246,10 +246,14 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				["focus"] = { { "aa4400", "aa4400", "aa4400" }, 3 },
 				-- allows to change color of player druid eclipse on bars
 				["eclipse"] = { { "fcea1e", "d89d3f", "d29835", "ffffff", "4c80ba", "79c9ec", "d9ffff" }, 3 },
-				-- allows to change color of player druid eclipse on bars
+				-- allows to change color of player warlock burining embers on bars
 				["burningEmbers"] = { { "00FFFF", "0000FF", "FF00FF" }, 3 },
-				-- allows to change color of player druid eclipse on bars
+				-- allows to change color of player warlock demonic fury on bars
 				["demonicFury"] = { { "00FFFF", "0000FF", "FF00FF" }, 3 },
+				-- allows to change color of player tank vengeance on bars
+				["vengeance"] = { { "FF00FF", "FF00FF", "FF00FF" }, 3 },
+				-- allows to change color of player monk stagger on bars
+				["stagger"] = { { "FF8000", "FFFF00", "80FF00" }, 3 },
 			}, 1 },
 			-- list with colors to visualize target data on bars
 			["target"] = { {
@@ -341,12 +345,19 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				-- allows to change color of player applied spells
 				["appliedByPlayer"] = { { "ffffff", "ffffff", "eeeeee" }, 3 },
 			}, 1 },
-			-- list with colors to visualize spell rectangles that are showing target auras
+			-- list with colors to visualize spell rectangles that are showing self cooldowns
 			["selfCooldowns"] = { {
 				-- allows to change color of spell circle when it shows spell cooldown
 				["spell"] = { { "ffffff", "ffffff", "eeeeee" }, 3 },
 				-- allows to change color of spell circle when it shows item cooldown
 				["item"] = { { "ffffff", "ffffff", "eeeeee" }, 3 },
+			}, 1 },
+			-- list with colors to visualize spell rectangles that are showing self guardians
+			["selfGuardians"] = { {
+				-- allows to change color of spell circle when it shows passive guardian
+				["passive"] = { { "808080", "808080", "808080" }, 3 },
+				-- allows to change color of spell circle when it shows active guardian
+				["active"] = { { "ffffff", "ffffff", "eeeeee" }, 3 },
 			}, 1 },
 			-- list with colors to visualize spell rectangles that are showing self auras
 			["selfAuras"] = { {
@@ -421,7 +432,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			-- health percent only
 			["health3"] = "<color_amount><amount_percent>%</color><color_amount_habsorb><amount_habsorb(\" - \")></color><color_amount_extra><amount_extra(\" + \")></color><color_amount_hincome><amount_hincome(\" + \")></color>",
 			-- health amount with health percent
-			["health4"] = "<color_amount><amount></color> <color(\"999999\")>(</color><amount_percent>%<color(\"999999\")>)</color><color_amount_habsorb><amount_habsorb(\" + \")></color><color_amount_extra><amount_extra(\" + \")></color><color_amount_hincome><amount_hincome(\" + \")></color>";
+			["health4"] = "<color_amount><amount></color> <color(\"999999\")>(</color><amount_percent>%<color(\"999999\")>)</color><color_amount_habsorb><amount_habsorb(\" - \")></color><color_amount_extra><amount_extra(\" + \")></color><color_amount_hincome><amount_hincome(\" + \")></color>";
 			-- health amount with health max amount and percent
 			["health5"] = "<color_amount><amount>/<amount_max></color> <color(\"999999\")>(</color><amount_percent>%<color(\"999999\")>)</color><color_amount_habsorb><amount_habsorb(\" - \")></color><color_amount_extra><amount_extra(\" + \")></color><color_amount_hincome><amount_hincome(\" + \")></color>",
 			-- power amount only
@@ -449,7 +460,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			-- cast delay text
 			["castDelay1"] = "<color(\"ff0000\")><delay(\"+ \", \"- \")></color>",
 			-- cast spell name text
-			["castSpellName1"] = "<color(\"ffffff\")><spellname(\"|cff\" .. \"ff0000\" .. \"Interrupted\" .. \"|\" .. \"r\")></color>",
+			["castSpellName1"] = "<color(\"ffffff\")><spellname(\"|cff\" .. \"0099CC\" .. \"Canceled\" .. \"|\" .. \"r\", \"|cff\" .. \"FF3399\" .. \"Interrupted\", \"|cff\" .. \"66FF00\" .. \"Interrupted by Me\" .. \"|\" .. \"r\", \" by \", \"|\" .. \"r\")></color>",
 		}, 2 },
 		-- allows to change bar textures
 		["textures"] = { {
@@ -512,6 +523,8 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			["cooldownsBlackList"] = { { }, 5 },
 			-- allows to set priority for spell appearance in spell circles
 			["cooldownsPriorityList"] = { { }, 5 },
+			-- allows to colorize player cooldowns according to spell lock type
+			["colorizeCooldownsLock"] = { true, 0 },
 		}, 1 },
 		-- list with options for all auras
 		["aurasOptions"] = { {
@@ -524,8 +537,8 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 		}, 1 },
 		-- list with options for health
 		["healthBarOptions"] = { {
-			-- allows to show shield on health bars
-			["showShields"] = { true, 0 },
+			-- allows to show shield on health bars, (0 = do not display, 1 = display in WoW style, 2 = display in LoL style)
+			["showShields"] =  { 2, 0, { range = { 0, 2, 1 } } },
 			-- allows to show how much of the health will be absorbed by heal
 			["showHealAbsorb"] = { true, 0 },
 			-- allows to show incoming heal
@@ -592,11 +605,11 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			-- data that can be shown on bars
 			["bars"] = { "playerHealth", "playerPower", "targetHealth", "targetPower", "petHealth", "petPower",
 						 "characterInVehicleHealth", "characterInVehiclePower", "druidMana", "druidEnergy", "druidEclipse",
-						 "monkMana", "monkEnergy", "warlockBurningEmbers", "warlockDemonicFury" },
+						 "monkMana", "monkEnergy", "warlockBurningEmbers", "warlockDemonicFury", "tankVengeance", "monkStagger" },
 			-- data that can be shown on cast bars
 			["castBars"] = { "playerCastBar", "targetCastBar" },
 			-- data that can be shown on side slots
-			["sideSlots"] = { "playerComboPoints", "playerShortAuras", "targetShortAuras", "playerCooldowns", "monkChi", "warlockSoulShards", "paladinHolyPower", "priestShadowOrbs", "deathKnightRunes" },
+			["sideSlots"] = { "playerComboPoints", "playerShortAuras", "targetShortAuras", "playerCooldowns", "monkChi", "warlockSoulShards", "paladinHolyPower", "priestShadowOrbs", "deathKnightRunes", "shamanTotems" },
 			-- data that can be shown on spell rectangles
 			["spellRectangles"] = { "targetBuffs", "targetDebuffs" },
 			-- data that can be shown in unit info frames
@@ -668,15 +681,19 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				},
 				-- druid overrides
 				["DRUID"] = {
+					-- what to show on inner left small bar
+					["leftSmallBar1"] = { "characterInVehicleHealth", "tankVengeance", "petHealth" },
 					-- what to show on inner right small bar
-					["rightSmallBar1"] = { "characterInVehiclePower", "druidMana", "druidEclipse" },
+					["rightSmallBar1"] = { "characterInVehiclePower", "druidMana", "druidEclipse", "petPower" },
 				},
-				-- druid overrides
+				-- monk overrides
 				["MONK"] = {
 					-- what to show on the left outer side info
 					["leftOuterSideInfo"] = { "monkChi", "playerComboPoints" },
+					-- what to show on inner left small bar
+					["leftSmallBar1"] = { "characterInVehicleHealth", "monkStagger", "petHealth" },
 					-- what to show on inner right small bar
-					["rightSmallBar1"] = { "characterInVehiclePower", "monkMana" },
+					["rightSmallBar1"] = { "characterInVehiclePower", "tankVengeance", "monkMana", "petPower" },
 				},
 				-- warlock overrides
 				["WARLOCK"] = {
@@ -685,10 +702,17 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 					-- what to show on inner right small bar
 					["rightSmallBar1"] = { "characterInVehiclePower", "warlockBurningEmbers", "warlockDemonicFury", "petPower" },
 				},
+				-- warrior overrides
+				["WARRIOR"] = {
+					-- what to show on inner right small bar
+					["rightSmallBar1"] = { "characterInVehiclePower", "tankVengeance" },
+				},
 				-- paladin overrides
 				["PALADIN"] = {
 					-- what to show on the left outer side info
 					["leftOuterSideInfo"] = { "paladinHolyPower", "playerComboPoints" },
+					-- what to show on inner right small bar
+					["rightSmallBar1"] = { "characterInVehiclePower", "tankVengeance", "petPower" },
 				},
 				-- priest overrides
 				["PRIEST"] = {
@@ -699,6 +723,13 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				["DEATHKNIGHT"] = {
 					-- what to show on the left outer side info
 					["leftOuterSideInfo"] = { "deathKnightRunes", "playerComboPoints" },
+					-- what to show on inner right small bar
+					["rightSmallBar1"] = { "characterInVehiclePower", "tankVengeance", "petPower" },
+				},
+				-- shaman overrides
+				["SHAMAN"] = {
+					-- what to show on the left outer side info
+					["leftOuterSideInfo"] = { "shamanTotems", "playerComboPoints" },
 				},
 			},
 			-- layout that shows player on the left and target on the right
@@ -756,26 +787,33 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				},
 				-- druid overrides
 				["DRUID"] = {
-					-- what to show on inner right small bar
-					["leftSmallBar1"] = { "characterInVehiclePower", "druidMana", "druidEclipse" },
+					-- what to show on inner left small bar
+					["leftSmallBar1"] = { "characterInVehiclePower", "druidMana", "druidEclipse", "petPower" },
 					-- what to show on outer left small bar
-					["leftSmallBar2"] = { "characterInVehicleHealth", "petHealth" },
+					["leftSmallBar2"] = { "characterInVehicleHealth", "tankVengeance", "petHealth" },
 				},
 				-- druid overrides
 				["MONK"] = {
 					-- what to show on the left outer side info
 					["rightOuterSideInfo"] = { "monkChi", "playerComboPoints" },
-					-- what to show on inner right small bar
-					["leftSmallBar1"] = { "characterInVehiclePower", "monkMana" },
+					-- what to show on inner left small bar
+					["leftSmallBar1"] = { "characterInVehiclePower", "tankVengeance", "monkMana", "petPower" },
 					-- what to show on outer left small bar
-					["leftSmallBar2"] = { "characterInVehicleHealth", "petHealth" },
+					["leftSmallBar2"] = { "characterInVehicleHealth", "monkStagger", "petHealth" },
 				},
 				-- warlock overrides
 				["WARLOCK"] = {
 					-- what to show on the left outer side info
 					["rightOuterSideInfo"] = { "warlockSoulShards", "playerComboPoints" },
-					-- what to show on inner right small bar
+					-- what to show on inner left small bar
 					["leftSmallBar1"] = { "characterInVehiclePower", "warlockBurningEmbers", "warlockDemonicFury", "petPower" },
+					-- what to show on outer left small bar
+					["leftSmallBar2"] = { "characterInVehicleHealth", "petHealth" },
+				},
+				-- warrior overrides
+				["WARRIOR"] = {
+					-- what to show on inner left small bar
+					["leftSmallBar1"] = { "characterInVehiclePower", "tankVengeance", "petPower" },
 					-- what to show on outer left small bar
 					["leftSmallBar2"] = { "characterInVehicleHealth", "petHealth" },
 				},
@@ -783,6 +821,10 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				["PALADIN"] = {
 					-- what to show on the left outer side info
 					["rightOuterSideInfo"] = { "paladinHolyPower", "playerComboPoints" },
+					-- what to show on inner left small bar
+					["leftSmallBar1"] = { "characterInVehiclePower", "tankVengeance", "petPower" },
+					-- what to show on outer left small bar
+					["leftSmallBar2"] = { "characterInVehicleHealth", "petHealth" },
 				},
 				-- priest overrides
 				["PRIEST"] = {
@@ -793,6 +835,15 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				["DEATHKNIGHT"] = {
 					-- what to show on the left outer side info
 					["rightOuterSideInfo"] = { "deathKnightRunes", "playerComboPoints" },
+					-- what to show on inner left small bar
+					["leftSmallBar1"] = { "characterInVehiclePower", "tankVengeance", "petPower" },
+					-- what to show on outer left small bar
+					["leftSmallBar2"] = { "characterInVehicleHealth", "petHealth" },
+				},
+				-- shaman overrides
+				["SHAMAN"] = {
+					-- what to show on the left outer side info
+					["rightOuterSideInfo"] = { "shamanTotems", "playerComboPoints" },
 				},
 			},
 		}, 2 },
@@ -814,6 +865,8 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			["storeComboPoints"] = { true, 0 },
 			-- allows to show DHUD icon on minimap
 			["minimapIcon"] = { true, 0 },
+			-- allows to hide DHUD during pet battles
+			["hideInPetBattles"] = { true, 0 },
 		}, 1 },
 		-- service settings that do not affect dhud addon but may contain interesting settings that are provided by some other addons
 		["service"] = { {
@@ -1271,6 +1324,7 @@ function DHUDSettings:mapDataTrackers()
 	trackersTable["targetDebuffs"] = { DHUDDataTrackers.ALL.targetAuras, DHUDTimersFilterHelperSettingsHandler.filterDebuffAuras };
 	trackersTable["playerCastBar"] = { DHUDDataTrackers.ALL.selfCast };
 	trackersTable["targetCastBar"] = { DHUDDataTrackers.ALL.targetCast };
+	trackersTable["tankVengeance"] = { DHUDDataTrackers.ALL.vengeanceInfo };
 	-- specific to druid
 	trackersTable["druidMana"] = { DHUDDataTrackers.DRUID.selfMana };
 	trackersTable["druidEnergy"] = { DHUDDataTrackers.DRUID.selfEnergy };
@@ -1279,6 +1333,7 @@ function DHUDSettings:mapDataTrackers()
 	trackersTable["monkMana"] = { DHUDDataTrackers.MONK.selfMana };
 	trackersTable["monkEnergy"] = { DHUDDataTrackers.MONK.selfEnergy };
 	trackersTable["monkChi"] = { DHUDDataTrackers.MONK.selfChi };
+	trackersTable["monkStagger"] = { DHUDDataTrackers.MONK.selfStagger };
 	-- specific to warlock
 	trackersTable["warlockSoulShards"] = { DHUDDataTrackers.WARLOCK.selfSoulShards };
 	trackersTable["warlockBurningEmbers"] = { DHUDDataTrackers.WARLOCK.selfBurningEmbers };
@@ -1289,6 +1344,8 @@ function DHUDSettings:mapDataTrackers()
 	trackersTable["priestShadowOrbs"] = { DHUDDataTrackers.PRIEST.selfShadowOrbs };
 	-- specific to death knight
 	trackersTable["deathKnightRunes"] = { DHUDDataTrackers.DEATHKNIGHT.selfRunes };
+	-- specific to shaman
+	trackersTable["shamanTotems"] =  { DHUDDataTrackers.SHAMAN.selfTotems, DHUDTimersFilterHelperSettingsHandler.filterTotemGuardians };
 end
 
 --- Initialize single setting from table
@@ -1692,6 +1749,14 @@ function DHUDTimersFilterHelperSettingsHandler.filterPlayerCooldowns(timer)
 		return priority;
 	end
 	return (bit.band(timer[1], DHUDCooldownsTracker.TIMER_TYPE_MASK_SPELL) ~= 0) and 1001 or 1002;
+end
+
+--- Filter totem guardians
+-- @param timer timer to filter { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder }
+-- @return nil if timer is not required or number for timer sorting order
+function DHUDTimersFilterHelperSettingsHandler.filterTotemGuardians(timer)
+	local self = DHUDTimersFilterHelperSettingsHandler;
+	return (bit.band(timer[1], DHUDGuardiansTracker.TIMER_TYPE_MASK_ACTIVE) ~= 0) and 1 or 2;
 end
 
 --- Process setting with white or black list

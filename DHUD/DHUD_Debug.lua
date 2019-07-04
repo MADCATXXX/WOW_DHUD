@@ -360,7 +360,7 @@ function DHUDDebug:testDataTargetInfoDestructor()
 end
 
 ------------------------------
--- Data tracker Target Info --
+-- Data tracker Player Info --
 ------------------------------
 
 --- function for data trackers debugging

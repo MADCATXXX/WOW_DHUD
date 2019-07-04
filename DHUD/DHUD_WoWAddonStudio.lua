@@ -50,6 +50,9 @@ function GetSpellInfo(spellId)
 	--name, rank, icon, cost, isFunnel, powerType, castTime, minRange, maxRange
 	return ("spellName" .. spellId), 0, "", "", false, 0, 1, 0, 10;
 end
+function GetNumFlyouts()
+	return 0;
+end
 SpellActivationOverlayFrame = CreateFrame("Frame");
 ----------------------------------------
 -- rewrite api that is causing errors --

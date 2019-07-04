@@ -1,12 +1,14 @@
-﻿DHUDOptionsLocalization = DHUDOptionsLocalization or { };
+﻿--if true then return end
+if GetLocale() ~= "zhTW" then return end
+DHUDOptionsLocalization = DHUDOptionsLocalization or { };
 local L = DHUDOptionsLocalization;
 -- buttons text
-L["BUTTON_RESET"] = "Reset";
-L["BUTTON_PROFILES"] = "Profiles";
-L["BUTTON_YES"] = "Yes";
-L["BUTTON_NO"] = "No";
+L["BUTTON_RESET"] = "重置";
+L["BUTTON_PROFILES"] = "設定檔";
+L["BUTTON_YES"] = "是";
+L["BUTTON_NO"] = "否";
 -- popup texts
-L["POPUP_RESET"] = "Do you really want to\nreset your Settings?";
+L["POPUP_RESET"] = "你確定要\n重設你的設定?";
 -- help texts
 L["HELP_TIMERS"] = "Enter timer names\nseparated by comma\nor new line feed.\nFor items use item name\nor <slot:id> tag.\n" ..
 	"|cff88ff88SlotIds:|r\n" ..
@@ -35,24 +37,24 @@ L["HELP_UNITTEXTS_TYPE"] = {
 		"<spellname>\narg1 = interrupt text\n",
 };
 -- tabs
-L["TAB_GENERAL"] = "General";
-L["TAB_LAYOUTS"] = "Layouts";
-L["TAB_TIMERS"] = "Timers";
-L["TAB_COLORS"] = "Colors";
-L["TAB_UNITTEXTS"] = "Unit Texts";
-L["TAB_OFFSETS"] = "Offsets";
-L["TAB_SERVICE"] = "Service";
+L["TAB_GENERAL"] = "一般";
+L["TAB_LAYOUTS"] = "佈局";
+L["TAB_TIMERS"] = "計時條";
+L["TAB_COLORS"] = "顏色";
+L["TAB_UNITTEXTS"] = "單位文字";
+L["TAB_OFFSETS"] = "偏移";
+L["TAB_SERVICE"] = "服務";
 -- general blizzard
-L["HEADER_BLIZZARD"] = "Blizzard Frames:";
+L["HEADER_BLIZZARD"] = "Blizzard 框架:";
 
-L["SETTING_BLIZZARD_PLAYER"] = "Show Player Frame";
-L["SETTING_BLIZZARD_PLAYER_TOOLTIP"] = "Show Blizzard Player Frame";
+L["SETTING_BLIZZARD_PLAYER"] = "顯示玩家框架";
+L["SETTING_BLIZZARD_PLAYER_TOOLTIP"] = "顯示 Blizzard 玩家視窗";
 
-L["SETTING_BLIZZARD_TARGET"] = "Show Target Frame";
-L["SETTING_BLIZZARD_TARGET_TOOLTIP"] = "Show Blizzard Target Frame";
+L["SETTING_BLIZZARD_TARGET"] = "顯示目標框架";
+L["SETTING_BLIZZARD_TARGET_TOOLTIP"] = "顯示 Blizzard 目標框架";
 
-L["SETTING_BLIZZARD_CASTBAR"] = "Show Castingbar";
-L["SETTING_BLIZZARD_CASTBAR_TOOLTIP"] = "Show Blizzard Castingbar";
+L["SETTING_BLIZZARD_CASTBAR"] = "顯示施法條";
+L["SETTING_BLIZZARD_CASTBAR_TOOLTIP"] = "顯示 Blizzard 施法條";
 
 L["SETTING_BLIZZARD_SPELLACTIVATION_ALPHA"] = "SpellActivation Alpha";
 L["SETTING_BLIZZARD_SPELLACTIVATION_ALPHA_TOOLTIP"] = "Change Alpha of Blizzard Spell Activation Frame";
@@ -61,10 +63,10 @@ L["SETTING_BLIZZARD_SPELLACTIVATION_SCALE"] = "SpellActivation Scale";
 L["SETTING_BLIZZARD_SPELLACTIVATION_SCALE_TOOLTIP"] = "Change Scale of Blizzard Spell Activation Frame";
 
 -- general scale
-L["HEADER_SCALE"] = "Scale:";
+L["HEADER_SCALE"] = "比例:";
 
 L["SETTING_SCALE_MAIN"] = "HUD";
-L["SETTING_SCALE_MAIN_TOOLTIP"] = "Scale the HUD";
+L["SETTING_SCALE_MAIN_TOOLTIP"] = "縮放HUD";
 
 L["SETTING_SCALE_SPELL_CIRCLES"] = "Spell circles";
 L["SETTING_SCALE_SPELL_CIRCLES_TOOLTIP"] = "Scale the spell circle frames";
@@ -91,7 +93,7 @@ L["SETTING_ALPHA_OUTOFCOMBAT"] = "Out Of Combat Alpha";
 L["SETTING_ALPHA_OUTOFCOMBAT_TOOLTIP"] = "Change HUD alpha for out of combat situation without target and without resources regenerating";
 
 -- general font size
-L["HEADER_FONTSIZE"] = "Font Size:";
+L["HEADER_FONTSIZE"] = "字體大小:";
 
 L["SETTING_FONTSIZE_LEFTBIGBAR1"] = "Left Big Inner Bar";
 L["SETTING_FONTSIZE_LEFTBIGBAR1_TOOLTIP"] = "Change Font Size for Left Big Inner Bar";
@@ -205,15 +207,15 @@ L["SETTING_FONTOUTLINE_CASTBARSSPELL"] = "Cast Bars Spell";
 L["SETTING_FONTOUTLINE_CASTBARSSPELL_TOOLTIP"] = "Change Font Outline of Spell Name in Cast Bars";
 
 -- general icons
-L["HEADER_ICONS"] = "Icons:";
+L["HEADER_ICONS"] = "圖示:";
 
-L["SETTING_ICON_RESTING"] = "Resting Icon";
+L["SETTING_ICON_RESTING"] = "休息圖示";
 L["SETTING_ICON_RESTING_TOOLTIP"] = "Show resting icon when in the inn";
 
-L["SETTING_ICON_COMBAT"] = "Combat Icon";
-L["SETTING_ICON_COMBAT_TOOLTIP"] = "Show combat icon when in combat";
+L["SETTING_ICON_COMBAT"] = "戰鬥圖示";
+L["SETTING_ICON_COMBAT_TOOLTIP"] = "當你進入戰鬥時顯示戰鬥圖示";
 
-L["SETTING_ICON_SELFPVP"] = "Player PvP Icon";
+L["SETTING_ICON_SELFPVP"] = "Player PvP 圖示";
 L["SETTING_ICON_SELFPVP_TOOLTIP"] = "Show player pvp icon when flagged for pvp";
 
 L["SETTING_ICON_TARGETPVP"] = "Target PvP Icon";
@@ -253,10 +255,10 @@ L["SETTING_TEXTURES_BARS_BACKGROUND"] = "Background";
 L["SETTING_TEXTURES_BARS_BACKGROUND_TOOLTIP"] = "Allows to show or hide hud background texture";
 
 -- general health bar options
-L["HEADER_HEALTHBAR"] = "Health Bars:";
+L["HEADER_HEALTHBAR"] = "血量條:";
 
 L["SETTING_HEALTHBAR_SHIELDS"] = "Show Shields";
-L["SETTING_HEALTHBAR_SHIELDS_TOOLTIP"] = "If set to 2 then shields will be displayed over maximum health, if set to 1 then shields will not be displayed over maximum health, if set to 0 then shields won't be displayed on health bar and in it's text";
+L["SETTING_HEALTHBAR_SHIELDS_TOOLTIP"] = "If checked then summary of shield effects will be displayed on health bar and it's text";
 
 L["SETTING_HEALTHBAR_HEALABSORBS"] = "Heal Absorption";
 L["SETTING_HEALTHBAR_HEALABSORBS_TOOLTIP"] = "If checked then summary of heal absorption effects (e.g. Nectrotic Strike) will be displayed on health bar and it's text";
@@ -266,7 +268,7 @@ L["SETTING_HEALTHBAR_HEALINCOMING_TOOLTIP"] = "If checked then summary of incomi
 
 
 -- general misc options
-L["HEADER_MISC"] = "Miscellaneous:";
+L["HEADER_MISC"] = "雜項:";
 
 L["SETTING_MISC_ANIMATEBARS"] = "Animate bars";
 L["SETTING_MISC_ANIMATEBARS_TOOLTIP"] = "If checked then bars will be animated, otherwise data will be shown instantly";
@@ -274,10 +276,10 @@ L["SETTING_MISC_ANIMATEBARS_TOOLTIP"] = "If checked then bars will be animated, 
 L["SETTING_MISC_REVERSECASTBARS"] = "Reverse Cast Bars";
 L["SETTING_MISC_REVERSECASTBARS_TOOLTIP"] = "If checked then cast bars animation will be reversed for spell casts";
 
-L["SETTING_MISC_SHOWPLAYERCASTINFO"] = "Player Cast Info";
+L["SETTING_MISC_SHOWPLAYERCASTINFO"] = "玩家施法資訊";
 L["SETTING_MISC_SHOWPLAYERCASTINFO_TOOLTIP"] = "If checked then cast info will be also shown for player casts";
 
-L["SETTING_MISC_ALWAYSSHOWCASTBARBACKGROUND"] = "Cast Bars Background";
+L["SETTING_MISC_ALWAYSSHOWCASTBARBACKGROUND"] = "施法條背景";
 L["SETTING_MISC_ALWAYSSHOWCASTBARBACKGROUND_TOOLTIP"] = "If checked then cast bars will draw background texture beneath them regardless of unit ability to cast";
 
 L["SETTING_MISC_STORECOMBOPOINTS"] = "Store Combo-Points";
@@ -289,14 +291,11 @@ L["SETTING_MISC_SHOWMILLISECONDS_TOOLTIP"] = "If checked then milliseconds will 
 L["SETTING_MISC_SHORTNUMBERS"] = "Short numbers";
 L["SETTING_MISC_SHORTNUMBERS_TOOLTIP"] = "If checked then numbers will be truncated when formatting general numbers that exceed 5 digits.";
 
-L["SETTING_MISC_MINIMAP"] = "Minimap Icon";
+L["SETTING_MISC_MINIMAP"] = "小地圖圖示";
 L["SETTING_MISC_MINIMAP_TOOLTIP"] = "If checked then dhud will show icon near minimap.\nIf disabled you can still access options via interface menu or /dhud slash command";
 
-L["SETTING_MISC_HIDEINPETBATTLES"] = "Hide in pet battles";
-L["SETTING_MISC_HIDEINPETBATTLES_TOOLTIP"] = "If checked then HUD will be hidden during pet battles.";
-
 -- layouts
-L["HEADER_FRAMESDATA"] = "Frames Data:";
+L["HEADER_FRAMESDATA"] = "框架資料:";
 
 L["SETTING_FRAMESDATA_LEFTBIGBAR1"] = "Left Big Inner Bar";
 L["SETTING_FRAMESDATA_LEFTBIGBAR1_TOOLTIP"] = "Change Displayed Data for Left Big Inner Bar";
@@ -346,73 +345,70 @@ L["SETTING_FRAMESDATA_LEFTRECTANGLES_TOOLTIP"] = "Change Displayed Data on the L
 L["SETTING_FRAMESDATA_RIGHTRECTANGLES"] = "Right Rectangles";
 L["SETTING_FRAMESDATA_RIGHTRECTANGLES_TOOLTIP"] = "Change Displayed Data on the Right Rectangles";
 
-L["HEADER_FRAMESDATA_POSITION"] = "Frames Positions:";
+L["HEADER_FRAMESDATA_POSITION"] = "框架位置:";
 
-L["SETTING_FRAMESDATA_POSITION_SELFSTATE"] = "Player State Position";
+L["SETTING_FRAMESDATA_POSITION_SELFSTATE"] = "玩家狀態位置";
 L["SETTING_FRAMESDATA_POSITION_SELFSTATE_TOOLTIP"] = "Change Position of Player State Icons";
 
-L["SETTING_FRAMESDATA_POSITION_TARGETSTATE"] = "Target State Position";
+L["SETTING_FRAMESDATA_POSITION_TARGETSTATE"] = "目標狀態位置";
 L["SETTING_FRAMESDATA_POSITION_TARGETSTATE_TOOLTIP"] = "Change Position of Target State Icons";
 
-L["SETTING_FRAMESDATA_POSITION_TARGETDRAGON"] = "Target Dragon Position";
+L["SETTING_FRAMESDATA_POSITION_TARGETDRAGON"] = "目標菁英龍位置";
 L["SETTING_FRAMESDATA_POSITION_TARGETDRAGON_TOOLTIP"] = "Change Position of Target Elite Dragon Icon";
 
-L["HEADER_LAYOUTS"] = "Ready to use layouts:";
+L["HEADER_LAYOUTS"] = "準備使用的佈局:";
 
-L["SETTING_LAYOUTS_1"] = "HitPoints Left - Mana Right";
+L["SETTING_LAYOUTS_1"] = "連擊點左邊 - 法力右邊";
 L["SETTING_LAYOUTS_1_TOOLTIP"] = "Show Hit-Points on the Left Bars, Mana on the Right Bars";
 
-L["SETTING_LAYOUTS_2"] = "Player Left - Target Right";
+L["SETTING_LAYOUTS_2"] = "玩家左邊 - 目標右邊";
 L["SETTING_LAYOUTS_2_TOOLTIP"] = "Show Player Info on the Left Bars, Target info on the Right Bars";
 
-L["SETTING_LAYOUTS_0"] = "Custom";
+L["SETTING_LAYOUTS_0"] = "自定義";
 L["SETTING_LAYOUTS_0_TOOLTIP"] = "Show data in user defined slots";
 
 L["SETTING_LAYOUTS_DATA_SOURCES"] = {
-	["playerHealth"] = "Player: Health",
-	["targetHealth"] = "Target: Health",
-	["characterInVehicleHealth"] = "Player: Character Health In Vehicle",
-	["petHealth"] = "Pet: Health",
-	["playerPower"] = "Player: Main Power",
-	["targetPower"] = "Target: Main Power",
-	["characterInVehiclePower"] = "Player: Character Power In Vehicle",
-	["petPower"] = "Pet: Power",
-	["playerCastBar"] = "Player: Cast Info",
-	["targetCastBar"] = "Target: Cast Info",
-	["playerComboPoints"] = "Player: Combo-Points",
-	["playerCooldowns"] = "Player: Spell and Item Cooldowns",
-	["playerShortAuras"] = "Player: Short Auras",
-	["targetShortAuras"] = "Target: Short Auras",
-	["targetInfo"] = "Target: Unit Info",
-	["targetOfTargetInfo"] = "Target of Target: Unit Info",
-	["targetBuffs"] = "Target: Buffs",
-	["targetDebuffs"] = "Target: Debuffs",
-	["druidMana"] = "Player: Mana while in shapeshift",
-	["druidEnergy"] = "Player: Energy while not in cat form",
-	["druidEclipse"] = "Player: Druid Moonkin Eclipse",
-	["monkChi"] = "Player: Monk Chi",
-	["monkMana"] = "Player: Mana while not in serpent stance",
-	["monkEnergy"] = "Player: Energy while in serpent stance",
-	["warlockSoulShards"] = "Player: Warlock Soul Shards",
-	["warlockBurningEmbers"] = "Player: Warlock Burning Embers",
-	["warlockDemonicFury"] = "Player: Warlock Demonic Fury",
-	["paladinHolyPower"] = "Player: Paladin Holy Power",
-	["priestShadowOrbs"] = "Player: Priest Shadow Orbs",
-	["deathKnightRunes"] = "Player: Death-Knight Runes",
-	["shamanTotems"] = "Player: Shaman Totems",
-	["tankVengeance"] = "Player: Tank Vengeance",
-	["monkStagger"] = "Player: Monk Stagger",
+	["playerHealth"] = "玩家: 血量",
+	["targetHealth"] = "目標: 血量",
+	["characterInVehicleHealth"] = "玩家: Character Health In Vehicle",
+	["petHealth"] = "寵物: 血量",
+	["playerPower"] = "玩家: 主能量",
+	["targetPower"] = "目標: 主能量",
+	["characterInVehiclePower"] = "玩家: Character Power In Vehicle",
+	["petPower"] = "寵物: 能量",
+	["playerCastBar"] = "玩家: 施法資訊",
+	["targetCastBar"] = "寵物: 施法資訊",
+	["playerComboPoints"] = "玩家: 連擊點數",
+	["playerCooldowns"] = "玩家: 法術與物品冷卻",
+	["playerShortAuras"] = "玩家: Short Auras",
+	["targetShortAuras"] = "目標: Short Auras",
+	["targetInfo"] = "目標: 單位資訊",
+	["targetOfTargetInfo"] = "目標的目標: 單位資訊",
+	["targetBuffs"] = "目標: 增益",
+	["targetDebuffs"] = "目標: 減益",
+	["druidMana"] = "玩家: Mana while in shapeshift",
+	["druidEnergy"] = "玩家: Energy while not in cat form",
+	["druidEclipse"] = "玩家: Druid Moonkin Eclipse",
+	["monkChi"] = "玩家: 武僧氣",
+	["monkMana"] = "玩家: Mana while not in serpent stance",
+	["monkEnergy"] = "玩家: Energy while in serpent stance",
+	["warlockSoulShards"] = "玩家: Warlock Soul Shards",
+	["warlockBurningEmbers"] = "玩家: Warlock Burning Embers",
+	["warlockDemonicFury"] = "玩家: Warlock Demonic Fury",
+	["paladinHolyPower"] = "玩家: 聖騎士聖能",
+	["priestShadowOrbs"] = "玩家: Priest Shadow Orbs",
+	["deathKnightRunes"] = "玩家: 死亡騎士符文",
 };
 L["SETTING_LAYOUTS_DATA_POSITIONS"] = {
-	["LEFT"] = "Left",
-	["CENTER"] = "Center",
-	["RIGHT"] = "Right",
+	["LEFT"] = "左邊",
+	["CENTER"] = "中間",
+	["RIGHT"] = "右邊",
 };
 
 -- timers
-L["HEADER_TIMERS_GENERAL"] = "Timers:";
+L["HEADER_TIMERS_GENERAL"] = "計時器:";
 
-L["SETTING_TIMERS_SHOWTOOLTIP"] = "Show tooltips";
+L["SETTING_TIMERS_SHOWTOOLTIP"] = "顯示工具提示";
 L["SETTING_TIMERS_SHOWTOOLTIP_TOOLTIP"] = "Show tooltips when mouse is over timer slot";
 
 L["SETTING_TIMERS_TIMERSFORTARGETBUFFS"] = "Target buffs time";
@@ -457,7 +453,7 @@ L["SETTING_TIMERS_TARGETSHORT_BLACKLIST_TOOLTIP"] = "List with auras to be hidde
 L["SETTING_TIMERS_TARGETSHORT_PRIORITYLIST"] = "Priority List";
 L["SETTING_TIMERS_TARGETSHORT_PRIORITYLIST_TOOLTIP"] = "List with auras to be displayed first on spell frames";
 
-L["HEADER_TIMERS_PLAYERCOOLDOWNS"] = "Player Cooldowns:";
+L["HEADER_TIMERS_PLAYERCOOLDOWNS"] = "玩家冷卻:";
 
 L["SETTING_TIMERS_PLAYERCOOLDOWNS_DURATIONMIN"] = "Minimum duration";
 L["SETTING_TIMERS_PLAYERCOOLDOWNS_DURATIONMIN_TOOLTIP"] = "Minimum duration on the cooldown to be displayed in player cooldowns";
@@ -465,11 +461,8 @@ L["SETTING_TIMERS_PLAYERCOOLDOWNS_DURATIONMIN_TOOLTIP"] = "Minimum duration on t
 L["SETTING_TIMERS_PLAYERCOOLDOWNS_DURATIONMAX"] = "Maximum duration";
 L["SETTING_TIMERS_PLAYERCOOLDOWNS_DURATIONMAX_TOOLTIP"] = "Maximum duration on the cooldown to be displayed in player cooldowns";
 
-L["SETTING_TIMERS_PLAYERCOOLDOWNS_ITEM"] = "Item cooldowns";
+L["SETTING_TIMERS_PLAYERCOOLDOWNS_ITEM"] = "物品冷卻";
 L["SETTING_TIMERS_PLAYERCOOLDOWNS_ITEM_TOOLTIP"] = "Show item cooldowns, note that you can blacklist individual item cooldowns using ther name or slot";
-
-L["SETTING_TIMERS_PLAYERCOOLDOWNS_COLORIZELOCKS"] = "Colorize Spell Locks";
-L["SETTING_TIMERS_PLAYERCOOLDOWNS_COLORIZELOCKS_TOOLTIP"] = "Colorize spell locks according to spell lock type";
 
 L["SETTING_TIMERS_PLAYERCOOLDOWNS_WHITELIST"] = "White List";
 L["SETTING_TIMERS_PLAYERCOOLDOWNS_WHITELIST_TOOLTIP"] = "List with cooldowns to be shown regardless of their duration";
@@ -481,9 +474,9 @@ L["SETTING_TIMERS_PLAYERCOOLDOWNS_PRIORITYLIST"] = "Priority List";
 L["SETTING_TIMERS_PLAYERCOOLDOWNS_PRIORITYLIST_TOOLTIP"] = "List with cooldowns to be displayed first on spell frames";
 
 -- colors
-L["HEADER_COLORS_PLAYER"] = "Player:";
+L["HEADER_COLORS_PLAYER"] = "玩家:";
 
-L["SETTING_COLORS_PLAYER_HEALTH"] = "Health";
+L["SETTING_COLORS_PLAYER_HEALTH"] = "血量";
 L["SETTING_COLORS_PLAYER_HEALTH_TOOLTIP"] = "Color to be used on bar and text when displaying Player Health";
 
 L["SETTING_COLORS_PLAYER_HEALTHSHIELD"] = "Health Shield";
@@ -495,22 +488,22 @@ L["SETTING_COLORS_PLAYER_HEALTHHEALABSORB_TOOLTIP"] = "Color to be used on bar a
 L["SETTING_COLORS_PLAYER_HEALTHHEALINCOMING"] = "Incoming Heal";
 L["SETTING_COLORS_PLAYER_HEALTHHEALINCOMING_TOOLTIP"] = "Color to be used on bar and text when displaying Player Incoming Heal";
 
-L["SETTING_COLORS_PLAYER_MANA"] = "Mana";
+L["SETTING_COLORS_PLAYER_MANA"] = "法力";
 L["SETTING_COLORS_PLAYER_MANA_TOOLTIP"] = "Color to be used on bar and text when displaying Player Mana";
 
-L["SETTING_COLORS_PLAYER_RAGE"] = "Rage";
+L["SETTING_COLORS_PLAYER_RAGE"] = "怒氣";
 L["SETTING_COLORS_PLAYER_RAGE_TOOLTIP"] = "Color to be used on bar and text when displaying Player Rage";
 
-L["SETTING_COLORS_PLAYER_ENERGY"] = "Energy";
+L["SETTING_COLORS_PLAYER_ENERGY"] = "能量";
 L["SETTING_COLORS_PLAYER_ENERGY_TOOLTIP"] = "Color to be used on bar and text when displaying Player Energy";
 
-L["SETTING_COLORS_PLAYER_RUNICPOWER"] = "Runic Power";
+L["SETTING_COLORS_PLAYER_RUNICPOWER"] = "符能";
 L["SETTING_COLORS_PLAYER_RUNICPOWER_TOOLTIP"] = "Color to be used on bar and text when displaying Player Runic Power";
 
-L["SETTING_COLORS_PLAYER_FOCUS"] = "Focus";
+L["SETTING_COLORS_PLAYER_FOCUS"] = "集中";
 L["SETTING_COLORS_PLAYER_FOCUS_TOOLTIP"] = "Color to be used on bar and text when displaying Player Focus";
 
-L["SETTING_COLORS_PLAYER_CAST"] = "Cast";
+L["SETTING_COLORS_PLAYER_CAST"] = "施法";
 L["SETTING_COLORS_PLAYER_CAST_TOOLTIP"] = "Color to be used on cast bar when displaying Player Cast";
 
 L["SETTING_COLORS_PLAYER_CHANNEL"] = "Channel";
@@ -522,7 +515,7 @@ L["SETTING_COLORS_PLAYER_LOCKEDCAST_TOOLTIP"] = "Color to be used on cast bar wh
 L["SETTING_COLORS_PLAYER_LOCKEDCHANNEL"] = "Locked Channel";
 L["SETTING_COLORS_PLAYER_LOCKEDCHANNEL_TOOLTIP"] = "Color to be used on cast bar when displaying Player Locked Channel";
 
-L["SETTING_COLORS_PLAYER_CASTINTERRUPTED"] = "Interrupted Cast";
+L["SETTING_COLORS_PLAYER_CASTINTERRUPTED"] = "中斷施法";
 L["SETTING_COLORS_PLAYER_CASTINTERRUPTED_TOOLTIP"] = "Color to be used on cast bar when displaying Player Interrupted Cast";
 
 L["SETTING_COLORS_PLAYER_SHORTAURABUFF"] = "Short Aura Buff";
@@ -534,12 +527,12 @@ L["SETTING_COLORS_PLAYER_SHORTAURADEBUFF_TOOLTIP"] = "Color to be used on spell 
 L["SETTING_COLORS_PLAYER_COOLDOWNSSPELL"] = "Spell Cooldowns";
 L["SETTING_COLORS_PLAYER_COOLDOWNSSPELL_TOOLTIP"] = "Color to be used on spell circles when displaying Player Spell Cooldowns";
 
-L["SETTING_COLORS_PLAYER_COOLDOWNSITEM"] = "Item Cooldowns";
+L["SETTING_COLORS_PLAYER_COOLDOWNSITEM"] = "物品冷卻";
 L["SETTING_COLORS_PLAYER_COOLDOWNSITEM_TOOLTIP"] = "Color to be used on spell circles when displaying Player Item Cooldowns";
 
-L["HEADER_COLORS_TARGET"] = "Target:";
+L["HEADER_COLORS_TARGET"] = "目標:";
 
-L["SETTING_COLORS_TARGET_HEALTH"] = "Health";
+L["SETTING_COLORS_TARGET_HEALTH"] = "血量";
 L["SETTING_COLORS_TARGET_HEALTH_TOOLTIP"] = "Color to be used on bar and text when displaying Target Health";
 
 L["SETTING_COLORS_TARGET_HEALTHSHIELD"] = "Health Shield";
@@ -554,22 +547,22 @@ L["SETTING_COLORS_TARGET_HEALTHHEALINCOMING_TOOLTIP"] = "Color to be used on bar
 L["SETTING_COLORS_TARGET_HEALTHNOTTAPPED"] = "Not Tapped";
 L["SETTING_COLORS_TARGET_HEALTHNOTTAPPED_TOOLTIP"] = "Color to be used on bar and text when displaying Not Tapped Target Health";
 
-L["SETTING_COLORS_TARGET_MANA"] = "Mana";
+L["SETTING_COLORS_TARGET_MANA"] = "法力";
 L["SETTING_COLORS_TARGET_MANA_TOOLTIP"] = "Color to be used on bar and text when displaying Target Mana";
 
-L["SETTING_COLORS_TARGET_RAGE"] = "Rage";
+L["SETTING_COLORS_TARGET_RAGE"] = "怒氣";
 L["SETTING_COLORS_TARGET_RAGE_TOOLTIP"] = "Color to be used on bar and text when displaying Target Rage";
 
-L["SETTING_COLORS_TARGET_ENERGY"] = "Energy";
+L["SETTING_COLORS_TARGET_ENERGY"] = "能量";
 L["SETTING_COLORS_TARGET_ENERGY_TOOLTIP"] = "Color to be used on bar and text when displaying Target Energy";
 
-L["SETTING_COLORS_TARGET_RUNICPOWER"] = "Runic Power";
+L["SETTING_COLORS_TARGET_RUNICPOWER"] = "符能";
 L["SETTING_COLORS_TARGET_RUNICPOWER_TOOLTIP"] = "Color to be used on bar and text when displaying Target Runic Power";
 
-L["SETTING_COLORS_TARGET_FOCUS"] = "Focus";
+L["SETTING_COLORS_TARGET_FOCUS"] = "集中";
 L["SETTING_COLORS_TARGET_FOCUS_TOOLTIP"] = "Color to be used on bar and text when displaying Target Focus";
 
-L["SETTING_COLORS_TARGET_CAST"] = "Cast";
+L["SETTING_COLORS_TARGET_CAST"] = "施法";
 L["SETTING_COLORS_TARGET_CAST_TOOLTIP"] = "Color to be used on cast bar when displaying Target Cast";
 
 L["SETTING_COLORS_TARGET_CHANNEL"] = "Channel";
@@ -581,7 +574,7 @@ L["SETTING_COLORS_TARGET_LOCKEDCAST_TOOLTIP"] = "Color to be used on cast bar wh
 L["SETTING_COLORS_TARGET_LOCKEDCHANNEL"] = "Locked Channel";
 L["SETTING_COLORS_TARGET_LOCKEDCHANNEL_TOOLTIP"] = "Color to be used on cast bar when displaying Target Locked Channel";
 
-L["SETTING_COLORS_TARGET_CASTINTERRUPTED"] = "Interrupted Cast";
+L["SETTING_COLORS_TARGET_CASTINTERRUPTED"] = "中斷施法";
 L["SETTING_COLORS_TARGET_CASTINTERRUPTED_TOOLTIP"] = "Color to be used on cast bar when displaying Target Interrupted Cast";
 
 L["SETTING_COLORS_TARGET_PLAYERSHORTAURA"] = "Player Short Aura";
@@ -599,9 +592,9 @@ L["SETTING_COLORS_TARGET_AURABUFF_TOOLTIP"] = "Color to be used on spell rectang
 L["SETTING_COLORS_TARGET_AURADEBUFF"] = "Aura Debuff";
 L["SETTING_COLORS_TARGET_AURADEBUFF_TOOLTIP"] = "Color to be used on spell rectangles when displaying Target Aura Debuff";
 
-L["HEADER_COLORS_PET"] = "Pet:";
+L["HEADER_COLORS_PET"] = "寵物:";
 
-L["SETTING_COLORS_PET_HEALTH"] = "Health";
+L["SETTING_COLORS_PET_HEALTH"] = "血量";
 L["SETTING_COLORS_PET_HEALTH_TOOLTIP"] = "Color to be used on bar and text when displaying Pet Health";
 
 L["SETTING_COLORS_PET_HEALTHSHIELD"] = "Health Shield";
@@ -613,42 +606,30 @@ L["SETTING_COLORS_PET_HEALTHHEALABSORB_TOOLTIP"] = "Color to be used on bar and 
 L["SETTING_COLORS_PET_HEALTHHEALINCOMING"] = "Incoming Heal";
 L["SETTING_COLORS_PET_HEALTHHEALINCOMING_TOOLTIP"] = "Color to be used on bar and text when displaying Pet Incoming Heal";
 
-L["SETTING_COLORS_PET_MANA"] = "Mana";
+L["SETTING_COLORS_PET_MANA"] = "法力";
 L["SETTING_COLORS_PET_MANA_TOOLTIP"] = "Color to be used on bar and text when displaying Pet Mana";
 
-L["SETTING_COLORS_PET_FOCUS"] = "Focus";
+L["SETTING_COLORS_PET_FOCUS"] = "集中";
 L["SETTING_COLORS_PET_FOCUS_TOOLTIP"] = "Color to be used on bar and text when displaying Pet Focus";
 
-L["SETTING_COLORS_PET_ENERGY"] = "Energy";
+L["SETTING_COLORS_PET_ENERGY"] = "能量";
 L["SETTING_COLORS_PET_ENERGY_TOOLTIP"] = "Color to be used on bar and text when displaying Pet Energy";
 
 L["HEADER_COLORS_ALTERNATIVEPOWER"] = "Player Alternative Powers:";
 
-L["SETTING_COLORS_GUARDIAN_ACTIVE"] = "A.Totems";
-L["SETTING_COLORS_GUARDIAN_ACTIVE_TOOLTIP"] = "Color to be used on bar and text when displaying Active Totems";
-
-L["SETTING_COLORS_GUARDIAN_PASSIVE"] = "P.Totems";
-L["SETTING_COLORS_GUARDIAN_PASSIVE_TOOLTIP"] = "Color to be used on bar and text when displaying Passive Totems from glyph, e.g. Totem of Earth";
-
 L["SETTING_COLORS_ALTERNATIVEPOWER_ECLIPSE"] = "Eclipse";
 L["SETTING_COLORS_ALTERNATIVEPOWER_ECLIPSE_TOOLTIP"] = "Color to be used on bar and text when displaying Player Eclipse";
 
-L["SETTING_COLORS_ALTERNATIVEPOWER_BURNINGEMBERS"] = "Burning Embers";
+L["SETTING_COLORS_ALTERNATIVEPOWER_BURNINGEMBERS"] = "燃火餘燼";
 L["SETTING_COLORS_ALTERNATIVEPOWER_BURNINGEMBERS_TOOLTIP"] = "Color to be used on bar and text when displaying Player Burning Embers";
 
-L["SETTING_COLORS_ALTERNATIVEPOWER_DEMONICFURY"] = "Demonic Fury";
+L["SETTING_COLORS_ALTERNATIVEPOWER_DEMONICFURY"] = "惡魔之怒";
 L["SETTING_COLORS_ALTERNATIVEPOWER_DEMONICFURY_TOOLTIP"] = "Color to be used on bar and text when displaying Player Demonic Fury";
 
-L["SETTING_COLORS_OTHERPOWER_VENGEANCE"] = "Vengeance";
-L["SETTING_COLORS_OTHERPOWER_VENGEANCE_TOOLTIP"] = "Color to be used on bar and text when displaying Tank Vengeance";
-
-L["SETTING_COLORS_OTHERPOWER_STAGGER"] = "Stagger";
-L["SETTING_COLORS_OTHERPOWER_STAGGER_TOOLTIP"] = "Color to be used on bar and text when displaying Monk Brewmaster Stagger";
-
 -- unit texts
-L["HEADER_UNITTEXTS_PLAYER"] = "Player:";
+L["HEADER_UNITTEXTS_PLAYER"] = "玩家:";
 
-L["SETTING_UNITTEXTS_PLAYER_HEALTH"] = "Player Health";
+L["SETTING_UNITTEXTS_PLAYER_HEALTH"] = "玩家血量";
 L["SETTING_UNITTEXTS_PLAYER_HEALTH_TOOLTIP"] = "Change Text to be Displayed Near Player Health Bar";
 
 L["SETTING_UNITTEXTS_PLAYER_POWER"] = "Player Power";
@@ -660,46 +641,46 @@ L["SETTING_UNITTEXTS_PLAYER_ALTPOWER_TOOLTIP"] = "Change Text to be Displayed Ne
 L["SETTING_UNITTEXTS_PLAYER_OTHERPOWER"] = "Player Other Power";
 L["SETTING_UNITTEXTS_PLAYER_OTHERPOWER_TOOLTIP"] = "Change Text to be Displayed Near Player Other Power Bar, e.g. Monk Stagger, Tank Vengeance, etc..";
 
-L["SETTING_UNITTEXTS_PLAYER_CASTTIME"] = "Player Cast Time";
+L["SETTING_UNITTEXTS_PLAYER_CASTTIME"] = "玩家施法時間";
 L["SETTING_UNITTEXTS_PLAYER_CASTTIME_TOOLTIP"] = "Change Cast Text to be Displayed Near Player Cast Bar";
 
-L["SETTING_UNITTEXTS_PLAYER_CASTDELAY"] = "Player Cast Delay";
+L["SETTING_UNITTEXTS_PLAYER_CASTDELAY"] = "玩家施法延遲";
 L["SETTING_UNITTEXTS_PLAYER_CASTDELAY_TOOLTIP"] = "Change Cast Delay to be Displayed Near Player Cast Bar";
 
-L["SETTING_UNITTEXTS_PLAYER_CASTNAME"] = "Player Cast Spell Name";
+L["SETTING_UNITTEXTS_PLAYER_CASTNAME"] = "玩家施放法術名稱";
 L["SETTING_UNITTEXTS_PLAYER_CASTNAME_TOOLTIP"] = "Change Spell Name Text to be Displayed Near Player Cast Bar";
 
-L["HEADER_UNITTEXTS_TARGET"] = "Target:";
+L["HEADER_UNITTEXTS_TARGET"] = "目標:";
 
-L["SETTING_UNITTEXTS_TARGET_HEALTH"] = "Target Health";
+L["SETTING_UNITTEXTS_TARGET_HEALTH"] = "目標血量";
 L["SETTING_UNITTEXTS_TARGET_HEALTH_TOOLTIP"] = "Change Text to be Displayed Near Target Health Bar";
 
-L["SETTING_UNITTEXTS_TARGET_POWER"] = "Target Power";
+L["SETTING_UNITTEXTS_TARGET_POWER"] = "目標能量";
 L["SETTING_UNITTEXTS_TARGET_POWER_TOOLTIP"] = "Change Text to be Displayed Near Target Power Bar";
 
-L["SETTING_UNITTEXTS_TARGET_CASTTIME"] = "Target Cast Time";
+L["SETTING_UNITTEXTS_TARGET_CASTTIME"] = "目標施法時間";
 L["SETTING_UNITTEXTS_TARGET_CASTTIME_TOOLTIP"] = "Change Cast Text to be Displayed Near Target Cast Bar";
 
-L["SETTING_UNITTEXTS_TARGET_CASTDELAY"] = "Target Cast Delay";
+L["SETTING_UNITTEXTS_TARGET_CASTDELAY"] = "目標施法延遲";
 L["SETTING_UNITTEXTS_TARGET_CASTDELAY_TOOLTIP"] = "Change Cast Delay to be Displayed Near Target Cast Bar";
 
-L["SETTING_UNITTEXTS_TARGET_CASTNAME"] = "Target Cast Spell Name";
+L["SETTING_UNITTEXTS_TARGET_CASTNAME"] = "目標施放法術名稱";
 L["SETTING_UNITTEXTS_TARGET_CASTNAME_TOOLTIP"] = "Change Spell Name Text to be Displayed Near Target Cast Bar";
 
-L["SETTING_UNITTEXTS_TARGET_INFO"] = "Target Info";
+L["SETTING_UNITTEXTS_TARGET_INFO"] = "目標資訊";
 L["SETTING_UNITTEXTS_TARGET_INFO_TOOLTIP"] = "Change Text to be Displayed On Target Unit Info";
 
-L["HEADER_UNITTEXTS_TARGETTARGET"] = "Target Of Target:";
+L["HEADER_UNITTEXTS_TARGETTARGET"] = "目標的目標:";
 
-L["SETTING_UNITTEXTS_TARGETTARGET_INFO"] = "Target of Target Info";
+L["SETTING_UNITTEXTS_TARGETTARGET_INFO"] = "目標的目標資訊";
 L["SETTING_UNITTEXTS_TARGETTARGET_INFO_TOOLTIP"] = "Change Text to be Displayed On Target of Target Unit Info";
 
-L["HEADER_UNITTEXTS_PET"] = "Pet:";
+L["HEADER_UNITTEXTS_PET"] = "寵物:";
 
-L["SETTING_UNITTEXTS_PET_HEALTH"] = "Pet Health";
+L["SETTING_UNITTEXTS_PET_HEALTH"] = "寵物血量";
 L["SETTING_UNITTEXTS_PET_HEALTH_TOOLTIP"] = "Change Text to be Displayed Near Pet Health Bar";
 
-L["SETTING_UNITTEXTS_PET_POWER"] = "Pet Power";
+L["SETTING_UNITTEXTS_PET_POWER"] = "寵物能量";
 L["SETTING_UNITTEXTS_PET_POWER_TOOLTIP"] = "Change Text to be Displayed Near Pet Power Bar";
 
 L["SETTING_UNITTEXTS_PREDEFINED_CUSTOM"] = {
@@ -717,18 +698,18 @@ L["SETTING_UNITTEXTS_PREDEFINED_CUSTOM"] = {
 	["unitInfo1"] = "Long",
 	["unitInfo2"] = "Middle",
 	["unitInfo3"] = "Short",
-	["castTime1"] = "Cast Time",
-	["castTime2"] = "Remaining Time",
-	["castDelay1"] = "Cast Delay",
-	["castSpellName1"] = "Spell Name",
+	["castTime1"] = "施法時間",
+	["castTime2"] = "剩餘時間",
+	["castDelay1"] = "施法延遲",
+	["castSpellName1"] = "法術名稱",
 };
 L["SETTING_UNITTEXTS_PREDEFINED_ALL"] = {
-	["empty"] = "Empty",
-	["custom"] = "User Defined Text",
+	["empty"] = "空",
+	["custom"] = "使用者定義文字",
 };
 
 -- offsets
-L["HEADER_OFFSETS"] = "Offsets:";
+L["HEADER_OFFSETS"] = "偏移:";
 
 L["SETTING_OFFSET_HUD"] = "Hud Position";
 L["SETTING_OFFSET_HUD_TOOLTIP"] = "Change HUD position, use right click for increased offset step";
@@ -767,12 +748,12 @@ L["SETTING_OFFSET_RIGHTSMALLBAR2"] = "Right Small Outer Bar";
 L["SETTING_OFFSET_RIGHTSMALLBAR2_TOOLTIP"] = "Change position of Right Small Outer Bar Text, use right click for increased offset step";
 
 -- service
-L["HEADER_SERVICE_LUA"] = "LUA code:";
+L["HEADER_SERVICE_LUA"] = "LUA 代碼:";
 
 L["SETTING_SERVICE_LUA_ONLOAD"] = "On load LUA code:";
 L["SETTING_SERVICE_LUA_ONLOAD_TOOLTIP"] = "LUA code that will be executed on game start, usefull to change some things like camera max. distance";
 
-L["HEADER_SERVICE_BLIZZARD"] = "Blizzard Frames:";
+L["HEADER_SERVICE_BLIZZARD"] = "Blizzard 框架:";
 
-L["SETTING_SERVICE_ERRORS"] = "Errors filtering";
+L["SETTING_SERVICE_ERRORS"] = "錯誤過濾";
 L["SETTING_SERVICE_ERRORS_TOOLTIP"] = "Change level of UI error messages filtering (e.g. Not Enough Energy), 0 - all errors are shown, 1 - errors are hidden, 2 - error frame is hidden (quest messages won't be shown)";

@@ -278,7 +278,7 @@ function DHUD_OptionsTemplates_LUA:processSliderOnLoad(frame)
 	end);
 	-- set on show handler
 	frame:SetScript("OnShow", function(frame)
-		local value = DHUDOptions:getSettingValue(frame.setting);
+		local value = DHUDOptions:getSettingValue(frame.setting) or -1;
 		-- update text and slider
 		_G[name .. "Text"]:SetText(frame.text .. " " .. value);
 		frame:SetValue(value);
@@ -301,6 +301,10 @@ function DHUD_OptionsTemplates_LUA:processRadioButtonOnLoad(frame)
 	local setting = frame:GetAttribute("SETTING");
 	local value = frame:GetAttribute("VALUE");
 	local radioGroup = frame:GetAttribute("RADIOGROUP");
+	if (radioGroup == nil) then
+		DHUDOptions:print("Radio button radiogroup is nil for frame " .. frame:GetName());
+		return;
+	end
 	-- update value to number
 	if ((tonumber(value) .. "") == value) then
 		value = tonumber(value);

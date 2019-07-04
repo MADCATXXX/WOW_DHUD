@@ -1,5 +1,29 @@
+changelog 2.0.50400.45:
+-diminishing returns as part of AuraTracker?
+-cooldowns for passive items? scan tooltips, but only on item change (updateData still requires to scan but other events not)
+-disable mouse over when casting aoe (or make option to disable mouse or enable only with certain key modifiers)?
+
+changelog 2.0.50400.44:
+-fixed bug with dragon elite icon not disappering when changing zone (e.g. teleporting out of instance)
+-fixed bug with data trackers not updating it's existance during zone change (e.g. mana bar was still displayed for druids that were teleporting out of instance as bear to flight form)
+-fixed necrotic strikes value to be displayed with "-" sign instead of "+" sign by default in health bar text
+-added new setting to show shields, it will behave more like usual wow frames, shields are shown but cann't go over maximum health
+-added tracking for cooldowns of flyout spells like shaman totems or mage portals
+-added tracking for cooldowns with charges like monk roll
+-added tracking for shaman totems, it also tracks totem that is persistent through Totemic Persistance talent
+-added tracking for pet spells that are not set on autocast
+-cooldowns that are trigerred for multiple spells (e.g. shaman shock spells) are now grouped together
+-cooldowns that are trigerred when school is  locked are now grouped together and colorized according to school type
+-cast bar tracker can now identify who interrupted spell, this information is shown in the UI
+-cast bar ui will now correctly wait 1 second after cast was ended before fading out
+-added tracking for monk stagger
+-added tracking for tank vengeance
+-added option to hide bar during pet battles
+-added translation for Chinese by http://www.curseforge.com/profiles/zhTW/, not everything is translated yet
+
 changelog 2.0.50400.43:
--shield display styles?
+-fixed error with "endTime" for channeling spells
+-added various player character buffs to be shown in target short auras (like Shield Wall, Cloak of Shadows, etc..)
 
 changelog 2.0.50400.42:
 -fixed vehicle power update for some vehicles (plants vs zombies: power was returned as SUN_POWER but events where reporting it as ENERGY)

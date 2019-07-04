@@ -69,15 +69,81 @@ function MCCreateBlizzEventFrame()
 	return frame;
 end
 
+--- Base class for blizzard combat event frame
+MCCombatEventFrame = MCCreateClass{
+	-- frame to listen to combat log events
+	STATIC_combatLogFrame			= nil,
+}
+
+--- initialize static vars for combat event frame
+function MCCombatEventFrame:STATIC_init()
+	if (self.STATIC_combatLogFrame ~= nil) then
+		return;
+	end
+	--- create blizzard frame to listen to combat log events
+	local combatLogFrame = CreateFrame("Frame");
+	combatLogFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");
+	-- create listeners
+	combatLogFrame.listeners = { };
+	-- process event
+	-- (self, blizz_event, timestamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceFlags2, destGUID, destName, destFlags, destFlags2, ...)
+	combatLogFrame:SetScript("OnEvent", function (self, eventNameConst, timestamp, event, ...)
+		local subListeners = self.listeners[event];
+		if (subListeners ~= nil) then
+			for i, v in ipairs(subListeners) do
+				local func = v[event];
+				if (func) then func(v, timestamp, ...); end
+			end
+		end
+	end);
+	-- save
+	self.STATIC_combatLogFrame = combatLogFrame;
+end
+
+--- Create new combat event frame
+function MCCombatEventFrame:new()
+	local o = self:defconstructor();
+	return o;
+end
+
+--- Register for new combat log event type
+-- @param eventName name of the event to be notified about
+function MCCombatEventFrame:RegisterEvent(eventName)
+	local combatLogFrame = self.STATIC_combatLogFrame;
+	-- find sublisteners
+	local subListeners = combatLogFrame.listeners[eventName];
+	if (subListeners == nil) then
+		subListeners = { };
+		combatLogFrame.listeners[eventName] = subListeners;
+	end
+	-- add sublistener
+	table.insert(subListeners, self);
+end
+
+--- Unregister from combat log event type
+-- @param eventName name of the event to be notified about
+function MCCombatEventFrame:UnregisterEvent(eventName)
+	local combatLogFrame = self.STATIC_combatLogFrame;
+	-- find sublisteners
+	local subListeners = combatLogFrame.listeners[eventName];
+	if (subListeners == nil) then
+		return;
+	end
+	-- search for listener
+	for i, v in ipairs(subListeners) do
+		-- delete listener
+		if (v == self) then
+			table.remove(subListeners, i);
+			break;
+		end
+	end
+end
+
 --- Create blizzard combat event frame to listen to game combat events
 -- @return blizzard event frame
 function MCCreateBlizzCombatEventFrame()
-	local frame = CreateFrame("Frame");
-	frame:SetScript("OnEvent", function (self, blizz_event, timestamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceFlags2, destGUID, destName, destFlags, destFlags2, ...)
-		
-	end);
-	frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");
-	return frame;
+	MCCombatEventFrame:STATIC_init();
+	return MCCombatEventFrame:new();
 end
 
 -----------------

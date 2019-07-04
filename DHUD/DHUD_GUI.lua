@@ -301,6 +301,18 @@ function DHUDTextTools:formatNumberWithPrecision(number, precision)
 	return format('%.' .. precision .. 'f', number);
 end
 
+--- Remove server name from full player name
+-- @param name full name with server name
+-- @return short name without server name
+function DHUDTextTools:getShortPlayerName(name)
+	local indexS, indexE = strfind(name, "%-", 1); -- search for "-"
+	-- special word found?
+	if (indexS ~= nil) then
+		name = strsub(name, 1, indexS - 1);
+	end
+	return name;
+end
+
 --- Create text that will colorize the text after it
 -- @param arg any value, not readed
 -- @param colorHex number corresponding to color (user can pass any value here, even table, so be sure to check it's type)
@@ -480,48 +492,56 @@ DHUDColorizeTools = {
 	COLOR_ID_TYPE_BURNING_EMBERS = 14,
 	-- constant for demonic fury power type
 	COLOR_ID_TYPE_DEMONIC_FURY = 15,
+	-- constant for custom stagger power type
+	COLOR_ID_TYPE_CUSTOM_VENGEANCE = 100,
+	-- constant for custom stagger power type
+	COLOR_ID_TYPE_CUSTOM_STAGGER = 101,
 	-- constant for health power type
-	COLOR_ID_TYPE_HEALTH = 100,
+	COLOR_ID_TYPE_HEALTH = 200,
 	-- constant for health shield power type
-	COLOR_ID_TYPE_HEALTH_SHIELD = 101,
+	COLOR_ID_TYPE_HEALTH_SHIELD = 201,
 	-- constant for health absorb power type
-	COLOR_ID_TYPE_HEALTH_ABSORB = 102,
+	COLOR_ID_TYPE_HEALTH_ABSORB = 202,
 	-- constant for health incoming heal power type
-	COLOR_ID_TYPE_HEALTH_INCOMINGHEAL = 103,
+	COLOR_ID_TYPE_HEALTH_INCOMINGHEAL = 203,
 	-- constant for health of unit that is not tapped
-	COLOR_ID_TYPE_HEALTH_NOTTAPPED = 104,
+	COLOR_ID_TYPE_HEALTH_NOTTAPPED = 204,
 	-- constant for castbar cast colorizing
-	COLOR_ID_TYPE_CASTBAR_CAST = 200,
+	COLOR_ID_TYPE_CASTBAR_CAST = 300,
 	-- constant for castbar channel colorizing
-	COLOR_ID_TYPE_CASTBAR_CHANNEL = 201,
+	COLOR_ID_TYPE_CASTBAR_CHANNEL = 301,
 	-- constant for castbar locked cast colorizing
-	COLOR_ID_TYPE_CASTBAR_LOCKED_CAST = 203,
+	COLOR_ID_TYPE_CASTBAR_LOCKED_CAST = 303,
 	-- constant for castbar locked channel colorizing
-	COLOR_ID_TYPE_CASTBAR_LOCKED_CHANNEL = 203,
+	COLOR_ID_TYPE_CASTBAR_LOCKED_CHANNEL = 304,
 	-- constant for castbar interrupted state
-	COLOR_ID_TYPE_CASTBAR_INTERRUPTED = 204,
+	COLOR_ID_TYPE_CASTBAR_INTERRUPTED = 305,
 	-- constant for buff colorizing
-	COLOR_ID_TYPE_AURA_BUFF = 300,
+	COLOR_ID_TYPE_AURA_BUFF = 400,
 	-- constant for debuff colorizing
-	COLOR_ID_TYPE_AURA_DEBUFF = 301,
+	COLOR_ID_TYPE_AURA_DEBUFF = 401,
 	-- constant for short buff colorizing
-	COLOR_ID_TYPE_SHORTAURA_BUFF = 400,
+	COLOR_ID_TYPE_SHORTAURA_BUFF = 500,
 	-- constant for short debuff colorizing
-	COLOR_ID_TYPE_SHORTAURA_DEBUFF = 401,
+	COLOR_ID_TYPE_SHORTAURA_DEBUFF = 501,
 	-- constant for short debuff colorizing
-	COLOR_ID_TYPE_SHORTAURA_DEBUFF_MAGIC = 402,
+	COLOR_ID_TYPE_SHORTAURA_DEBUFF_MAGIC = 502,
 	-- constant for short debuff colorizing
-	COLOR_ID_TYPE_SHORTAURA_DEBUFF_CURSE = 403,
+	COLOR_ID_TYPE_SHORTAURA_DEBUFF_CURSE = 503,
 	-- constant for short debuff colorizing
-	COLOR_ID_TYPE_SHORTAURA_DEBUFF_DISEASE = 404,
+	COLOR_ID_TYPE_SHORTAURA_DEBUFF_DISEASE = 504,
 	-- constant for short debuff colorizing
-	COLOR_ID_TYPE_SHORTAURA_DEBUFF_POISON = 405,
+	COLOR_ID_TYPE_SHORTAURA_DEBUFF_POISON = 505,
 	-- constant for short aura colorizing, that was applied by player
-	COLOR_ID_TYPE_SHORTAURA_APPLIED_BY_PLAYER = 406,
+	COLOR_ID_TYPE_SHORTAURA_APPLIED_BY_PLAYER = 506,
 	-- constant for spell cooldown
-	COLOR_ID_TYPE_COOLDOWN_SPELL = 500,
+	COLOR_ID_TYPE_COOLDOWN_SPELL = 600,
 	-- constant for spell cooldown
-	COLOR_ID_TYPE_COOLDOWN_ITEM = 501,
+	COLOR_ID_TYPE_COOLDOWN_ITEM = 601,
+	-- constant for active guardians
+	COLOR_ID_TYPE_GUARDIAN_ACTIVE = 700,
+	-- constant for passive guardians
+	COLOR_ID_TYPE_GUARDIAN_PASSIVE = 701,
 	-- constant for unknown type (default white color is returned)
 	COLOR_ID_TYPE_UNKNOWN = "unknown";
 	-- constant for color specifing self unit
@@ -704,6 +724,21 @@ function DHUDColorizeTools:colorizeByReaction(reactionId)
 	return color;
 end
 
+--- Colorize by spell school
+-- @param school school id from data trackers
+-- @return resulting color rgb table
+function DHUDColorizeTools:colorizeBySpellSchool(school)
+	local colors = COMBATLOG_DEFAULT_COLORS.schoolColoring[school];
+	--print("colorize by school " .. MCTableToString(school) .. ", default colors " .. MCTableToString(colors));
+	if (colors == nil) then
+		return self.colors_default[1];
+	end
+	self.color_result[1] = colors["r"];
+	self.color_result[2] = colors["g"];
+	self.color_result[3] = colors["b"];
+	return self.color_result;
+end
+
 --- Convert hex value to rgb values
 -- @param hex hex string to convert
 -- @return rgb color table
@@ -794,6 +829,10 @@ function DHUDColorizeTools:init()
 	self:processSetting(self.COLOR_ID_TYPE_BURNING_EMBERS + self.COLOR_ID_UNIT_SELF, "colors_player_burningEmbers");
 	-- demonic fury
 	self:processSetting(self.COLOR_ID_TYPE_DEMONIC_FURY + self.COLOR_ID_UNIT_SELF, "colors_player_demonicFury");
+	-- vengeance
+	self:processSetting(self.COLOR_ID_TYPE_CUSTOM_VENGEANCE + self.COLOR_ID_UNIT_SELF, "colors_player_vengeance");
+	-- stagger
+	self:processSetting(self.COLOR_ID_TYPE_CUSTOM_STAGGER + self.COLOR_ID_UNIT_SELF, "colors_player_stagger");
 	-- health
 	self:processSetting(self.COLOR_ID_TYPE_HEALTH + self.COLOR_ID_UNIT_SELF, "colors_player_health");
 	self:processSetting(self.COLOR_ID_TYPE_HEALTH + self.COLOR_ID_UNIT_TARGET, "colors_target_health");
@@ -837,6 +876,9 @@ function DHUDColorizeTools:init()
 	-- cooldowns
 	self:processSetting(self.COLOR_ID_TYPE_COOLDOWN_SPELL + self.COLOR_ID_UNIT_SELF, "colors_selfCooldowns_spell");
 	self:processSetting(self.COLOR_ID_TYPE_COOLDOWN_ITEM + self.COLOR_ID_UNIT_SELF, "colors_selfCooldowns_item");
+	-- guardians
+	self:processSetting(self.COLOR_ID_TYPE_GUARDIAN_PASSIVE + self.COLOR_ID_UNIT_SELF, "colors_selfGuardians_passive");
+	self:processSetting(self.COLOR_ID_TYPE_GUARDIAN_ACTIVE + self.COLOR_ID_UNIT_SELF, "colors_selfGuardians_active");
 	--print(DHUDSettings:printSettingTableToString("colors", self.colors_specified));
 end
 
@@ -872,10 +914,10 @@ DHUDGUIBarAnimationHelper = MCCreateClass{
 	timeUpdatedAt		= 0,
 	-- defines if bars should be animated
 	STATIC_animate		= true,
-	-- height percent change over 1 second divided by 1000 for fast animation speed
-	ANIMATION_SPEED_FAST = 1.2 * 10 / 1000,
-	-- height percent change over 1 second divided by 1000 for slow animation speed
-	ANIMATION_SPEED_SLOW = 0.3 * 10 / 1000,
+	-- height percent change over 1 second for fast animation speed
+	ANIMATION_SPEED_FAST = 1.0,
+	-- height percent change over 1 second for slow animation speed
+	ANIMATION_SPEED_SLOW = 0.25,
 }
 
 --- animation settings has changed, process
@@ -1086,7 +1128,7 @@ function DHUDGUIBarAnimationHelper:updateBar(valuesInfo, valuesHeight, heightSig
 	-- update significant height
 	self.significantHeightEndAnimation = heightSignificant;
 	-- update timeUpdatedAt
-	self.timeUpdatedAt = DHUDDataTrackers.helper.timerMs - 1;
+	self.timeUpdatedAt = DHUDDataTrackers.helper.timerMs - 0.016;
 	-- animate
 	self.isAnimating = true;
 	-- update on timer
@@ -1130,6 +1172,7 @@ function DHUDGUIBarAnimationHelper:onUpdateTime(e)
 	end
 	local timerMs = DHUDDataTrackers.helper.timerMs;
 	local timeDiff = timerMs - self.timeUpdatedAt;
+	self.timeUpdatedAt = timerMs;
 	-- animation turned off?
 	if (self.STATIC_animate ~= true) then
 		timeDiff = 10000; -- set time passed to 10 seconds, it's enough to finish any animation
@@ -1461,6 +1504,7 @@ function DHUDGUICastBarAnimationHelper:onUpdateTime(e)
 	if (timeDiff <= 0) then
 		return;
 	end
+	self.timeUpdatedAt = timerMs;
 	-- update cast bar height
 	if (self.isAnimating == true) then
 		local heightPercent = self.getValueFunction(self.functionsSelfVar) / self.valueTotal;
@@ -1474,8 +1518,9 @@ function DHUDGUICastBarAnimationHelper:onUpdateTime(e)
 		self:updateCastBarHeightAndColor(heightPercentDisplay, self.colorizeFunction(self.functionsSelfVar, heightPercent));
 	end
 	-- update additional animations
+	--print("check self.animateHold " .. MCTableToString(self.animateHold));
 	if (self.animateHold ~= nil) then
-		self.animateHold = self.animateHold - timerMs;
+		self.animateHold = self.animateHold - timeDiff;
 		-- check for animation stop
 		if (self.animateHold <= 0) then
 			self.animateHold = nil;
@@ -3688,6 +3733,15 @@ function DHUDGuiSlotManager:constructor()
 	self.textFormatInfo = { };
 end
 
+--- some of the critical settings was changed, update data if required
+function DHUDGuiSlotManager:onCriticalSettingChange(e)
+	if (self.currentDataTracker == nil) then
+		return;
+	end
+	self:onDataTrackerChange(nil);
+	self:onDataChange(nil);
+end
+
 --- some of the color setting was changed, update if required
 function DHUDGuiSlotManager:onColorSettingChange(e)
 	if (self.currentDataTracker ~= nil) then
@@ -3969,6 +4023,8 @@ DHUDGuiBarManager = MCCreateSubClass(DHUDGuiSlotManager, {
 	updateFunc	= nil,
 	-- id of the unit from DHUDColorizeTools constants
 	unitColorId = 0,
+	-- define if health shields should be visible in ui over maximum health
+	STATIC_showHealthShieldOverMaxHealth = true,
 	-- defines if health shields should be visible in ui
 	STATIC_showHealthShield = true,
 	-- defines if health heal absorb should be visible in ui
@@ -4012,7 +4068,9 @@ DHUDGuiBarManager = MCCreateSubClass(DHUDGuiSlotManager, {
 
 --- show health shield setting has changed
 function DHUDGuiBarManager:STATIC_onShowHealthShieldsSetting(e)
-	self.STATIC_showHealthShield = DHUDSettings:getValue("healthBarOptions_showShields");
+	local shieldStyle = DHUDSettings:getValue("healthBarOptions_showShields");
+	self.STATIC_showHealthShieldOverMaxHealth = (shieldStyle == 2);
+	self.STATIC_showHealthShield = shieldStyle ~= 0;
 end
 
 --- show health shield setting has changed
@@ -4033,6 +4091,8 @@ function DHUDGuiBarManager:STATIC_init()
 	table.insert(self.VALUES_INFO_HEALTH, self.VALUE_INFO_HEALTH_HEAL_INCOMMING);
 	table.insert(self.VALUES_INFO_RESOURCES, self.VALUE_INFO_POWER_NONE);
 	table.insert(self.VALUES_INFO_RESOURCES, self.VALUE_INFO_POWER);
+	table.insert(self.VALUES_INFO_CUSTOMDATA, self.VALUE_INFO_POWER_NONE);
+	table.insert(self.VALUES_INFO_CUSTOMDATA, self.VALUE_INFO_POWER);
 	-- listen to settings change events
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "healthBarOptions_showShields", self, self.STATIC_onShowHealthShieldsSetting);
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "healthBarOptions_showHealAbsorb", self, self.STATIC_onShowHealthHealAbsorbSetting);
@@ -4103,6 +4163,24 @@ function DHUDGuiBarManager:colorizeBar(valueType, valueHeightBegin, valueHeightE
 	elseif (self.valuesInfo == self.VALUES_INFO_RESOURCES) then
 		if (valueType == self.VALUE_TYPE_POWER) then
 			colors = DHUDColorizeTools:getColorTableForPower(self.currentDataTracker.unitId, self.currentDataTracker.resourceType, self.currentDataTracker.resourceTypeString);
+			-- update height
+			if (self.currentDataTracker.amountMin ~= 0) then
+				if (valueHeightBegin == 0.5) then
+					valueHeight = valueHeightEnd;
+				else
+					valueHeight = valueHeightBegin;
+				end
+				--print("valueHeightEnd " .. valueHeightEnd .. ", valueHeightBegin " .. valueHeightBegin .. ", valueHeight " .. valueHeight);
+			end
+		elseif (valueType == self.VALUE_TYPE_POWER_NONE) then
+			return nil;
+		else
+			colors = DHUDColorizeTools.colors_default;
+		end
+	-- get colors table for custom power
+	elseif (self.valuesInfo == self.VALUES_INFO_CUSTOMDATA) then
+		if (valueType == self.VALUE_TYPE_POWER) then
+			colors = DHUDColorizeTools:getColorTableForId(self.currentDataTracker.resourceType + self.unitColorId);
 			-- update height
 			if (self.currentDataTracker.amountMin ~= 0) then
 				if (valueHeightBegin == 0.5) then
@@ -4333,19 +4411,31 @@ function DHUDGuiBarManager:updateHealth()
 	if (amountHeal + amount > amountTotal) then
 		amountHeal = amountTotal - amount;
 	end
-	-- calculate amount total plus absorbed
-	local amountTotalPlusAbsorbed = amountTotal;
+	-- calculate amount total plus shield
+	local amountTotalPlusShield = amountTotal;
 	local amountShieldMax = self:getHealthShieldMax();
 	if (amount + amountShieldMax > amountTotal) then
-		amountTotalPlusAbsorbed = amount + amountShieldMax;
+		amountTotalPlusShield = amount + amountShieldMax;
+		-- shields are not shown over max hp, but we reserve 5% of bar height to display shield
+		if (not self.STATIC_showHealthShieldOverMaxHealth) then
+			if (amount <= amountTotal * 0.95) then
+				amountTotalPlusShield = amountTotal;
+			else
+				amountTotalPlusShield = min(amountTotalPlusShield, amount + amountTotal * 0.05);
+			end
+		end
+	end
+	-- shield can't go over total health plus total shield
+	if (amountShield + amount > amountTotalPlusShield) then
+		amountShield = amountTotalPlusShield - amount;
 	end
 	-- update heights
-	self.valuesHeight[1] = amountNonAbsorbed / amountTotalPlusAbsorbed;
-	self.valuesHeight[2] = absorbed / amountTotalPlusAbsorbed;
-	self.valuesHeight[3] = amountShield / amountTotalPlusAbsorbed;
-	self.valuesHeight[4] = amountHeal / amountTotalPlusAbsorbed;
+	self.valuesHeight[1] = amountNonAbsorbed / amountTotalPlusShield;
+	self.valuesHeight[2] = absorbed / amountTotalPlusShield;
+	self.valuesHeight[3] = amountShield / amountTotalPlusShield;
+	self.valuesHeight[4] = amountHeal / amountTotalPlusShield;
 	-- significant height
-	local heightSignificant = amountTotal / amountTotalPlusAbsorbed;
+	local heightSignificant = amountTotal / amountTotalPlusShield;
 	-- update gui
 	self.helper:updateBar(self.valuesInfo, self.valuesHeight, heightSignificant);
 	-- update text
@@ -4405,7 +4495,11 @@ function DHUDGuiBarManager:onDataTrackerChange(e)
 		end
 	elseif (self.currentDataTracker:isInstanceOf(DHUDPowerTracker)) then
 		self.updateFunc = self.updatePower;
-		self.valuesInfo = self.VALUES_INFO_RESOURCES;
+		if (not self.currentDataTracker.resourceTypeIsCustom) then
+			self.valuesInfo = self.VALUES_INFO_RESOURCES;
+		else
+			self.valuesInfo = self.VALUES_INFO_CUSTOMDATA;
+		end
 		-- switch by unit type
 		if (self.currentDataTracker.trackUnitId == "player") then
 			self.unitColorId = DHUDColorizeTools.COLOR_ID_UNIT_SELF;
@@ -4496,6 +4590,8 @@ DHUDSideInfoManager = MCCreateSubClass(DHUDGuiSlotManager, {
 	comboPointsColorOrder = nil,
 	-- defines if player short debuffs should be colorized
 	STATIC_colorizePlayerShortDebuffs = false,
+	-- defines if player cooldowns lock should be colorized
+	STATIC_colorizePlayerCooldownsLock = false,
 	-- defines if player combo-points should be shown in stored state
 	STATIC_storeComboPoints = false,
 	-- type of the timers to be shown in spell circles
@@ -4508,6 +4604,8 @@ DHUDSideInfoManager = MCCreateSubClass(DHUDGuiSlotManager, {
 	TIMER_TYPE_TARGET_SHORT_AURAS = 1,
 	-- All shown timers are player cooldowns
 	TIMER_TYPE_PLAYER_COOLDOWNS = 2,
+	-- All shown timers are player guardians
+	TIMER_TYPE_PLAYER_GUARDIANS = 3,
 	-- All shown auras will be unspecified
 	TIMER_TYPE_OTHER = 3,
 	-- default combo-point colors
@@ -4534,6 +4632,11 @@ function DHUDSideInfoManager:STATIC_onColorizePlayerDebuffsSettingChange(e)
 	self.STATIC_colorizePlayerShortDebuffs = DHUDSettings:getValue("shortAurasOptions_colorizePlayerDebuffs");
 end
 
+--- colorize player cooldowns lock setting has changed
+function DHUDSideInfoManager:STATIC_onColorizePlayerCooldownsLockSettingChange(e)
+	self.STATIC_colorizePlayerCooldownsLock = DHUDSettings:getValue("shortAurasOptions_colorizeCooldownsLock");
+end
+
 --- show stored combopoints setting has changed
 function DHUDSideInfoManager:STATIC_onComboPointsStoreSettingChange(e)
 	self.STATIC_storeComboPoints = DHUDSettings:getValue("misc_storeComboPoints");
@@ -4543,8 +4646,10 @@ end
 function DHUDSideInfoManager:STATIC_init()
 	-- listen to settings change events
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "shortAurasOptions_colorizePlayerDebuffs", self, self.STATIC_onColorizePlayerDebuffsSettingChange);
+	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "shortAurasOptions_colorizeCooldownsLock", self, self.STATIC_onColorizePlayerCooldownsLockSettingChange);
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "misc_storeComboPoints", self, self.STATIC_onComboPointsStoreSettingChange);
 	self:STATIC_onColorizePlayerDebuffsSettingChange(nil);
+	self:STATIC_onColorizePlayerCooldownsLockSettingChange(nil);
 	self:STATIC_onComboPointsStoreSettingChange(nil);
 end
 
@@ -4670,9 +4775,13 @@ function DHUDSideInfoManager:showSpellCircleTooltip(circleFrame)
 	elseif (self.currentDataTracker:isInstanceOf(DHUDCooldownsTracker)) then
 		if (bit.band(type, DHUDCooldownsTracker.TIMER_TYPE_MASK_SPELL) ~= 0) then
 			GameTooltip:SetSpellByID(data[5]);
+		elseif (bit.band(type, DHUDCooldownsTracker.TIMER_TYPE_MASK_PETSPELL) ~= 0) then
+			GameTooltip:SetSpellByID(data[5]);
 		elseif (bit.band(type, DHUDCooldownsTracker.TIMER_TYPE_MASK_ITEM) ~= 0) then
 			GameTooltip:SetInventoryItem(self.currentDataTracker.unitId, data[5]);
 		end
+	elseif (self.currentDataTracker:isInstanceOf(DHUDGuardiansTracker)) then
+		GameTooltip:SetTotem(data[5]);
 	end
 end
 
@@ -4723,10 +4832,32 @@ end
 -- @return table with color
 function DHUDSideInfoManager:colorizePlayerCooldownsTimer(timer)
 	local t;
-	if (bit.band(timer[1], DHUDCooldownsTracker.TIMER_TYPE_MASK_SPELL) ~= 0) then
-		t = DHUDColorizeTools:getColorTableForId(DHUDColorizeTools.COLOR_ID_UNIT_SELF + DHUDColorizeTools.COLOR_ID_TYPE_COOLDOWN_SPELL);
-	else
+	if (bit.band(timer[1], DHUDCooldownsTracker.TIMER_TYPE_MASK_ITEM) ~= 0) then
 		t = DHUDColorizeTools:getColorTableForId(DHUDColorizeTools.COLOR_ID_UNIT_SELF + DHUDColorizeTools.COLOR_ID_TYPE_COOLDOWN_ITEM);
+	else
+		if (bit.band(timer[1], DHUDCooldownsTracker.TIMER_TYPE_MASK_SCHOOLLOCK) ~= 0) then
+			if (self.STATIC_colorizePlayerCooldownsLock) then
+				local school = self.currentDataTracker.schoolLockType;
+				return DHUDColorizeTools:colorizeBySpellSchool(school);
+			else
+				t = DHUDColorizeTools:getColorTableForId(DHUDColorizeTools.COLOR_ID_UNIT_SELF + DHUDColorizeTools.COLOR_ID_TYPE_COOLDOWN_SPELL);
+			end
+		else
+			t = DHUDColorizeTools:getColorTableForId(DHUDColorizeTools.COLOR_ID_UNIT_SELF + DHUDColorizeTools.COLOR_ID_TYPE_COOLDOWN_SPELL);
+		end
+	end
+	return DHUDColorizeTools:colorizePercentUsingTable(timer[2] / timer[3], t);
+end
+
+--- Function to colorize player guardian timer
+-- @param timer timer info to colorize
+-- @return table with color
+function DHUDSideInfoManager:colorizePlayerGuardiansTimer(timer)
+	local t;
+	if (bit.band(timer[1], DHUDGuardiansTracker.TIMER_TYPE_MASK_ACTIVE) ~= 0) then
+		t = DHUDColorizeTools:getColorTableForId(DHUDColorizeTools.COLOR_ID_UNIT_SELF + DHUDColorizeTools.COLOR_ID_TYPE_GUARDIAN_ACTIVE);
+	else
+		t = DHUDColorizeTools:getColorTableForId(DHUDColorizeTools.COLOR_ID_UNIT_SELF + DHUDColorizeTools.COLOR_ID_TYPE_GUARDIAN_PASSIVE);
 	end
 	return DHUDColorizeTools:colorizePercentUsingTable(timer[2] / timer[3], t);
 end
@@ -4763,7 +4894,7 @@ function DHUDSideInfoManager:updateSpellCircles(timers)
 			time = "";
 		end
 		spellCircleFrame.textFieldTime:DSetText(time);
-		local stackText = (v[7] > 1) and (DHUDColorizeTools:colorToColorizeString(color) .. v[7] .. "|r") or "";
+		local stackText = (v[7] > 1) and (DHUDColorizeTools:colorToColorizeString(color) .. ((v[13] ~= nil) and "&" or "") .. v[7] .. "|r") or "";
 		spellCircleFrame.textFieldCount:DSetText(stackText);
 	end
 	self:setIsRegenerating(numTimersWithTime > 0); -- update regeneration since results are filtered
@@ -4872,7 +5003,10 @@ function DHUDSideInfoManager:onDataTrackerChange(e)
 		self.updateFuncTime = self.updateSpellCirclesTime;
 		self:setCurrentGroup(self.spellCirclesGroup);
 		-- update timers type
-		if (self.currentDataTracker == DHUDDataTrackers.ALL.selfCooldowns) then
+		if (self.currentDataTracker == DHUDDataTrackers.SHAMAN.selfTotems) then
+			self.timersType = self.TIMER_TYPE_PLAYER_GUARDIANS;
+			self.timersColorizeFunc = self.colorizePlayerGuardiansTimer;
+		elseif (self.currentDataTracker == DHUDDataTrackers.ALL.selfCooldowns) then
 			self.timersType = self.TIMER_TYPE_PLAYER_COOLDOWNS;
 			self.timersColorizeFunc = self.colorizePlayerCooldownsTimer;
 		elseif (self.currentDataTracker == DHUDDataTrackers.ALL.targetAuras and self.currentDataTrackerHelperFunction == DHUDTimersFilterHelperSettingsHandler.filterTargetShortAuras) then
@@ -5243,6 +5377,8 @@ function DHUDSpellRectanglesManager:showSpellRectangleTooltip(rectangleFrame)
 	elseif (self.currentDataTracker:isInstanceOf(DHUDCooldownsTracker)) then
 		if (bit.band(type, DHUDCooldownsTracker.TIMER_TYPE_MASK_SPELL) ~= 0) then
 			GameTooltip:SetSpellByID(data[5]);
+		elseif (bit.band(type, DHUDCooldownsTracker.TIMER_TYPE_MASK_PETSPELL) ~= 0) then
+			GameTooltip:SetSpellByID(data[5]);
 		elseif (bit.band(type, DHUDCooldownsTracker.TIMER_TYPE_MASK_ITEM) ~= 0) then
 			GameTooltip:SetInventoryItem(self.currentDataTracker.unitId, data[5]);
 		end
@@ -5290,7 +5426,7 @@ function DHUDSpellRectanglesManager:updateSpellRectangles(timers)
 		-- update text
 		local time = (showTimersText and v[2] >= 0) and (DHUDColorizeTools:colorToColorizeString(color) .. DHUDTextTools:formatTime(v[2]) .. "|r") or "";
 		spellRectangleFrame.textFieldTime:DSetText(time);
-		local stackText = (v[7] > 1) and (DHUDColorizeTools:colorToColorizeString(color) .. v[7] .. "|r") or "";
+		local stackText = (v[7] > 1) and (DHUDColorizeTools:colorToColorizeString(color) .. ((v[13] ~= nil) and "&" or "") .. v[7] .. "|r") or "";
 		spellRectangleFrame.textFieldCount:DSetText(stackText);
 	end
 end
@@ -5354,15 +5490,6 @@ function DHUDSpellRectanglesManager:onExistanceChange()
 	end
 end
 
---- timers setting has changed, update data
-function DHUDSpellRectanglesManager:onTimersSettingChange(e)
-	if (self.currentDataTracker == nil) then
-		return;
-	end
-	self:onDataTrackerChange(nil);
-	self:onDataChange(nil);
-end
-
 --- Initialize side info manager
 -- @param spellRectanglesGroupName name of the group with spell circles to use
 -- @param settingName name of the setting that holds data trackers list
@@ -5373,8 +5500,8 @@ function DHUDSpellRectanglesManager:init(spellRectanglesGroupName, settingName)
 	-- track color settings change (for spell rectangles)
 	self:trackColorSettingsChanges();
 	-- track timer settings change
-	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "aurasOptions_showTimersOnTargetBuffs", self, self.onTimersSettingChange);
-	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "aurasOptions_showTimersOnTargetDeBuffs", self, self.onTimersSettingChange);
+	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "aurasOptions_showTimersOnTargetBuffs", self, self.onCriticalSettingChange);
+	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "aurasOptions_showTimersOnTargetDeBuffs", self, self.onCriticalSettingChange);
 end
 
 --- Show preview data
@@ -5721,17 +5848,31 @@ end
 
 --- Create text that contains data cast spell name
 -- @param this reference to this bar manager (self is nil)
--- @param interruptedText text to be shown when spell was interrupted
 -- @param canceledText text to be shown when spell was canceled
+-- @param interruptedText text to be shown when spell was interrupted
+-- @param interruptedByPlayerText text to be shown when spell was interrupted by player
+-- @param interruptedNamePrefix text to be shown before player name that interrupted spell, or nil if name is not required
 -- @return text to be shown in gui
-function DHUDCastBarManager:createTextSpellName(this, interruptedText, canceledText)
+function DHUDCastBarManager:createTextSpellName(this, canceledText, interruptedText, interruptedByPlayerText, interruptedNamePrefix, interruptedNamePostfix)
 	interruptedText = interruptedText or "|cff0000ffINTERRUPTED|r";
 	canceledText = canceledText or "|cff0000ffCANCELED|r";
+	interruptedByPlayerText = interruptedByPlayerText or "|cff0000ffINTERRUPTED BY ME|r";
 	local value = this.currentDataTracker.spellName;
 	local finishState = this.currentDataTracker.finishState;
 	if (not this.currentDataTracker.isCasting) then
 		if (finishState == DHUDSpellCastTracker.SPELL_FINISH_STATE_INTERRUPTED) then
-			value = interruptedText
+			local interruptState = this.currentDataTracker.interruptState;
+			if (interruptState == DHUDSpellCastTracker.SPELL_INTERRUPT_STATE_CANCELED) then
+				value = canceledText;
+			elseif (interruptState == DHUDSpellCastTracker.SPELL_INTERRUPT_STATE_KICKED_BY_PLAYER) then
+				value = interruptedByPlayerText;
+			else
+				if (interruptedNamePrefix ~= nil and interruptedNamePostfix ~= nil) then
+					value = interruptedText .. interruptedNamePrefix .. DHUDTextTools:getShortPlayerName(this.currentDataTracker.interruptedBy) .. interruptedNamePostfix;
+				else
+					value = interruptedText;
+				end
+			end
 		end
 	end
 	return value;
@@ -6005,6 +6146,14 @@ DHUDGUIManager = {
 	ALPHA_TYPE_OTHER	= 4,
 	-- values of alpha for different alpha types, readed from settings
 	ALPHA_VALUES = { },
+	-- defines if alpha is switched off due to some game event
+	alphaIsSwitchedOff = false,
+	-- alpha switch off type for situation when player is engaged in pet battle
+	ALPHA_SWITCH_OFF_TYPE_PET_BATTLE = 1,
+	-- values of switch off alpha state for different switch off alpha types
+	ALPHA_SWITCH_OFF_STATES = { },
+	-- values of switch off alpha for different switch off alpha types, readed from settings
+	ALPHA_SWITCH_OFF_SETTINGS = { },
 }
 
 --- Initialize DHUD gui manager, providing data to frames
@@ -6052,6 +6201,7 @@ function DHUDGUIManager:init()
 	self:processAlphaSetting(self.ALPHA_TYPE_HASTARGET, "alpha_hasTarget");
 	self:processAlphaSetting(self.ALPHA_TYPE_REGENERATING, "alpha_regen");
 	self:processAlphaSetting(self.ALPHA_TYPE_OTHER, "alpha_outOfCombat");
+	self:processSwitchOffAlphaSetting(self.ALPHA_SWITCH_OFF_TYPE_PET_BATTLE, "misc_hideInPetBattles");
 	-- listen to preview settings
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_START_PREVIEW, self, self.onPreviewStart);
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_STOP_PREVIEW, self, self.onPreviewStop);
@@ -6082,10 +6232,12 @@ function DHUDGUIManager:init()
 	DHUDDataTrackers.helper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_TARGET_UPDATED, self, self.onTargetUpdated);
 	DHUDDataTrackers.helper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_ATTACK_STATE_CHANGED, self, self.onAttackState);
 	DHUDDataTrackers.helper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_DEATH_STATE_CHANGED, self, self.onDeathState);
+	DHUDDataTrackers.helper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_PETBATTLE_STATE_CHANGED, self, self.onPetBattleState);
 	self:onAttackState(nil);
 	self:onCombatState(nil);
 	self:onTargetUpdated(nil);
 	self:onDeathState(nil);
+	self:onPetBattleState(nil);
 end
 
 --- Shows tooltip for circle frame specified
@@ -6127,6 +6279,15 @@ end
 --- update gui alpha according to situation
 -- @param force if true than alpha will be updated to same valueType, required for setting changes and preview
 function DHUDGUIManager:updateAlpha(force)
+	-- calculate switch off state
+	local newAlphaIsSwitchedOff = false;
+	for i, v in ipairs(self.ALPHA_SWITCH_OFF_STATES) do
+		if (v and self.ALPHA_SWITCH_OFF_SETTINGS[i]) then
+			newAlphaIsSwitchedOff = true;
+			break;
+		end
+	end
+	--print("newAlphaIsSwitchedOff " .. MCTableToString(newAlphaIsSwitchedOff) .. " ALPHA_SWITCH_OFF_STATES " .. MCTableToString(self.ALPHA_SWITCH_OFF_STATES) .. " ALPHA_SWITCH_OFF_SETTINGS " .. MCTableToString(self.ALPHA_SWITCH_OFF_SETTINGS));
 	local newAlphaType = self.ALPHA_TYPE_OTHER;
 	if (self.isInCombat or self.isAttacking) then
 		newAlphaType = self.ALPHA_TYPE_INCOMBAT;
@@ -6135,11 +6296,15 @@ function DHUDGUIManager:updateAlpha(force)
 	elseif (self.isRegenerating) then
 		newAlphaType = self.ALPHA_TYPE_REGENERATING;
 	end
-	if (self.alphaType == newAlphaType and (not force)) then
+	if (self.alphaIsSwitchedOff == newAlphaIsSwitchedOff and self.alphaType == newAlphaType and (not force)) then
 		return;
 	end
+	self.alphaIsSwitchedOff = newAlphaIsSwitchedOff;
 	self.alphaType = newAlphaType;
-	local alpha = self.ALPHA_VALUES[self.alphaType];
+	local alpha = 0;
+	if (not newAlphaIsSwitchedOff) then
+		alpha = self.ALPHA_VALUES[self.alphaType];
+	end
 	-- alpha should be atleast 0.1 for preview
 	if (self.isPreviewMode and alpha < 0.1) then
 		alpha = 0.1;
@@ -6256,6 +6421,13 @@ function DHUDGUIManager:onAttackState(e)
 	self:updateAlpha();
 end
 
+--- pet battle state changed, update alpha
+function DHUDGUIManager:onPetBattleState(e)
+	--print("isInPetBattle " .. MCTableToString(DHUDDataTrackers.helper.isInPetBattle));
+	self.ALPHA_SWITCH_OFF_STATES[self.ALPHA_SWITCH_OFF_TYPE_PET_BATTLE] = DHUDDataTrackers.helper.isInPetBattle;
+	self:updateAlpha();
+end
+
 --- death state changed, hide or show some frames
 function DHUDGUIManager:onDeathState(e)
 	self.isDead = DHUDDataTrackers.helper.isDead;
@@ -6298,6 +6470,20 @@ function DHUDGUIManager:processAlphaSetting(alphaType, alphaSettingName)
 	local functionOnSettingChange = function(self, e)
 		self.ALPHA_VALUES[alphaType] = DHUDSettings:getValue(alphaSettingName);
 		if (self.alphaType == alphaType) then
+			self:updateAlpha(true);
+		end
+	end
+	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. alphaSettingName, self, functionOnSettingChange);
+	functionOnSettingChange(self, nil);
+end
+
+--- Process setting value and listen to setting changes
+-- @param alphaType internal type of alpha from class consts
+-- @param alphaSettingName name of the setting in Settings table
+function DHUDGUIManager:processSwitchOffAlphaSetting(alphaType, alphaSettingName)
+	local functionOnSettingChange = function(self, e)
+		self.ALPHA_SWITCH_OFF_SETTINGS[alphaType] = DHUDSettings:getValue(alphaSettingName);
+		if (self.ALPHA_SWITCH_OFF_STATES[alphaType] == true) then
 			self:updateAlpha(true);
 		end
 	end

@@ -104,6 +104,8 @@ DHUDDataTrackerHelper = MCCreateSubClass(MADCATEventDispatcher, {
 	spellIdData			= {},
 	-- table with conversion from item id to item data
 	itemIdData			= {},
+	-- table with guids for various unit ids, contains guids for player, pet, vehicle and target
+	guids				= {},
 })
 
 --- Create data tracking helper
@@ -243,6 +245,7 @@ function DHUDDataTrackerHelper:init()
 		helper:onEnteringWorld();
 	end
 	-- initialize other values
+	self.guids[""] = "";
 	self:updateData();
 	-- process update events
 	self.timerMs = GetTime();
@@ -260,6 +263,8 @@ function DHUDDataTrackerHelper:updateData()
 	self.eventsFrame:UNIT_PET("player");
 	self.eventsFrame:PLAYER_SPECIALIZATION_CHANGED("player");
 	self.eventsFrame:PLAYER_ALIVE();
+	-- update player guid
+	self.guids["player"] = UnitGUID("player");
 end
 
 --- Function that is called by blizzard event frame to update ui
@@ -292,6 +297,7 @@ function DHUDDataTrackerHelper:setIsInVehicle(isInVehicle)
 	if (self.isInVehicle == isInVehicle and (not isInVehicle)) then -- if set to true than redispatch event again (e.g. passenger seat changed)
 		return;
 	end
+	self.guids["vehicle"] = isInVehicle and UnitGUID("vehicle") or "";
 	self.isInVehicle = isInVehicle;
 	self.playerCasterUnitId = isInVehicle and "vehicle" or "player";
 	self:dispatchEvent(self.eventVehicleState);
@@ -299,6 +305,7 @@ end
 
 --- set isTargetAvailable variable
 function DHUDDataTrackerHelper:setIsTargetAvailable(isTargetAvailable)
+	self.guids["target"] = isTargetAvailable and UnitGUID("target") or "";
 	self.isTargetAvailable = isTargetAvailable;
 	-- dispatch target event as it means that target is changed (target existence doesn't matter)
 	self:dispatchEvent(self.eventTarget);
@@ -316,6 +323,7 @@ function DHUDDataTrackerHelper:setIsPetAvailable(isPetAvailable)
 	if (self.isPetAvailable == isPetAvailable) then
 		return;
 	end
+	self.guids["pet"] = isPetAvailable and UnitGUID("pet") or "";
 	self.isPetAvailable = isPetAvailable;
 	self:dispatchEvent(self.eventPet);
 end
@@ -449,17 +457,24 @@ function DHUDDataTrackerHelper:getUnitAuraById(unitId, spellId, fullScan)
 	end
 end
 
---- Get information if player can tank or not
--- @return true if player can tank, false otherwise
-function DHUDDataTrackerHelper:isTankSpecializationCapable()
+--- Get information about player tank spec index
+-- @return indexes of tank specs, or nil if player is not tank capable
+function DHUDDataTrackerHelper:getTankSpecializations()
 	local numSpecs = GetNumSpecializations();
+	local tankSpecs = { };
 	for i = 1, numSpecs do
 		local role = GetSpecializationRole(i);
 		if (role == "TANK") then
-			return true;
+			table.insert(tankSpecs, i);
 		end
 	end
-	return false;
+	return unpack(tankSpecs);
+end
+
+--- Get information if player can tank or not
+-- @return true if player can tank, false otherwise
+function DHUDDataTrackerHelper:isTankSpecializationCapable()
+	return self:getTankSpecializationIndex() ~= nil;
 end
 
 --- Get information if player is currently using tank specialization
@@ -597,7 +612,12 @@ end
 
 --- character is entering world, update
 function DHUDDataTracker:onEnteringWorld(e)
-	self:updateData();
+	-- recheck if data tracker exists, some events are not fired when player enters world (e.g. shapeshift form when teleporting from instance)
+	self:setIsExists(self:checkIsExists());
+	-- update data if required
+	if (self.isTracking) then
+		self:updateData();
+	end
 end
 
 -- override for tracking purposes
@@ -693,7 +713,7 @@ end
 function DHUDDataTracker:onDataChangedTick(e)
 	self.isQueriedDataEventWaiting = false;
 	trackingHelper:removeEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE_FREQUENT, self, self.onDataChangedTick);
-	if (self.isQueriedDataEvent) then
+	if (self.isQueriedDataEvent and self.isExists) then -- check for datatracker existance or otherwise it will give wrong info
 		self:dispatchEvent(self.eventDataChanged);
 	end
 end
@@ -836,6 +856,8 @@ DHUDPowerTracker = MCCreateSubClass(DHUDDataTracker, {
 	resourceType		= -1,
 	-- resource power type string if provided by game
 	resourceTypeString	= "",
+	-- defines if resource power type is custom
+	resourceTypeIsCustom = false,
 	-- maximum amount of tracked resource
 	amountMax			= 0,
 	-- maximum amount of tracked resource without talants, glyphs, etc.., e.g. 5 combo-points, 4 chi. This value should not be changed during run-time
@@ -1011,12 +1033,21 @@ function DHUDPowerTracker:setResourceType(resourceType, resourceTypeName)
 	end
 	self.resourceType = resourceType;
 	self.resourceTypeString = resourceTypeName or "";
+	self.resourceTypeIsCustom = false;
 	self:dispatchEvent(self.eventResourceTypeChanged);
 	-- change base amount
 	self:setAmountBasePercent(self.BASE_PERCENT_FOR_RESOURCE_TYPE[self.resourceTypeString] or 0);
 	self:setAmountMinPercent(self.MIN_PERCENT_FOR_RESOURCE_TYPE[self.resourceTypeString] or 0);
 	-- update data
 	self:updateData();
+end
+
+--- change power tracker to custom resourceType
+-- @param resourceType id of the resource type from DHUDColorizeTools class
+function DHUDPowerTracker:setCustomResourceType(resourceType)
+	self.resourceType = resourceType;
+	self.resourceTypeString = "CUSTOM";
+	self.resourceTypeIsCustom = true;
 end
 
 ------------------------------------
@@ -1233,6 +1264,8 @@ DHUDTimersTracker = MCCreateSubClass(DHUDDataTracker, {
 	sourceInfo			= nil,
 	-- time at which timers was updated
 	timeUpdatedAt		= 0,
+	-- table to describe inactive timer when timers are grouped using groupTimersByTime function
+	GROUP_INACTIVE_TIMER = { },
 })
 
 --- Constructor of timers tracker
@@ -1331,6 +1364,38 @@ function DHUDTimersTracker:findTimer(sourceIndex, id)
 	timer = { 0, 0, 0, 0, 0, "", 0, "", true, true, 0 };
 	--print("Timer " .. id .. ", sourceIndex " .. sourceIndex .. ", predictedIndex " ..  indexToCheck .. " was created at " .. indexBounds);
 	table.insert(self.timers, indexBounds, timer);
+	self.sourceInfo[2] = numTimers + 1;
+	return timer;
+end
+
+--- Search for timer that is created for source, and contains info about id specified (internal use only), this functions always perform full table search
+-- do not invoke this function twice if timer was returned once
+-- @param id id of the data, e.g. buff spell id
+-- @param createIfNone defines if timer should be created if not found
+-- @return table with data about timer
+function DHUDTimersTracker:findTimerByIdOnly(id, createIfNone)
+	local indexBegin = self.sourceInfo[1];
+	local numTimers = self.sourceInfo[2];
+	local indexLast = indexBegin + numTimers - 1;
+	-- iterate over timers
+	for i = indexBegin, indexLast, 1 do
+		timer = self.timers[i];
+		-- not already used?
+		if (timer[10] ~= true) then
+			-- check id
+			if (timer[4] == id) then
+				timer[10] = true; -- set iterating flag
+				return timer;
+			end
+		end
+	end
+	-- timer not found, create new { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder } or return
+	if (not createIfNone) then
+		return nil;
+	end
+	timer = { 0, 0, 0, 0, 0, "", 0, "", true, true, 0 };
+	--print("Timer " .. id .. ", sourceIndex " .. sourceIndex .. ", predictedIndex " ..  indexToCheck .. " was created at " .. indexBounds);
+	table.insert(self.timers, indexLast + 1, timer);
 	self.sourceInfo[2] = numTimers + 1;
 	return timer;
 end
@@ -1437,6 +1502,84 @@ function DHUDTimersTracker:forceUpdateTimers()
 	self.timeUpdatedAt = timerMs;
 end
 
+--- Group timers together that have identical timeleft, duration and don't have stacks, timers are grouped only once (internal use only)
+-- excess timers won't be deleted but won't be filetered either
+-- @param sourceId id of the source, number
+-- @param funcSelf self parameter to be passed to function
+-- @param func funcion that receives timers and should decide if they are aprotiate to be grouped
+function DHUDTimersTracker:groupTimersByTime(sourceId, funcSelf, func)
+	local sourceInfo = self.sources[sourceId];
+	local firstTimer = sourceInfo[1];
+	local lastTimer = firstTimer + sourceInfo[2] - 1;
+	local timer, timer2;
+	local timersGroup = { };
+	-- iterate
+	for i = firstTimer, lastTimer, 1 do
+		timer = self.timers[i];
+		-- timer is active?
+		if (timer[10] == true) then
+			-- timer was already attemted to be grouped?
+			if (timer[12] == true) then
+				-- timer was part of the group?
+				if (timer[13] ~= nil) then
+					-- update timer info, atleast type and stacks, use group info { type, stacks }
+					if (timer[13] ~= self.GROUP_INACTIVE_TIMER) then
+						timer[1] = timer[13][1]; -- type
+						timer[7] = timer[13][2]; -- stacks
+					end
+				end
+			else
+				-- timer doesn't have stacks?
+				if (timer[7] == 1) then
+					-- clear timers group table
+					for k, v in ipairs(timersGroup) do timersGroup[k]=nil; end
+					-- iterate over other timers
+					for j = i + 1, lastTimer, 1 do
+						timer2 = self.timers[j];
+						-- timer is active, not grouped and don't have stacks?
+						if (timer2[10] == true and timer2[12] == nil and timer2[7] == 1) then
+							-- check if timeleft and duration is the same
+							if (timer[2] == timer2[2] and timer[3] == timer2[3]) then
+								-- add to the table
+								table.insert(timersGroup, timer2);
+							end
+						end
+					end
+					-- found group?
+					local numTimersGroup = #timersGroup;
+					if (numTimersGroup > 0) then
+						-- add to the table first timer
+						table.insert(timersGroup, 1, timer);
+						numTimersGroup = numTimersGroup + 1;
+						-- check back if it's valid group
+						local mainTimer = func(funcSelf, timersGroup);
+						-- update all timers
+						for k, v in ipairs(timersGroup) do
+							-- set attempted to be grouped flag
+							v[12] = true;
+						end
+						-- check if we have main timer
+						if (mainTimer ~= nil) then
+							for k, v in ipairs(timersGroup) do
+								if (v == mainTimer) then
+									-- update group info { type, stacks }
+									local groupInfo = { };
+									groupInfo[1] = mainTimer[1];
+									groupInfo[2] = numTimersGroup;
+									v[13] = groupInfo; -- groupInfo
+									v[7] = numTimersGroup; -- stacks
+								else
+									v[13] = self.GROUP_INACTIVE_TIMER;
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+end
+
 --- Filter out timers using function specified
 -- @param func funcion that desides if item is required or not, also returning sort order (invoked with data about timer, should return nil if timer is not required or number for timer sorting order)
 -- @param cacheKey key to be used when storing results in cache
@@ -1476,7 +1619,7 @@ function DHUDTimersTracker:filterTimers(func, cacheKey, forceUpdate)
 		-- already checked?
 		if (v[10] == true) then
 			v[10] = false;
-		else
+		elseif (v[13] ~= self.GROUP_INACTIVE_TIMER) then
 			local sortOrder = func(v);
 			if (sortOrder ~= nil) then
 				v[11] = sortOrder;
@@ -1683,14 +1826,26 @@ DHUDCooldownsTracker = MCCreateSubClass(DHUDTimersTracker, {
 	TIMER_TYPE_MASK_SPELL			= 1,
 	-- mask for the type, that specifies that cooldown is associated with item
 	TIMER_TYPE_MASK_ITEM			= 2,
+	-- mask for the type, that specifies that cooldown is associated with pet spell
+	TIMER_TYPE_MASK_PETSPELL		= 4,
+	-- mask for the type, that specifies that cooldown is associated with spell school lock
+	TIMER_TYPE_MASK_SCHOOLLOCK		= 8,
 	-- mask for the type, that specifies that cooldown was activated manually
-	TIMER_TYPE_MASK_ACTIVE			= 4,
+	TIMER_TYPE_MASK_ACTIVE			= 16,
 	-- mask for the type, that specifies that cooldown was activated automatically and has internal cooldown
-	TIMER_TYPE_MASK_PASSIVE			= 8,
+	TIMER_TYPE_MASK_PASSIVE			= 32,
 	-- mask for the type, that specifies that cooldown was activated automatically and using rppm system
-	TIMER_TYPE_MASK_PASSIVE_RPPM	= 16,
+	TIMER_TYPE_MASK_PASSIVE_RPPM	= 64,
 	-- cooldown of deathknight runes
-	DEATHKNIGHT_RUNE_COOLDOWN = 10,
+	DEATHKNIGHT_RUNE_COOLDOWN		= 10,
+	-- combat event frame to listen to combat events
+	combatEventsFrame				= nil,
+	-- table with time at which spells were successfully cast (key = id, value = time in ms)
+	spellsCastSuccessTime			= nil,
+	-- school that was locked
+	schoolLockType					= 0,
+	-- time at which schools was locked?
+	schoolLockTime					= 0,
 })
 
 --- Create new unit cooldowns tracker, unitId should be specified after constructor
@@ -1700,18 +1855,46 @@ function DHUDCooldownsTracker:new()
 	return o;
 end
 
+--- Constructor of cooldowns tracker
+function DHUDCooldownsTracker:constructor()
+	-- init tables
+	self.spellsCastSuccessTime = { };
+	-- create combat events frame
+	self.combatEventsFrame = MCCreateBlizzCombatEventFrame();
+	-- call super constructor
+	DHUDTimersTracker.constructor(self);
+end
+
 --- Initialize cooldowns tracking
 function DHUDCooldownsTracker:init()
 	local tracker = self;
 	-- process units cooldown change event, fires few times for every cooldown (gcd?)
-	function self.eventsFrame:SPELL_UPDATE_COOLDOWN(unitId)
+	function self.eventsFrame:SPELL_UPDATE_COOLDOWN()
 		tracker:updateSpellCooldowns();
 		tracker:updateItemCooldowns();
 		tracker:updateActionBarCooldowns();
+		tracker:updatePetCooldowns();
 	end
-	-- process item/slot cooldowns change event
-	function self.eventsFrame:ACTIONBAR_UPDATE_COOLDOWN()
-		--tracker:updateItemCooldowns();
+	-- process units cooldown end event, fires every gcd or even every update? 
+	function self.eventsFrame:SPELL_UPDATE_USABLE(unitId)
+		
+	end
+	-- process spell cast succeed event, fires when spell was cast
+	function self.eventsFrame:UNIT_SPELLCAST_SUCCEEDED(unitId, spell, rank, lineId, spellId)
+		if (unitId ~= tracker.unitId) then
+			return;
+		end
+		tracker.spellsCastSuccessTime[spellId] = trackingHelper.timerMs;
+		--print("spellid " .. MCTableToString(spellId) .. ", timerMs " .. MCTableToString(timerMs));
+	end
+	-- process combat spell cast interrupt event
+	function self.combatEventsFrame:SPELL_INTERRUPT(timestamp, hideCaster, sourceGUID, sourceName, sourceFlags, sourceFlags2, destGUID, destName, destFlags, destFlags2, spellId, spellName, spellSchool, extraSpellID, extraSpellName, extraSchool)
+		--print("SPELL_INTERRUPT sourceName " .. MCTableToString(sourceName) .. ", destName " .. MCTableToString(destName) .. ", spellSchool " .. MCTableToString(spellSchool) .. ", extraSchool " .. MCTableToString(extraSchool));
+		if (destGUID ~= trackingHelper.guids[tracker.unitId]) then
+			return;
+		end
+		tracker.schoolLockTime = trackingHelper.timerMs;
+		tracker.schoolLockType = extraSchool;
 	end
 end
 
@@ -1729,56 +1912,126 @@ function DHUDCooldownsTracker:onUpdateTime()
 	if (self:containsTimerWithNegativeDuration(1)) then
 		self:updateItemCooldowns();
 	end
-	-- update item cooldowns if required, wow doesn't throw event for cooldown end
+	-- update action bar cooldowns if required, wow doesn't throw event for cooldown end
 	if (self:containsTimerWithNegativeDuration(2)) then
 		self:updateActionBarCooldowns();
 	end
+	-- update pet cooldowns if required, wow doesn't throw event for cooldown end
+	if (self:containsTimerWithNegativeDuration(3)) then
+		self:updatePetCooldowns();
+	end
 	-- call super
 	DHUDTimersTracker.onUpdateTime(self);
+end
+
+--- Function that should decide if timers are required to be grouped
+-- @param timerList list with timers
+-- @return main timer in the list if timers should be grouped, this timer can be modified by this function
+function DHUDCooldownsTracker:groupSpellCooldowns(timersList)
+	local timerMs = trackingHelper.timerMs;
+	-- check if it's multispell cooldown?
+	local castedAtThisTime = 0;
+	local cooldownStartTime, castTime;
+	local mainTimer = timersList[1];
+	cooldownStartTime = mainTimer[2] - mainTimer[3] + timerMs;
+	-- iterate over timers
+	for i, v in ipairs(timersList) do
+		castTime = self.spellsCastSuccessTime[v[4]] or 0;
+		if ((castTime - cooldownStartTime) >= 0 and (castTime - cooldownStartTime) <= 1) then
+			castedAtThisTime = castedAtThisTime + 1;
+			mainTimer = v;
+		end
+	end
+	-- single cast
+	if (castedAtThisTime == 1) then
+		return mainTimer;
+	-- multiple casts in macro
+	elseif (castedAtThisTime > 1) then
+		return nil;
+	end
+	-- most probably it is school lock, change type
+	mainTimer[1] = self.TIMER_TYPE_MASK_SCHOOLLOCK + self.TIMER_TYPE_MASK_ACTIVE;
+	-- change school lock type if required
+	if (not((self.schoolLockTime - cooldownStartTime) >= -1 and (self.schoolLockTime - cooldownStartTime) <= 1)) then
+		self.schoolLockType = 127;
+	end
+	return mainTimer;
 end
 
 --- Update spell cooldowns from main spellbook (don't update cooldowns on guild perks, etc.)
 function DHUDCooldownsTracker:updateSpellCooldowns()
 	local timerMs = trackingHelper.timerMs;
 	-- create variables
-	local startTime, duration, enable;
+	local cooldownId = 0;
+	local startTime, duration, enable, charges, maxCharges, cooldownCharges;
 	local spellType, spellId, spellData;
-	-- update item cooldowns
+	local flyoutId, flyoutName, flyoutDecription, flyoutNumSlots, flyoutIsKnown;
+	local timer;
+	-- update spell cooldowns
 	self:findSourceTimersBegin(0);
 	-- spell cooldowns are only required for player, not vehicle
 	if (self.unitId == "player") then
-		-- spell tab info
-		local bookName, bookTexture, bookOffset, bookNumSpells = GetSpellTabInfo(2); -- 2 is always main spell book for current spec
-		local n = bookOffset + bookNumSpells - 1;
-		-- iterate
-		if (trackingHelper.playerClass ~= "DEATHKNIGHT") then
-			for i = bookOffset, n, 1 do
-				startTime, duration, enable = GetSpellCooldown(i, BOOKTYPE_SPELL);
-				if (startTime ~= nil and duration > 1.5) then
-					spellType, spellId = GetSpellBookItemInfo(i, BOOKTYPE_SPELL);
-					spellData = trackingHelper:getSpellData(spellId);
-					timer = self:findTimer(1, spellId);
-					-- fill timer info, { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder }
-					timer[1] = self.TIMER_TYPE_MASK_SPELL + self.TIMER_TYPE_MASK_ACTIVE; -- type
-					timer[2] = startTime + duration - timerMs; -- timeLeft
-					timer[3] = duration; -- duration
-					timer[4] = spellId; -- id
-					timer[5] = spellId; -- tooltipId
-					timer[6] = spellData[1]; -- name
-					timer[7] = 0; -- stacks
-					timer[8] = spellData[3]; -- texture
-				end
-			end
+		-- skip cooldowns with invalid duration
+		local invalidDuration = 0;
 		-- special cooldowns processing for deathknights
 		-- This is a hack to compensate for Blizzard's API reporting incorrect cooldown information for death knights.
 		-- Ignore cooldowns that are the same duration as a rune cooldown except for the abilities that truly have the same cooldown.
-		else
-			for i = bookOffset, n, 1 do
+		if (trackingHelper.playerClass == "DEATHKNIGHT") then
+			invalidDuration = self.DEATHKNIGHT_RUNE_COOLDOWN;
+		end
+		-- spell tab info
+		local bookName, bookTexture, bookOffset, bookNumSpells = GetSpellTabInfo(2); -- 2 is always main spell book for current spec
+		local n = bookOffset + bookNumSpells - 1;
+		-- iterate over spell book
+		for i = bookOffset, n, 1 do
+			-- get spell info
+			spellType, spellId = GetSpellBookItemInfo(i, BOOKTYPE_SPELL);
+			spellData = trackingHelper:getSpellData(spellId);
+			-- check spells with charges
+			charges, maxCharges, startTime, duration = GetSpellCharges(spellData[1]);
+			if (charges ~= nil and (maxCharges - charges) > 0) then
+				cooldownCharges = (maxCharges - charges);
+			else -- check usual cooldown
 				startTime, duration, enable = GetSpellCooldown(i, BOOKTYPE_SPELL);
-				if (startTime ~= nil and duration > 1.5 and duration ~= self.DEATHKNIGHT_RUNE_COOLDOWN) then
-					spellType, spellId = GetSpellBookItemInfo(i, BOOKTYPE_SPELL);
-					spellData = trackingHelper:getSpellData(spellId);
-					timer = self:findTimer(1, spellId);
+				cooldownCharges = 1;
+			end
+			-- valid cooldown?
+			if (startTime ~= nil and duration > 1.5 and duration ~= invalidDuration) then
+				cooldownId = cooldownId + 1;
+				timer = self:findTimer(cooldownId, spellId);
+				-- fill timer info, { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder }
+				timer[1] = self.TIMER_TYPE_MASK_SPELL + self.TIMER_TYPE_MASK_ACTIVE; -- type
+				timer[2] = startTime + duration - timerMs; -- timeLeft
+				timer[3] = duration; -- duration
+				timer[4] = spellId; -- id
+				timer[5] = spellId; -- tooltipId
+				timer[6] = spellData[1]; -- name
+				timer[7] = cooldownCharges; -- stacks
+				timer[8] = spellData[3]; -- texture
+			end
+		end
+		-- number of flyout spells like mage portals and shaman totems (spelltype = FLYOUT)
+		local flyouts = GetNumFlyouts();
+		-- iterate over flyout spells
+		for i = 1, flyouts, 1 do
+			flyoutId = GetFlyoutID(i);
+			flyoutName, flyoutDecription, flyoutNumSlots, flyoutIsKnown = GetFlyoutInfo(flyoutId);
+			for j = 1, flyoutNumSlots, 1 do
+				-- get spell info
+				spellId, flyoutIsKnown = GetFlyoutSlotInfo(flyoutId, j);
+				spellData = trackingHelper:getSpellData(spellId);
+				-- check spells with charges
+				charges, maxCharges, startTime, duration = GetSpellCharges(spellData[1]);
+				if (charges ~= nil and (maxCharges - charges) > 0) then
+					cooldownCharges = (maxCharges - charges);
+				else -- check usual cooldown
+					startTime, duration, enable = GetSpellCooldown(spellId);
+					cooldownCharges = 1;
+				end
+				-- valid cooldown?
+				if (startTime ~= nil and duration > 1.5 and duration ~= invalidDuration) then
+					cooldownId = cooldownId + 1;
+					timer = self:findTimer(cooldownId, spellId);
 					-- fill timer info, { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder }
 					timer[1] = self.TIMER_TYPE_MASK_SPELL + self.TIMER_TYPE_MASK_ACTIVE; -- type
 					timer[2] = startTime + duration - timerMs; -- timeLeft
@@ -1786,14 +2039,92 @@ function DHUDCooldownsTracker:updateSpellCooldowns()
 					timer[4] = spellId; -- id
 					timer[5] = spellId; -- tooltipId
 					timer[6] = spellData[1]; -- name
-					timer[7] = 0; -- stacks
+					timer[7] = cooldownCharges; -- stacks
+					timer[8] = spellData[3]; -- texture
+				end
+			end
+		end
+		-- iterate over similiar cooldowns and reintegrate them together, move to base class, use antother var
+		--[[local firstTimer = self.sourceInfo[1];
+		local lastTimer = firstTimer + self.sourceInfo[2] - 1;
+		local timer2;
+		for i = firstTimer, lastTimer, 1 do
+			timer = self.timers[i];
+			if (timer[10] == true and timer[7] == 1) then
+				for j = i + 1, lastTimer, 1 do
+					timer2 = self.timers[j];
+					if (timer2[10] == true and timer2[7] == 1) then
+						-- check if timer is the same
+						if (timer[2] == timer2[2] and timer[3] == timer2[3]) then
+							-- increase charges
+							timer[7] = timer[7] + 1;
+							-- this will delete later timer
+							timer2[10] = false;
+						end
+					end
+				end
+			end
+		end]]--
+		self:groupTimersByTime(0, self, self.groupSpellCooldowns);
+	end
+	-- stop
+	self:findSourceTimersEnd(0);
+	-- updateTimers for other source groups
+	self:forceUpdateTimers();
+	-- dispatch event
+	self:processDataChanged();
+end
+
+--- Update spell cooldowns from main spellbook (don't update cooldowns on guild perks, etc.)
+function DHUDCooldownsTracker:updatePetCooldowns()
+	-- update pet cooldowns
+	self:findSourceTimersBegin(3);
+	-- check if pet can cast something?
+	local numPetSpells = HasPetSpells();
+	-- if we don't have pet or are inside vehicle - this cooldowns are not required
+	if (numPetSpells == nil or self.unitId ~= "player" or not trackingHelper.isPetAvailable) then
+		-- clear cooldowns if any and return
+		self:findSourceTimersEnd(3);
+		return;
+	end
+	-- get time
+	local timerMs = trackingHelper.timerMs;
+	-- create variables
+	local cooldownId = 0;
+	local spellType, spellId, autocastAllowed, autocastEnabled, spellData, startTime, duration, enable;
+	-- iterate over spell book
+	for i = 1, numPetSpells, 1 do
+		-- get spell info
+		spellType, spellId = GetSpellBookItemInfo(i, BOOKTYPE_PET);
+		-- only process spells
+		if (spellId ~= nil) then
+			-- check if spell is on autocast, we should only display non-autocast spells
+			autocastAllowed, autocastEnabled = GetSpellAutocast(i, BOOKTYPE_PET);
+			--print("i " .. i .. ", spellType " .. MCTableToString(spellType) .. ", spellId " .. MCTableToString(spellId) .. ", autocastEnabled " .. MCTableToString(autocastEnabled));
+			if (not autocastEnabled) then
+				spellData = trackingHelper:getSpellData(spellId);
+				-- check usual cooldown
+				startTime, duration, enable = GetSpellCooldown(i, BOOKTYPE_PET);
+				-- valid cooldown?
+				if (startTime ~= nil and duration > 1.5) then
+					--print("filling spelldId " .. MCTableToString(spellId) .. ", name " .. MCTableToString(spellData[1]) .. ", texture " .. MCTableToString(spellData[3]));
+					cooldownId = cooldownId + 1;
+					timer = self:findTimer(cooldownId, spellId);
+					-- fill timer info, { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder }
+					timer[1] = self.TIMER_TYPE_MASK_PETSPELL + self.TIMER_TYPE_MASK_ACTIVE; -- type
+					timer[2] = startTime + duration - timerMs; -- timeLeft
+					timer[3] = duration; -- duration
+					timer[4] = spellId; -- id
+					timer[5] = spellId; -- tooltipId
+					timer[6] = spellData[1]; -- name
+					timer[7] = 1; -- stacks
 					timer[8] = spellData[3]; -- texture
 				end
 			end
 		end
 	end
 	-- stop
-	self:findSourceTimersEnd(0);
+	self:findSourceTimersEnd(3);
 	-- updateTimers for other source groups
 	self:forceUpdateTimers();
 	-- dispatch event
@@ -1804,8 +2135,10 @@ end
 function DHUDCooldownsTracker:updateItemCooldowns()
 	local timerMs = trackingHelper.timerMs;
 	-- create variables
+	local cooldownId = 0;
 	local startTime, duration, enable;
 	local itemId, itemData;
+	local timer;
 	-- update item cooldowns
 	self:findSourceTimersBegin(1);
 	-- item cooldowns are only required for player, not vehicle
@@ -1814,9 +2147,10 @@ function DHUDCooldownsTracker:updateItemCooldowns()
 		for i = 1, 17, 1 do -- INVSLOT_HEAD, INVSLOT_OFFHAND, 1
 			startTime, duration, enable = GetInventoryItemCooldown(self.unitId, i);
 			if (startTime ~= nil and duration > 1.5) then
+				cooldownId = cooldownId + 1;
 				itemId = GetInventoryItemID(self.unitId, i);
 				itemData = trackingHelper:getItemData(itemId);
-				timer = self:findTimer(1, itemId);
+				timer = self:findTimer(cooldownId, itemId);
 				-- fill timer info, { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder }
 				timer[1] = self.TIMER_TYPE_MASK_ITEM + self.TIMER_TYPE_MASK_ACTIVE; -- type
 				timer[2] = startTime + duration - timerMs; -- timeLeft
@@ -1841,8 +2175,10 @@ end
 function DHUDCooldownsTracker:updateActionBarCooldowns()
 	local timerMs = trackingHelper.timerMs;
 	-- create variables
+	local cooldownId = 0;
 	local startTime, duration, enable;
 	local actionType, actionSubType, spellId, spellData;
+	local timer;
 	-- update action bar cooldowns
 	self:findSourceTimersBegin(2);
 	-- update extra action button spell cooldown ( /script print("id is " .. ActionButton_GetPagedID(ExtraActionButton1)) )
@@ -1853,8 +2189,9 @@ function DHUDCooldownsTracker:updateActionBarCooldowns()
 			if (startTime ~= nil and duration > 1.5) then
 				actionType, spellId, actionSubType = GetActionInfo(i);
 				if (actionType == "spell") then
+					cooldownId = cooldownId + 1;
 					spellData = trackingHelper:getSpellData(spellId);
-					timer = self:findTimer(1, spellId);
+					timer = self:findTimer(cooldownId, spellId);
 					-- fill timer info, { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder }
 					timer[1] = self.TIMER_TYPE_MASK_SPELL + self.TIMER_TYPE_MASK_ACTIVE; -- type
 					timer[2] = startTime + duration - timerMs; -- timeLeft
@@ -1868,15 +2205,16 @@ function DHUDCooldownsTracker:updateActionBarCooldowns()
 			end
 		end
 	-- update vehicle cooldowns
-	elseif (self.unitId == "pet") then
+	elseif (self.unitId == "vehicle") then
 		-- iterate
 		for i = 133, 138, 1 do
 			startTime, duration, enable = GetActionCooldown(i);
 			if (startTime ~= nil and duration > 1.5) then
 				actionType, spellId, actionSubType = GetActionInfo(i);
 				if (actionType == "spell") then
+					cooldownId = cooldownId + 1;
 					spellData = trackingHelper:getSpellData(spellId);
-					timer = self:findTimer(1, spellId);
+					timer = self:findTimer(cooldownId, spellId);
 					-- fill timer info, { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder }
 					timer[1] = self.TIMER_TYPE_MASK_SPELL + self.TIMER_TYPE_MASK_ACTIVE; -- type
 					timer[2] = startTime + duration - timerMs; -- timeLeft
@@ -1922,13 +2260,18 @@ function DHUDCooldownsTracker:updateData()
 	self:updateSpellCooldowns();
 	self:updateItemCooldowns();
 	self:updateActionBarCooldowns();
+	self:updatePetCooldowns();
 end
 
 --- Start tracking data
 function DHUDCooldownsTracker:startTracking()
+	-- listen to game combat events
+	self.combatEventsFrame:RegisterEvent("SPELL_INTERRUPT");
 	-- listen to game events
 	self.eventsFrame:RegisterEvent("SPELL_UPDATE_COOLDOWN");
-	self.eventsFrame:RegisterEvent("ACTIONBAR_UPDATE_COOLDOWN");
+	self.eventsFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED");
+	--self.eventsFrame:RegisterEvent("SPELL_UPDATE_USABLE");
+	--self.eventsFrame:RegisterEvent("ACTIONBAR_UPDATE_COOLDOWN");
 	--[[self.eventsFrame:RegisterEvent("ACTIONBAR_UPDATE_STATE");
 	self.eventsFrame:RegisterEvent("ACTIONBAR_UPDATE_USABLE");
 	self.eventsFrame:RegisterEvent("BAG_UPDATE_COOLDOWN");
@@ -1942,11 +2285,299 @@ end
 
 --- Stop tracking data
 function DHUDCooldownsTracker:stopTracking()
+	-- stop listening to game combat events
+	self.combatEventsFrame:UnregisterEvent("SPELL_INTERRUPT");
 	-- stop listening to game events
 	self.eventsFrame:UnregisterEvent("SPELL_UPDATE_COOLDOWN");
-	self.eventsFrame:UnregisterEvent("ACTIONBAR_UPDATE_COOLDOWN");
+	self.eventsFrame:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED");
+	--self.eventsFrame:UnregisterEvent("SPELL_UPDATE_USABLE");
+	--self.eventsFrame:UnregisterEvent("ACTIONBAR_UPDATE_COOLDOWN");
 	-- call super
 	DHUDTimersTracker.stopTracking(self);
+end
+
+---------------------------------------
+-- Unit guardians tracker base class --
+---------------------------------------
+
+--- Class to track unit guardians like totems, ghouls and mushrooms
+DHUDGuardiansTracker = MCCreateSubClass(DHUDTimersTracker, {
+	-- mask for the type, that specifies that guardian was activated manually
+	TIMER_TYPE_MASK_ACTIVE			= 1,
+	-- mask for the type, that specifies that guardian was activated automatically, e.g. passive earth totem
+	TIMER_TYPE_MASK_PASSIVE			= 2,
+	-- cooldown of deathknight runes
+	SHAMAN_PASSIVE_TOTEMS_DURATION	= 300,
+	-- maximum time on saved alternative guardian when other guardians are destroyed
+	SAVED_ALTERNATIVE_GUARDIAN_ISLAST_MAX_TIME = 15,
+	-- last died guardian
+	lastDiedGuardian				= nil,
+	-- last died guardian time
+	lastDiedGuardianTime			= 0,
+	-- last summonned guardian
+	lastSummonedGuardian			= nil,
+	-- last died guardian time
+	lastSummonedGuardianTime		= 0,
+})
+
+--- Create new unit guardians tracker, unitId should be specified after constructor
+function DHUDGuardiansTracker:new()
+	local o = self:defconstructor();
+	o:constructor();
+	return o;
+end
+
+--- Initialize cooldowns tracking
+function DHUDGuardiansTracker:init()
+	local tracker = self;
+	-- process unit guardians change event
+	function self.eventsFrame:PLAYER_TOTEM_UPDATE()
+		tracker:updateGuardians();
+	end
+end
+
+--- Time passed, update all timers
+function DHUDGuardiansTracker:onUpdateTime()
+	-- nothing to update?
+	if (#self.timers == 0) then
+		return;
+	end
+	-- update guardians when last saved guardian timed out
+	if (self:containsTimerWithNegativeDuration(1)) then
+		self:updateGuardians();
+	end
+	-- call super
+	DHUDTimersTracker.onUpdateTime(self);
+end
+
+--- Update guardians info
+function DHUDGuardiansTracker:updateGuardians()
+	local timerMs = trackingHelper.timerMs;
+	-- create variables
+	local haveTotem, name, startTime, duration, icon;
+	local timer;
+	-- check class specific things
+	local durationPassive = 0;
+	local canHaveTwoAlternativeGuardians = false;
+	if (trackingHelper.playerClass == "SHAMAN") then
+		durationPassive = self.SHAMAN_PASSIVE_TOTEMS_DURATION;
+		canHaveTwoAlternativeGuardians = select(2, GetTalentRowSelectionInfo(3)) == 8; -- TotemicPersistance
+	end
+	-- iterate
+	self:findSourceTimersBegin(0);
+	-- iterate
+	for i = 1, 4, 1 do
+		-- get info
+		haveTotem, name, startTime, duration, icon = GetTotemInfo(i);
+		-- get timer
+		timer = self:findTimerByIdOnly(i, false);
+		-- check guardian existance
+		if (timer ~= nil) then
+			if (not haveTotem) then
+				self.lastDiedGuardian = timer;
+				self.lastDiedGuardianTime = timerMs;
+				timer[10] = false;
+			end
+		else
+			if (haveTotem) then
+				self.lastSummonedGuardian = timer;
+				self.lastSummonedGuardianTime = timerMs;
+			end
+		end
+		-- change info about guardian
+		if (haveTotem == true) then
+			timer = timer or self:findTimerByIdOnly(i, true);
+			-- fill timer info, { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder }
+			timer[1] = (duration ~= durationPassive) and self.TIMER_TYPE_MASK_ACTIVE or self.TIMER_TYPE_MASK_PASSIVE; -- type
+			timer[2] = startTime + duration - timerMs; -- timeLeft
+			timer[3] = duration; -- duration
+			timer[4] = i; -- id
+			timer[5] = i; -- tooltipId
+			timer[6] = name; -- name
+			timer[7] = 0; -- stacks
+			timer[8] = icon; -- texture
+		end
+	end
+	self:findSourceTimersEnd(0);
+	-- save number of guardians
+	local numGuardians = self.sourceInfo[2];
+	-- check double alternative guardian
+	self:findSourceTimersBegin(1);
+	if (canHaveTwoAlternativeGuardians) then
+		timer = self:findTimerByIdOnly(5, false);
+		--print("self.lastDiedGuardianTime " .. self.lastDiedGuardianTime .. ", self.lastSummonedGuardianTime " .. self.lastSummonedGuardianTime);
+		-- check if resummoned another totem
+		if ((self.lastSummonedGuardianTime - self.lastDiedGuardianTime) >= 0.0 and (self.lastSummonedGuardianTime - self.lastDiedGuardianTime) <= 1.0 and self.lastDiedGuardian ~= nil and self.lastDiedGuardian[4] ~= 1) then
+			timer = timer or self:findTimerByIdOnly(5, true);
+			-- fill timer info, { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder }
+			timer[1] = self.lastDiedGuardian[1]; -- type
+			timer[2] = self.lastDiedGuardian[2]; -- timeLeft
+			timer[3] = self.lastDiedGuardian[3]; -- duration
+			timer[4] = 5; -- id
+			timer[5] = self.lastDiedGuardian[5]; -- tooltipId
+			timer[6] = self.lastDiedGuardian[6]; -- name
+			timer[7] = self.lastDiedGuardian[7]; -- stacks
+			timer[8] = self.lastDiedGuardian[8]; -- texture
+			--print("alternative guardian is " .. MCTableToString(timer[6]));
+			-- clear saved info
+			self.lastDiedGuardian = nil;
+			self.lastDiedGuardianTime = 0;
+			self.lastSummonedGuardian = nil;
+			self.lastSummonedGuardianTime = 0;
+		else
+			-- delete existing timer if timed out or if it's the last guardian with long time
+			if (timer ~= nil and (timer[2] <= 0 or (numGuardians == 0 and timer[2] > self.SAVED_ALTERNATIVE_GUARDIAN_ISLAST_MAX_TIME))) then
+				timer[10] = false;
+			end
+		end
+	end
+	self:findSourceTimersEnd(1);
+	-- updateTimers for other source groups
+	self:forceUpdateTimers();
+	-- dispatch event
+	self:processDataChanged();
+end
+
+--- Update all data for current unitId
+function DHUDGuardiansTracker:updateData()
+	self:updateGuardians();
+end
+
+--- Start tracking data
+function DHUDGuardiansTracker:startTracking()
+	-- listen to game events
+	self.eventsFrame:RegisterEvent("PLAYER_TOTEM_UPDATE");
+	-- call super
+	DHUDTimersTracker.startTracking(self);
+end
+
+--- Stop tracking data
+function DHUDGuardiansTracker:stopTracking()
+	-- stop listening to game events
+	self.eventsFrame:UnregisterEvent("PLAYER_TOTEM_UPDATE");
+	-- call super
+	DHUDTimersTracker.stopTracking(self);
+end
+
+----------------------------------------
+-- Unit aura value tracker base class --
+----------------------------------------
+
+--- Base class for trackers of aura value (actually it's subclasses will only set unitId to track, auras to track and max value)
+DHUDAuraValueTracker = MCCreateSubClass(DHUDPowerTracker, {
+	-- auras to track, aura value tracker will stop on first found aura from this list
+	aurasToTrack = { },
+	-- modifier to be used when calculating maximum aura value
+	maxAuraValuePercentModifier = 1,
+})
+
+--- Create new aura value tracker, unitId should be specified after constructor
+function DHUDAuraValueTracker:new()
+	local o = self:defconstructor();
+	o:constructor();
+	return o;
+end
+
+--- Initialize aura value tracking
+function DHUDAuraValueTracker:init()
+	local tracker = self;
+	-- process units absorb amount change event
+	function self.eventsFrame:UNIT_AURA(unitId)
+		if (tracker.unitId ~= unitId) then
+			return;
+		end
+		tracker:updateAuraValue();
+	end
+end
+
+--- Start tracking data
+function DHUDAuraValueTracker:startTracking()
+	-- listen to game events
+	self.eventsFrame:RegisterEvent("UNIT_AURA");
+end
+
+--- Stop tracking data
+function DHUDAuraValueTracker:stopTracking()
+	-- stop listening to game events
+	self.eventsFrame:UnregisterEvent("UNIT_AURA");
+end
+
+--- Update value for unit
+function DHUDAuraValueTracker:updateAuraValue()
+	local auraValue;
+	-- iterate over auras spellids
+	for i, v in ipairs(self.aurasToTrack) do
+		--name, rank, icon, count, dispelType, duration, expires, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff, value1, value2, value3
+		auraValue = select(15, UnitAura(self.unitId, trackingHelper:getSpellName(v)));
+		if (auraValue ~= nil) then
+			break;
+		end
+	end
+	self:setAmount(auraValue or 0);
+end
+
+--- Update maximum value for unit
+function DHUDAuraValueTracker:updateAuraValueMax()
+	self:setAmountMax(100);
+end
+
+--- Update all data for current unitId
+function DHUDAuraValueTracker:updateData()
+	self:updateAuraValue();
+	self:updateAuraValueMax();
+end
+
+--- Set auras to track by data tracker
+-- @param ... auras list, aura value tracker will stop on first found aura from this list
+function DHUDAuraValueTracker:setAurasToTrack(...)
+	self.aurasToTrack = { ... };
+end
+
+--- Set aura maximum value as percent of players health
+-- @param percent percent of players health
+function DHUDAuraValueTracker:setMaxAuraValueAsHealthPercent(percent)
+	-- save percent
+	self.maxAuraValuePercentModifier = percent;
+	-- update functions to subscribe to game events about health
+	local tracker = self;
+	-- process units max health points change event
+	function self.eventsFrame:UNIT_MAXHEALTH(unitId)
+		if (tracker.unitId ~= unitId) then
+			return;
+		end
+		tracker:updateAuraValueMax();
+	end
+	--- Update maximum value for unit
+	function self:updateAuraValueMax()
+		self:setAmountMax((UnitHealthMax(self.unitId) or 0) * self.maxAuraValuePercentModifier);
+	end
+	--- Start tracking amountMax data
+	function self:startTrackingAmountMax()
+		self.eventsFrame:RegisterEvent("UNIT_MAXHEALTH");
+	end
+	--- Update maximum amount or resource
+	function self:updateAmountMax()
+		self.eventsFrame:UNIT_MAXHEALTH(self.unitId);
+	end
+	--- Stop tracking amountMax data
+	function self:stopTrackingAmountMax()
+		self.eventsFrame:UnregisterEvent("UNIT_MAXHEALTH");
+	end
+end
+
+--- Start tracking amountMax data
+function DHUDAuraValueTracker:startTrackingAmountMax()
+	
+end
+
+--- Update maximum amount or resource
+function DHUDAuraValueTracker:updateAmountMax()
+	
+end
+
+--- Stop tracking amountMax data
+function DHUDAuraValueTracker:stopTrackingAmountMax()
+	
 end
 
 --------------------------------------------
@@ -2196,6 +2827,12 @@ DHUDSpellCastTracker = MCCreateSubClass(DHUDDataTracker, {
 	finishState			= 0,
 	-- defines interrupt type if spell was interrupted during cast
 	interruptState		= 0,
+	-- guid of the player that interrupted spell casting
+	interruptedByGuid	= "",
+	-- name of the player that interrupted spell casting
+	interruptedBy		= "",
+	-- time at which spell was interrupted in combat log
+	interruptedTime		= 0,
 	-- time at which this tracker was updated
 	timeUpdatedAt		= 0,
 	-- name of the spell being casted
@@ -2216,6 +2853,8 @@ DHUDSpellCastTracker = MCCreateSubClass(DHUDDataTracker, {
 	SPELL_INTERRUPT_STATE_KICKED = 1,
 	-- spell was interrupted by player using kick or similiar ability
 	SPELL_INTERRUPT_STATE_KICKED_BY_PLAYER = 2,
+	-- combat event frame to listen to combat events
+	combatEventsFrame				= nil,
 })
 
 --- Create new spell cast tracker, unitId should be specified after constructor
@@ -2227,6 +2866,8 @@ end
 
 --- Constructor of spell cast tracker
 function DHUDSpellCastTracker:constructor()
+	-- create combat event frame
+	self.combatEventsFrame = MCCreateBlizzCombatEventFrame();
 	-- custom events
 	self.eventDataTimersChanged = DHUDDataTrackerEvent:new(DHUDDataTrackerEvent.EVENT_DATA_TIMERS_UPDATED, self);
 	-- call super constructor
@@ -2258,7 +2899,7 @@ function DHUDSpellCastTracker:init()
 			return;
 		end
 		--print("UNIT_SPELLCAST_INTERRUPTED");
-		tracker:updateSpellCastStopReason(tracker.SPELL_FINISH_STATE_INTERRUPTED);
+		tracker:updateSpellCastInterrupt();
 	end
 	-- process unit cast interrupted
 	function self.eventsFrame:UNIT_SPELLCAST_SUCCEEDED(unitId)
@@ -2317,6 +2958,16 @@ function DHUDSpellCastTracker:init()
 			return;
 		end
 		tracker:updateSpellChannelDelay();
+	end
+	-- process combat spell interrupt event
+	function self.combatEventsFrame:SPELL_INTERRUPT(timestamp, hideCaster, sourceGUID, sourceName, sourceFlags, sourceFlags2, destGUID, destName, destFlags, destFlags2, spellId, spellName, spellSchool, extraSpellID, extraSpellName, extraSchool)
+		if (destGUID ~= trackingHelper.guids[tracker.unitId]) then
+			return;
+		end
+		tracker.interruptedByGuid = sourceGUID;
+		tracker.interruptedBy = sourceName;
+		tracker.interruptedTime = trackingHelper.timerMs;
+		tracker:updateSpellCastInterrupt();
 	end
 end
 
@@ -2483,6 +3134,24 @@ function DHUDSpellCastTracker:updateSpellCastStopReason(reason)
 	self.finishState = reason;
 end
 
+--- update interrupt of spell cast
+function DHUDSpellCastTracker:updateSpellCastInterrupt()
+	self:updateSpellCastStopReason(self.SPELL_FINISH_STATE_INTERRUPTED);
+	-- update interrupt reason
+	if (self.interruptedTime == trackingHelper.timerMs) then
+		if (self.interruptedByGuid == trackingHelper.guids[trackingHelper.playerCasterUnitId]) then
+			self.interruptState = self.SPELL_INTERRUPT_STATE_KICKED_BY_PLAYER;
+		else
+			self.interruptState = self.SPELL_INTERRUPT_STATE_KICKED;
+		end
+	else
+		self.interruptState = SPELL_INTERRUPT_STATE_CANCELED;
+	end
+	--print("self.interruptTime " .. self.interruptedTime .. ", trackingHelper.timerMs " .. trackingHelper.timerMs);
+	-- process data change
+	self:processDataChanged();
+end
+
 --- update stopping of spell cast
 function DHUDSpellCastTracker:updateSpellCastStop()
 	-- update spell cast time
@@ -2516,6 +3185,8 @@ end
 
 --- Start tracking data
 function DHUDSpellCastTracker:startTracking()
+	-- listen to combat game events
+	self.combatEventsFrame:RegisterEvent("SPELL_INTERRUPT");
 	-- listen to game events
 	self.eventsFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START");
 	self.eventsFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP");
@@ -2535,6 +3206,8 @@ end
 
 --- Stop tracking data
 function DHUDSpellCastTracker:stopTracking()
+	-- stop listen to combat game events
+	self.combatEventsFrame:UnregisterEvent("SPELL_INTERRUPT");
 	-- stop listening to game events
 	self.eventsFrame:UnregisterEvent("UNIT_SPELLCAST_CHANNEL_START");
 	self.eventsFrame:UnregisterEvent("UNIT_SPELLCAST_CHANNEL_STOP");
@@ -3220,7 +3893,12 @@ DHUDDataTrackers = {
 		---------------
 		-- Vengeance --
 		---------------
-
+		ALL.vengeanceInfo = DHUDAuraValueTracker:new();
+		ALL.vengeanceInfo:initPlayerNotInVehicleOrNoneUnitId();
+		ALL.vengeanceInfo:initPlayerSpecsOnly(trackingHelper:getTankSpecializations());
+		ALL.vengeanceInfo:setAurasToTrack(132365);
+		ALL.vengeanceInfo:setMaxAuraValueAsHealthPercent(1);
+		ALL.vengeanceInfo:setCustomResourceType(DHUDColorizeTools.COLOR_ID_TYPE_CUSTOM_VENGEANCE);
 
 		------------
 		-- Threat --
@@ -3291,7 +3969,7 @@ DHUDDataTrackers = {
 			DHUDPowerTracker.constructor(self);
 		end
 		
-		--- Initialize combo-points tracking
+		--- Initialize runes tracking
 		function DHUDRunesTracker:init()
 			local tracker = self;
 			-- process rune enabled state
@@ -3454,6 +4132,82 @@ DHUDDataTrackers = {
 		-------------
 		-- Stagger --
 		-------------
+		--- Class to track players stagger
+		local DHUDStaggerTracker = MCCreateSubClass(DHUDPowerTracker, {
+			
+		})
+		
+		--- Create new runes tracker for player and vehicle
+		function DHUDStaggerTracker:new()
+			local o = self:defconstructor();
+			o:constructor();
+			return o;
+		end
+		
+		--- Initialize stagger tracking
+		function DHUDStaggerTracker:init()
+			local tracker = self;
+			-- process units max health points change event
+			function self.eventsFrame:UNIT_MAXHEALTH(unitId)
+				if (tracker.unitId ~= unitId) then
+					return;
+				end
+				tracker:updateHealthMax();
+			end
+			-- init unit ids
+			self:initPlayerNotInVehicleOrNoneUnitId();
+			-- change resource type
+			self:setCustomResourceType(DHUDColorizeTools.COLOR_ID_TYPE_CUSTOM_STAGGER);
+		end
+
+		--- Game time updated, update unit power
+		function DHUDStaggerTracker:onUpdateTime()
+			self:updateStagger();
+		end
+
+		--- Start tracking data
+		function DHUDStaggerTracker:startTracking()
+			-- no game events currently, resource is updated by timer
+			trackingHelper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE, self, self.onUpdateTime);
+		end
+
+		--- Stop tracking data
+		function DHUDStaggerTracker:stopTracking()
+			-- no game events currently, resource is updated by timer
+			trackingHelper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE, self, self.onUpdateTime);
+		end
+
+		--- Update stagger for unit
+		function DHUDStaggerTracker:updateStagger()
+			self:setAmount(UnitStagger(self.unitId) or 0);
+		end
+
+		--- Update maximum stagger for unit
+		function DHUDStaggerTracker:updateHealthMax()
+			self:setAmountMax(UnitHealthMax(self.unitId) or 0)
+		end
+
+		--- Update all data for current unitId
+		function DHUDStaggerTracker:updateData()
+			self:updateStagger();
+			self:updateHealthMax();
+		end
+
+		--- Start tracking amountMax data
+		function DHUDStaggerTracker:startTrackingAmountMax()
+			self.eventsFrame:RegisterEvent("UNIT_MAXHEALTH");
+		end
+
+		--- Update maximum amount or resource
+		function DHUDStaggerTracker:updateAmountMax()
+			self.eventsFrame:UNIT_MAXHEALTH(self.unitId);
+		end
+
+		--- Stop tracking amountMax data
+		function DHUDStaggerTracker:stopTrackingAmountMax()
+			self.eventsFrame:UnregisterEvent("UNIT_MAXHEALTH");
+		end
+		MONK.selfStagger = DHUDStaggerTracker:new();
 	end,
 	-- trackers that are used by warlock
 	WARLOCK = { },
@@ -3512,6 +4266,17 @@ DHUDDataTrackers = {
 		PRIEST.selfShadowOrbs:setResourceType(13, "SHADOW_ORBS");
 		PRIEST.selfShadowOrbs:initPlayerNotInVehicleOrNoneUnitId();
 		PRIEST.selfShadowOrbs.updateFrequently = false;
+	end,
+	-- trackers that are used by shaman
+	SHAMAN = { },
+	fillSHAMAN = function(self, charclass)
+		-- fill table with trackers
+		local SHAMAN = self.SHAMAN;
+		------------
+		-- Totems --
+		------------
+		SHAMAN.selfTotems = DHUDGuardiansTracker:new();
+		SHAMAN.selfTotems:initPlayerNotInVehicleOrNoneUnitId();
 	end,
 	-- reference to data helper
 	helper = nil,
