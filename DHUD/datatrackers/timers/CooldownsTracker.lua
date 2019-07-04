@@ -306,24 +306,28 @@ function DHUDCooldownsTracker:updatePetCooldowns()
 			--print("i " .. i .. ", spellType " .. MCTableToString(spellType) .. ", petActionId " .. MCTableToString(petActionId) .. ", autocastEnabled " .. MCTableToString(autocastEnabled));
 			if (not autocastEnabled) then
 				name = GetSpellBookItemName(i, BOOKTYPE_PET);
-				spellData = trackingHelper:getSpellData(name, true);
-				--texture = GetSpellBookItemTexture(i, BOOKTYPE_PET);
-				-- check usual cooldown
-				startTime, duration, enable = GetSpellCooldown(i, BOOKTYPE_PET);
-				-- valid cooldown?
-				if (startTime ~= nil and duration > 1.5) then
-					--print("filling spelldId " .. MCTableToString(petActionId) .. ", name " .. MCTableToString(spellData[1]) .. ", texture " .. MCTableToString(spellData[3]));
-					cooldownId = cooldownId + 1;
-					timer = self:findTimer(cooldownId, petActionId);
-					-- fill timer info, { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder }
-					timer[1] = self.TIMER_TYPE_MASK_PETSPELL + self.TIMER_TYPE_MASK_ACTIVE; -- type
-					timer[2] = startTime + duration - timerMs; -- timeLeft
-					timer[3] = duration; -- duration
-					timer[4] = petActionId; -- id
-					timer[5] = spellData[7]; -- tooltipId
-					timer[6] = name; -- spellData[1]; -- name
-					timer[7] = 1; -- stacks
-					timer[8] = spellData[3]; -- texture
+				if (name ~= nil) then -- spell data is not yet available to WoW Client
+					spellData = trackingHelper:getSpellData(name, true);
+					--texture = GetSpellBookItemTexture(i, BOOKTYPE_PET);
+					-- check usual cooldown
+					startTime, duration, enable = GetSpellCooldown(i, BOOKTYPE_PET);
+					-- valid cooldown?
+					if (startTime ~= nil and duration > 1.5) then
+						--print("filling spelldId " .. MCTableToString(petActionId) .. ", bookname " .. name .. ", name " .. MCTableToString(spellData[1]) .. ", texture " .. MCTableToString(spellData[3]));
+						cooldownId = cooldownId + 1;
+						timer = self:findTimer(cooldownId, petActionId);
+						-- fill timer info, { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder }
+						timer[1] = self.TIMER_TYPE_MASK_PETSPELL + self.TIMER_TYPE_MASK_ACTIVE; -- type
+						timer[2] = startTime + duration - timerMs; -- timeLeft
+						timer[3] = duration; -- duration
+						timer[4] = petActionId; -- id
+						timer[5] = spellData[7]; -- tooltipId
+						timer[6] = name; -- spellData[1]; -- name
+						timer[7] = 1; -- stacks
+						timer[8] = spellData[3]; -- texture
+					end
+				else
+					--print("i " .. i .. ", spellType " .. MCTableToString(spellType) .. ", petActionId " .. MCTableToString(petActionId) .. ", name is nil: " .. MCTableToString(name));
 				end
 			end
 		end

@@ -46,6 +46,9 @@
 -other textures support (renetair from DHUD4)
 -add option to place cast info under bar
 
+changelog 2.0.80000.61:
+- fixed error with pet cooldowns tracking when info for spell is not available
+
 changelog 2.0.80000.60:
 - fixed pet cooldowns tracking
 - fixed vehicle combo points tracking
