@@ -4592,8 +4592,6 @@ DHUDSideInfoManager = MCCreateSubClass(DHUDGuiSlotManager, {
 	STATIC_colorizePlayerShortDebuffs = false,
 	-- defines if player cooldowns lock should be colorized
 	STATIC_colorizePlayerCooldownsLock = false,
-	-- defines if player combo-points should be shown in stored state
-	STATIC_storeComboPoints = false,
 	-- type of the timers to be shown in spell circles
 	timersType = 3,
 	-- reference to timers colorize function
@@ -4637,20 +4635,13 @@ function DHUDSideInfoManager:STATIC_onColorizePlayerCooldownsLockSettingChange(e
 	self.STATIC_colorizePlayerCooldownsLock = DHUDSettings:getValue("shortAurasOptions_colorizeCooldownsLock");
 end
 
---- show stored combopoints setting has changed
-function DHUDSideInfoManager:STATIC_onComboPointsStoreSettingChange(e)
-	self.STATIC_storeComboPoints = DHUDSettings:getValue("misc_storeComboPoints");
-end
-
 --- Initialize DHUDGuiBarManager static values
 function DHUDSideInfoManager:STATIC_init()
 	-- listen to settings change events
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "shortAurasOptions_colorizePlayerDebuffs", self, self.STATIC_onColorizePlayerDebuffsSettingChange);
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "shortAurasOptions_colorizeCooldownsLock", self, self.STATIC_onColorizePlayerCooldownsLockSettingChange);
-	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "misc_storeComboPoints", self, self.STATIC_onComboPointsStoreSettingChange);
 	self:STATIC_onColorizePlayerDebuffsSettingChange(nil);
 	self:STATIC_onColorizePlayerCooldownsLockSettingChange(nil);
-	self:STATIC_onComboPointsStoreSettingChange(nil);
 end
 
 --- Create new side info manager
@@ -4957,9 +4948,6 @@ end
 --- Function to update combo-points data
 function DHUDSideInfoManager:updateComboPoints()
 	local amount = self.currentDataTracker.amount;
-	if ((not self.STATIC_storeComboPoints) and self.currentDataTracker.isStoredAmount) then
-		amount = 0;
-	end
 	local amountExtra = self.currentDataTracker.amountExtra;
 	local total = amount + amountExtra;
 	-- update colors
@@ -5030,7 +5018,7 @@ function DHUDSideInfoManager:onDataTrackerChange(e)
 		self.updateFuncTime = self.updateNilTime;
 		self:setCurrentGroup(self.comboPointsGroup);
 		-- switch by type
-		if (self.currentDataTracker == DHUDDataTrackers.ALL.selfComboPoints) then
+		if (self.currentDataTracker == DHUDDataTrackers.ALL.selfComboPoints or self.currentDataTracker == DHUDDataTrackers.ALL.vehicleComboPoints) then
 			self.updateFunc = self.updateComboPoints;
 			self:changeComboPointColors(self.COMBO_POINT_COLOR_DEFAULT);
 		else

@@ -282,9 +282,6 @@ L["SETTING_MISC_SHOWPLAYERCASTINFO_TOOLTIP"] = "If checked then cast info will b
 L["SETTING_MISC_ALWAYSSHOWCASTBARBACKGROUND"] = "施法條背景";
 L["SETTING_MISC_ALWAYSSHOWCASTBARBACKGROUND_TOOLTIP"] = "If checked then cast bars will draw background texture beneath them regardless of unit ability to cast";
 
-L["SETTING_MISC_STORECOMBOPOINTS"] = "Store Combo-Points";
-L["SETTING_MISC_STORECOMBOPOINTS_TOOLTIP"] = "If checked then DHUD will show stored amount of combo-points with reduced alpha.\nCombo-points are stored when changing target and will be cleared after 30 secs of leaving combat.";
-
 L["SETTING_MISC_SHOWMILLISECONDS"] = "Show milliseconds";
 L["SETTING_MISC_SHOWMILLISECONDS_TOOLTIP"] = "If checked then milliseconds will be shown when formatting time numbers.";
 
@@ -379,6 +376,7 @@ L["SETTING_LAYOUTS_DATA_SOURCES"] = {
 	["playerCastBar"] = "玩家: 施法資訊",
 	["targetCastBar"] = "寵物: 施法資訊",
 	["playerComboPoints"] = "玩家: 連擊點數",
+	["vehicleComboPoints"] = "Vehicle: Combo-Points",
 	["playerCooldowns"] = "玩家: 法術與物品冷卻",
 	["playerShortAuras"] = "玩家: Short Auras",
 	["targetShortAuras"] = "目標: Short Auras",

@@ -774,6 +774,16 @@ function DHUDDataTracker:initPlayerInVehicleOrNoneUnitId()
 	trackingHelper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_VEHICLE_STATE_CHANGED, self, self.onVehicleEvent);
 end
 
+--- set vehicle unit id for this tracker
+function DHUDDataTracker:initVehicleOrNoneUnitId()
+	function self:onVehicleEvent(e)
+		self:setUnitId(trackingHelper.isInVehicle and "vehicle" or "");
+	end
+	self.trackUnitId = "player";
+	self:onVehicleEvent(nil);
+	trackingHelper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_VEHICLE_STATE_CHANGED, self, self.onVehicleEvent);
+end
+
 --- set player in vehicle unit id for this tracker
 function DHUDDataTracker:initPlayerNotInVehicleOrNoneUnitId()
 	function self:onVehicleEvent(e)
@@ -882,7 +892,7 @@ DHUDPowerTracker = MCCreateSubClass(DHUDDataTracker, {
 		[1]		= "RAGE",
 		[2]		= "FOCUS",
 		[3]		= "ENERGY",
-		[4]		= "HAPPINESS",
+		[4]		= "COMBO_POINTS",
 		[5]		= "RUNES",
 		[6]		= "RUNIC_POWER",
 		[7]		= "SOUL_SHARDS",
@@ -902,6 +912,7 @@ DHUDPowerTracker = MCCreateSubClass(DHUDDataTracker, {
 		["FOCUS"]			= 1,
 		["SOUL_SHARDS"]		= 1,
 		["DEMONIC_FURY"]	= 0.2,
+		["BURNING_EMBERS"]	= 0.25,
 	},
 	-- table with min percents for resource types, all unset resource types will be treated as 0
 	MIN_PERCENT_FOR_RESOURCE_TYPE = {
@@ -3609,6 +3620,142 @@ function DHUDSelfInfoTracker:updateData()
 	DHUDUnitInfoTracker.updateData(self);
 end
 
+---------------------------------
+-- Player Combo-points Tracker --
+---------------------------------
+--- Class to track players combopoints
+local DHUDPlayerComboPointsTracker = MCCreateSubClass(DHUDSpecificPowerTracker, {
+	-- maximum of 5 combo-points
+	amountMax			= 5,
+	-- default maximum of 5 combo-points
+	amountMaxDefault	= 5,
+	-- default base of 0 combo-points
+	amountBase			= 0,
+	-- spell id of the rogue buff for bonus combo-points
+	SPELLID_ROGUE_ANTICIPATION = 115189,
+})
+		
+--- Create new combo points tracker for player and vehicle
+function DHUDPlayerComboPointsTracker:new()
+	local o = self:defconstructor();
+	o:constructor();
+	return o;
+end
+		
+--- Initialize combo-points tracking
+function DHUDPlayerComboPointsTracker:init()
+	local tracker = self;
+	-- call super
+	DHUDSpecificPowerTracker.init(self);
+	-- set unit power type
+	self:setResourceType(4, "COMBO_POINTS");
+	-- combopoints available only for druid and rogue
+	if (trackingHelper.playerClass == "ROGUE" or trackingHelper.playerClass == "DRUID") then
+		self:initPlayerNotInVehicleOrNoneUnitId();
+	end
+	-- process aura changing and data update for rogues
+	if (trackingHelper.playerClass == "ROGUE") then
+		function self.eventsFrame:UNIT_AURA(unitId)
+			if (unitId == tracker.unitId) then
+				tracker:updateRogueAnticipation();
+			end
+		end
+		--- Update all data for current unitId
+		function self:updateData()
+			self:updateRogueAnticipation();
+			-- call super
+			DHUDSpecificPowerTracker.updateData(self);
+		end
+	end
+end
+
+--- Start tracking data
+function DHUDPlayerComboPointsTracker:startTracking()
+	-- listen to game events
+	if (trackingHelper.playerClass == "ROGUE") then
+		self.eventsFrame:RegisterEvent("UNIT_AURA");
+	end
+	-- call super
+	DHUDSpecificPowerTracker.startTracking(self);
+end
+
+--- Stop tracking data
+function DHUDPlayerComboPointsTracker:stopTracking()
+	-- stop listening to game events
+	if (trackingHelper.playerClass == "ROGUE") then
+		self.eventsFrame:UnregisterEvent("UNIT_AURA");
+	end
+	-- call super
+	DHUDSpecificPowerTracker.stopTracking(self);
+end
+
+--- Update number of rogue anticipation stacks
+function DHUDPlayerComboPointsTracker:updateRogueAnticipation()
+	-- add anticipation for rogues
+	if (self.amountExtra > 0 or self.amount >= self.amountMax) then
+		local buffcount;
+		_, _, _, buffcount = UnitBuff(self.unitId, trackingHelper:getSpellName(self.SPELLID_ROGUE_ANTICIPATION));
+		if (buffcount) then
+			self:setAmountExtra(buffcount);
+		else
+			self:setAmountExtra(0);
+		end
+	end
+end
+
+-----------------------------------------
+-- Vehicle Combo-points Tracker --
+-----------------------------------------
+--- Class to track vehicle combopoints
+local DHUDVehicleComboPointsTracker = MCCreateSubClass(DHUDPowerTracker, {
+	-- maximum of 5 combo-points
+	amountMax			= 5,
+	-- default maximum of 5 combo-points
+	amountMaxDefault	= 5,
+	-- default base of 0 combo-points
+	amountBase			= 0,
+})
+		
+--- Create new combo points tracker for player and vehicle
+function DHUDVehicleComboPointsTracker:new()
+	local o = self:defconstructor();
+	o:constructor();
+	return o;
+end
+		
+--- Initialize combo-points tracking
+function DHUDVehicleComboPointsTracker:init()
+	local tracker = self;
+	-- process combo point event
+	function self.eventsFrame:UNIT_COMBO_POINTS()
+		tracker:updateComboPoints();
+	end
+	-- init unit ids
+	self:initVehicleOrNoneUnitId();
+end
+
+--- Start tracking data
+function DHUDVehicleComboPointsTracker:startTracking()
+	-- listen to game events
+	self.eventsFrame:RegisterEvent("UNIT_COMBO_POINTS");
+end
+
+--- Stop tracking data
+function DHUDVehicleComboPointsTracker:stopTracking()
+	-- stop listening to game events
+	self.eventsFrame:UnregisterEvent("UNIT_COMBO_POINTS");
+end
+
+--- Update combopoints data
+function DHUDVehicleComboPointsTracker:updateComboPoints()
+	self:setAmount(GetComboPoints(self.unitId, "target"));
+end
+
+--- Update all data for current unitId
+function DHUDVehicleComboPointsTracker:updateData()
+	self:updateComboPoints();
+end
+
 --------------------
 -- Trackers table --
 --------------------
@@ -3620,198 +3767,16 @@ DHUDDataTrackers = {
 	fillAll = function(self, charclass)
 		-- fill table with trackers
 		local ALL = self.ALL;
-		---------------------------------
-		-- Player/Vehicle Combo-points --
-		---------------------------------
-		--- Class to track players and vehicle combopoints
-		local DHUDComboPointsTracker = MCCreateSubClass(DHUDPowerTracker, {
-			-- number of combo points on previous api call, to reduce number of calls
-			comboPoints			= 0,
-			-- amount of stored combopoints (not on current target)
-			storedCP			= 0,
-			-- fade time at which stored cp will fade (0 means that they should not fade)
-			storedCPFadeTime	= 0,
-			-- defines if we are waiting for stored cp to fade
-			storedCPFadeTimeWaiting = false,
-			-- defines if current amount variable refers to stored combo-points
-			isStoredAmount		= false,
-			-- maximum of 5 combo-points
-			amountMax			= 5,
-			-- default maximum of 5 combo-points
-			amountMaxDefault	= 5,
-			-- default base of 0 combo-points
-			amountBase			= 0,
-			-- spell id of the rogue buff for bonus combo-points
-			SPELLID_ROGUE_ANTICIPATION = 115189,
-		})
-		
-		--- Create new combo points tracker for player and vehicle
-		function DHUDComboPointsTracker:new()
-			local o = self:defconstructor();
-			o:constructor();
-			return o;
-		end
-		
-		--- Initialize combo-points tracking
-		function DHUDComboPointsTracker:init()
-			local tracker = self;
-			-- process combo point event
-			function self.eventsFrame:UNIT_COMBO_POINTS()
-				--print("combo points event");
-				tracker.storedCP = tracker:getComboPoints();
-				tracker.storedCPFadeTime = 0; -- stored cp should not fade after we receive them
-				tracker:updateComboPoints(tracker.storedCP);
-			end
-			-- process aura removing for rogues
-			if (trackingHelper.playerClass == "ROGUE") then
-				function self.eventsFrame:UNIT_AURA(unitId)
-					if (tracker.amountExtra > 0 and unitId == tracker.unitId) then
-						tracker:updateComboPoints(tracker.comboPoints);
-					end
-				end
-			end
-			-- init unit ids
-			self:initPlayerOrVehicleUnitId();
-			self:prepareTargetChangeTracking();
-		end
+		-------------------------
+		-- Player Combo Points --
+		-------------------------
+		ALL.selfComboPoints = DHUDPlayerComboPointsTracker:new();
 
-		--- Start tracking data
-		function DHUDComboPointsTracker:startTracking()
-			-- listen to game events
-			self.eventsFrame:RegisterEvent("UNIT_COMBO_POINTS");
-			if (trackingHelper.playerClass == "ROGUE") then
-				self.eventsFrame:RegisterEvent("UNIT_AURA");
-			end
-			trackingHelper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_COMBAT_STATE_CHANGED, self, self.onCombatState);
-			trackingHelper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_TARGET_UPDATED, self, self.onTargetEvent);
-		end
+		--------------------------
+		-- Vehicle Combo Points --
+		--------------------------
+		ALL.vehicleComboPoints = DHUDVehicleComboPointsTracker:new();
 
-		--- Stop tracking data
-		function DHUDComboPointsTracker:stopTracking()
-			-- stop listening to game events
-			self.eventsFrame:UnregisterEvent("UNIT_COMBO_POINTS");
-			if (trackingHelper.playerClass == "ROGUE") then
-				self.eventsFrame:UnregisterEvent("UNIT_AURA");
-			end
-			trackingHelper:removeEventListener(DHUDDataTrackerHelperEvent.EVENT_COMBAT_STATE_CHANGED, self, self.onCombatState);
-			trackingHelper:removeEventListener(DHUDDataTrackerHelperEvent.EVENT_TARGET_UPDATED, self, self.onTargetEvent);
-		end
-
-		-- set custom combopoints function based on class
-		if (charclass == "ROGUE") then
-			function DHUDComboPointsTracker:updateComboPoints(cpAmount)
-				local isStoredAmount = false;
-				if (cpAmount == 0) then
-					cpAmount = self.storedCP;
-					isStoredAmount = (cpAmount ~= 0);
-				end
-				-- add anticipation for rogues
-				if (self.amountExtra > 0 or cpAmount >= self.amountMax) then
-					self:setAmountExtra(self:getRogueAnticipation());
-				end
-				-- save is stored bool
-				if (self.isStoredAmount ~= isStoredAmount) then
-					self.isStoredAmount = isStoredAmount;
-					self:processDataChanged();
-				end
-				-- save amount
-				self:setAmount(cpAmount);
-				--print("ComboPoints updated: " .. self.amount .. ", isStored: " .. (self.isStoredAmount and "true" or "false") .. ", extra: " .. self.amountExtra);
-			end
-		else
-			function DHUDComboPointsTracker:updateComboPoints(cpAmount)
-				local isStoredAmount = (cpAmount == 0);
-				if (isStoredAmount) then
-					cpAmount = self.storedCP;
-				end
-				-- save is stored bool
-				if (self.isStoredAmount ~= isStoredAmount) then
-					self.isStoredAmount = isStoredAmount;
-					self:processDataChanged();
-				end
-				-- save amount
-				self:setAmount(cpAmount);
-				--print("ComboPoints updated: " .. self.amount .. ", isStored: " .. (self.isStoredAmount and "true" or "false"));
-			end
-		end
-
-		-- special check if exists function for druid and rogue
-		if (charclass == "ROGUE" or charclass == "DRUID") then
-			-- default setUnitId
-		else
-			function DHUDComboPointsTracker:checkIsExists()
-				if (not DHUDDataTracker.checkIsExists(self)) then -- call super
-					return false;
-				end
-				return (self.unitId ~= "player");
-			end
-		end
-		
-		--- Combat state changed event, start stored combopoints fade timer to clear stored combopoints after 30 secs of leaving combat and not generating new
-		function DHUDComboPointsTracker:onCombatState(e)
-			if (not trackingHelper.isInCombat and self.storedCP >= 0) then
-				if (not self.storedCPFadeTimeWaiting) then
-					self.storedCPFadeTimeWaiting = true;
-					trackingHelper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE_INFREQUENT, self, self.onStoredCPFadeTick);
-				end
-				-- set fade time to current + 30 sec
-				self.storedCPFadeTime = trackingHelper.timerMs + 30.0;
-			end
-		end
-		
-		--- Stored combo points fade tick
-		function DHUDComboPointsTracker:onStoredCPFadeTick(e)
-			-- 30 sec passed since leaving combat?
-			if (trackingHelper.timerMs >= self.storedCPFadeTime) then
-				if (self.storedCPFadeTime ~= 0) then
-					self.storedCP = 0;
-					self:updateComboPoints(self:getComboPoints());
-				end
-				self.storedCPFadeTime = 0;
-			end
-			-- remove time listener
-			if (self.storedCPFadeTime == 0) then
-				self.storedCPFadeTimeWaiting = false;
-				trackingHelper:removeEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE_INFREQUENT, self, self.onStoredCPFadeTick);
-			end
-		end
-
-		--- Update all data for current unitId
-		function DHUDComboPointsTracker:updateData()
-			self.storedCP = 0;
-			self:updateComboPoints(self:getComboPoints());
-		end
-
-		--- target changed event by helper, non-default behaviour
-		function DHUDComboPointsTracker:processTargetChanged()
-			local points = self:getComboPoints();
-			if (points > 0) then
-				self.storedCP = points;
-			else
-				-- start combo fade timer, no need to show them endlessly
-				self:onCombatState(nil);
-			end
-			self:updateComboPoints(points);
-		end
-		
-		--- Get number of combo points on target
-		-- @return number of combo-points
-		function DHUDComboPointsTracker:getComboPoints()
-			self.comboPoints = GetComboPoints(self.unitId, "target");
-			return self.comboPoints;
-		end
-		
-		--- Get number of rogue anticipation stacks
-		-- @return number of rogue anticipation stacks
-		function DHUDComboPointsTracker:getRogueAnticipation()
-			local buffcount;
-			_, _, _, buffcount = UnitBuff(self.unitId, trackingHelper:getSpellName(self.SPELLID_ROGUE_ANTICIPATION));
-			if (buffcount) then
-				return buffcount;
-			end
-			return 0;
-		end
-		ALL.selfComboPoints = DHUDComboPointsTracker:new();
 		---------------------------
 		-- Player/Vehicle Health --
 		---------------------------
@@ -3896,8 +3861,8 @@ DHUDDataTrackers = {
 		ALL.vengeanceInfo = DHUDAuraValueTracker:new();
 		ALL.vengeanceInfo:initPlayerNotInVehicleOrNoneUnitId();
 		ALL.vengeanceInfo:initPlayerSpecsOnly(trackingHelper:getTankSpecializations());
-		ALL.vengeanceInfo:setAurasToTrack(132365);
-		ALL.vengeanceInfo:setMaxAuraValueAsHealthPercent(1);
+		ALL.vengeanceInfo:setAurasToTrack(158300); -- old vengeance 132365
+		ALL.vengeanceInfo:setAmountMax(200); -- max value is in percent
 		ALL.vengeanceInfo:setCustomResourceType(DHUDColorizeTools.COLOR_ID_TYPE_CUSTOM_VENGEANCE);
 
 		------------
@@ -4264,6 +4229,7 @@ DHUDDataTrackers = {
 		-----------------
 		PRIEST.selfShadowOrbs = DHUDSpecificPowerTracker:new();
 		PRIEST.selfShadowOrbs:setResourceType(13, "SHADOW_ORBS");
+		PRIEST.selfShadowOrbs:initPlayerSpecsOnly(3);
 		PRIEST.selfShadowOrbs:initPlayerNotInVehicleOrNoneUnitId();
 		PRIEST.selfShadowOrbs.updateFrequently = false;
 	end,

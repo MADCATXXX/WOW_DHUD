@@ -494,7 +494,6 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				19263, -- Hunter: Deterrence, prevents all damage to target
 				45438, -- Mage: Ice block, prevents all damage to target
 				108978, -- Mage: Alter Time, reverts all damage done to target after 6 seconds
-				--122464, -- Monk: Dematerialize, causes all abilities to miss
 				1022, -- Paladin: Hand of protection, prevents physical damage to target
 				642, -- Paladin: Divine Shield, prevents all damage to target
 				47585, -- Priest: Dispersion, reduces damage by 90%
@@ -609,7 +608,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			-- data that can be shown on cast bars
 			["castBars"] = { "playerCastBar", "targetCastBar" },
 			-- data that can be shown on side slots
-			["sideSlots"] = { "playerComboPoints", "playerShortAuras", "targetShortAuras", "playerCooldowns", "monkChi", "warlockSoulShards", "paladinHolyPower", "priestShadowOrbs", "deathKnightRunes", "shamanTotems" },
+			["sideSlots"] = { "vehicleComboPoints", "playerComboPoints", "playerShortAuras", "targetShortAuras", "playerCooldowns", "monkChi", "warlockSoulShards", "paladinHolyPower", "priestShadowOrbs", "deathKnightRunes", "shamanTotems" },
 			-- data that can be shown on spell rectangles
 			["spellRectangles"] = { "targetBuffs", "targetDebuffs" },
 			-- data that can be shown in unit info frames
@@ -654,7 +653,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 					-- what to show on outer right big cast bar
 					["rightBigCastBar2"] = { "targetCastBar" },
 					-- what to show on the left outer side info
-					["leftOuterSideInfo"] = { "playerComboPoints" },
+					["leftOuterSideInfo"] = { "vehicleComboPoints" },
 					-- what to show on the left inner side info
 					["leftInnerSideInfo"] = { "playerCooldowns" },
 					-- what to show on the right outer side info
@@ -681,15 +680,22 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				},
 				-- druid overrides
 				["DRUID"] = {
+					-- what to show on the left outer side info
+					["leftOuterSideInfo"] = { "playerComboPoints", "vehicleComboPoints" },
 					-- what to show on inner left small bar
 					["leftSmallBar1"] = { "characterInVehicleHealth", "tankVengeance", "petHealth" },
 					-- what to show on inner right small bar
 					["rightSmallBar1"] = { "characterInVehiclePower", "druidMana", "druidEclipse", "petPower" },
 				},
+				-- rogue overrides
+				["ROGUE"] = {
+					-- what to show on the left outer side info
+					["leftOuterSideInfo"] = { "playerComboPoints", "vehicleComboPoints" },
+				},
 				-- monk overrides
 				["MONK"] = {
 					-- what to show on the left outer side info
-					["leftOuterSideInfo"] = { "monkChi", "playerComboPoints" },
+					["leftOuterSideInfo"] = { "monkChi", "vehicleComboPoints" },
 					-- what to show on inner left small bar
 					["leftSmallBar1"] = { "characterInVehicleHealth", "monkStagger", "petHealth" },
 					-- what to show on inner right small bar
@@ -698,7 +704,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				-- warlock overrides
 				["WARLOCK"] = {
 					-- what to show on the left outer side info
-					["leftOuterSideInfo"] = { "warlockSoulShards", "playerComboPoints" },
+					["leftOuterSideInfo"] = { "warlockSoulShards", "vehicleComboPoints" },
 					-- what to show on inner right small bar
 					["rightSmallBar1"] = { "characterInVehiclePower", "warlockBurningEmbers", "warlockDemonicFury", "petPower" },
 				},
@@ -710,26 +716,26 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				-- paladin overrides
 				["PALADIN"] = {
 					-- what to show on the left outer side info
-					["leftOuterSideInfo"] = { "paladinHolyPower", "playerComboPoints" },
+					["leftOuterSideInfo"] = { "paladinHolyPower", "vehicleComboPoints" },
 					-- what to show on inner right small bar
 					["rightSmallBar1"] = { "characterInVehiclePower", "tankVengeance", "petPower" },
 				},
 				-- priest overrides
 				["PRIEST"] = {
 					-- what to show on the left outer side info
-					["leftOuterSideInfo"] = { "priestShadowOrbs", "playerComboPoints" },
+					["leftOuterSideInfo"] = { "priestShadowOrbs", "vehicleComboPoints" },
 				},
 				-- death knight overrides
 				["DEATHKNIGHT"] = {
 					-- what to show on the left outer side info
-					["leftOuterSideInfo"] = { "deathKnightRunes", "playerComboPoints" },
+					["leftOuterSideInfo"] = { "deathKnightRunes", "vehicleComboPoints" },
 					-- what to show on inner right small bar
 					["rightSmallBar1"] = { "characterInVehiclePower", "tankVengeance", "petPower" },
 				},
 				-- shaman overrides
 				["SHAMAN"] = {
 					-- what to show on the left outer side info
-					["leftOuterSideInfo"] = { "shamanTotems", "playerComboPoints" },
+					["leftOuterSideInfo"] = { "shamanTotems", "vehicleComboPoints" },
 				},
 			},
 			-- layout that shows player on the left and target on the right
@@ -764,7 +770,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 					-- what to show on the left inner side info
 					["leftInnerSideInfo"] = { "targetShortAuras" },
 					-- what to show on the right outer side info
-					["rightOuterSideInfo"] = { "playerComboPoints" },
+					["rightOuterSideInfo"] = { "vehicleComboPoints" },
 					-- what to show on the right inner side info
 					["rightInnerSideInfo"] = { "playerCooldowns" },
 					-- what to show on the top unit info plate
@@ -787,15 +793,22 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				},
 				-- druid overrides
 				["DRUID"] = {
+					-- what to show on the left outer side info
+					["rightOuterSideInfo"] = { "playerComboPoints", "vehicleComboPoints" },
 					-- what to show on inner left small bar
 					["leftSmallBar1"] = { "characterInVehiclePower", "druidMana", "druidEclipse", "petPower" },
 					-- what to show on outer left small bar
 					["leftSmallBar2"] = { "characterInVehicleHealth", "tankVengeance", "petHealth" },
 				},
+				-- rogue overrides
+				["ROGUE"] = {
+					-- what to show on the left outer side info
+					["rightOuterSideInfo"] = { "playerComboPoints", "vehicleComboPoints" },
+				},
 				-- druid overrides
 				["MONK"] = {
 					-- what to show on the left outer side info
-					["rightOuterSideInfo"] = { "monkChi", "playerComboPoints" },
+					["rightOuterSideInfo"] = { "monkChi", "vehicleComboPoints" },
 					-- what to show on inner left small bar
 					["leftSmallBar1"] = { "characterInVehiclePower", "tankVengeance", "monkMana", "petPower" },
 					-- what to show on outer left small bar
@@ -804,7 +817,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				-- warlock overrides
 				["WARLOCK"] = {
 					-- what to show on the left outer side info
-					["rightOuterSideInfo"] = { "warlockSoulShards", "playerComboPoints" },
+					["rightOuterSideInfo"] = { "warlockSoulShards", "vehicleComboPoints" },
 					-- what to show on inner left small bar
 					["leftSmallBar1"] = { "characterInVehiclePower", "warlockBurningEmbers", "warlockDemonicFury", "petPower" },
 					-- what to show on outer left small bar
@@ -820,7 +833,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				-- paladin overrides
 				["PALADIN"] = {
 					-- what to show on the left outer side info
-					["rightOuterSideInfo"] = { "paladinHolyPower", "playerComboPoints" },
+					["rightOuterSideInfo"] = { "paladinHolyPower", "vehicleComboPoints" },
 					-- what to show on inner left small bar
 					["leftSmallBar1"] = { "characterInVehiclePower", "tankVengeance", "petPower" },
 					-- what to show on outer left small bar
@@ -829,12 +842,12 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				-- priest overrides
 				["PRIEST"] = {
 					-- what to show on the left outer side info
-					["rightOuterSideInfo"] = { "priestShadowOrbs", "playerComboPoints" },
+					["rightOuterSideInfo"] = { "priestShadowOrbs", "vehicleComboPoints" },
 				},
 				-- death knight overrides
 				["DEATHKNIGHT"] = {
 					-- what to show on the left outer side info
-					["rightOuterSideInfo"] = { "deathKnightRunes", "playerComboPoints" },
+					["rightOuterSideInfo"] = { "deathKnightRunes", "vehicleComboPoints" },
 					-- what to show on inner left small bar
 					["leftSmallBar1"] = { "characterInVehiclePower", "tankVengeance", "petPower" },
 					-- what to show on outer left small bar
@@ -843,7 +856,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				-- shaman overrides
 				["SHAMAN"] = {
 					-- what to show on the left outer side info
-					["rightOuterSideInfo"] = { "shamanTotems", "playerComboPoints" },
+					["rightOuterSideInfo"] = { "shamanTotems", "vehicleComboPoints" },
 				},
 			},
 		}, 2 },
@@ -861,8 +874,6 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			["showPlayerCastBarInfo"] = { false, 0 },
 			-- allows to show background behind cast bars even if unit wasn't casting any spells
 			["alwaysShowCastBarBackground"] = { false, 0 },
-			-- allows to store combo-points on targets that are no longer selected
-			["storeComboPoints"] = { true, 0 },
 			-- allows to show DHUD icon on minimap
 			["minimapIcon"] = { true, 0 },
 			-- allows to hide DHUD during pet battles
@@ -1315,6 +1326,7 @@ function DHUDSettings:mapDataTrackers()
 	trackersTable["characterInVehiclePower"] = { DHUDDataTrackers.ALL.selfCharInVehiclePower };
 	trackersTable["petPower"] = { DHUDDataTrackers.ALL.petPower };
 	trackersTable["playerComboPoints"] = { DHUDDataTrackers.ALL.selfComboPoints };
+	trackersTable["vehicleComboPoints"] = { DHUDDataTrackers.ALL.vehicleComboPoints };
 	trackersTable["playerCooldowns"] = { DHUDDataTrackers.ALL.selfCooldowns, DHUDTimersFilterHelperSettingsHandler.filterPlayerCooldowns };
 	trackersTable["playerShortAuras"] = { DHUDDataTrackers.ALL.selfAuras, DHUDTimersFilterHelperSettingsHandler.filterPlayerShortAuras };
 	trackersTable["targetShortAuras"] = { DHUDDataTrackers.ALL.targetAuras, DHUDTimersFilterHelperSettingsHandler.filterTargetShortAuras };

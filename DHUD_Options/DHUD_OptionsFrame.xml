@@ -1025,21 +1025,10 @@
 									<Attribute name="SETTING" value="misc_alwaysShowCastBarBackground" />
 								</Attributes>
 							</CheckButton>
-							<CheckButton name="$parent_StoreComboPointsCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
-								<Anchors>
-									<Anchor point="TOPLEFT">
-										<Offset x="335" y="-354" />
-									</Anchor>
-								</Anchors>
-								<Attributes>
-									<Attribute name="LTEXT" value="SETTING_MISC_STORECOMBOPOINTS" />
-									<Attribute name="SETTING" value="misc_storeComboPoints" />
-								</Attributes>
-							</CheckButton>
 							<CheckButton name="$parent_ShowMillisecondsCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="335" y="-385" />
+										<Offset x="335" y="-354" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -1050,7 +1039,7 @@
 							<CheckButton name="$parent_ShortNumbersCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="335" y="-416" />
+										<Offset x="335" y="-385" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -1061,7 +1050,7 @@
 							<CheckButton name="$parent_MinimapCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="335" y="-447" />
+										<Offset x="335" y="-416" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -1072,7 +1061,7 @@
 							<CheckButton name="$parent_HideInPetBattlesCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="335" y="-473" />
+										<Offset x="335" y="-447" />
 									</Anchor>
 								</Anchors>
 								<Attributes>

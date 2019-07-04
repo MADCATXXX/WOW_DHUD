@@ -280,9 +280,6 @@ L["SETTING_MISC_SHOWPLAYERCASTINFO_TOOLTIP"] = "If checked then cast info will b
 L["SETTING_MISC_ALWAYSSHOWCASTBARBACKGROUND"] = "Cast Bars Background";
 L["SETTING_MISC_ALWAYSSHOWCASTBARBACKGROUND_TOOLTIP"] = "If checked then cast bars will draw background texture beneath them regardless of unit ability to cast";
 
-L["SETTING_MISC_STORECOMBOPOINTS"] = "Store Combo-Points";
-L["SETTING_MISC_STORECOMBOPOINTS_TOOLTIP"] = "If checked then DHUD will show stored amount of combo-points with reduced alpha.\nCombo-points are stored when changing target and will be cleared after 30 secs of leaving combat.";
-
 L["SETTING_MISC_SHOWMILLISECONDS"] = "Show milliseconds";
 L["SETTING_MISC_SHOWMILLISECONDS_TOOLTIP"] = "If checked then milliseconds will be shown when formatting time numbers.";
 
@@ -380,6 +377,7 @@ L["SETTING_LAYOUTS_DATA_SOURCES"] = {
 	["playerCastBar"] = "Player: Cast Info",
 	["targetCastBar"] = "Target: Cast Info",
 	["playerComboPoints"] = "Player: Combo-Points",
+	["vehicleComboPoints"] = "Vehicle: Combo-Points",
 	["playerCooldowns"] = "Player: Spell and Item Cooldowns",
 	["playerShortAuras"] = "Player: Short Auras",
 	["targetShortAuras"] = "Target: Short Auras",

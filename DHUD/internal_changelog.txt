@@ -1,7 +1,21 @@
-changelog 2.0.50400.45:
+-fadeout animation for buffs when they disappear (only priotizied)
+-conditions for buffs prioritization
+-colorize buffs on 30% left for WOD
 -diminishing returns as part of AuraTracker?
 -cooldowns for passive items? scan tooltips, but only on item change (updateData still requires to scan but other events not)
 -disable mouse over when casting aoe (or make option to disable mouse or enable only with certain key modifiers)?
+
+changelog 2.0.60000.46:
+-priest shadow orbs resourse is now restricted to shadow specialization only
+-warlock burning embers base amount is now set as 25% to correctly transition hud from regen alpha
+-updated api calls for combo points, this should allow to show them at all times correctly (like monk chi)
+-removed option to show stored combo-points as it's no longer required with new API
+-separated combo-points tracker into two: vehicle (blizzard reports it using old API) and player (uses new api) combo-points trackers
+-updated ace3 lib for DHUD Options
+-updated vengeance tracking to resolve, so that addon should no longer crash on tank characters
+
+changelog 2.0.60000.45:
+-removed invalid spell ids
 
 changelog 2.0.50400.44:
 -fixed bug with dragon elite icon not disappering when changing zone (e.g. teleporting out of instance)
