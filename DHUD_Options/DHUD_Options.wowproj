@@ -7,10 +7,10 @@
     <ProjectGuid>{bdee3f9c-3f5b-489f-b70e-e0f39f67ef0e}</ProjectGuid>
     <AssemblyName>DHUD_Options</AssemblyName>
     <RootNamespace>DHUD_Options</RootNamespace>
-    <WowPath>C:\Games\World of Warcraft</WowPath>
+    <WowPath>C:\Program Files (x86)\Microsoft Visual Studio 10.0\aswow\Extensions\Tools\WoWBench</WowPath>
     <AddonTitle>DHUD_Options</AddonTitle>
-    <DeployBasePath>C:\Games\World of Warcraft</DeployBasePath>
-    <RuntimePath>C:\Games\World of Warcraft</RuntimePath>
+    <DeployBasePath>C:\Program Files (x86)\Microsoft Visual Studio 10.0\aswow\Extensions\Tools\WoWBench</DeployBasePath>
+    <RuntimePath>C:\Program Files (x86)\Microsoft Visual Studio 10.0\aswow\Extensions\Tools\WoWBench</RuntimePath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Default' ">
     <OutputPath>.</OutputPath>
@@ -36,16 +36,17 @@
     <Content Include="DHUD_OptionsTemplates.xml">
       <SubType>Frame</SubType>
     </Content>
-    <Content Include="legacy\deprecated_DHUD_Options.lua">
+    <Content Include="_legacy\deprecated_DHUD_Options.lua">
       <SubType>Code</SubType>
+      <DependentUpon>_legacy\deprecated_DHUD_Options.xml</DependentUpon>
     </Content>
-    <Content Include="legacy\deprecated_DHUD_Options.xml">
+    <Content Include="_legacy\deprecated_DHUD_Options.xml">
       <SubType>Frame</SubType>
     </Content>
-    <Content Include="legacy\deprecated_DHUD_Templates.xml">
+    <Content Include="_legacy\deprecated_DHUD_Templates.xml">
       <SubType>Frame</SubType>
     </Content>
-    <Content Include="legacy\deprecated_localization.lua">
+    <Content Include="_legacy\deprecated_localization.lua">
       <SubType>Code</SubType>
     </Content>
     <Content Include="localization\enGB.lua">
@@ -59,7 +60,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="legacy" />
+    <Folder Include="_legacy" />
     <Folder Include="localization" />
   </ItemGroup>
   <Import Project="$(DevEnvDir)\Extensions\Tools\MSBuild\Microsoft\WowAddonStudio\3.0\WowAddonStudio.targets" />

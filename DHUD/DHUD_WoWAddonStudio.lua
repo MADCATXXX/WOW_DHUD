@@ -19,6 +19,9 @@ end
 function UnitAffectingCombat(unitId)
 	return false;
 end
+function UnitIsTapDenied()
+	return false;
+end
 function GetSpecialization()
 	return 1;
 end

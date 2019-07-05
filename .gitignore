@@ -1,0 +1,6 @@
+#wow addon studio toc compilation file
+*.toc.luac
+*.toc.luac.dep
+
+# do not include libs in repo as they will be downloaded by packager
+DHUD_Options/libs/*

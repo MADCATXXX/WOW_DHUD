@@ -1,30 +1,81 @@
 # Help for yaml format: https://authors.curseforge.com/docs/packaging
-package-as: DHUDv2080200_63
+# another help for yaml format: https://authors.curseforge.com/knowledge-base/world-of-warcraft/527-preparing-the-packagemeta-file
+package-as: DHUD
 enable-nolib-creation: no
 
 # check thread: https://www.wowinterface.com/forums/showthread.php?t=55013
+# check thread: https://authors.curseforge.com/forums/world-of-warcraft/addon-chat/addon-help/127820-pkgmeta-solved-libraries-not-being-bundled#c1
 externals:
-    DHUD_Options\libs:
-        url: https://repos.wowace.com/wow/ace3/trunk # not sure if svn repo is ok
-        tag: latest # if this line is left out, the latest version (even if it's not a tag) is assumed
+#    DHUD_Options\libs:
+#        url: https://repos.wowace.com/wow/ace3/trunk # also contains tests.bat which can't be packaged by curse
+#        tag: latest # if this line is left out, the latest version (even if it's not a tag) is assumed
+    DHUD_Options/libs/LibStub: #used by all ace3 libs
+        url: https://repos.wowace.com/wow/ace3/trunk/LibStub
+        tag: latest
+    DHUD_Options/libs/CallbackHandler-1.0: # used by most ace3 libs
+        url: https://repos.wowace.com/wow/ace3/trunk/CallbackHandler-1.0
+        tag: latest
+    DHUD_Options/libs/AceAddon-3.0: # required to show settings import dialog
+        url: https://repos.wowace.com/wow/ace3/trunk/AceAddon-3.0
+        tag: latest
+    DHUD_Options/libs/AceDB-3.0: # required to show settings import dialog
+        url: https://repos.wowace.com/wow/ace3/trunk/AceDB-3.0
+        tag: latest
+    DHUD_Options/libs/AceDBOptions-3.0: # required to show settings import dialog
+        url: https://repos.wowace.com/wow/ace3/trunk/AceDBOptions-3.0
+        tag: latest
+    DHUD_Options/libs/AceEvent-3.0: # required for AceAddon-3
+        url: https://repos.wowace.com/wow/ace3/trunk/AceEvent-3.0
+        tag: latest
+    DHUD_Options/libs/AceConfig-3.0: # required to show settings import dialog
+        url: https://repos.wowace.com/wow/ace3/trunk/AceConfig-3.0
+        tag: latest
+    DHUD_Options/libs/AceConsole-3.0: # required for AceGUI-3
+        url: https://repos.wowace.com/wow/ace3/trunk/AceConsole-3.0
+        tag: latest
+    DHUD_Options/libs/AceGUI-3.0: # required for AceConfig-3
+        url: https://repos.wowace.com/wow/ace3/trunk/AceGUI-3.0
+        tag: latest
+    DHUD_Options/libs/LibSharedMedia-3.0: # mostly unused right now
+        url: https://repos.wowace.com/wow/libsharedmedia-3-0/trunk/LibSharedMedia-3.0
+        tag: latest
+#    DHUD_Options/libs/AceLocale-3.0: # not used right now
+#        url: https://repos.wowace.com/wow/ace3/trunk/AceLocale-3.0
+#        tag: latest
+#    DHUD_Options/libs/AceSerializer-3.0: # not used right now
+#        url: https://repos.wowace.com/wow/ace3/trunk/AceSerializer-3.0
+#        tag: latest
+#    DHUD_Options/libs/AceComm-3.0: # not used right now
+#        url: https://repos.wowace.com/wow/ace3/trunk/AceComm-3.0
+#        tag: latest
+#    DHUD_Options/libs/AceTimer-3.0: # not used right now
+#        url: https://repos.wowace.com/wow/ace3/trunk/AceTimer-3.0
+#        tag: latest
 
-#move-folders:
-#    KillerCupcakes/Modules/Fire: KillerCupcakesOnFire # This moves KillerCupcakes/Modules/Fire to the same level as KillerCupcakes, as KillerCupCakesOnFire
-#    KillerCupcakes/Modules/Sky: KillerCupcakesInTheSky
+# required for multi folder addons
+move-folders:
+    DHUD/DHUD: DHUD
+    DHUD/DHUD_Options: DHUD_Options
 
+# wildcards (*) are not supported by curse
 ignore: # Files and directories beginning with a dot (such as .git) are automatically ignored, as is the pgkmeta file itself.
     - DHUD.wowsln
     - DHUD.wowsuo
     - DHUDGraph.grf
     - LICENSE
     - README.md
-    - DHUD/DHUD.wowproj
-    - DHUD/DHUD.wowproj.user
-    - DHUD_Options/DHUD_Options.wowproj
+    - DHUD.wowproj # actual path DHUD/DHUD.wowproj
+    - DHUD.wowproj.user  # actual path DHUD/DHUD.wowproj.user
+    - _legacy # actual path DHUD/_legacy
+    - ../DHUD_Options/DHUD_Options.wowproj
+    - ../DHUD_Options/DHUD_Options.wowproj
+    - ../DHUD_Options/_legacy
 
-manual-changelog: CHANGELOG.txt
+manual-changelog:
+    filename: DHUD/internal_changelog.txt
+#    markup-type: creole
 
-license-output: LICENSE.txt
+#license-output: LICENSE.txt
 
 tools-used:
     - AddOn Studio for World of Warcraft

@@ -1,0 +1,47 @@
+-7.0 changes:
+-UnitIsTapped(unit) and UnitIsTappedByPlayer(unit) removed, use UnitIsTapDenied()
+- check DHUDUnitInfoTracker .isNPC and .communityTagged
+- check canHaveTwoAlternativeGuardians , shaman resource bar + mana?
+- check runeType
+- tanks vengeance/resolve removed in legion
+- death knight runes cd changed (consolidate cooldowns)
+- casters channeling spell delay (displays as 0.0 at start)
+- character vehicle cast not ending
+- monk removed chi from tank and heal specs, remaining for dps
+- http://www.wowinterface.com/forums/showthread.php?t=53140
+- http://wow.gamepedia.com/PowerType
+-UnitPowerMax(unit) now always required power type, e.g. UnitPowerMax(unit, UnitPowerType(unit))
+-texture:SetTexture(r, g, b, a) changes into texture:SetColorTexture(r, g, b, a)
+- tga not loaded ? http://www.wowinterface.com/downloads/info22128-BLPNGConverter.html
+- http://www.wowinterface.com/forums/showthread.php?s=31b0a0311080a16c212526c5029ba5f1&t=53248
+-to be added:
+-consider adding option for shield displaying from bottom of health as new color
+-add command to reset cast duration info (usefull after bosses with time speed change)
+-check for item id error during wow start up if item such as back is on cooldown
+-check lua startup code for errors and reset it after
+-unify target and player auras with cd tracker (separate class)
+-calculate damage for soul capacitor trinket and ring (show as stacks, minimizing numbers, e.g. 4k)
+-ace3 profiles bugged? check alpha and other settings are correctly changed on profile change
+-add option 3 for shields (so that health is always at 100% when health + shield is over 100)
+-cooldowns for racial abilities
+-refactor "timer" table, add filterData table as last variable (remove timer[filterName] and timer[guiFilterName])
+-filterData subtable is map with filterName as a key
+-filterData value is another map, e.g. { priority: 0, keepInCombat: true }, this can be extended from dhudsettings table
+-allow to exclude pet casted short auras
+-retest cooldown tracker with UNIT_INVENTORY_CHANGED event again (based on code from extraCD)
+-ring tracker helper, buff applies, but without timer, so we should count 15 second by ourselves (tracker based on Rogue Bandit's Guile)
+-options for buffs, change old format to new e.g. {slotID:10}, {id:333, desc:"Touch of Karma", type: 1}, {id:333, glow: 100, keepInCombat: 1}
+-allow to diffirientiate short auras from player and pet (rogue shadow form)
+-allow dhud settings to use complex buff format instead of id
+-add command line option for short auras animation variations
+-add higlight graphics from extraCD
+-add options for priority buffs in json format
+-keep option for cds
+-hide healing when at maximum health?
+-help for startup lua code, e.g. code to hide raf, or maybe frame with click to add scripts
+-conditions for buffs prioritization
+-diminishing returns as part of AuraTracker?
+-cooldowns for passive items? scan tooltips, but only on item change (updateData still requires to scan but other events not)
+-disable mouse over when casting aoe (or make option to disable mouse or enable only with certain key modifiers)?
+-other textures support (renetair from DHUD4)
+-add option to place cast info under bar
