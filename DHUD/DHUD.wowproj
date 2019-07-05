@@ -7,19 +7,82 @@
     <ProjectGuid>{2b4a5ee3-d838-4da5-92e1-19e026ae268c}</ProjectGuid>
     <AssemblyName>DHUD</AssemblyName>
     <RootNamespace>DHUD</RootNamespace>
-    <WowPath>C:\Games\World of Warcraft</WowPath>
+    <WowPath>C:\Program Files (x86)\Microsoft Visual Studio 10.0\aswow\Extensions\Tools\WoWBench</WowPath>
     <AddonTitle>DHUD</AddonTitle>
-    <DeployBasePath>C:\Games\World of Warcraft</DeployBasePath>
-    <RuntimePath>C:\Games\World of Warcraft</RuntimePath>
+    <DeployBasePath>C:\Program Files (x86)\Microsoft Visual Studio 10.0\aswow\Extensions\Tools\WoWBench</DeployBasePath>
+    <RuntimePath>C:\Program Files (x86)\Microsoft Visual Studio 10.0\aswow\Extensions\Tools\WoWBench</RuntimePath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Default' ">
     <OutputPath>.</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="DHUD_WoWAddonStudio.lua">
+    <Content Include="datatrackers\DataTrackerBase.lua">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="DHUD_GUI.lua">
+    <Content Include="datatrackers\DataTrackerHelper.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="datatrackers\DataTrackers.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="datatrackers\info\PlayerInfoTracker.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="datatrackers\info\SpellCastTracker.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="datatrackers\info\UnitInfoTracker.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="datatrackers\power\AuraValueTracker.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="datatrackers\power\DeathKnightRunesTracker.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="datatrackers\power\HealthTracker.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="datatrackers\power\PowerMainTracker.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="datatrackers\power\PowerSpecificTracker.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="datatrackers\power\PowerTrackerBase.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="datatrackers\power\StaggerTracker.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="datatrackers\timers\AurasTracker.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="datatrackers\timers\CooldownsTracker.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="datatrackers\timers\GuardiansTracker.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="datatrackers\timers\TimersTrackerBase.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="datatrackers\timers\TimersTrackerCustom.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="datatrackers\_legacy\PlayerComboPointsTracker.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="datatrackers\_legacy\RogueBanditsGuileTracker.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="datatrackers\_legacy\VehicleComboPointsTracker.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="datatrackers\_legacy\WarlordsRingTracker.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="DHUD_WoWAddonStudio.lua">
       <SubType>Code</SubType>
     </Content>
     <Content Include="DHUD_Main.lua">
@@ -31,55 +94,113 @@
     <Content Include="DHUD.toc">
       <SubType>TableOfContents</SubType>
     </Content>
-    <Content Include="DHUD_DataTrackers.lua">
-      <SubType>Code</SubType>
-    </Content>
     <Content Include="DHUD_LibClasses.lua">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="DHUD_Settings.lua">
+    <Content Include="gui\animation\CastBarAnimationHelper.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="gui\animation\PowerBarAnimationHelper.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="gui\GUIFrames.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="gui\GuiManager.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="gui\helpers\ColorizeTools.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="gui\helpers\EclipseMath.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="gui\helpers\TextTools.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="gui\slots\CastBarSlot.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="gui\slots\GuiSlotBase.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="gui\slots\IconsSlot.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="gui\slots\PowerBarSlot.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="gui\slots\SideInfoSlot.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="gui\slots\SpellRectangleSlot.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="gui\slots\UnitInfoSlot.lua">
       <SubType>Code</SubType>
     </Content>
     <Content Include="internal_changelog.txt" />
-    <Content Include="legacy\deprecated_DHUD.lua">
+    <Content Include="_legacy\deprecated_DHUD.lua">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="legacy\deprecated_DHUD_Commands.lua">
+    <Content Include="_legacy\deprecated_DHUD_Commands.lua">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="legacy\deprecated_DHUD_Layout.lua">
+    <Content Include="_legacy\deprecated_DHUD_Layout.lua">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="legacy\deprecated_DHUD_Layout_2.lua">
+    <Content Include="_legacy\deprecated_DHUD_Layout_2.lua">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="legacy\deprecated_DHUD_Layout_3.lua">
+    <Content Include="_legacy\deprecated_DHUD_Layout_3.lua">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="legacy\deprecated_DHUD_Layout_4.lua">
+    <Content Include="_legacy\deprecated_DHUD_Layout_4.lua">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="legacy\deprecated_DHUD_Layout_5.lua">
+    <Content Include="_legacy\deprecated_DHUD_Layout_5.lua">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="legacy\deprecated_DHUD_Layout_6.lua">
+    <Content Include="_legacy\deprecated_DHUD_Layout_6.lua">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="legacy\deprecated_DHUD_Misc.lua">
+    <Content Include="_legacy\deprecated_DHUD_Misc.lua">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="legacy\deprecated_DHUD_Vars.lua">
+    <Content Include="_legacy\deprecated_DHUD_Vars.lua">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="legacy\deprecated_localization.lua">
+    <Content Include="_legacy\deprecated_localization.lua">
       <SubType>Code</SubType>
     </Content>
     <Content Include="MyMinimapButton.lua">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="settings\NonDhudSettingsHandler.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="settings\SettingsImpl.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="settings\SettingsTable.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="settings\TimersFilter.lua">
+      <SubType>Code</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="legacy" />
+    <Folder Include="datatrackers\info" />
+    <Folder Include="datatrackers\timers" />
+    <Folder Include="datatrackers\power" />
+    <Folder Include="datatrackers\_legacy" />
+    <Folder Include="gui\animation" />
+    <Folder Include="gui\helpers" />
+    <Folder Include="gui\slots" />
+    <Folder Include="_legacy" />
+    <Folder Include="datatrackers" />
+    <Folder Include="gui" />
+    <Folder Include="settings" />
   </ItemGroup>
   <Import Project="$(DevEnvDir)\Extensions\Tools\MSBuild\Microsoft\WowAddonStudio\3.0\WowAddonStudio.targets" />
   <!--

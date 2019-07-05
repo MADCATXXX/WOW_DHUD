@@ -7,10 +7,10 @@
     <ProjectGuid>{bdee3f9c-3f5b-489f-b70e-e0f39f67ef0e}</ProjectGuid>
     <AssemblyName>DHUD_Options</AssemblyName>
     <RootNamespace>DHUD_Options</RootNamespace>
-    <WowPath>C:\Games\World of Warcraft</WowPath>
+    <WowPath>C:\Program Files (x86)\Microsoft Visual Studio 10.0\aswow\Extensions\Tools\WoWBench</WowPath>
     <AddonTitle>DHUD_Options</AddonTitle>
-    <DeployBasePath>C:\Games\World of Warcraft</DeployBasePath>
-    <RuntimePath>C:\Games\World of Warcraft</RuntimePath>
+    <DeployBasePath>C:\Program Files (x86)\Microsoft Visual Studio 10.0\aswow\Extensions\Tools\WoWBench</DeployBasePath>
+    <RuntimePath>C:\Program Files (x86)\Microsoft Visual Studio 10.0\aswow\Extensions\Tools\WoWBench</RuntimePath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Default' ">
     <OutputPath>.</OutputPath>
