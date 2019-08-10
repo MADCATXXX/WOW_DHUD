@@ -1,7 +1,7 @@
 --[[-----------------------------------------------------------------------------------
  Original Drathals HUD (c) 2006 by Markus Inger / Drathal / Silberklinge / Silbersegen
- DHUD for WotLK and later expansions (c) 2013 by MADCAT (EU-Гордунни, Мадкат)
- (http://eu.battle.net/wow/en/character/гордунни/Мадкат/advanced)
+ DHUD for WotLK and later expansions (c) 2013 by MADCAT (EU-Р“РѕСЂРґСѓРЅРЅРё, РњР°РґРєР°С‚)
+ (http://eu.battle.net/wow/en/character/Р“РѕСЂРґСѓРЅРЅРё/РњР°РґРєР°С‚/advanced)
 ---------------------------------------------------------------------------------------
  This file contains functions and classes to track data about unit resources, health,
  buffs and other information
@@ -73,7 +73,14 @@ function DHUDHealthTracker:init()
 		end
 		tracker:updateAbsorbs();
 	end
-	-- process units absorb amount change event
+	-- process units heal absorb amount change event
+	function self.eventsFrame:UNIT_HEAL_ABSORB_AMOUNT_CHANGED(unitId)
+		if (tracker.unitId ~= unitId) then
+			return;
+		end
+		tracker:updateAbsorbedHeal();
+	end
+	-- process units heal absorb amount change event
 	function self.eventsFrame:UNIT_AURA(unitId)
 		if (tracker.unitId ~= unitId) then
 			return;
@@ -107,7 +114,8 @@ function DHUDHealthTracker:startTracking()
 	self.eventsFrame:RegisterEvent("UNIT_HEALTH");
 	self.eventsFrame:RegisterEvent("UNIT_HEAL_PREDICTION");
 	self.eventsFrame:RegisterEvent("UNIT_ABSORB_AMOUNT_CHANGED");
-	self.eventsFrame:RegisterEvent("UNIT_AURA");
+	self.eventsFrame:RegisterEvent("UNIT_HEAL_ABSORB_AMOUNT_CHANGED");
+	--self.eventsFrame:RegisterEvent("UNIT_AURA");
 	if (self.creditInfoTracker ~= nil) then
 		self.creditInfoTracker:addEventListener(DHUDDataTrackerEvent.EVENT_DATA_CHANGED, self, self.updateTagging);
 	end
@@ -122,7 +130,8 @@ function DHUDHealthTracker:stopTracking()
 	self.eventsFrame:UnregisterEvent("UNIT_HEALTH");
 	self.eventsFrame:UnregisterEvent("UNIT_HEAL_PREDICTION");
 	self.eventsFrame:UnregisterEvent("UNIT_ABSORB_AMOUNT_CHANGED");
-	self.eventsFrame:UnregisterEvent("UNIT_AURA");
+	self.eventsFrame:UnregisterEvent("UNIT_HEAL_ABSORB_AMOUNT_CHANGED");
+	--self.eventsFrame:UnregisterEvent("UNIT_AURA");
 	if (self.creditInfoTracker ~= nil) then
 		self.creditInfoTracker:removeEventListener(DHUDDataTrackerEvent.EVENT_DATA_CHANGED, self, self.updateTagging);
 	end
@@ -165,16 +174,17 @@ end
 --- Update incoming heal for unit
 function DHUDHealthTracker:updateAbsorbedHeal()
 	local before = self.amountHealAbsorb;
-	self.amountHealAbsorb = 0;
+	--[[self.amountHealAbsorb = 0;
 	-- iterate over absorbing spellids
 	for i, v in ipairs(self.SPELLIDS_ABSORB_HEAL) do
 		--name, icon, count, dispelType, duration, expires, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff, value1, value2, value3
 		local value = select(14, UnitDebuff(self.unitId, trackingHelper:getSpellName(v)));
-		--[[if (UnitDebuff(self.unitId, trackingHelper:getSpellName(v)) ~= nil) then
-			print(MCTableToString({UnitDebuff(self.unitId, trackingHelper:getSpellName(v)) } ));
-		end]]--
+		--if (UnitDebuff(self.unitId, trackingHelper:getSpellName(v)) ~= nil) then
+		--	print(MCTableToString({UnitDebuff(self.unitId, trackingHelper:getSpellName(v)) } ));
+		--end
 		self.amountHealAbsorb = self.amountHealAbsorb + (value or 0);
-	end
+	end]]--
+	self.amountHealAbsorb = UnitGetTotalHealAbsorbs(self.unitId) or 0;
 	-- dispatch event
 	if (before ~= self.amountHealAbsorb) then
 		self:processDataChanged();

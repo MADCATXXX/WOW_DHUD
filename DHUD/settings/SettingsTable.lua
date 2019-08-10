@@ -499,6 +499,8 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			["cooldownsDurationMax"] = { 3600, 0, { range = { 0, 3600, 1 } } },
 			-- allows to show item cooldowns
 			["cooldownsItem"] = { true, 0 },
+			-- allows to show cooldowns even when they are up (during combat only)
+			["cooldownsStayInCombat"] = { true, 0 },
 			-- allows to show cooldowns from this list, regardless of time
 			["cooldownsWhiteList"] = { { }, 5 },
 			-- allows to not show cooldowns from this list, regardless of time

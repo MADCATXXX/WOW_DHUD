@@ -1,7 +1,7 @@
 --[[-----------------------------------------------------------------------------------
  Original Drathals HUD (c) 2006 by Markus Inger / Drathal / Silberklinge / Silbersegen
- DHUD for WotLK and later expansions (c) 2013 by MADCAT (EU-Гордунни, Мадкат)
- (http://eu.battle.net/wow/en/character/гордунни/Мадкат/advanced)
+ DHUD for WotLK and later expansions (c) 2013 by MADCAT (EU-Р“РѕСЂРґСѓРЅРЅРё, РњР°РґРєР°С‚)
+ (http://eu.battle.net/wow/en/character/Р“РѕСЂРґСѓРЅРЅРё/РњР°РґРєР°С‚/advanced)
 ---------------------------------------------------------------------------------------
  This file contains functions and classes to track data about unit resources, health,
  buffs and other information

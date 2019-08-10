@@ -1,3 +1,8 @@
+changelog 2.0.80200.64:
+- heal absorb tracking works once again (removed spell ids, using blizzard API)
+- test change: cooldowns stay in combat
+- support for WoW Vanilla servers (Support for out of date addons should be enabled due to TOC file not supporting multiple version values)
+
 changelog 2.0.80200.63:
 - added racial cooldown tracking along with azerite traits
 

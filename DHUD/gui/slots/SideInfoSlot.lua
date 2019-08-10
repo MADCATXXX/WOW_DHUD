@@ -421,6 +421,7 @@ function DHUDSideInfoManager:changeSpellCircleAnimationFunction()
 				if (guiData == nil) then
 					guiData = { 0, 0, true, 0 }; -- timeUpdatedAt, animPercentStep, endAnimDirectionDown, disappearAnimAlphaStart
 					timer[self.timerAnimationVarName] = guiData;
+					--print("create data for " .. MCTableToString(timer));
 				end
 				-- timers with duration of 0 doesn't need to be animated
 				if (timer[3] == 0) then
@@ -428,8 +429,10 @@ function DHUDSideInfoManager:changeSpellCircleAnimationFunction()
 				end
 				-- animate disappear
 				if ((timer[2] <= 1) and self.STATIC_animatePriorityAurasDisappear) then
-					self:updateSpellCircleAnimationDisappear(spellCircleFrame, timer);
-					return;
+					if (timer[14] ~= true) then
+						self:updateSpellCircleAnimationDisappear(spellCircleFrame, timer);
+						return;
+					end
 				end
 				-- animate blinking
 				if ((timer[2] <= timer[3] * 0.3) and self.STATIC_animatePriorityAurasAtEnd) then

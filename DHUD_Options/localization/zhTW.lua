@@ -1,4 +1,4 @@
-﻿--if true then return end
+--if true then return end
 if GetLocale() ~= "zhTW" then return end
 DHUDOptionsLocalization = DHUDOptionsLocalization or { };
 local L = DHUDOptionsLocalization;

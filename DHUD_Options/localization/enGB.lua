@@ -1,4 +1,4 @@
-﻿DHUDOptionsLocalization = DHUDOptionsLocalization or { };
+DHUDOptionsLocalization = DHUDOptionsLocalization or { };
 local L = DHUDOptionsLocalization;
 -- buttons text
 L["BUTTON_RESET"] = "Reset";

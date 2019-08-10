@@ -1,7 +1,7 @@
 --[[-----------------------------------------------------------------------------------
  Original Drathals HUD (c) 2006 by Markus Inger / Drathal / Silberklinge / Silbersegen
- DHUD for WotLK and later expansions (c) 2013 by MADCAT (EU-Гордунни, Мадкат)
- (http://eu.battle.net/wow/en/character/гордунни/Мадкат/advanced)
+ DHUD for WotLK and later expansions (c) 2013 by MADCAT (EU-Р“РѕСЂРґСѓРЅРЅРё, РњР°РґРєР°С‚)
+ (http://eu.battle.net/wow/en/character/Р“РѕСЂРґСѓРЅРЅРё/РњР°РґРєР°С‚/advanced)
 ---------------------------------------------------------------------------------------
  This file contains functions and classes to track data about unit resources, health,
  buffs and other information
@@ -19,7 +19,7 @@ local trackingHelper = DHUDDataTrackingHelper;
 
 --- Base class for trackers of timers for player buffs and cooldowns
 DHUDTimersTracker = MCCreateSubClass(DHUDDataTracker, {
-	-- list with timers, that should be shown in GUI, each element is table with following data: { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder, grouped, groupData } (where type - type of the timer from class consts, id - spell or item id for tooltip)
+	-- list with timers, that should be shown in GUI, each element is table with following data: { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder, grouped, groupData, stayInCombat } (where type - type of the timer from class consts, id - spell or item id for tooltip)
 	timers				= nil,
 	-- table with tables of filtered timers, updated on each filterTimers function call
 	filteredTimers		= nil,
@@ -33,6 +33,10 @@ DHUDTimersTracker = MCCreateSubClass(DHUDDataTracker, {
 	customTrackers		= nil,
 	-- number of custom trackers for perfomance improvement
 	customTrackersCount	= 0,
+	-- defines if unit is affecting combat (player only)
+	playerIsInCombat	= false,
+	-- defines if timers should be updated when combat is finished?
+	pendingUpdateOnCombatEnd = false,
 	-- table to describe inactive timer when timers are grouped using groupTimersByTime function
 	GROUP_INACTIVE_TIMER = { },
 })
@@ -131,7 +135,7 @@ function DHUDTimersTracker:findTimer(sourceIndex, id)
 			end
 		end
 	end
-	-- timer not found, create new { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder, grouped, groupData }
+	-- timer not found, create new { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder, grouped, groupData, stayInCombat }
 	timer = { 0, 0, 0, 0, 0, "", 0, "", true, true, 0 };
 	--print("Timer " .. id .. ", sourceIndex " .. sourceIndex .. ", predictedIndex " ..  indexToCheck .. " was created at " .. indexBounds);
 	table.insert(self.timers, indexBounds, timer);
@@ -162,7 +166,7 @@ function DHUDTimersTracker:findTimerByIdOnly(id, createIfNone, inUse)
 			end
 		end
 	end
-	-- timer not found, create new { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder, grouped, groupData } or return
+	-- timer not found, create new { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder, grouped, groupData, stayInCombat } or return
 	if (not createIfNone) then
 		return nil;
 	end
@@ -231,9 +235,17 @@ function DHUDTimersTracker:findSourceTimersEnd(sourceId)
 	while (i >= indexBegin) do
 		local timer = self.timers[i];
 		if (timer[10] == false) then
-			timer[9] = false;
-			table.remove(self.timers, i);
-			numTimers = numTimers - 1;
+			if (timer[14] ~= true or not self.playerIsInCombat) then
+				timer[9] = false;
+				table.remove(self.timers, i);
+				numTimers = numTimers - 1;
+			else
+				--print("leaving timer for combat duration " .. MCTableToString(timer));
+				if (timer[2] > 0) then
+					timer[2] = 0;
+				end
+				self.pendingUpdateOnCombatEnd = true;
+			end
 		end
 		timer[10] = false;
 		i = i - 1;
@@ -515,14 +527,25 @@ function DHUDTimersTracker.compareFilteredTimersForSort(a, b)
 	return a[11] - b[11];
 end
 
+--- combat state has changed, update
+function DHUDTimersTracker:onCombatState(e)
+	self.playerIsInCombat = trackingHelper.isInCombat;
+	if (self.pendingUpdateOnCombatEnd) then
+		--print("combat end, forcing update");
+		self:processDataChanged();
+	end
+end
+
 --- Start tracking data
 function DHUDTimersTracker:startTracking()
 	-- listen to game events
 	trackingHelper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE, self, self.onUpdateTime);
+	trackingHelper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_COMBAT_STATE_CHANGED, self, self.onCombatState);
 end
 
 --- Stop tracking data
 function DHUDTimersTracker:stopTracking()
 	-- stop listening to game events
 	trackingHelper:removeEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE, self, self.onUpdateTime);
+	trackingHelper:removeEventListener(DHUDDataTrackerHelperEvent.EVENT_COMBAT_STATE_CHANGED, self, self.onCombatState);
 end

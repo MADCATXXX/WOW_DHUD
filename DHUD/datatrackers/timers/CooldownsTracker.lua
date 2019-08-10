@@ -1,7 +1,7 @@
 --[[-----------------------------------------------------------------------------------
  Original Drathals HUD (c) 2006 by Markus Inger / Drathal / Silberklinge / Silbersegen
- DHUD for WotLK and later expansions (c) 2013 by MADCAT (EU-Гордунни, Мадкат)
- (http://eu.battle.net/wow/en/character/гордунни/Мадкат/advanced)
+ DHUD for WotLK and later expansions (c) 2013 by MADCAT (EU-Р“РѕСЂРґСѓРЅРЅРё, РњР°РґРєР°С‚)
+ (http://eu.battle.net/wow/en/character/Р“РѕСЂРґСѓРЅРЅРё/РњР°РґРєР°С‚/advanced)
 ---------------------------------------------------------------------------------------
  This file contains functions and classes to track data about unit resources, health,
  buffs and other information
@@ -52,6 +52,8 @@ DHUDCooldownsTracker = MCCreateSubClass(DHUDTimersTracker, {
 	gcdTimeLeft						= 0,
 	-- time that defines current player gcd
 	gcdTimeTotal					= 0,
+	-- defines if cooldowns should stay during combat
+	cooldownsStayInCombat			= true,
 })
 
 --- Create new unit cooldowns tracker, unitId should be specified after constructor
@@ -231,6 +233,7 @@ function DHUDCooldownsTracker:updateSpellCooldowns()
 					timer[6] = spellData[1]; -- name
 					timer[7] = cooldownCharges; -- stacks
 					timer[8] = spellData[3]; -- texture
+					timer[14] = self.cooldownsStayInCombat; -- stayInCombat
 				end
 			end
 		end
@@ -265,6 +268,7 @@ function DHUDCooldownsTracker:updateSpellCooldowns()
 					timer[6] = spellData[1]; -- name
 					timer[7] = cooldownCharges; -- stacks
 					timer[8] = spellData[3]; -- texture
+					timer[14] = self.cooldownsStayInCombat; -- stayInCombat
 				end
 			end
 		end
@@ -319,6 +323,7 @@ function DHUDCooldownsTracker:updateSpellCooldowns()
 							timer[6] = spellData[1]; -- name
 							timer[7] = cooldownCharges; -- stacks
 							timer[8] = spellData[3]; -- texture
+							timer[14] = self.cooldownsStayInCombat; -- stayInCombat
 						end
 					end
 				end
@@ -386,6 +391,7 @@ function DHUDCooldownsTracker:updatePetCooldowns()
 						timer[6] = name; -- spellData[1]; -- name
 						timer[7] = 1; -- stacks
 						timer[8] = spellData[3]; -- texture
+						timer[14] = self.cooldownsStayInCombat; -- stayInCombat
 					end
 				else
 					--print("i " .. i .. ", spellType " .. MCTableToString(spellType) .. ", petActionId " .. MCTableToString(petActionId) .. ", name is nil: " .. MCTableToString(name));
@@ -430,6 +436,7 @@ function DHUDCooldownsTracker:updateItemCooldowns()
 				timer[6] = itemData[1]; -- name
 				timer[7] = 0; -- stacks
 				timer[8] = itemData[10]; -- texture
+				timer[14] = self.cooldownsStayInCombat; -- stayInCombat
 			end
 		end
 	end
@@ -471,6 +478,7 @@ function DHUDCooldownsTracker:updateActionBarCooldowns()
 					timer[6] = spellData[1]; -- name
 					timer[7] = 0; -- stacks
 					timer[8] = spellData[3]; -- texture
+					timer[14] = self.cooldownsStayInCombat; -- stayInCombat
 				end
 			end
 		end
@@ -502,6 +510,7 @@ function DHUDCooldownsTracker:updateActionBarCooldowns()
 						timer[6] = spellData[1]; -- name
 						timer[7] = 0; -- stacks
 						timer[8] = spellData[3]; -- texture
+						timer[14] = self.cooldownsStayInCombat; -- stayInCombat
 					end
 				end
 			end
