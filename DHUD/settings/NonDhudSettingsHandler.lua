@@ -154,10 +154,12 @@ function DHUDNonAddonSettingsHandler:showBlizzardPlayerFrame()
 	PlayerFrame:RegisterEvent("READY_CHECK");
 	PlayerFrame:RegisterEvent("READY_CHECK_CONFIRM");
 	PlayerFrame:RegisterEvent("READY_CHECK_FINISHED");
-	PlayerFrame:RegisterEvent("UNIT_ENTERED_VEHICLE");
-	PlayerFrame:RegisterEvent("UNIT_ENTERING_VEHICLE");
-	PlayerFrame:RegisterEvent("UNIT_EXITING_VEHICLE");
-	PlayerFrame:RegisterEvent("UNIT_EXITED_VEHICLE");
+	if (not MCVanilla) then
+		PlayerFrame:RegisterEvent("UNIT_ENTERED_VEHICLE");
+		PlayerFrame:RegisterEvent("UNIT_ENTERING_VEHICLE");
+		PlayerFrame:RegisterEvent("UNIT_EXITING_VEHICLE");
+		PlayerFrame:RegisterEvent("UNIT_EXITED_VEHICLE");
+	end
 	PlayerFrame:RegisterEvent("PVP_TIMER_UPDATE");
 	PlayerFrame:RegisterEvent("PLAYER_ROLES_ASSIGNED");
 	PlayerFrame:RegisterEvent("VARIABLES_LOADED");
@@ -184,17 +186,21 @@ function DHUDNonAddonSettingsHandler:hideBlizzardPlayerFrame()
 	PlayerFrame:UnregisterEvent("READY_CHECK");
 	PlayerFrame:UnregisterEvent("READY_CHECK_CONFIRM");
 	PlayerFrame:UnregisterEvent("READY_CHECK_FINISHED");
-	PlayerFrame:UnregisterEvent("UNIT_ENTERED_VEHICLE");
-	PlayerFrame:UnregisterEvent("UNIT_ENTERING_VEHICLE");
-	PlayerFrame:UnregisterEvent("UNIT_EXITING_VEHICLE");
-	PlayerFrame:UnregisterEvent("UNIT_EXITED_VEHICLE");
+	if (not MCVanilla) then
+		PlayerFrame:UnregisterEvent("UNIT_ENTERED_VEHICLE");
+		PlayerFrame:UnregisterEvent("UNIT_ENTERING_VEHICLE");
+		PlayerFrame:UnregisterEvent("UNIT_EXITING_VEHICLE");
+		PlayerFrame:UnregisterEvent("UNIT_EXITED_VEHICLE");
+	end
 	PlayerFrame:UnregisterEvent("PVP_TIMER_UPDATE");
 	PlayerFrame:UnregisterEvent("PLAYER_ROLES_ASSIGNED");
 	PlayerFrame:UnregisterEvent("VARIABLES_LOADED");
 	PlayerFrame:UnregisterEvent("UNIT_COMBAT");
 	PlayerFrame:UnregisterEvent("UNIT_MAXPOWER");
 	PlayerFrame:Hide();
-	RuneFrame:Hide();
+	if (DHUDDataTrackers.helper.playerClass == "DEATHKNIGHT") then
+		RuneFrame:Hide();
+	end
 end
 
 --- Function to show blizzard casting frame

@@ -287,6 +287,10 @@ function DHUDSpellCastTracker:updateSpellCastDelay()
 	-- update delay
 	local timerMs = trackingHelper:getTimerMs();
 	local name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo(self.unitId);
+	if (endTime == nil) then
+		self:updateData(); -- not casting anymore (why event about delay fired?), update
+		return;
+	end
 	local newTimeTotal = endTime / 1000 - self.timeStart;
 	self.delay = newTimeTotal - self.timeTotal;
 	self.timeProgress = timerMs - startTime / 1000;

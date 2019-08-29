@@ -1,4 +1,4 @@
-﻿--[[-----------------------------------------------------------------------------------
+--[[-----------------------------------------------------------------------------------
  Original Drathals HUD (c) 2006 by Markus Inger / Drathal / Silberklinge / Silbersegen
  DHUD for WotLK and later expansions (c) 2013 by MADCAT (EU-Гордунни, Мадкат)
  (http://eu.battle.net/wow/en/character/гордунни/Мадкат/advanced)

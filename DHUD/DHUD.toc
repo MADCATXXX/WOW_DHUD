@@ -2,10 +2,10 @@
 ## Interface: 80200
 ## Notes: Head-Up Display with all possible information about player and it's target
 ## Title: Drathals HUD
-## Version: v2.0.80200.64
+## Version: v2.0.80200.65
 ## SavedVariables: DHUDODB3
 ## SavedVariablesPerCharacter: DHUD_SavedVars
-## X-Curse-Packaged-Version: DHUDv2080200_64
+## X-Curse-Packaged-Version: DHUDv2080200_65
 ## X-Curse-Project-ID: dhud-3_0
 ## X-Curse-Project-Name: DHUD for 8.0
 ## X-Curse-Repository-ID: wow/dhud-3_0/mainline

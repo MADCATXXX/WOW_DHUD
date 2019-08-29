@@ -563,6 +563,18 @@ end
 
 --- Initialize settings table with default table
 function DHUDSettings:processDefaultSettingsTable()
+	-- update some default settings for vanilla
+	local spellIdList = self.default["shortAurasOptions"][1]["targetAurasWhiteList"][1];
+	for i=#spellIdList,1,-1 do
+		local spellId = spellIdList[i];
+		local spellData = GetSpellInfo(spellId);
+		--print("spellid " .. spellId .. " data is " .. MCTableToString(spellData));
+		if (spellData == nil) then
+			table.remove(spellIdList, i);
+		end
+	end
+	--print("table is " .. MCTableToString(self.default["shortAurasOptions"][1]["targetAurasWhiteList"]));
+	-- process
 	for i, v in pairs(self.default) do
 		self:processDefaultSetting(i, v, nil, { });
 	end

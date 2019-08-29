@@ -1,3 +1,8 @@
+changelog 2.0.80200.65:
+- removed error about missing spell-ids for default target white-list
+- fixed code to hide and show blizzard player frame on Vanilla WoW
+- fixed rare error that happens during spell delay event (attempt to perform arithmetic on "endTime" nil value)
+
 changelog 2.0.80200.64:
 - heal absorb tracking works once again (removed spell ids, using blizzard API)
 - test change: cooldowns stay in combat
