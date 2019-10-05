@@ -408,6 +408,7 @@ L["SETTING_LAYOUTS_DATA_SOURCES"] = {
 	["monkChi"] = "Player: Monk Chi",
 	["monkMana"] = "Player: Mana while not in serpent stance",
 	["monkEnergy"] = "Player: Energy while in serpent stance",
+	["monkStagger"] = "Player: Monk Stagger",
 	["warlockSoulShards"] = "Player: Warlock Soul Shards",
 	["warlockBurningEmbers"] = "Player: Warlock Burning Embers",
 	["warlockDemonicFury"] = "Player: Warlock Demonic Fury",
@@ -416,8 +417,8 @@ L["SETTING_LAYOUTS_DATA_SOURCES"] = {
 	["mageArcaneCharges"] = "Player: Mage Arcane Charges",
 	["deathKnightRunes"] = "Player: Death-Knight Runes",
 	["shamanTotems"] = "Player: Shaman Totems",
+	["shamanMana"] = "Player: Shaman Mana",
 	["tankVengeance"] = "Player: Tank Vengeance",
-	["monkStagger"] = "Player: Monk Stagger",
 };
 L["SETTING_LAYOUTS_DATA_POSITIONS"] = {
 	["LEFT"] = "Left",

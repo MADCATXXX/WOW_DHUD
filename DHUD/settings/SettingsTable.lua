@@ -591,7 +591,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			-- data that can be shown on bars
 			["bars"] = { "playerHealth", "playerPower", "targetHealth", "targetPower", "petHealth", "petPower",
 						 "characterInVehicleHealth", "characterInVehiclePower", "druidMana", "druidEnergy", "druidEclipse",
-						 "monkStagger" },
+						 "monkStagger", "shamanMana" },
 			-- data that can be shown on cast bars
 			["castBars"] = { "playerCastBar", "targetCastBar" },
 			-- data that can be shown on side slots

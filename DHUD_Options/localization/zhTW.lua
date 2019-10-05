@@ -407,12 +407,16 @@ L["SETTING_LAYOUTS_DATA_SOURCES"] = {
 	["monkChi"] = "玩家: 武僧氣",
 	["monkMana"] = "玩家: Mana while not in serpent stance",
 	["monkEnergy"] = "玩家: Energy while in serpent stance",
+	["monkStagger"] = "Player: Monk Stagger",
 	["warlockSoulShards"] = "玩家: Warlock Soul Shards",
 	["warlockBurningEmbers"] = "玩家: Warlock Burning Embers",
 	["warlockDemonicFury"] = "玩家: Warlock Demonic Fury",
 	["paladinHolyPower"] = "玩家: 聖騎士聖能",
 	["priestShadowOrbs"] = "玩家: Priest Shadow Orbs",
 	["deathKnightRunes"] = "玩家: 死亡騎士符文",
+	["shamanTotems"] = "Player: Shaman Totems",
+	["shamanMana"] = "Player: Shaman Mana",
+	["tankVengeance"] = "Player: Tank Vengeance",
 };
 L["SETTING_LAYOUTS_DATA_POSITIONS"] = {
 	["LEFT"] = "左邊",

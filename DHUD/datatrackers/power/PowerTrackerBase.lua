@@ -101,6 +101,7 @@ end
 --- Check if this tracker data is exists
 function DHUDPowerTracker:checkIsExists()
 	if (not DHUDDataTracker.checkIsExists(self)) then -- call super
+		--print("checkIsExists base false " .. self.amountMax);
 		if (self.trackAmountMax) then
 			self:changeAmountMaxTrackingState(false);
 		end
@@ -109,7 +110,6 @@ function DHUDPowerTracker:checkIsExists()
 	-- amount max tracking activated?
 	if (self.trackAmountMax) then
 		self:changeAmountMaxTrackingState(true);
-		self:updateAmountMax();
 		--print("checkIsExists " .. self.amountMax);
 		return (self.amountMax ~= 0); -- power maximum should not be equal to zero
 	end
@@ -131,6 +131,13 @@ function DHUDPowerTracker:stopTrackingAmountMax()
 	-- to be overriden by subclasses
 end
 
+--- character is entering world, update maximum amount, tracking might become available
+function DHUDDataTracker:onEnteringWorldToCheckMax(e)
+	-- recheck if data tracker exists, some events are not fired when player enters world (e.g. shapeshift form when teleporting from instance)
+	self:updateAmountMax();
+	self:setIsExists(self:checkIsExists());
+end
+
 --- Enable or disable tracking of maximum amount for this data tracker
 -- @param enable if true then this data tracker will begin to track data
 function DHUDPowerTracker:changeAmountMaxTrackingState(enable)
@@ -140,8 +147,11 @@ function DHUDPowerTracker:changeAmountMaxTrackingState(enable)
 	self.isTrackingAmountMax = enable;
 	if (enable) then
 		self:startTrackingAmountMax();
+		trackingHelper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_ENTERING_WORLD, self, self.onEnteringWorldToCheckMax);
+		self:updateAmountMax();
 	else
 		self:stopTrackingAmountMax();
+		trackingHelper:removeEventListener(DHUDDataTrackerHelperEvent.EVENT_ENTERING_WORLD, self, self.onEnteringWorldToCheckMax);
 	end
 end
 

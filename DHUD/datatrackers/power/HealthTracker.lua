@@ -57,6 +57,7 @@ function DHUDHealthTracker:init()
 		if (tracker.unitId ~= unitId) then
 			return;
 		end
+		--print("UNIT_MAXHEALTH(self.unitId) " .. MCTableToString(UnitHealthMax(unitId)) .. ", unit exists " .. MCTableToString(UnitExists(unitId)));
 		tracker:updateMaxHealth();
 	end
 	-- process units absorb amount change event
@@ -105,7 +106,7 @@ end
 --- Game time updated, update unit health
 function DHUDHealthTracker:onUpdateTime()
 	self:updateHealth();
-	self:updateMaxHealth();
+	--self:updateMaxHealth();
 end
 
 --- Start tracking data

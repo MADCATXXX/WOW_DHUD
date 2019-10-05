@@ -410,6 +410,7 @@ end
 
 --- player is entering world
 function DHUDDataTrackerHelper:onEnteringWorld()
+	--print("Entering world " .. ", unit exists " .. MCTableToString(UnitExists("player")));
 	self:updateData();
 	self:dispatchEvent(self.eventEnteringWorld);
 end

@@ -461,7 +461,7 @@ function DHUD_OptionsTemplates_LUA:processDropDownFramesDataOnLoad(frame)
 		-- create text
 		local text = "";
 		for i, v in ipairs(settingValue) do
-			local valueText = DHUDOptionsLocalization["SETTING_LAYOUTS_DATA_SOURCES"][v];
+			local valueText = DHUDOptionsLocalization["SETTING_LAYOUTS_DATA_SOURCES"][v] or ("LTEXT:" .. v);
 			if (settingValue2[i] ~= nil) then
 				valueText = valueText .. " + " .. DHUDOptionsLocalization["SETTING_LAYOUTS_DATA_SOURCES"][settingValue2[i]];
 			end
@@ -484,7 +484,7 @@ function DHUD_OptionsTemplates_LUA:processDropDownFramesDataOnLoad(frame)
 			local owner = button.owner;
 			if (owner == frame) then
 				local value = button.arg2;
-				local buttonText = DHUDOptionsLocalization["SETTING_LAYOUTS_DATA_SOURCES"][value];
+				local buttonText = DHUDOptionsLocalization["SETTING_LAYOUTS_DATA_SOURCES"][value] or ("LTEXT:" .. value);
 				local order1 = MCIndexOfValueInTable(settingValue, value);
 				local order2 = MCIndexOfValueInTable(settingValue2, value);
 				if (order1 >= 1) then
