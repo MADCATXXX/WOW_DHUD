@@ -235,7 +235,7 @@ function DHUDTimersTracker:findSourceTimersEnd(sourceId)
 	while (i >= indexBegin) do
 		local timer = self.timers[i];
 		if (timer[10] == false) then
-			if (timer[14] ~= true or not self.playerIsInCombat) then
+			if (timer[14] ~= true or not self.playerIsInCombat or timer[3] <= 4) then
 				timer[9] = false;
 				table.remove(self.timers, i);
 				numTimers = numTimers - 1;

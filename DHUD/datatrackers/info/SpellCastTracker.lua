@@ -269,6 +269,10 @@ function DHUDSpellCastTracker:updateSpellCastStart()
 	-- update spell cast info
 	local timerMs = trackingHelper:getTimerMs();
 	local name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo(self.unitId);
+	if (startTime == nil) then
+		self:updateData(); -- not casting anymore (why event about spell cast start fired?), update
+		return;
+	end
 	self.isInterruptible = not notInterruptible;
 	self.spellName = name;
 	self.spellTexture = texture;
