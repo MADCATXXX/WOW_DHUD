@@ -473,6 +473,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				33786, -- Druid: Cyclone, prevents any damage to target
 				61336, -- Druid: Survival Instincts, reduces all gamage by 50%
 				19263, -- Hunter: Deterrence, prevents all damage to target
+				186265, -- Hunter: Aspect of the turtle, reflects all attacks
 				45438, -- Mage: Ice block, prevents all damage to target
 				--108978, -- Mage: Alter Time, reverts all damage done to target after 6 seconds
 				1022, -- Paladin: Hand of protection, prevents physical damage to target
@@ -591,7 +592,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			-- data that can be shown on bars
 			["bars"] = { "playerHealth", "playerPower", "targetHealth", "targetPower", "petHealth", "petPower",
 						 "characterInVehicleHealth", "characterInVehiclePower", "druidMana", "druidEnergy", "druidEclipse",
-						 "monkStagger", "shamanMana" },
+						 "monkStagger", "shamanMana", "priestMana" },
 			-- data that can be shown on cast bars
 			["castBars"] = { "playerCastBar", "targetCastBar" },
 			-- data that can be shown on side slots
@@ -711,6 +712,8 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				["PRIEST"] = {
 					-- what to show on the left outer side info
 					["leftOuterSideInfo"] = { "vehicleComboPoints" },
+					-- what to show on inner right small bar
+					["rightSmallBar1"] = { "characterInVehiclePower", "priestMana" },
 				},
 				-- mage overrides
 				["MAGE"] = {
@@ -837,6 +840,8 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				["PRIEST"] = {
 					-- what to show on the left outer side info
 					["rightOuterSideInfo"] = { "vehicleComboPoints" },
+					-- what to show on inner left small bar
+					["leftSmallBar1"] = { "characterInVehiclePower", "priestMana" },
 				},
 				-- mage overrides
 				["MAGE"] = {

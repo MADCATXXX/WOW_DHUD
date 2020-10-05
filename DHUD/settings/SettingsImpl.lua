@@ -493,6 +493,7 @@ function DHUDSettings:mapDataTrackers()
 	trackersTable["paladinHolyPower"] = { DHUDDataTrackers.PALADIN.selfHolyPower };
 	-- specific to priest
 	--trackersTable["priestShadowOrbs"] = { DHUDDataTrackers.PRIEST.selfShadowOrbs };
+	trackersTable["priestMana"] = { DHUDDataTrackers.PRIEST.selfMana };
 	-- specific to mage
 	trackersTable["mageArcaneCharges"] = { DHUDDataTrackers.MAGE.selfArcaneCharges };
 	-- specific to death knight

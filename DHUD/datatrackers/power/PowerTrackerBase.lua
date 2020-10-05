@@ -141,6 +141,9 @@ end
 --- Enable or disable tracking of maximum amount for this data tracker
 -- @param enable if true then this data tracker will begin to track data
 function DHUDPowerTracker:changeAmountMaxTrackingState(enable)
+	if (enable) then
+		self:updateAmountMax(); -- always recheck amount max as this function can be called on unitId change
+	end
 	if (self.isTrackingAmountMax == enable) then
 		return;
 	end
@@ -148,7 +151,6 @@ function DHUDPowerTracker:changeAmountMaxTrackingState(enable)
 	if (enable) then
 		self:startTrackingAmountMax();
 		trackingHelper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_ENTERING_WORLD, self, self.onEnteringWorldToCheckMax);
-		self:updateAmountMax();
 	else
 		self:stopTrackingAmountMax();
 		trackingHelper:removeEventListener(DHUDDataTrackerHelperEvent.EVENT_ENTERING_WORLD, self, self.onEnteringWorldToCheckMax);

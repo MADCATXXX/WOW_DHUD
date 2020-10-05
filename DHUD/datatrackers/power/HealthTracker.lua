@@ -57,7 +57,7 @@ function DHUDHealthTracker:init()
 		if (tracker.unitId ~= unitId) then
 			return;
 		end
-		--print("UNIT_MAXHEALTH(self.unitId) " .. MCTableToString(UnitHealthMax(unitId)) .. ", unit exists " .. MCTableToString(UnitExists(unitId)));
+		--print("UNIT_MAXHEALTH(" .. MCTableToString(self.unitId) .. ") " .. MCTableToString(UnitHealthMax(unitId)) .. ", unit exists " .. MCTableToString(UnitExists(unitId)));
 		tracker:updateMaxHealth();
 	end
 	-- process units absorb amount change event
@@ -194,13 +194,13 @@ end
 
 --- Update health for unit
 function DHUDHealthTracker:updateHealth()
-	--print("UnitHealth(self.unitId) " .. MCTableToString(UnitHealth(self.unitId)));
+	--print("UnitHealth(" .. MCTableToString(self.unitId) .. ") " .. MCTableToString(UnitHealth(self.unitId)));
 	self:setAmount(UnitHealth(self.unitId) or 0);
 end
 
 --- Update maximum health for unit
 function DHUDHealthTracker:updateMaxHealth()
-	--print("UnitHealthMax(self.unitId) " .. MCTableToString(UnitHealthMax(self.unitId)));
+	--print("UnitHealthMax(" .. MCTableToString(self.unitId) .. ") " .. MCTableToString(UnitHealthMax(self.unitId)));
 	self:setAmountMax(UnitHealthMax(self.unitId) or 0);
 end
 

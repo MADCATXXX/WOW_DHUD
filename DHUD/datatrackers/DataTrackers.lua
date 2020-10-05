@@ -273,6 +273,13 @@ DHUDDataTrackers = {
 		PRIEST.selfShadowOrbs:initPlayerNotInVehicleOrNoneUnitId();
 		PRIEST.selfShadowOrbs.canRegenerate = false;
 		PRIEST.selfShadowOrbs.updateFrequently = false;]]--
+		------------------------------
+		-- Mana when in shadow spec --
+		------------------------------
+		PRIEST.selfMana = DHUDSpecificPowerTracker:new();
+		PRIEST.selfMana:setResourceType(0, "MANA");
+		PRIEST.selfMana:initPlayerNotInVehicleOrNoneUnitId();
+		PRIEST.selfMana:initTrackIfNotMain();
 	end,
 	-- trackers that are used by priest
 	MAGE = { },
