@@ -696,6 +696,9 @@ function DHUD_OptionsTemplates_LUA:processSpellListTextBoxOnLoad(frame)
 	-- save settings
 	frame.setting = setting;
 	-- update backdrop color
+	if (not frame.SetBackdropColor) then -- shadowlands require frame to be inherited from BackdropTemplate
+		Mixin(frame, BackdropTemplateMixin);
+	end
 	frame:SetBackdropColor(0.1, 0.1, 0.1, 1);
 	-- update text box handlers
 	local scrollFrame = _G[name .. "_ScrollFrame"];
@@ -893,6 +896,9 @@ function DHUD_OptionsTemplates_LUA:processUnitTextOnLoad(frame)
 	-- save settings
 	frame.setting = setting;
 	-- update backdrop color
+	if (not frame.SetBackdropColor) then -- shadowlands require frame to be inherited from BackdropTemplate
+		Mixin(frame, BackdropTemplateMixin);
+	end
 	frame:SetBackdropColor(0.1, 0.1, 0.1, 1);
 	-- for nested function
 	local unitTextFrame = frame;
@@ -1265,6 +1271,9 @@ function DHUD_OptionsTemplates_LUA:processGeneralTextBoxOnLoad(frame)
 	-- save settings
 	frame.setting = setting;
 	-- update backdrop color
+	if (not frame.SetBackdropColor) then -- shadowlands require frame to be inherited from BackdropTemplate
+		Mixin(frame, BackdropTemplateMixin);
+	end
 	frame:SetBackdropColor(0.1, 0.1, 0.1, 1);
 	-- for nested function
 	local generalTextBoxFrame = frame;

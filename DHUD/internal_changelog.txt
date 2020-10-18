@@ -1,3 +1,7 @@
+changelog 2.0.90001.68:
+- updated dhud options addon to not produce errors anymore
+- dhud options textures bug to be fixed later
+
 changelog 2.0.90001.67:
 - added option to emulate debuff duration for Vanilla
 - fixed cooldown tracking for vanilla
