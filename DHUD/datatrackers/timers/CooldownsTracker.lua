@@ -192,8 +192,8 @@ function DHUDCooldownsTracker:updateSpellCooldowns()
 		if (trackingHelper.playerClass == "DEATHKNIGHT") then
 			invalidDuration = self.DEATHKNIGHT_RUNE_COOLDOWN;
 		end
-		-- iterate over all spellbooks (vanilla has 3 of them, release version only 1)
-		local bookLast = MCVanilla and 4 or 2;
+		-- iterate over all spellbooks (vanilla has 3 of them, release (shadowlands+) version only 2)
+		local bookLast = MCVanilla and 4 or 3;
 		for bookIndex = 2, bookLast, 1 do
 			-- spell tab info
 			local bookName, bookTexture, bookOffset, bookNumSpells = GetSpellTabInfo(bookIndex); -- 2 is always main spell book for current spec
