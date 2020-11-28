@@ -32,6 +32,8 @@ DHUDSideInfoManager = MCCreateSubClass(DHUDGuiSlotManager, {
 	comboPointsColorTable = nil,
 	-- table with color exchanges for combo-points
 	comboPointsColorOrder = nil,
+	-- index of colored charged combopoint
+	comboPointsChargeColorIndex = 0,
 	-- defines if player short debuffs should be colorized
 	STATIC_colorizePlayerShortDebuffs = false,
 	-- defines if player cooldowns lock should be colorized
@@ -143,6 +145,19 @@ function DHUDSideInfoManager:onDataTrackersSettingChange(e)
 	DHUDGuiSlotManager.onDataTrackersSettingChange(self, e);
 end
 
+--- Change color of single combo-point to specified one
+-- @param comboPointIndex index of combo-point to be updated
+-- @param colorName name of the color to be used for combo-point
+function DHUDSideInfoManager:changeSingleComboPointColor(comboPointIndex, colorName)
+	local comboFrame = self.currentGroup[comboPointIndex];
+	-- get texture path and crop info
+	local path, x0, x1, y0, y1 = unpack(DHUDGUI.textures[colorName]);
+	-- get texture
+	local texture = comboFrame.texture;
+	-- set texture and coordinates
+	texture:SetTexture(path);
+	texture:SetTexCoord(x0, x1, y0, y1); -- parameters: minX, maxX, minY, maxY
+end
 --- Changes color of combo-points to table specified
 -- @param colorTable table with names of the color textures
 function DHUDSideInfoManager:changeComboPointColors(colorTable)
@@ -151,15 +166,8 @@ function DHUDSideInfoManager:changeComboPointColors(colorTable)
 	end
 	self.comboPointsColorTable = colorTable;
 	-- iterate over table
-	for i, v in ipairs(colorTable) do 
-		local comboFrame = self.currentGroup[i];
-		-- get texture path and crop info
-		local path, x0, x1, y0, y1 = unpack(DHUDGUI.textures[v]);
-		-- get texture
-		local texture = comboFrame.texture;
-		-- set texture and coordinates
-		texture:SetTexture(path);
-		texture:SetTexCoord(x0, x1, y0, y1); -- parameters: minX, maxX, minY, maxY
+	for i, v in ipairs(colorTable) do
+		self:changeSingleComboPointColor(i, v);
 	end
 	-- hide all colorized frames
 	self.currentGroup:setFramesShown(0);
@@ -199,13 +207,7 @@ function DHUDSideInfoManager:changeComboPointColorOrder(...)
 		end
 		-- colorize with exchanged colors
 		for i = indexS, indexE, 1 do
-			-- get texture path and crop info
-			local path, x0, x1, y0, y1 = unpack(DHUDGUI.textures[self.comboPointsColorTable[i]]);
-			-- get texture
-			local texture = self.currentGroup[comboIndex].texture;
-			-- set texture and coordinates
-			texture:SetTexture(path);
-			texture:SetTexCoord(x0, x1, y0, y1); -- parameters: minX, maxX, minY, maxY
+			self:changeSingleComboPointColor(comboIndex, self.comboPointsColorTable[i]);
 			-- update index
 			comboIndex = comboIndex + 1;
 		end
@@ -540,17 +542,44 @@ end
 function DHUDSideInfoManager:updateComboPoints()
 	local amount = self.currentDataTracker.amount;
 	local amountExtra = self.currentDataTracker.amountExtra;
+	local chargedIndex = self.currentDataTracker.chargedPowerPointIndex or 0;
 	local total = amount + amountExtra;
 	-- update colors
-	if (amount >= 5) then
+	local amountForColors = amount > chargedIndex and amount or chargedIndex; -- need to show required amount of frames in order to highlight some combo-point
+	if (amountForColors >= 5) then
 		self:changeComboPointColorOrder(1, 5, 6, 10);
 	else
-		self:changeComboPointColorOrder(1, amount, 6, 10);
+		self:changeComboPointColorOrder(1, amountForColors, 6, 10);
 	end
-	self.currentGroup:setFramesShown(amount + amountExtra);
-	-- change alpha for stored combo-points
+	self.currentGroup:setFramesShown(amountForColors + amountExtra);
+	-- update alpha and preprocess charged combo-points if needed
+	local prevChargeIndex = self.comboPointsChargeColorIndex;
+	if (prevChargeIndex > 0) then
+		self.comboPointsAlpha = 0; -- force alpha override if charged combo-points were shown
+	end
 	local alpha = self.currentDataTracker.isStoredAmount and 0.5 or 1.0;
 	self:changeComboPointsAlpha(alpha);
+	-- change charged combo texture
+	--print("gui charged combopoints " .. chargedIndex .. ", self value " .. prevChargeIndex);
+	if (prevChargeIndex > 0 or chargedIndex > 0) then -- combo coloring may be lost due to "changeComboPointColorOrder" function
+		-- restore original color
+		if (prevChargeIndex > 0) then
+			self:changeSingleComboPointColor(prevChargeIndex, self.comboPointsColorTable[prevChargeIndex]);
+		end
+		-- set cyan color for charge
+		if (chargedIndex > 0) then
+			self:changeSingleComboPointColor(chargedIndex, "ComboCircleCyan");
+		end
+		self.comboPointsChargeColorIndex = chargedIndex;
+	end
+	-- update alpha for charged combo-point if needed
+	if (chargedIndex > 0 and total < chargedIndex) then
+		for i = 1, chargedIndex do
+			local comboFrame = self.currentGroup[i];
+			local comboAlpha = i > total and (i == chargedIndex and 0.4 or 0) or 1;
+			comboFrame:SetAlpha(self.comboPointsAlpha * comboAlpha);
+		end
+	end
 end
 
 --- Function to update general data that is displayed as combo-points

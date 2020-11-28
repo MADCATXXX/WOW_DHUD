@@ -56,6 +56,9 @@ function UnitChannelInfo(unit)
 	end
 	return nil; -- not casting
 end
+function GetUnitChargedPowerPoints(unit)
+	return 0; -- combo points not charged
+end
 SpellActivationOverlayFrame = CreateFrame("Frame"); -- there was no such frame, all calls can be ignored
 -------------------------------------------------------------------------------------
 -- rewrite event frame function, since WoW API throws exceptions on missing events --
@@ -67,6 +70,7 @@ MCBlizzardEventExcludes = {
 	["SPELL_ACTIVATION_OVERLAY_SHOW"] = 1,
 	["UNIT_HEAL_PREDICTION"] = 1, ["UNIT_ABSORB_AMOUNT_CHANGED"] = 1, ["UNIT_HEAL_ABSORB_AMOUNT_CHANGED"] = 1,
 	["UNIT_SPELLCAST_INTERRUPTIBLE"] = 1, ["UNIT_SPELLCAST_NOT_INTERRUPTIBLE"] = 1,
+	["UNIT_POWER_POINT_CHARGE"] = 1,
 };
 
 --- Create blizzard event frame to listen to game events

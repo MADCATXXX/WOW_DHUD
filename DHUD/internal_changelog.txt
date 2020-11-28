@@ -1,3 +1,6 @@
+changelog 2.0.90002.69:
+- added support for charged combo-points (Kyrian)
+
 changelog 2.0.90001.68:
 - updated dhud options addon to not produce errors anymore
 - dhud options textures bug to be fixed later

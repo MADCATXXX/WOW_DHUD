@@ -27,8 +27,7 @@ DHUDDataTrackers = {
 		-------------------------
 		-- Player Combo Points --
 		-------------------------
-		ALL.selfComboPoints = DHUDSpecificPowerTracker:new();
-		ALL.selfComboPoints:setResourceType(Enum.PowerType.ComboPoints, "COMBO_POINTS");
+		ALL.selfComboPoints = DHUDComboPointTracker:new();
 		-- combopoints available only for druid and rogue
 		if (trackingHelper.playerClass == "ROGUE" or trackingHelper.playerClass == "DRUID") then
 			ALL.selfComboPoints:initPlayerNotInVehicleOrNoneUnitId();
