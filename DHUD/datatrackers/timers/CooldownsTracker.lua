@@ -23,7 +23,7 @@ DHUDCooldownsTracker = MCCreateSubClass(DHUDTimersTracker, {
 	SPELLIDS_GENERALBOOK_EXCLUDE = {
 		83958,						-- Guild bank
 		125439,						-- resurrect battle pets
-	};
+	},
 	-- mask for the type, that specifies that cooldown is associated with spell
 	TIMER_TYPE_MASK_SPELL			= 1,
 	-- mask for the type, that specifies that cooldown is associated with item
@@ -54,6 +54,18 @@ DHUDCooldownsTracker = MCCreateSubClass(DHUDTimersTracker, {
 	gcdTimeTotal					= 0,
 	-- defines if cooldowns should stay during combat
 	cooldownsStayInCombat			= true,
+	-- list with actions for extra cooldowns (for "player")
+	SPELLIDS_EXTRAACTION_PLAYER = {
+		169, -- Extra Action Bar ability, different per zone
+	},
+	-- list with spells for extra cooldowns (for "vehicle")
+	SPELLIDS_EXTRAACTION_VEHICLE = {
+		133, 134, 135, 136, 137, 138 -- Vehicle Extra Action Bar ability, different per zone
+	},
+	-- list with spells for extra cooldowns (for "player")
+	SPELLIDS_EXTRASPELL_PLAYER = {
+		313347, -- Shadowlands Covenant ability
+	},
 })
 
 --- Create new unit cooldowns tracker, unitId should be specified after constructor
@@ -457,6 +469,7 @@ function DHUDCooldownsTracker:updateActionBarCooldowns()
 	local timerMs = trackingHelper.timerMs;
 	-- create variables
 	local cooldownId = 0;
+	local charges, maxCharges;
 	local startTime, duration, enable;
 	local actionType, actionSubType, spellId, spellData;
 	local timer;
@@ -464,11 +477,40 @@ function DHUDCooldownsTracker:updateActionBarCooldowns()
 	self:findSourceTimersBegin(2);
 	-- update extra action button spell cooldown ( /script print("id is " .. ActionButton_GetPagedID(ExtraActionButton1)) )
 	if (self.unitId == "player") then
-		-- iterate
-		for i = 169, 169, 1 do
-			startTime, duration, enable = GetActionCooldown(i);
+		-- iterate extra spells
+		for i, spellId in ipairs(self.SPELLIDS_EXTRASPELL_PLAYER) do
+			spellData = { GetSpellInfo(spellId) }; -- do not cache spell data as extra spell abilities can change
+			-- spell data exists?
+			if (spellData[1] ~= nil) then
+				charges, maxCharges, startTime, duration = GetSpellCharges(spellData[1]);
+				if (charges ~= nil and (maxCharges - charges) > 0) then
+					cooldownCharges = (maxCharges - charges);
+				else -- check usual cooldown
+					startTime, duration, enable = GetSpellCooldown(spellData[1]);
+					cooldownCharges = 1;
+				end
+				--print("spellId " .. spellId .. ", startTime " .. MCTableToString(starTime) .. ", duration " .. MCTableToString(duration) .. ", charges " .. MCTableToString(charges) .. ", spellData " .. MCTableToString(spellData));
+				if (startTime ~= nil and duration > 1.5) then
+					cooldownId = cooldownId + 1;
+					timer = self:findTimer(cooldownId, spellId);
+					-- fill timer info, { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder }
+					timer[1] = self.TIMER_TYPE_MASK_SPELL + self.TIMER_TYPE_MASK_ACTIVE; -- type
+					timer[2] = startTime + duration - timerMs; -- timeLeft
+					timer[3] = duration; -- duration
+					timer[4] = spellId; -- id
+					timer[5] = spellId; -- tooltipId
+					timer[6] = spellData[1]; -- name
+					timer[7] = cooldownCharges; -- stacks
+					timer[8] = spellData[3]; -- texture
+					timer[14] = self.cooldownsStayInCombat; -- stayInCombat
+				end
+			end
+		end
+		-- iterate actions
+		for i, v in ipairs(self.SPELLIDS_EXTRAACTION_PLAYER) do
+			startTime, duration, enable = GetActionCooldown(v);
 			if (startTime ~= nil and duration > 1.5) then
-				actionType, spellId, actionSubType = GetActionInfo(i);
+				actionType, spellId, actionSubType = GetActionInfo(v);
 				if (actionType == "spell") then
 					cooldownId = cooldownId + 1;
 					spellData = trackingHelper:getSpellData(spellId, true);
@@ -490,8 +532,8 @@ function DHUDCooldownsTracker:updateActionBarCooldowns()
 	elseif (self.unitId == "vehicle") then
 		local gcdUpdated = false;
 		-- iterate
-		for i = 133, 138, 1 do
-			startTime, duration, enable = GetActionCooldown(i);
+		for i, v in ipairs(self.SPELLIDS_EXTRAACTION_VEHICLE) do
+			startTime, duration, enable = GetActionCooldown(v);
 			if (startTime ~= nil) then
 				if (duration <= 1.5) then
 					if (not gcdUpdated and duration > 0) then
@@ -500,7 +542,7 @@ function DHUDCooldownsTracker:updateActionBarCooldowns()
 						gcdUpdated = true;
 					end
 				else
-					actionType, spellId, actionSubType = GetActionInfo(i);
+					actionType, spellId, actionSubType = GetActionInfo(v);
 					if (actionType == "spell") then
 						cooldownId = cooldownId + 1;
 						spellData = trackingHelper:getSpellData(spellId, true);

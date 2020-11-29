@@ -1,3 +1,6 @@
+changelog 2.0.90002.70:
+- added support for cooldown tracking of covenant abilities
+
 changelog 2.0.90002.69:
 - added support for charged combo-points (Kyrian)
 
