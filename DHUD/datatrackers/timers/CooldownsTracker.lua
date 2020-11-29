@@ -64,7 +64,8 @@ DHUDCooldownsTracker = MCCreateSubClass(DHUDTimersTracker, {
 	},
 	-- list with spells for extra cooldowns (for "player")
 	SPELLIDS_EXTRASPELL_PLAYER = {
-		313347, -- Shadowlands Covenant ability
+		--313347, -- Shadowlands Covenant ability (already exists in player book after choosing covenant)
+		--326526, -- Shadowlands Signature ability (all classes covenant utility ability)
 	},
 })
 
@@ -233,6 +234,7 @@ function DHUDCooldownsTracker:updateSpellCooldowns()
 						end
 					elseif (duration ~= invalidDuration) then
 						cooldownId = cooldownId + 1;
+						--print("book spellId " .. spellId .. ", startTime " .. MCTableToString(starTime) .. ", duration " .. MCTableToString(duration) .. ", charges " .. MCTableToString(charges) .. ", spellData " .. MCTableToString(spellData));
 						timer = self:findTimer(cooldownId, spellId);
 						-- degroup timers if their duration has changed, for spells like "Death from above"
 						if (timer[13] ~= nil and timer[3] ~= duration) then

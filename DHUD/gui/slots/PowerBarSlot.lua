@@ -408,6 +408,10 @@ function DHUDGuiBarManager:updateHealth()
 	local amountTotal = self.currentDataTracker.amountMax;
 	local absorbed = self:getHealthHealAbsorb();
 	local amount = self.currentDataTracker.amount;
+	-- heal absorb should not be shown higher than health amount
+	if (absorbed > amount) then
+		absorbed = amount;
+	end
 	local amountNonAbsorbed = amount - absorbed;
 	local amountShield = self:getHealthShield();
 	local amountHeal = self:getHealthHealIncoming();
