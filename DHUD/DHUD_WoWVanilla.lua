@@ -57,7 +57,7 @@ function UnitChannelInfo(unit)
 	return nil; -- not casting
 end
 function GetUnitChargedPowerPoints(unit)
-	return 0; -- combo points not charged
+	return nil; -- combo points not charged (should return array with charged combo-points)
 end
 SpellActivationOverlayFrame = CreateFrame("Frame"); -- there was no such frame, all calls can be ignored
 -------------------------------------------------------------------------------------

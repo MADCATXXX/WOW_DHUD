@@ -17,6 +17,16 @@ DHUD_OptionsFrame_LUA = {
 
 --- Options frame is loaded
 function DHUD_OptionsFrame_LUA:processOptionsFrameOnLoad(frame)
+	-- update backdrop
+	if (not frame.SetBackdropColor) then -- shadowlands require frame to be inherited from BackdropTemplate
+		Mixin(frame, BackdropTemplateMixin);
+		-- copy arguments from xml, WoW Addon Studio still uses them to display UI
+		frame:SetBackdrop({
+			bgFile = "Interface/DialogFrame/UI-DialogBox-Background", 
+			edgeFile = "Interface/Tooltips/UI-Tooltip-Border", tile = true, tileSize = 16, edgeSize = 16, 
+			insets = { left = 4, right = 4, top = 4, bottom = 4 }
+		}); --frame:OnBackdropLoaded(); --frame:OnBackdropSizeChanged();
+	end
 	-- show gradients, they look weird in world of warcraft addon studio
 	local frameName = frame:GetName();
 	_G[frameName .. "_TopGradient"]:Show();

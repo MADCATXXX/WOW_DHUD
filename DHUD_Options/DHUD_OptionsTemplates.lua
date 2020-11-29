@@ -688,8 +688,23 @@ function DHUD_OptionsTemplates_LUA:processLayoutsRadioButtonOnLoad(frame)
 	table.insert(self.frameDataRadioButtons, frame);
 end
 
+--- Shadowlands prepatch changed backdrop support, frames need to manually extend BackdropTemplateMixin template
+function DHUD_OptionsTemplates_LUA:checkTextBoxBackdrop(frame)
+	-- update backdrop if needed
+	if (not frame.SetBackdropColor) then -- shadowlands require frame to be inherited from BackdropTemplate
+		Mixin(frame, BackdropTemplateMixin);
+		-- copy arguments from xml, WoW Addon Studio still uses them to display UI
+		frame:SetBackdrop({
+			bgFile = "Interface/ChatFrame/ChatFrameBackground", 
+			edgeFile = "Interface/Buttons/UI-SliderBar-Border", tile = true, tileSize = 16, edgeSize = 9, 
+			insets = { left = 3, right = 22, top = 6, bottom = 6 }
+		}); --frame:OnBackdropLoaded(); --frame:OnBackdropSizeChanged();
+	end
+end
+
 --- Options spell list text box frame is loaded
 function DHUD_OptionsTemplates_LUA:processSpellListTextBoxOnLoad(frame)
+	self:checkTextBoxBackdrop(frame);
 	local name = frame:GetName();
 	local ltext = frame:GetAttribute("LTEXT") or "";
 	local setting = frame:GetAttribute("SETTING");
@@ -889,6 +904,7 @@ end
 
 --- Options unit text frame is loaded
 function DHUD_OptionsTemplates_LUA:processUnitTextOnLoad(frame)
+	self:checkTextBoxBackdrop(frame);
 	local name = frame:GetName();
 	local ltext = frame:GetAttribute("LTEXT") or "";
 	local setting = frame:GetAttribute("SETTING");
@@ -1264,6 +1280,7 @@ end
 
 --- Options general text box frame is loaded
 function DHUD_OptionsTemplates_LUA:processGeneralTextBoxOnLoad(frame)
+	self:checkTextBoxBackdrop(frame);
 	local name = frame:GetName();
 	local ltext = frame:GetAttribute("LTEXT") or "";
 	local setting = frame:GetAttribute("SETTING");

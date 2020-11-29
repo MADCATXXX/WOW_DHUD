@@ -1,6 +1,6 @@
 <Ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.blizzard.com/wow/ui/">
 	<Script file="DHUD_OptionsFrame.lua" />
-	<Frame name="DHUD_OptionsFrame" parent="UIParent" toplevel="true" movable="true" enableMouse="true">
+	<Frame name="DHUD_OptionsFrame" parent="UIParent" toplevel="true" movable="true" enableMouse="true"> <!--  inherits="BackdropTemplate", won't work for classic -->
 		<Size>
 			<AbsDimension x="500" y="600" />
 		</Size>

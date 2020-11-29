@@ -26,7 +26,7 @@
 			<AbsDimension x="75" y="23" />
 		</Size>
 		<Scripts>
-			<OnLoad>
+			<OnLoad inherit="prepend"> <!-- call super onLoad handler too, due to shadowlands frame changes -->
 				DHUD_OptionsTemplates_LUA:processRedButtonOnLoad(self);
 			</OnLoad>
 		</Scripts>
@@ -48,7 +48,7 @@
 			</Layer>
 		</Layers>
 		<Scripts>
-			<OnLoad>
+			<OnLoad inherit="prepend"> <!-- call super onLoad handler too, due to shadowlands frame changes -->
 				DHUD_OptionsTemplates_LUA:processHeaderOnLoad(self);
 			</OnLoad>
 		</Scripts>
@@ -76,7 +76,7 @@
 			</Button>
 		</Frames>
 		<Scripts>
-			<OnLoad>
+			<OnLoad inherit="prepend"> <!-- call super onLoad handler too, due to shadowlands frame changes -->
 				DHUD_OptionsTemplates_LUA:processTabOnLoad(self);
 			</OnLoad>
 		</Scripts>
@@ -84,7 +84,7 @@
 	<Frame name="DHUD_OptionsTemplate_TabPage" virtual="true">
 		<Size x="490" y="524" />
 		<Scripts>
-			<OnLoad>
+			<OnLoad inherit="prepend"> <!-- call super onLoad handler too, due to shadowlands frame changes -->
 				DHUD_OptionsTemplates_LUA:processTabPageOnLoad(self);
 			</OnLoad>
 		</Scripts>
@@ -160,7 +160,7 @@
 			</Layer>
 		</Layers>
 		<Scripts>
-			<OnLoad>
+			<OnLoad inherit="prepend"> <!-- call super onLoad handler too, due to shadowlands frame changes -->
 				DHUD_OptionsTemplates_LUA:processTabButtonOnLoad(self);
 			</OnLoad>
 		</Scripts>
@@ -222,7 +222,7 @@
 			<AbsInset left="0" right="0" top="0" bottom="0" />
 		</HitRectInsets>
 		<Scripts>
-			<OnLoad>
+			<OnLoad inherit="prepend"> <!-- call super onLoad handler too, due to shadowlands frame changes -->
 				DHUD_OptionsTemplates_LUA:processCheckBoxOnLoad(self);
 			</OnLoad>
 		</Scripts>
@@ -234,7 +234,7 @@
 			<AbsDimension x="135" y="16" />
 		</Size>
 		<Scripts>
-			<OnLoad>
+			<OnLoad inherit="prepend"> <!-- call super onLoad handler too, due to shadowlands frame changes -->
 				DHUD_OptionsTemplates_LUA:processSliderOnLoad(self);
 			</OnLoad>
 		</Scripts>
@@ -317,7 +317,7 @@
 			</Layer>
 		</Layers>
 		<Scripts>
-			<OnLoad>
+			<OnLoad inherit="prepend"> <!-- call super onLoad handler too, due to shadowlands frame changes -->
 				DHUD_OptionsTemplates_LUA:processRadioButtonOnLoad(self);
 			</OnLoad>
 		</Scripts>
@@ -349,7 +349,7 @@
 			</Layer>
 		</Layers>
 		<Scripts>
-			<OnLoad>
+			<OnLoad inherit="prepend"> <!-- call super onLoad handler too, due to shadowlands frame changes -->
 				DHUD_OptionsTemplates_LUA:processDropDownMaskOnLoad(self);
 			</OnLoad>
 		</Scripts>
@@ -372,7 +372,7 @@
 			</Layer>
 		</Layers>
 		<Scripts>
-			<OnLoad>
+			<OnLoad inherit="prepend"> <!-- call super onLoad handler too, due to shadowlands frame changes -->
 				DHUD_OptionsTemplates_LUA:processDropDownFramesDataOnLoad(self);
 			</OnLoad>
 		</Scripts>
@@ -395,14 +395,14 @@
 			</Layer>
 		</Layers>
 		<Scripts>
-			<OnLoad>
+			<OnLoad inherit="prepend"> <!-- call super onLoad handler too, due to shadowlands frame changes -->
 				DHUD_OptionsTemplates_LUA:processDropDownFramesPositionOnLoad(self);
 			</OnLoad>
 		</Scripts>
 	</Frame>
 	<CheckButton name="DHUD_OptionsTemplate_LayoutsRadioButton" inherits="DHUD_OptionsTemplate_RadioButton" virtual="true" text="RadioButton">
 		<Scripts>
-			<OnLoad>
+			<OnLoad inherit="prepend"> <!-- call super onLoad handler too, due to shadowlands frame changes -->
 				DHUD_OptionsTemplates_LUA:processLayoutsRadioButtonOnLoad(self);
 			</OnLoad>
 		</Scripts>
@@ -477,7 +477,7 @@
 			</Button>
 		</Frames>
 		<Scripts>
-			<OnLoad>
+			<OnLoad inherit="prepend"> <!-- call super onLoad handler too, due to shadowlands frame changes -->
 				DHUD_OptionsTemplates_LUA:processSpellListTextBoxOnLoad(self);
 			</OnLoad>
 		</Scripts>
@@ -627,7 +627,7 @@
 			</Frame>
 		</Frames>
 		<Scripts>
-			<OnLoad>
+			<OnLoad inherit="prepend"> <!-- call super onLoad handler too, due to shadowlands frame changes -->
 				DHUD_OptionsTemplates_LUA:processColorsLineOnLoad(self);
 			</OnLoad>
 		</Scripts>
@@ -961,7 +961,7 @@
 			</Frame>
 		</Frames>
 		<Scripts>
-			<OnLoad>
+			<OnLoad inherit="prepend"> <!-- call super onLoad handler too, due to shadowlands frame changes -->
 				DHUD_OptionsTemplates_LUA:processColorsLineOnLoad(self);
 			</OnLoad>
 		</Scripts>
@@ -1048,7 +1048,7 @@
 			</Frame>
 		</Frames>
 		<Scripts>
-			<OnLoad>
+			<OnLoad inherit="prepend"> <!-- call super onLoad handler too, due to shadowlands frame changes -->
 				DHUD_OptionsTemplates_LUA:processUnitTextOnLoad(self);
 			</OnLoad>
 		</Scripts>
@@ -1149,7 +1149,7 @@
 			</Button>
 		</Frames>
 		<Scripts>
-			<OnLoad>
+			<OnLoad inherit="prepend"> <!-- call super onLoad handler too, due to shadowlands frame changes -->
 				DHUD_OptionsTemplates_LUA:processDistanceBoxOnLoad(self);
 			</OnLoad>
 		</Scripts>
@@ -1231,7 +1231,7 @@
 			</Button>
 		</Frames>
 		<Scripts>
-			<OnLoad>
+			<OnLoad inherit="prepend"> <!-- call super onLoad handler too, due to shadowlands frame changes -->
 				DHUD_OptionsTemplates_LUA:processPositionBoxOnLoad(self);
 			</OnLoad>
 		</Scripts>
@@ -1312,7 +1312,7 @@
 			</Button>
 		</Frames>
 		<Scripts>
-			<OnLoad>
+			<OnLoad inherit="prepend"> <!-- call super onLoad handler too, due to shadowlands frame changes -->
 				DHUD_OptionsTemplates_LUA:processGeneralTextBoxOnLoad(self);
 			</OnLoad>
 		</Scripts>
