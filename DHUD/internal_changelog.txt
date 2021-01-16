@@ -1,3 +1,6 @@
+changelog 2.0.90002.73:
+- performance optimizations based on function profiling information
+
 changelog 2.0.90002.72:
 - health absorb on player bar can no longer be bigger than player health (fix for ShadowLands raid boss)
 - removed covenant ability cd tracking as it already being tracked when choosing covenant, not really easy to detect if you have one or not

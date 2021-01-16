@@ -37,6 +37,8 @@ DHUDGUIBarAnimationHelper = MCCreateClass{
 	expiredValuePriorities	= { },
 	-- time at which bar animator was updated
 	timeUpdatedAt		= 0,
+	-- defines if cast bar helper is processing updates to make animation
+	processingUpdates = false,
 	-- defines if bars should be animated
 	STATIC_animate		= true,
 	-- height percent change over 1 second for fast animation speed
@@ -107,8 +109,23 @@ end
 function DHUDGUIBarAnimationHelper:init(colorizeFunction, colorizeFunctionSelf)
 	self.colorizeFunction = colorizeFunction;
 	self.colorizeFunctionSelf = colorizeFunctionSelf;
-	-- listen to game updates
-	DHUDDataTrackers.helper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE_FREQUENT, self, self.onUpdateTime);
+	-- do not automatically listen to game events, event listener will be added only if required (otherwise to many calls are reducing performance)
+	self.processingUpdates = false;
+end
+
+--- Subscribe or Unsubscribe from Frequent updates, Performance optimization as it requires a lot of time
+-- @param updatesRequired defines if updates are required (either isAnimating are not nil/false)
+function DHUDGUIBarAnimationHelper:setUpdatesRequired(updatesRequired)
+	if (self.processingUpdates == updatesRequired) then
+		return;
+	end
+	self.processingUpdates = updatesRequired;
+	--print("power bar animates requred: " ..  MCTableToString(updatesRequired));
+	if (updatesRequired) then
+		DHUDDataTrackers.helper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE_FREQUENT, self, self.onUpdateTime);
+	else
+		DHUDDataTrackers.helper:removeEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE_FREQUENT, self, self.onUpdateTime);
+	end
 end
 
 --- set framesShown variable, updating visibility of frames in the process
@@ -256,6 +273,7 @@ function DHUDGUIBarAnimationHelper:updateBar(valuesInfo, valuesHeight, heightSig
 	self.timeUpdatedAt = DHUDDataTrackers.helper.timerMs - 0.016;
 	-- animate
 	self.isAnimating = true;
+	self:setUpdatesRequired(true);
 	-- update on timer
 	self:onUpdateTime(nil);
 end
@@ -264,6 +282,7 @@ end
 function DHUDGUIBarAnimationHelper:hideBar()
 	-- stop animation
 	self.isAnimating = false;
+	self:setUpdatesRequired(false);
 	-- set visibility to 0
 	self:setFramesShown(0);
 end
@@ -368,9 +387,13 @@ function DHUDGUIBarAnimationHelper:onUpdateTime(e)
 	self.isAnimating = false;
 	for i, v in ipairs(self.stateEndAnimation) do
 		if (v ~= self.stateCurrentAnimation[i]) then
+			--print("still animating at " .. i .. ", end " .. MCTableToString(v) .. " != current " ..  MCTableToString(self.stateCurrentAnimation[i]));
 			self.isAnimating = true;
 			break;
 		end
+	end
+	if (not self.isAnimating) then
+		self:setUpdatesRequired(false);
 	end
 	-- remove expired value types
 	for i, v in pairs(self.expiredValuePriorities) do

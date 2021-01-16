@@ -35,6 +35,8 @@ DHUDGUICastBarAnimationHelper = MCCreateClass{
 	animateFade			= nil,
 	-- alpha of flash animation, nil if none
 	animateFlash		= nil,
+	-- defines if cast bar helper is processing updates to make animation
+	processingUpdates = false,
 	-- defines if bars should be animated
 	STATIC_reverseCastingBar = false,
 	-- alpha step for fade out animation
@@ -105,8 +107,22 @@ function DHUDGUICastBarAnimationHelper:init(colorizeFunction, getValueFunction, 
 	self.colorizeFunction = colorizeFunction;
 	self.getValueFunction = getValueFunction;
 	self.functionsSelfVar = functionsSelfVar;
-	-- listen to game updates
-	DHUDDataTrackers.helper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE_FREQUENT, self, self.onUpdateTime);
+	-- do not automatically listen to game events, event listener will be added only if required (otherwise to many calls are reducing performance)
+	self.processingUpdates = false;
+end
+
+--- Subscribe or Unsubscribe from Frequent updates, Performance optimization as it requires a lot of time
+-- @param updatesRequired defines if updates are required (either isAnimating, animateHold, animateFade or animateFlash are not nil/false)
+function DHUDGUICastBarAnimationHelper:setUpdatesRequired(updatesRequired)
+	if (self.processingUpdates == updatesRequired) then
+		return;
+	end
+	self.processingUpdates = updatesRequired;
+	if (updatesRequired) then
+		DHUDDataTrackers.helper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE_FREQUENT, self, self.onUpdateTime);
+	else
+		DHUDDataTrackers.helper:removeEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE_FREQUENT, self, self.onUpdateTime);
+	end
 end
 
 --- Internal use function only, updates height and color of cast bar frames
@@ -166,6 +182,7 @@ function DHUDGUICastBarAnimationHelper:startCastBarAnimation(valueTotal)
 	self.animateHold = nil;
 	self.animateFade = nil;
 	self.animateFlash = nil;
+	self:setUpdatesRequired(true);
 	-- update on timer
 	self:onUpdateTime(nil);
 end
@@ -181,6 +198,7 @@ function DHUDGUICastBarAnimationHelper:hideCastBar()
 	self.animateHold = nil;
 	self.animateFade = nil;
 	self.animateFlash = nil;
+	self:setUpdatesRequired(false);
 end
 
 --- Change animation to hold and fade out
@@ -195,6 +213,7 @@ function DHUDGUICastBarAnimationHelper:holdAndFadeOut()
 	-- add hold and fade out animation
 	self.animateHold = self.CASTING_BAR_HOLD_TIME;
 	self.animateFade = 1;
+	self:setUpdatesRequired(true);
 end
 
 --- Change animation to flash and fade out
@@ -212,6 +231,7 @@ function DHUDGUICastBarAnimationHelper:flashAndFadeOut()
 	-- add hold and fade out animation
 	self.animateFlash = 0;
 	self.animateFade = 1;
+	self:setUpdatesRequired(true);
 end
 
 --- Time updated, update bars

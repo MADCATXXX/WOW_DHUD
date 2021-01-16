@@ -37,6 +37,8 @@ DHUDTimersTracker = MCCreateSubClass(DHUDDataTracker, {
 	playerIsInCombat	= false,
 	-- defines if timers should be updated when combat is finished?
 	pendingUpdateOnCombatEnd = false,
+	-- defines if cast bar helper is processing updates to make animation
+	processingUpdates = false,
 	-- table to describe inactive timer when timers are grouped using groupTimersByTime function
 	GROUP_INACTIVE_TIMER = { },
 })
@@ -55,6 +57,21 @@ function DHUDTimersTracker:constructor()
 	DHUDDataTracker.constructor(self);
 end
 
+--- Subscribe or Unsubscribe from Frequent updates, Performance optimization as it requires a lot of time
+-- @param updatesRequired defines if updates are required (either isAnimating are not nil/false)
+function DHUDTimersTracker:setUpdatesRequired(updatesRequired)
+	if (self.processingUpdates == updatesRequired) then
+		return;
+	end
+	self.processingUpdates = updatesRequired;
+	--print("timer updates requred: " ..  MCTableToString(updatesRequired));
+	if (updatesRequired) then
+		DHUDDataTrackers.helper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE_SEMIFREQUENT, self, self.onUpdateTime);
+	else
+		DHUDDataTrackers.helper:removeEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE_SEMIFREQUENT, self, self.onUpdateTime);
+	end
+end
+
 --- Time passed, update all timers
 function DHUDTimersTracker:onUpdateTime()
 	local timerMs = trackingHelper.timerMs;
@@ -62,9 +79,10 @@ function DHUDTimersTracker:onUpdateTime()
 	local diff = timerMs - timeUpdatedAt;
 	self.timeUpdatedAt = timerMs;
 	-- already updated by data update
-	if (diff == 0 or #self.timers == 0) then
+	if (diff <= 0 or #self.timers == 0) then
 		return;
 	end
+	--print("timers update diff " .. MCTableToString(diff));
 	-- iterate over timers
 	for i, v in ipairs(self.timers) do
 		-- update time left
@@ -265,6 +283,7 @@ function DHUDTimersTracker:findSourceTimersEnd(sourceId)
 		i = i + 1;
 	end
 	--print("findTimer end source " .. sourceId);
+	self:setUpdatesRequired(#self.timers > 0);
 end
 
 --- Updates timeUpdatedAt variable and timers for sources that wasn't updated, must be called after partial timers update
@@ -539,13 +558,12 @@ end
 --- Start tracking data
 function DHUDTimersTracker:startTracking()
 	-- listen to game events
-	trackingHelper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE, self, self.onUpdateTime);
 	trackingHelper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_COMBAT_STATE_CHANGED, self, self.onCombatState);
 end
 
 --- Stop tracking data
 function DHUDTimersTracker:stopTracking()
 	-- stop listening to game events
-	trackingHelper:removeEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE, self, self.onUpdateTime);
+	self:setUpdatesRequired(false);
 	trackingHelper:removeEventListener(DHUDDataTrackerHelperEvent.EVENT_COMBAT_STATE_CHANGED, self, self.onCombatState);
 end

@@ -19,8 +19,10 @@ local _;
 DHUDDataTrackerHelperEvent = MCCreateSubClass(MADCATEvent, {
 	-- dispatched in order to update resources (every 100 ms)
 	EVENT_UPDATE = "time",
-	-- dispatched in order to do some updates on next time tick (every 17 ms)
+	-- dispatched in order to do some updates on next time tick (every 10 ms)
 	EVENT_UPDATE_FREQUENT = "timeFrequent",
+	-- dispatched in order to do some heavy updates frequently (every 45-50 ms)
+	EVENT_UPDATE_SEMIFREQUENT = "timeSemiFrequent",
 	-- dispatched in order to update some values that don't require regular ticks (every 1000 ms)
 	EVENT_UPDATE_INFREQUENT = "timeInFrequent",
 	-- dispatched when player changes specialization
@@ -74,6 +76,8 @@ DHUDDataTrackerHelper = MCCreateSubClass(MADCATEventDispatcher, {
 	eventsFrame			= nil,
 	-- number of milliseconds since some event in the past (e.g. entering world), float number, whole part is seconds, fractional pars is milliseconds
 	timerMs				= 0,
+	-- amount of time since last dispatch of semi frequent update event
+	timeSinceLastUpdateFast = 0,
 	-- amount of time since last dispatch of update event
 	timeSinceLastUpdate = 0,
 	-- amount of time since last dispatch of infrequent update event
@@ -134,6 +138,7 @@ function DHUDDataTrackerHelper:constructor()
 	-- custom events
 	self.eventVehicleState = DHUDDataTrackerHelperEvent:new(DHUDDataTrackerHelperEvent.EVENT_VEHICLE_STATE_CHANGED);
 	self.eventUpdate = DHUDDataTrackerHelperEvent:new(DHUDDataTrackerHelperEvent.EVENT_UPDATE);
+	self.eventUpdateSemiFrequent = DHUDDataTrackerHelperEvent:new(DHUDDataTrackerHelperEvent.EVENT_UPDATE_SEMIFREQUENT);
 	self.eventUpdateFrequent = DHUDDataTrackerHelperEvent:new(DHUDDataTrackerHelperEvent.EVENT_UPDATE_FREQUENT);
 	self.eventUpdateInFrequent = DHUDDataTrackerHelperEvent:new(DHUDDataTrackerHelperEvent.EVENT_UPDATE_INFREQUENT);
 	self.eventTarget = DHUDDataTrackerHelperEvent:new(DHUDDataTrackerHelperEvent.EVENT_TARGET_UPDATED);
@@ -288,8 +293,14 @@ end
 -- @param timeElapsed amount of time elapsed since last update
 function DHUDDataTrackerHelper:onUpdate(timeElapsed)
 	self:dispatchEvent(self.eventUpdateFrequent);
-	self.timeSinceLastUpdate = self.timeSinceLastUpdate + timeElapsed;
+	self.timeSinceLastUpdateFast = self.timeSinceLastUpdateFast + timeElapsed;
 	self.timerMs = GetTime();
+	if (self.timeSinceLastUpdateFast < 0.045) then
+		return;
+	end
+	self.timeSinceLastUpdate = self.timeSinceLastUpdate + self.timeSinceLastUpdateFast;
+	self.timeSinceLastUpdateFast = 0;
+	self:dispatchEvent(self.eventUpdateSemiFrequent);
 	if (self.timeSinceLastUpdate < 0.1) then
 		return;
 	end

@@ -480,6 +480,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				642, -- Paladin: Divine Shield, prevents all damage to target
 				47585, -- Priest: Dispersion, reduces damage by 90%
 				33206, -- Priest: Pain Supression, reduces all damage by 40%
+				213602, -- Priest: Greater Fade, 100% miss
 				31224, -- Rogue: Cloak of Shadows, prevents all magic damage to target
 				5277, -- Rogue: Evasion, increased dodge chance by 100%
 				115176,	-- Monk: Zen Meditation, reduces magic damage by 90%
@@ -489,6 +490,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				104773, -- Warlock: Unending Resolve, reduces all damage by 40%
 				871, -- Warrior: Shield Wall, reduces damage by 60%
 				118038, -- Warrior: Die by the Sword, reduces damage by 20% and increases parry by 100%
+				198589, -- Demon Hunter: Blur, 50% evasion
 			}, 5 },
 			-- allows to not show auras from this list, regardless of time or charges
 			["targetAurasBlackList"] = { { }, 5 },
