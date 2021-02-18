@@ -198,6 +198,12 @@ DHUDDataTrackers = {
 		DRUID.selfEclipse:initPlayerNotInVehicleOrNoneUnitId();
 		DRUID.selfEclipse:initPlayerSpecsOnly(1);
 		DRUID.selfEclipse.updateFrequently = false;
+
+		-----------------------
+		-- Destealth tracker --
+		-----------------------
+		DRUID.selfDeStealthTracker = DHUDSelfDeStealthTracker:new();
+		DRUID.selfDeStealthTracker:startTracking();
 	end,
 	-- trackers that are used by monk
 	MONK = { },
@@ -320,6 +326,11 @@ DHUDDataTrackers = {
 		local ROGUE = self.ROGUE;
 
 		--ROGUE.selfBanditsGuile = DHUDBanditsGuileTracker:new();
+		-----------------------
+		-- Destealth tracker --
+		-----------------------
+		ROGUE.selfDeStealthTracker = DHUDSelfDeStealthTracker:new();
+		ROGUE.selfDeStealthTracker:startTracking();
 	end,
 	-- reference to data helper
 	helper = nil,

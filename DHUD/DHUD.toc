@@ -28,6 +28,7 @@ datatrackers/timers/GuardiansTracker.lua
 datatrackers/info/UnitInfoTracker.lua
 datatrackers/info/SpellCastTracker.lua
 datatrackers/info/PlayerInfoTracker.lua
+datatrackers/info/DeStealthTracker.lua
 datatrackers/DataTrackers.lua
 settings/SettingsTable.lua
 settings/SettingsImpl.lua

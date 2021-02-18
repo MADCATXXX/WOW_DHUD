@@ -17,7 +17,7 @@ local _;
 
 --- Class for tracker helper event, it will be fired by data tracker helper
 DHUDDataTrackerHelperEvent = MCCreateSubClass(MADCATEvent, {
-	-- dispatched in order to update resources (every 100 ms)
+	-- dispatched in order to update resources (every 95-100 ms)
 	EVENT_UPDATE = "time",
 	-- dispatched in order to do some updates on next time tick (every 10 ms)
 	EVENT_UPDATE_FREQUENT = "timeFrequent",
@@ -301,7 +301,7 @@ function DHUDDataTrackerHelper:onUpdate(timeElapsed)
 	self.timeSinceLastUpdate = self.timeSinceLastUpdate + self.timeSinceLastUpdateFast;
 	self.timeSinceLastUpdateFast = 0;
 	self:dispatchEvent(self.eventUpdateSemiFrequent);
-	if (self.timeSinceLastUpdate < 0.1) then
+	if (self.timeSinceLastUpdate < 0.095) then
 		return;
 	end
 	self.timeSinceLastUpdateLong = self.timeSinceLastUpdateLong + self.timeSinceLastUpdate;
