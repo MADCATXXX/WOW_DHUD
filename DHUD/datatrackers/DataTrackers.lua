@@ -203,7 +203,7 @@ DHUDDataTrackers = {
 		-- Destealth tracker --
 		-----------------------
 		DRUID.selfDeStealthTracker = DHUDSelfDeStealthTracker:new();
-		DRUID.selfDeStealthTracker:startTracking();
+		DRUID.selfDeStealthTracker:changeTrackingState(true);
 	end,
 	-- trackers that are used by monk
 	MONK = { },
@@ -330,7 +330,7 @@ DHUDDataTrackers = {
 		-- Destealth tracker --
 		-----------------------
 		ROGUE.selfDeStealthTracker = DHUDSelfDeStealthTracker:new();
-		ROGUE.selfDeStealthTracker:startTracking();
+		ROGUE.selfDeStealthTracker:changeTrackingState(true);
 	end,
 	-- reference to data helper
 	helper = nil,
