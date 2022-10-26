@@ -818,6 +818,9 @@ end
 
 --- Create addon tab in blizzard interface menu
 function DHUDSettings:createBlizzardInterfaceOptions()
+	if (OptionsButtonTemplate == nil) then
+		return;
+	end
 	-- frame with settings
 	local frame = CreateFrame("Frame", "DHUD_InterfaceOptions");
 	frame.name = "DHUD";

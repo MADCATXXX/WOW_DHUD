@@ -205,27 +205,31 @@ end
 
 --- Function to show blizzard casting frame
 function DHUDNonAddonSettingsHandler:showBlizzardCastingFrame()
-	CastingBarFrame:RegisterEvent("UNIT_SPELLCAST_START");
-	CastingBarFrame:RegisterEvent("UNIT_SPELLCAST_STOP");
-	CastingBarFrame:RegisterEvent("UNIT_SPELLCAST_FAILED");
-	CastingBarFrame:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED");
-	CastingBarFrame:RegisterEvent("UNIT_SPELLCAST_DELAYED");
-	CastingBarFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START");
-	CastingBarFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE");
-	CastingBarFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP");
+	if (CastingBarFrame ~= nil) then
+		CastingBarFrame:RegisterEvent("UNIT_SPELLCAST_START");
+		CastingBarFrame:RegisterEvent("UNIT_SPELLCAST_STOP");
+		CastingBarFrame:RegisterEvent("UNIT_SPELLCAST_FAILED");
+		CastingBarFrame:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED");
+		CastingBarFrame:RegisterEvent("UNIT_SPELLCAST_DELAYED");
+		CastingBarFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START");
+		CastingBarFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE");
+		CastingBarFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP");
+	end
 end
 
 --- Function to hide blizzard casting frame
 function DHUDNonAddonSettingsHandler:hideBlizzardCastingFrame()
-	CastingBarFrame:UnregisterEvent("UNIT_SPELLCAST_START");
-	CastingBarFrame:UnregisterEvent("UNIT_SPELLCAST_STOP");
-	CastingBarFrame:UnregisterEvent("UNIT_SPELLCAST_FAILED");
-	CastingBarFrame:UnregisterEvent("UNIT_SPELLCAST_INTERRUPTED");
-	CastingBarFrame:UnregisterEvent("UNIT_SPELLCAST_DELAYED");
-	CastingBarFrame:UnregisterEvent("UNIT_SPELLCAST_CHANNEL_START");
-	CastingBarFrame:UnregisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE");
-	CastingBarFrame:UnregisterEvent("UNIT_SPELLCAST_CHANNEL_STOP");
-	CastingBarFrame:Hide();
+	if (CastingBarFrame ~= nil) then
+		CastingBarFrame:UnregisterEvent("UNIT_SPELLCAST_START");
+		CastingBarFrame:UnregisterEvent("UNIT_SPELLCAST_STOP");
+		CastingBarFrame:UnregisterEvent("UNIT_SPELLCAST_FAILED");
+		CastingBarFrame:UnregisterEvent("UNIT_SPELLCAST_INTERRUPTED");
+		CastingBarFrame:UnregisterEvent("UNIT_SPELLCAST_DELAYED");
+		CastingBarFrame:UnregisterEvent("UNIT_SPELLCAST_CHANNEL_START");
+		CastingBarFrame:UnregisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE");
+		CastingBarFrame:UnregisterEvent("UNIT_SPELLCAST_CHANNEL_STOP");
+		CastingBarFrame:Hide();
+	end
 end
 
 --- Function to show blizzard target frame

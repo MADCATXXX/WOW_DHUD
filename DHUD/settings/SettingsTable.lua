@@ -491,7 +491,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				871, -- Warrior: Shield Wall, reduces damage by 60%
 				118038, -- Warrior: Die by the Sword, reduces damage by 20% and increases parry by 100%
 				198589, -- Demon Hunter: Blur, 50% evasion
-				121164, -- Battlegrounds Sphere which needs to be killed
+				121164, -- Battlegrounds Sphere which needs to be killed, prevents some abilities such as BoP, Shadow Duel, etc...
 			}, 5 },
 			-- allows to not show auras from this list, regardless of time or charges
 			["targetAurasBlackList"] = { { }, 5 },

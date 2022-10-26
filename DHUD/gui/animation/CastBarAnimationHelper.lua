@@ -271,14 +271,15 @@ function DHUDGUICastBarAnimationHelper:onUpdateTime(e)
 		end
 	elseif (self.animateFade ~= nil) then
 		self.animateFade = self.animateFade - self.CASTING_BAR_ALPHA_STEP;
-		-- update alpha
-		for i = 1, DHUDGUI.CASTBAR_GROUP_NUM_FRAMES, 1 do
-			self.group[i]:SetAlpha(self.animateFade);
-		end
 		-- check for animation stop
 		if (self.animateFade <= 0) then
 			self.animateFade = nil;
 			self:hideCastBar();
+		else
+			-- update alpha
+			for i = 1, DHUDGUI.CASTBAR_GROUP_NUM_FRAMES, 1 do
+				self.group[i]:SetAlpha(self.animateFade);
+			end
 		end
 	end
 end

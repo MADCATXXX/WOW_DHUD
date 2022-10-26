@@ -1,3 +1,6 @@
+changelog 2.0.100000.74:
+- basic compatibility with DragonFlight
+
 changelog 2.0.90002.73:
 - performance optimizations based on function profiling information
 

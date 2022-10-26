@@ -11,8 +11,8 @@
 -- variable that describes build type (vanilla/retail)
 MCVanilla = true;
 
--- determine if running from WoW Vanilla (1.13.2)
-if (select(4, GetBuildInfo()) >= 20000) then
+-- determine if running from WoW Vanilla (1.13.2) or Burning Crusade classic/WotLK classic
+if (select(4, GetBuildInfo()) >= 40000) then
 	MCVanilla = false;
 	return;
 end
