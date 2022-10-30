@@ -1,0 +1,24 @@
+## Interface: 30400
+## X-Min-Interface: 11302
+## Title: Drathals HUD Options
+## Author: MADCAT, Markus Inger (Drathal/Silberklinge), Howie (Caeryn)
+## Version: v2.0.100000.74
+## Notes: Options addon for Drathals HUD, loaded on demand.
+## Dependencies: DHUD
+## LoadOnDemand: 1
+
+#@no-lib-strip@
+embeds.xml
+#@end-no-lib-strip@
+
+# ..\..\FrameXML\Fonts.xml
+# ..\..\FrameXML\UIDropDownMenuTemplates.xml
+# ..\..\FrameXML\UIDropDownMenu.xml
+# ..\..\FrameXML\UIPanelTemplates.xml
+# ..\..\FrameXML\OptionsFrameTemplates.xml
+# ..\..\FrameXML\CharacterFrameTemplates.xml
+localization\enGB.lua
+localization\ruRU.lua
+DHUD_Options.lua
+DHUD_OptionsTemplates.xml
+DHUD_OptionsFrame.xml

@@ -818,9 +818,6 @@ end
 
 --- Create addon tab in blizzard interface menu
 function DHUDSettings:createBlizzardInterfaceOptions()
-	if (OptionsButtonTemplate == nil) then
-		return;
-	end
 	-- frame with settings
 	local frame = CreateFrame("Frame", "DHUD_InterfaceOptions");
 	frame.name = "DHUD";
@@ -832,7 +829,7 @@ function DHUDSettings:createBlizzardInterfaceOptions()
 	textField:SetPoint("TOPLEFT", 16, -16);
 	frame.titleTextField = textField;
 	-- open options button
-	local button = CreateFrame("Button", "DHUD_InterfaceOptions_OpenOptionsButton", frame, "OptionsButtonTemplate");
+	local button = CreateFrame("Button", "DHUD_InterfaceOptions_OpenOptionsButton", frame, "UIPanelButtonTemplate");
 	button:SetText("Open Options");
 	button:SetWidth(180);
 	button:SetHeight(22);

@@ -879,12 +879,17 @@ function DHUD_OptionsTemplates_LUA:processColorsLineOnLoad(frame)
 		local colorsCount = frame.colorsCount;
 		for i = 1, colorsCount, 1 do
 			local colorHex = settingValue[i] or "FFFFFF";
-			local color = DHUDColorizeTools:hexToColor(colorHex); 
-			_G[name .. "_" .. i .. "Texture"]:SetColorTexture(color[1], color[2], color[3]);
+			local color = DHUDColorizeTools:hexToColorTable(colorHex); 
+			_G[name .. "_" .. i .. "Texture"]:SetColorTexture(color.r, color.g, color.b);
 			if (i > 1) then
 				local colorHexPrev = settingValue[i - 1] or "FFFFFF";
-				local colorPrev = DHUDColorizeTools:hexToColor(colorHexPrev);
-				_G[name .. "_G" .. (i - 1) .. "Texture"]:SetGradient("HORIZONTAL", colorPrev[1], colorPrev[2], colorPrev[3], color[1], color[2], color[3]);
+				local colorPrev = DHUDColorizeTools:hexToColorTable(colorHexPrev);
+				local texture = _G[name .. "_G" .. (i - 1) .. "Texture"];
+				if (MCVanilla <= 0) then -- not vanilla
+					texture:SetGradient("HORIZONTAL", colorPrev, color);
+				else
+					texture:SetGradient("HORIZONTAL", colorPrev.r, colorPrev.g, colorPrev.b, color.r, color.g, color.b);
+				end
 			end
 		end
 	end

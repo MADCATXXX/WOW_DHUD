@@ -326,6 +326,16 @@ function DHUDColorizeTools:hexToColor(hex)
 	return { r, g, b };
 end
 
+--- Convert hex value to rgb table
+-- @param hex hex string to convert
+-- @return rgb color table
+function DHUDColorizeTools:hexToColorTable(hex)
+	local r  = tonumber(string.sub(hex, 1, 2), 16) / 255;
+	local g  = tonumber(string.sub(hex, 3, 4), 16) / 255;
+	local b  = tonumber(string.sub(hex, 5, 6), 16) / 255;
+	return { r = r, g = g, b = b, a = 1.0 };
+end
+
 -- Convert number below 16 to hex symbol
 -- @param dec number to convert
 -- @return hex symbol corresponding to number

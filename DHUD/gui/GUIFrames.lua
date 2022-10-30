@@ -126,7 +126,7 @@ DHUDGUI = {
 	-- list with fonts information
 	fonts = {
 		-- default font for all text fields if not specified
-		["default"] = "Fonts\\FRIZQT__.TTF",
+		["default"] = GetLocale() == "ruRU" and "Fonts\\FRIZQT___CYR.TTF" or "Fonts\\FRIZQT__.TTF",
 		-- font to be used for text fields that display numbers
 		["numeric"] = "Interface\\AddOns\\DHUD\\art\\Number.TTF",
 	},

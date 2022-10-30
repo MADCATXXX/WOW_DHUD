@@ -366,8 +366,10 @@ function DHUDSideInfoManager:updateSpellCircleAnimationDisappear(spellCircleFram
 	if (percent > 1) then -- do not try to animate further
 		percent = 1;
 	end
+	local alpha = 0.1 + guiData[4] * (1 - percent);
+	if (alpha > 1) then alpha = 1; end
 	spellCircleFrame.animatedBySideInfo = true;
-	spellCircleFrame:SetAlpha(0.1 + guiData[4] * (1 - percent));
+	spellCircleFrame:SetAlpha(alpha);
 	local newScale = scale * (1 + 0.5 * percent);
 	spellCircleFrame:SetScale(newScale);
 	spellCircleFrame:SetPoint("CENTER", "DHUD_UIParent", "CENTER", spellCircleFrame.circlePositionX / newScale, spellCircleFrame.circlePositionY / newScale);

@@ -18,7 +18,7 @@
 		<DisabledTexture file="Interface\Buttons\UI-SpellbookIcon-NextPage-Disabled" />
 		<HighlightTexture file="Interface\Buttons\UI-Common-MouseHilight" alphaMode="ADD" />
 	</Button>
-	<Button name="DHUD_OptionsTemplate_RedButton" inherits="OptionsButtonTemplate" virtual="true">
+	<Button name="DHUD_OptionsTemplate_RedButton" inherits="UIPanelButtonTemplate" virtual="true">
 		<Attributes>
 			<Attribute name="LTEXT" value="BUTTON_PROFILES" />
 		</Attributes>
@@ -190,31 +190,11 @@
 			<Color r="1" g="1" b="1" />
 		</ButtonText>
 		<HighlightFont name="$parent_HighlightText" inherits="GameFontHighlightSmall">
-			<Size>
-				<AbsDimension x="0" y="13" />
-			</Size>
-			<Anchors>
-				<Anchor point="BOTTOM">
-					<Offset>
-						<AbsDimension x="0" y="5" />
-					</Offset>
-				</Anchor>
-			</Anchors>
 		</HighlightFont>
 		<DisabledFont name="$parent_DisabledText" inherits="GameFontHighlightSmall">
-			<Size>
-				<AbsDimension x="0" y="13" />
-			</Size>
-			<Anchors>
-				<Anchor point="BOTTOM">
-					<Offset>
-						<AbsDimension x="0" y="5" />
-					</Offset>
-				</Anchor>
-			</Anchors>
 		</DisabledFont>
 	</Button>
-	<CheckButton name="DHUD_OptionsTemplate_CheckBox" inherits="OptionsCheckButtonTemplate" virtual="true" text="CheckBox">
+	<CheckButton name="DHUD_OptionsTemplate_CheckBox" inherits="UIPanelButtonTemplate" virtual="true" text="CheckBox">
 		<Size>
 			<AbsDimension x="25" y="25" />
 		</Size>
@@ -411,17 +391,6 @@
 		<Size>
 			<AbsDimension x="235" y="46"/>
 		</Size>
-		<Backdrop bgFile="Interface\ChatFrame\ChatFrameBackground" edgeFile="Interface\Buttons\UI-SliderBar-Border" tile="true">
-			<BackgroundInsets>
-				<AbsInset left="3" right="22" top="6" bottom="6" />
-			</BackgroundInsets>
-			<TileSize>
-				<AbsValue val="16" />
-			</TileSize>
-			<EdgeSize>
-				<AbsValue val="9" />
-			</EdgeSize>
-		</Backdrop>
 		<Layers>
 			<Layer level="BACKGROUND">
 				<FontString name="$parent_Label" inherits="GameFontNormalSmall" text="EditBox">
@@ -514,11 +483,6 @@
 						</Offset>
 					</Anchor>
 				</Anchors>
-				<Backdrop edgeFile="Interface\Tooltips\UI-Tooltip-Border">
-					<EdgeSize>
-						<AbsValue val="8"/>
-					</EdgeSize>
-				</Backdrop>
 				<Layers>
 					<Layer level="ARTWORK">
 						<Texture name="$parentTexture">
@@ -544,11 +508,6 @@
 						</Offset>
 					</Anchor>
 				</Anchors>
-				<Backdrop edgeFile="Interface\Tooltips\UI-Tooltip-Border">
-					<EdgeSize>
-						<AbsValue val="8"/>
-					</EdgeSize>
-				</Backdrop>
 				<Layers>
 					<Layer level="ARTWORK">
 						<Texture name="$parentTexture">
@@ -574,11 +533,6 @@
 						</Offset>
 					</Anchor>
 				</Anchors>
-				<Backdrop edgeFile="Interface\Tooltips\UI-Tooltip-Border">
-					<EdgeSize>
-						<AbsValue val="8"/>
-					</EdgeSize>
-				</Backdrop>
 				<Layers>
 					<Layer level="ARTWORK">
 						<Texture name="$parentTexture">
@@ -664,11 +618,6 @@
 						</Offset>
 					</Anchor>
 				</Anchors>
-				<Backdrop edgeFile="Interface\Tooltips\UI-Tooltip-Border">
-					<EdgeSize>
-						<AbsValue val="8"/>
-					</EdgeSize>
-				</Backdrop>
 				<Layers>
 					<Layer level="ARTWORK">
 						<Texture name="$parentTexture">
@@ -694,11 +643,6 @@
 						</Offset>
 					</Anchor>
 				</Anchors>
-				<Backdrop edgeFile="Interface\Tooltips\UI-Tooltip-Border">
-					<EdgeSize>
-						<AbsValue val="8"/>
-					</EdgeSize>
-				</Backdrop>
 				<Layers>
 					<Layer level="ARTWORK">
 						<Texture name="$parentTexture">
@@ -724,11 +668,6 @@
 						</Offset>
 					</Anchor>
 				</Anchors>
-				<Backdrop edgeFile="Interface\Tooltips\UI-Tooltip-Border">
-					<EdgeSize>
-						<AbsValue val="8"/>
-					</EdgeSize>
-				</Backdrop>
 				<Layers>
 					<Layer level="ARTWORK">
 						<Texture name="$parentTexture">
@@ -754,11 +693,6 @@
 						</Offset>
 					</Anchor>
 				</Anchors>
-				<Backdrop edgeFile="Interface\Tooltips\UI-Tooltip-Border">
-					<EdgeSize>
-						<AbsValue val="8"/>
-					</EdgeSize>
-				</Backdrop>
 				<Layers>
 					<Layer level="ARTWORK">
 						<Texture name="$parentTexture">
@@ -784,11 +718,6 @@
 						</Offset>
 					</Anchor>
 				</Anchors>
-				<Backdrop edgeFile="Interface\Tooltips\UI-Tooltip-Border">
-					<EdgeSize>
-						<AbsValue val="8"/>
-					</EdgeSize>
-				</Backdrop>
 				<Layers>
 					<Layer level="ARTWORK">
 						<Texture name="$parentTexture">
@@ -814,11 +743,6 @@
 						</Offset>
 					</Anchor>
 				</Anchors>
-				<Backdrop edgeFile="Interface\Tooltips\UI-Tooltip-Border">
-					<EdgeSize>
-						<AbsValue val="8"/>
-					</EdgeSize>
-				</Backdrop>
 				<Layers>
 					<Layer level="ARTWORK">
 						<Texture name="$parentTexture">
@@ -844,11 +768,6 @@
 						</Offset>
 					</Anchor>
 				</Anchors>
-				<Backdrop edgeFile="Interface\Tooltips\UI-Tooltip-Border">
-					<EdgeSize>
-						<AbsValue val="8"/>
-					</EdgeSize>
-				</Backdrop>
 				<Layers>
 					<Layer level="ARTWORK">
 						<Texture name="$parentTexture">
@@ -970,17 +889,6 @@
 		<Size>
 			<AbsDimension x="330" y="46"/>
 		</Size>
-		<Backdrop bgFile="Interface\ChatFrame\ChatFrameBackground" edgeFile="Interface\Buttons\UI-SliderBar-Border" tile="true">
-			<BackgroundInsets>
-				<AbsInset left="3" right="22" top="6" bottom="6" />
-			</BackgroundInsets>
-			<TileSize>
-				<AbsValue val="16" />
-			</TileSize>
-			<EdgeSize>
-				<AbsValue val="9" />
-			</EdgeSize>
-		</Backdrop>
 		<Frames>
 			<ScrollFrame name="$parent_ScrollFrame" inherits="UIPanelScrollFrameTemplate">
 				<Size>
@@ -1240,17 +1148,6 @@
 		<Size>
 			<AbsDimension x="330" y="46"/>
 		</Size>
-		<Backdrop bgFile="Interface\ChatFrame\ChatFrameBackground" edgeFile="Interface\Buttons\UI-SliderBar-Border" tile="true">
-			<BackgroundInsets>
-				<AbsInset left="3" right="22" top="6" bottom="6" />
-			</BackgroundInsets>
-			<TileSize>
-				<AbsValue val="16" />
-			</TileSize>
-			<EdgeSize>
-				<AbsValue val="9" />
-			</EdgeSize>
-		</Backdrop>
 		<Layers>
 			<Layer level="BACKGROUND">
 				<FontString name="$parent_Label" inherits="GameFontNormalSmall" text="EditBox">

@@ -11,17 +11,6 @@
 				</Offset>
 			</Anchor>
 		</Anchors>
-		<Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background" edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
-			<BackgroundInsets>
-				<AbsInset left="4" right="4" top="4" bottom="4" />
-			</BackgroundInsets>
-			<TileSize>
-				<AbsValue val="16" />
-			</TileSize>
-			<EdgeSize>
-				<AbsValue val="16" />
-			</EdgeSize>
-		</Backdrop>
 		<Layers>
 			<Layer level="BORDER">
 				<Texture name="$parent_TopGradient" hidden="true" file="Interface\ChatFrame\ChatFrameBackground">
@@ -3021,17 +3010,6 @@
 				</Offset>
 			</Anchor>
 		</Anchors>
-		<Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background" edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
-			<BackgroundInsets>
-				<AbsInset left="4" right="4" top="4" bottom="4" />
-			</BackgroundInsets>
-			<TileSize>
-				<AbsValue val="16" />
-			</TileSize>
-			<EdgeSize>
-				<AbsValue val="16" />
-			</EdgeSize>
-		</Backdrop>
 		<Layers>
 			<Layer>
 				<FontString name="$parent_Text" inherits="GameFontHighlightSmall" text="DHUD_DORESET">
@@ -3088,17 +3066,6 @@
 				</Offset>
 			</Anchor>
 		</Anchors>
-		<Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background" edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
-			<BackgroundInsets>
-				<AbsInset left="4" right="4" top="4" bottom="4" />
-			</BackgroundInsets>
-			<TileSize>
-				<AbsValue val="16" />
-			</TileSize>
-			<EdgeSize>
-				<AbsValue val="16" />
-			</EdgeSize>
-		</Backdrop>
 		<Layers>
 			<Layer>
 				<FontString name="$parent_Text" inherits="GameFontHighlightSmall" text="DHUD_TEXTHELP" justifyH="LEFT">
