@@ -211,8 +211,51 @@ function DHUD_OptionsTemplates_LUA:processRedButtonOnLoad(frame)
 	frame:SetText(DHUDOptionsLocalization[ltext] or ("LTEXT: " .. ltext));
 end
 
---- Options checkbox frame is loaded
+--- Options checkbox frame is loaded, *** NEW One based on SettingsCheckBoxControlTemplate ***
 function DHUD_OptionsTemplates_LUA:processCheckBoxOnLoad(frame)
+	local name = frame:GetName();
+	local ltext = frame:GetAttribute("LTEXT") or "";
+	local setting = frame:GetAttribute("SETTING");
+	-- update position
+	local point, relativeTo, relativePoint, xOfs, yOfs = frame:GetPoint(1);
+	local scale = 0.8;
+	frame:SetScale(scale);
+	frame:SetPoint(point, relativeTo, relativePoint, (xOfs - 10) / scale, yOfs / scale);
+	frame.Text:SetPoint("TOPLEFT", frame, "TOPLEFT", 42, -6);
+	-- set text
+	frame.Text:SetText(DHUDOptionsLocalization[ltext] or ("LTEXT: " .. ltext));
+	-- save setting
+	frame.setting = setting;
+	frame.CheckBox.setting = setting;
+	-- set on click handler
+	frame.CheckBox:SetScript("OnClick", function(frame, arg1)
+		--print("onClick " .. frame.setting);
+		DHUDOptions:toggleBooleanSetting(frame.setting);
+	end);
+	-- set on show handler
+	frame:SetScript("OnShow", function(frame)
+		frame.CheckBox:SetChecked(DHUDOptions:getSettingValue(frame.setting));
+	end);
+	-- set tooltip handlers
+	frame:SetScript("OnEnter", function(frame)
+		GameTooltip:SetOwner(frame, "ANCHOR_RIGHT");
+		GameTooltip:SetText(DHUDOptionsLocalization[ltext .. "_TOOLTIP"] or ("LTOOLTIP: " .. ltext), 1, 1, 1, 1);
+	end);
+	frame.CheckBox:SetScript("OnEnter", function(frame)
+		GameTooltip:SetOwner(frame, "ANCHOR_RIGHT");
+		GameTooltip:SetText(DHUDOptionsLocalization[ltext .. "_TOOLTIP"] or ("LTOOLTIP: " .. ltext), 1, 1, 1, 1);
+	end);
+	frame:SetScript("OnLeave", function(frame)
+		GameTooltip:Hide();
+	end);
+	frame.CheckBox:SetScript("OnLeave", function(frame)
+		GameTooltip:Hide();
+	end);
+	--print("header on load " .. frame:GetName() .. ", ltext " .. MCTableToString(ltext));
+end
+
+--- Options checkbox frame is loaded, *** OLD One based on OptionsCheckButtonTemplate ***
+function DHUD_OptionsTemplates_LUA:processOldCheckBoxOnLoad(frame)
 	local name = frame:GetName();
 	local ltext = frame:GetAttribute("LTEXT") or "";
 	local setting = frame:GetAttribute("SETTING");

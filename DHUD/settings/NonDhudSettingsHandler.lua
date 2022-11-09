@@ -7,6 +7,11 @@
  @author: MADCAT
 -----------------------------------------------------------------------------------]]--
 
+-- antitaint local "_" var
+local _;
+-- tracker helper
+local trackingHelper = DHUDDataTrackingHelper;
+
 -----------------------------------------
 -- Non Addon Specific Settings Handler --
 -----------------------------------------
@@ -35,6 +40,8 @@ DHUDNonAddonSettingsHandler = {
 	SETTING_NAME_SERVICE_LUA_START_UP = "service_luaStartUp",
 	-- name of the setting that contains result of the last start up code
 	SETTING_NAME_SERVICE_LUA_START_UP_ERROR = "service_luaStartUpError",
+	-- update tracking of stealth broking reasons
+	SETTING_NAME_SERVICE_DESTEALTH_TRACKING = "service_destealthTracker",
 }
 
 -- value of the setting has changed
@@ -92,6 +99,12 @@ function DHUDNonAddonSettingsHandler:onLuaStartUpChange(e)
 	DHUDSettings:setValue(self.SETTING_NAME_SERVICE_LUA_START_UP_ERROR, false);
 end
 
+-- value of the setting has changed
+function DHUDNonAddonSettingsHandler:onDestealthTrackingChange(e)
+	local val = DHUDSettings:getValue(self.SETTING_NAME_SERVICE_DESTEALTH_TRACKING);
+	self:processDestealthTracking(val);
+end
+
 --- initialize non addon specific settings handler
 function DHUDNonAddonSettingsHandler:init()
 	-- events frame
@@ -103,6 +116,7 @@ function DHUDNonAddonSettingsHandler:init()
 	local uiErrorsLevel = DHUDSettings:getValue(self.SETTING_NAME_SERVICE_UI_ERROR_FILTER);
 	local luaStartUp = DHUDSettings:getValue(self.SETTING_NAME_SERVICE_LUA_START_UP);
 	local luaStartUpError = DHUDSettings:getValue(self.SETTING_NAME_SERVICE_LUA_START_UP_ERROR);
+	local destealthTracking = DHUDSettings:getValue(self.SETTING_NAME_SERVICE_DESTEALTH_TRACKING);
 	self.blizzardPowerAurasAlpha = DHUDSettings:getValue(self.SETTING_NAME_BLIZZARD_SPELL_ACTIVATION_ALPHA);
 	self.blizzardPowerAurasScale = DHUDSettings:getValue(self.SETTING_NAME_BLIZZARD_SPELL_ACTIVATION_SCALE);
 	-- listen to events
@@ -113,6 +127,7 @@ function DHUDNonAddonSettingsHandler:init()
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. self.SETTING_NAME_BLIZZARD_SPELL_ACTIVATION_SCALE, self, self.onBlizzardSpellActivationFrameScaleChange);
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. self.SETTING_NAME_SERVICE_UI_ERROR_FILTER, self, self.onServiceUIErrorLevelChange);
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. self.SETTING_NAME_SERVICE_LUA_START_UP, self, self.onLuaStartUpChange);
+	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. self.SETTING_NAME_SERVICE_DESTEALTH_TRACKING, self, self.onDestealthTrackingChange);
 	-- register to power auras event
 	self.eventsFrame:RegisterEvent("SPELL_ACTIVATION_OVERLAY_SHOW");
 	-- process power auras event
@@ -136,6 +151,9 @@ function DHUDNonAddonSettingsHandler:init()
 	end
 	if (luaStartUp ~= "" and luaStartUpError ~= true) then
 		self:processLuaStartUpCode(luaStartUp);
+	end
+	if (destealthTracking == true) then
+		self:processDestealthTracking(true);
 	end
 end
 
@@ -313,4 +331,17 @@ function DHUDNonAddonSettingsHandler:processLuaStartUpCode(code)
 	end
 	-- execute function on first timer tick to not break initialization if code contains errors
 	DHUDDataTrackers.helper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE_FREQUENT, self, self.onProcessLuaStartUpCode);
+end
+
+--- Function to change tracking of destealth code
+-- @param track defines if tracking should be enabled
+function DHUDNonAddonSettingsHandler:processDestealthTracking(track)
+	if (MCVanilla > 0) then
+		return;
+	end
+	if (trackingHelper.playerClass == "ROGUE") then
+		DHUDDataTrackers.ROGUE.selfDeStealthTracker:changeTrackingState(track);
+	else
+		DHUDDataTrackers.DRUID.selfDeStealthTracker:changeTrackingState(track);
+	end
 end

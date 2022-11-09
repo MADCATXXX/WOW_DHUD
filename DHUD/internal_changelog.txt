@@ -1,3 +1,14 @@
+changelog 2.0.100000.76:
+- further compatibility of DHUD Settings with DragonFlight
+- fix NaN crash in text format on load with target dummy selected
+- optimize cooldown tracking performance
+- disable stealth chat tracking by default
+- update minimap button position
+- update dhud settings checkbox style
+
+changelog 2.0.100000.75:
+- extended compatibility of DHUD Settings with DragonFlight
+
 changelog 2.0.100000.74:
 - basic compatibility with DragonFlight
 

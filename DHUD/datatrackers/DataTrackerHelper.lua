@@ -27,6 +27,8 @@ DHUDDataTrackerHelperEvent = MCCreateSubClass(MADCATEvent, {
 	EVENT_UPDATE_INFREQUENT = "timeInFrequent",
 	-- dispatched when player changes specialization
 	EVENT_SPECIALIZATION_CHANGED = "specialization",
+	-- dispatched when player changes PvE/PvP talents (and also on specialization change), this may add or remove some spells from spellbook
+	EVENT_TALENTS_CHANGED = "talents",
 	-- dispatched when player character enter or leave vehicle
 	EVENT_VEHICLE_STATE_CHANGED = "vehicle",
 	-- dispatched when players target changes
@@ -86,6 +88,8 @@ DHUDDataTrackerHelper = MCCreateSubClass(MADCATEventDispatcher, {
 	playerClass			= "",
 	-- localization-independent player specialization id (number from 1 to 3, from 1 to 4 for druids)
 	playerSpecialization	= 0,
+	-- list with player talents (this value format is different for Vanilla/TBC/WotLK/Retail, and updated on different events)
+	playerTalents       = {},
 	-- defines if player character is in vehicle with vehicle ui
 	isInVehicle			= false,
 	-- id of the player casting unit, "vehicle" when in vehicle or "player" otherwise
@@ -150,6 +154,7 @@ function DHUDDataTrackerHelper:constructor()
 	self.eventResting = DHUDDataTrackerHelperEvent:new(DHUDDataTrackerHelperEvent.EVENT_RESTING_STATE_CHANGED);
 	self.eventPetBattle =  DHUDDataTrackerHelperEvent:new(DHUDDataTrackerHelperEvent.EVENT_PETBATTLE_STATE_CHANGED);
 	self.eventSpecialization = DHUDDataTrackerHelperEvent:new(DHUDDataTrackerHelperEvent.EVENT_SPECIALIZATION_CHANGED);
+	self.eventTalents = DHUDDataTrackerHelperEvent:new(DHUDDataTrackerHelperEvent.EVENT_TALENTS_CHANGED);
 	self.eventModifierKeysState = DHUDDataTrackerHelperEvent:new(DHUDDataTrackerHelperEvent.EVENT_MODIFIER_KEYS_STATE_CHANGED);
 	self.eventEnteringWorld = DHUDDataTrackerHelperEvent:new(DHUDDataTrackerHelperEvent.EVENT_ENTERING_WORLD);
 	-- call super constructor
@@ -172,6 +177,10 @@ function DHUDDataTrackerHelper:init()
 	self.eventsFrame:RegisterEvent("PLAYER_ENTER_COMBAT");
 	self.eventsFrame:RegisterEvent("PLAYER_LEAVE_COMBAT");
 	self.eventsFrame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED");
+	if (MCVanilla <= 0) then -- on vanilla such subscription will result in an error
+		self.eventsFrame:RegisterEvent("PLAYER_TALENT_UPDATE"); -- only PvP talents
+		self.eventsFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED"); -- currently the only way to track PvE talents update
+	end
 	self.eventsFrame:RegisterEvent("PLAYER_ALIVE");
 	self.eventsFrame:RegisterEvent("PLAYER_DEAD");
 	self.eventsFrame:RegisterEvent("PLAYER_UNGHOST");
@@ -240,6 +249,17 @@ function DHUDDataTrackerHelper:init()
 			return;
 		end
 		helper:setPlayerSpecialization(GetSpecialization());
+	end
+	function self.eventsFrame:PLAYER_TALENT_UPDATE() -- always refer to player
+		--print("PvP Talent update");
+		helper:onTalentsChanged();
+	end
+	function self.eventsFrame:UNIT_SPELLCAST_SUCCEEDED(unitId, castGUID, spellId)
+		if (unitId ~= "player" or spellId ~= 384255) then
+			return;
+		end
+		--print("PvE Talent update " .. spellId);
+		helper:onTalentsChanged();
 	end
 	function self.eventsFrame:PLAYER_ALIVE()
 		helper:setIsDead(UnitIsDeadOrGhost("player") == 1);
@@ -417,6 +437,25 @@ function DHUDDataTrackerHelper:setPlayerSpecialization(playerSpecialization)
 	end
 	self.playerSpecialization = playerSpecialization;
 	self:dispatchEvent(self.eventSpecialization);
+	self:onTalentsChanged();
+end
+
+--- player talents updated, this should be processed differently for Vanilla/TBC/WotLK/Retail
+function DHUDDataTrackerHelper:onTalentsChanged()
+	-- TODO: Iterate over all nodes and save them? It may be easier to find nodeIds via TalentTreeTweaker addon
+	if (MCVanilla <= 0) then -- retail
+		--[[local configID = C_ClassTalents.GetActiveConfigID();
+		local configInfo = C_Traits.GetConfigInfo(configID);
+		local treeID = configInfo.treeIDs[1];
+		local nodeIds = C_Traits.GetTreeNodes(treeID);
+		print("configID " .. configID .. ", configInfo " .. MCTableToString(configInfo) .. ", nodeIds " .. MCTableToString(#nodeIds));
+		for i, v in ipairs(nodeIds) do
+			local nodeInfo = C_Traits.GetNodeInfo(C_ClassTalents.GetActiveConfigID(), v);
+			print("Node " .. i .. ": " .. MCTableToString(nodeInfo));
+		end]]--
+	end
+	--self.playerTalents = {};
+	self:dispatchEvent(self.eventTalents);
 end
 
 --- player is entering world

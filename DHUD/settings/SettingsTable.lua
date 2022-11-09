@@ -484,6 +484,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				31224, -- Rogue: Cloak of Shadows, prevents all magic damage to target
 				5277, -- Rogue: Evasion, increased dodge chance by 100%
 				115176,	-- Monk: Zen Meditation, reduces magic damage by 90%
+				178345, -- Monk: Fist of Fury, increased parry chance by 100%
 				--122470, -- Monk: Touch of Karma, redirects all damage to enemy
 				--30823, -- Shaman: Shamanistic Rage, reduces all damage by 30%
 				--110913, -- Warlock: Dark Bargain, prevents all damage, 50% of the damage will be dealed after buff expires
@@ -491,6 +492,8 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				871, -- Warrior: Shield Wall, reduces damage by 60%
 				118038, -- Warrior: Die by the Sword, reduces damage by 20% and increases parry by 100%
 				198589, -- Demon Hunter: Blur, 50% evasion
+				206803, -- Demon Hunter: Rain From Above, prevents all damage to target
+				354610, -- Demon Hunter: Glimpse, CC immnunity, reduce damage by 75%
 				121164, -- Battlegrounds Sphere which needs to be killed, prevents some abilities such as BoP, Shadow Duel, etc...
 			}, 5 },
 			-- allows to not show auras from this list, regardless of time or charges
@@ -902,6 +905,8 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			["luaStartUp"] = { "SetCVar(\"cameraDistanceMaxZoomFactor\", 2.6);", 0 },
 			-- result of the last lua start up code
 			["luaStartUpError"] = { false, 0 },
+			-- destealth tracking (reason that broke stealth) via chat messages
+			["destealthTracker"] = { false, 0 },
 		}, 1 },
 		-- reference to codes that can be used at start up
 		["luaStartUpCodes"] = { {

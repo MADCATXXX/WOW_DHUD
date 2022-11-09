@@ -17,6 +17,8 @@ DHUDTextTools = {
 	milliSecondsBound = 10,
 	-- number of maximum allowed digits
 	numberDigitsLimit = 5,
+	-- Not a Number string to be used to compare number to "NaN" value, LUA doesn't have built in isNaN function
+	NAN_STRING = tostring((-1)^0.5),
 	-- list of metric prefixes from wikipedia (http://en.wikipedia.org/wiki/Metric_prefix)
 	METRIC_PREFIXES = { "k", "M", "G", "T", "P", "E", "Z", "Y" },
 	-- table with cached format functions
@@ -72,6 +74,10 @@ end
 -- @param numberRef number to be used when counting number of digits or nil
 -- @return short and readable text
 function DHUDTextTools:formatNumber(number, limit, numberRef)
+	-- check for NaN to not cause crash, sometimes API can give "NaN" as function results
+	if (tostring(number) == self.NAN_STRING) then
+		return "NaN";
+	end
 	limit = limit or self.numberDigitsLimit;
 	numberRef = numberRef or number;
 	local numChars = floor(log10(abs(numberRef)) + 1); -- +1 for digit below

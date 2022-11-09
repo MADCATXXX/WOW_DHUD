@@ -194,11 +194,16 @@
 		<DisabledFont name="$parent_DisabledText" inherits="GameFontHighlightSmall">
 		</DisabledFont>
 	</Button>
-	<CheckButton name="DHUD_OptionsTemplate_CheckBox" inherits="SettingsCheckBoxControlTemplate" virtual="true" text="CheckBox">
-		<Size x="180" y="26"/>
+	<CheckButton name="DHUD_OptionsTemplate_CheckBox" inherits="OptionsCheckButtonTemplate" virtual="true" text="CheckBox">
+		<Size>
+			<AbsDimension x="25" y="25" />
+		</Size>
+		<HitRectInsets>
+			<AbsInset left="0" right="0" top="0" bottom="0" />
+		</HitRectInsets>
 		<Scripts>
 			<OnLoad inherit="prepend"> <!-- call super onLoad handler too, due to shadowlands frame changes -->
-				DHUD_OptionsTemplates_LUA:processCheckBoxOnLoad(self);
+				DHUD_OptionsTemplates_LUA:processOldCheckBoxOnLoad(self);
 			</OnLoad>
 		</Scripts>
 		<NormalColor r="1" g="1" b="1" />

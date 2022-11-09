@@ -202,10 +202,7 @@ DHUDDataTrackers = {
 		-----------------------
 		-- Destealth tracker --
 		-----------------------
-		if (MCVanilla <= 0) then -- not vanilla
-			DRUID.selfDeStealthTracker = DHUDSelfDeStealthTracker:new();
-			DRUID.selfDeStealthTracker:changeTrackingState(true);
-		end
+		DRUID.selfDeStealthTracker = DHUDSelfDeStealthTracker:new();
 	end,
 	-- trackers that are used by monk
 	MONK = { },
@@ -331,10 +328,7 @@ DHUDDataTrackers = {
 		-----------------------
 		-- Destealth tracker --
 		-----------------------
-		if (MCVanilla <= 0) then -- not vanilla
-			ROGUE.selfDeStealthTracker = DHUDSelfDeStealthTracker:new();
-			ROGUE.selfDeStealthTracker:changeTrackingState(true);
-		end
+		ROGUE.selfDeStealthTracker = DHUDSelfDeStealthTracker:new();
 	end,
 	-- reference to data helper
 	helper = nil,

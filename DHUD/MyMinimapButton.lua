@@ -6,7 +6,7 @@
 	See MyMinimapButton_API_readme.txt for more info.
 ]]
 
-local version = 5.10
+local version = 10.11
 
 if not MyMinimapButton or MyMinimapButton.Version<version then
 
@@ -30,10 +30,10 @@ if not MyMinimapButton or MyMinimapButton.Version<version then
 		local frame = CreateFrame("Button",frameName,Minimap)
 		frame:SetWidth(31)
 		frame:SetHeight(31)
-		frame:SetFrameStrata("LOW")
+		frame:SetFrameStrata("MEDIUM")
 		frame:SetToplevel(1) -- enabled in 1.10.2
 		frame:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight")
-		frame:SetPoint("TOPLEFT",Minimap,"TOPLEFT")
+		frame:SetPoint("CENTER",Minimap,"CENTER")
 		local icon = frame:CreateTexture(frameName.."Icon","BACKGROUND")
 		icon:SetTexture(initSettings.icon or "Interface\\Icons\\INV_Misc_QuestionMark")
 		icon:SetWidth(20)
@@ -68,7 +68,6 @@ if not MyMinimapButton or MyMinimapButton.Version<version then
 		end
 		if firstUse then
 			-- define modSettings from initSettings or default
-			modSettings.drag = initSettings.drag or "CIRCLE"
 			modSettings.enabled = initSettings.enabled or 1
 			modSettings.position = initSettings.position or self:GetDefaultPosition()
 			modSettings.locked = initSettings.locked or nil
@@ -100,16 +99,6 @@ if not MyMinimapButton or MyMinimapButton.Version<version then
 	SetRightClick = function(self,modName,value)
 		if value and getglobal(modName.."MinimapButton") then
 			getglobal(modName.."MinimapButton").rightClick = value
-		end
-	end,
-
-	-- Sets the drag route.
-	--   value = "CIRCLE" or "SQUARE"
-	SetDrag = function(self,modName,value)
-		local button = getglobal(modName.."MinimapButton")
-		if button and (value=="CIRCLE" or value=="SQUARE") then
-			button.modSettings.drag = value
-			self:Move(modName)
 		end
 	end,
 
@@ -158,6 +147,24 @@ if not MyMinimapButton or MyMinimapButton.Version<version then
 		end
 	end,
 
+	-- list with shapes, copied from LibDBIcon-1.0.lua
+	minimapShapes = {
+		["ROUND"] = {true, true, true, true},
+		["SQUARE"] = {false, false, false, false},
+		["CORNER-TOPLEFT"] = {false, false, false, true},
+		["CORNER-TOPRIGHT"] = {false, false, true, false},
+		["CORNER-BOTTOMLEFT"] = {false, true, false, false},
+		["CORNER-BOTTOMRIGHT"] = {true, false, false, false},
+		["SIDE-LEFT"] = {false, true, false, true},
+		["SIDE-RIGHT"] = {true, false, true, false},
+		["SIDE-TOP"] = {false, false, true, true},
+		["SIDE-BOTTOM"] = {true, true, false, false},
+		["TRICORNER-TOPLEFT"] = {false, true, true, true},
+		["TRICORNER-TOPRIGHT"] = {true, false, true, true},
+		["TRICORNER-BOTTOMLEFT"] = {true, true, false, true},
+		["TRICORNER-BOTTOMRIGHT"] = {true, true, true, false},
+	},
+
 	-- Moves the button.
 	--  newPosition = degree angle to display the button (optional)
 	--  force = force move irregardless of locked status
@@ -165,18 +172,24 @@ if not MyMinimapButton or MyMinimapButton.Version<version then
 		local button = getglobal(modName.."MinimapButton")
 		if button and (not button.modSettings.locked or force) then
 			button.modSettings.position = newPosition or button.modSettings.position
-			local xpos,ypos
-			local angle = button.modSettings.position
-			if button.modSettings.drag=="SQUARE" then
-				xpos = 110 * cos(angle)
-				ypos = 110 * sin(angle)
-				xpos = math.max(-82,math.min(xpos,84))
-				ypos = math.max(-86,math.min(ypos,82))
+			local angle = math.rad(button.modSettings.position)
+			local x, y, q = math.cos(angle), math.sin(angle), 1
+			if x < 0 then q = q + 1 end
+			if y > 0 then q = q + 2 end
+			local minimapShape = GetMinimapShape and GetMinimapShape() or "ROUND"
+			local quadTable = MyMinimapButton.minimapShapes[minimapShape]
+			local w = (Minimap:GetWidth() / 2) + 5
+			local h = (Minimap:GetHeight() / 2) + 5
+			if quadTable[q] then
+				x, y = x*w, y*h
 			else
-				xpos = 80 * cos(angle)
-				ypos = 80 * sin(angle)
+				local diagRadiusW = math.sqrt(2*(w)^2)-10
+				local diagRadiusH = math.sqrt(2*(h)^2)-10
+				x = math.max(-w, math.min(x*diagRadiusW, w))
+				y = math.max(-h, math.min(y*diagRadiusH, h))
 			end
-			button:SetPoint("TOPLEFT","Minimap","TOPLEFT",54-xpos,ypos-54)
+			--print("final x " .. x .. ", y " .. y);
+			button:SetPoint("CENTER", Minimap, "CENTER", x, y)
 		end
 	end,
 
@@ -189,7 +202,6 @@ if not MyMinimapButton or MyMinimapButton.Version<version then
 			if button then
 				DEFAULT_CHAT_FRAME:AddMessage("positon = "..tostring(button.modSettings.position))
 				DEFAULT_CHAT_FRAME:AddMessage("enabled = "..tostring(button.modSettings.enabled))
-				DEFAULT_CHAT_FRAME:AddMessage("drag = "..tostring(button.modSettings.drag))
 				DEFAULT_CHAT_FRAME:AddMessage("locked = "..tostring(button.modSettings.locked))
 			else
 				DEFAULT_CHAT_FRAME:AddMessage("button not defined")
@@ -253,11 +265,11 @@ if not MyMinimapButton or MyMinimapButton.Version<version then
 	end,
 
 	OnUpdate = function(frame)
-		local xpos,ypos = GetCursorPosition()
-		local xmin,ymin = Minimap:GetLeft(), Minimap:GetBottom()
-		xpos = xmin-xpos/Minimap:GetEffectiveScale()+70
-		ypos = ypos/Minimap:GetEffectiveScale()-ymin-70
-		frame.modSettings.position = math.deg(math.atan2(ypos,xpos))
+		local mx, my = Minimap:GetCenter()
+		local px, py = GetCursorPosition()
+		local scale = Minimap:GetEffectiveScale()
+		px, py = px / scale, py / scale
+		frame.modSettings.position = math.deg(math.atan2(py - my, px - mx)) % 360
 		local modName = string.gsub(frame:GetName() or "","MinimapButton$","")
 		MyMinimapButton:Move(modName)
 	end,

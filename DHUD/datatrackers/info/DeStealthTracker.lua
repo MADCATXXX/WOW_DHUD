@@ -56,13 +56,6 @@ function DHUDSelfDeStealthTracker:init()
 		end
 		tracker:checkHasStealth(true);
 	end
-	function self.eventsFrame:PLAYER_TALENT_UPDATE()
-		local beforeId = tracker.stealthSpellId;
-		tracker:recheckStealthSpellId();
-		if (beforeId ~= tracker.stealthSpellId) then
-			tracker:checkHasStealth(false);
-		end
-	end
 	-- track combat events
 	function self.eventsFrame:COMBAT_LOG_EVENT_UNFILTERED()
 		local timestamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceFlags2, destGUID, destName, destFlags, destFlags2, ex1, ex2, ex3, ex4, ex5 = CombatLogGetCurrentEventInfo();
@@ -233,10 +226,19 @@ function DHUDSelfDeStealthTracker:checkHasStealth(canRecheck)
 	end
 end
 
+-- player talents or specialization changed, recheck stealth spell id
+function DHUDSelfDeStealthTracker:onTalentsChanged()
+	local beforeId = self.stealthSpellId;
+	self:recheckStealthSpellId();
+	if (beforeId ~= self.stealthSpellId) then
+		self:checkHasStealth(false);
+	end
+end
+
 -- tick passed since UNIT_AURA update, and can check for additional combat events
 function DHUDSelfDeStealthTracker:onTickRecheckStealth()
 	trackingHelper:removeEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE_FREQUENT, self, self.onTickRecheckStealth);
-	print("Delayed stealth recheck");
+	--print("Delayed stealth recheck");
 	self:checkHasStealth(false);
 end
 
@@ -245,9 +247,10 @@ function DHUDSelfDeStealthTracker:recheckStealthSpellId()
 	if (trackingHelper.playerClass == "DRUID") then
 		self.stealthSpellId = 5215;
 	else
-		local talentID, name, texture, selected, available, spellID, unknown, row, column, known, grantedByAura = GetTalentInfo(2, 2, GetActiveSpecGroup());
-		--print("TalentInfo " .. MCTableToString({talentID, name, texture, selected, available, spellID, unknown, row, column, known, grantedByAura}));
-		if (selected) then
+		-- get info for subterfuge talent, to check nodeIds, we can use TalentTreeTweaker addon
+		local nodeInfo = C_Traits.GetNodeInfo(C_ClassTalents.GetActiveConfigID(), 90688);
+		--print("node info " .. MCTableToString(nodeInfo));
+		if (nodeInfo ~= nil and nodeInfo.currentRank > 0) then
 			self.stealthSpellId = 115191;
 		else
 			self.stealthSpellId = 1784;
@@ -260,14 +263,14 @@ end
 function DHUDSelfDeStealthTracker:startTracking()
 	-- listen to combat game events
 	self.eventsFrame:RegisterEvent("UNIT_AURA");
-	self.eventsFrame:RegisterEvent("PLAYER_TALENT_UPDATE");
+	trackingHelper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_TALENTS_CHANGED, self, self.onTalentsChanged);
 end
 
 --- Stop tracking data
 function DHUDSelfDeStealthTracker:stopTracking()
 	-- stop listen to combat game events
 	self.eventsFrame:UnregisterEvent("UNIT_AURA");
-	self.eventsFrame:UnregisterEvent("PLAYER_TALENT_UPDATE");
+	trackingHelper:removeEventListener(DHUDDataTrackerHelperEvent.EVENT_TALENTS_CHANGED, self, self.onTalentsChanged);
 end
 
 --- Update all data for current unitId
