@@ -260,11 +260,11 @@ end
 function DHUDSideInfoManager:colorizeTargetShortAurasTimer(timer)
 	local t;
 	if (bit.band(timer[1], DHUDAurasTracker.TIMER_TYPE_MASK_IS_CAST_BY_PLAYER) ~= 0) then
-		t = DHUDColorizeTools:getColorTableForId(DHUDColorizeTools.COLOR_ID_UNIT_TARGET + DHUDColorizeTools.COLOR_ID_TYPE_SHORTAURA_APPLIED_BY_PLAYER);
+		t = DHUDColorizeTools.cache_targetShortAuras_appliedByPlayer;
 	elseif (bit.band(timer[1], DHUDAurasTracker.TIMER_TYPE_MASK_DEBUFF) ~= 0) then
-		t = DHUDColorizeTools:getColorTableForId(DHUDColorizeTools.COLOR_ID_UNIT_TARGET + DHUDColorizeTools.COLOR_ID_TYPE_SHORTAURA_DEBUFF);
+		t = DHUDColorizeTools.cache_targetShortAuras_debuff;
 	else
-		t = DHUDColorizeTools:getColorTableForId(DHUDColorizeTools.COLOR_ID_UNIT_TARGET + DHUDColorizeTools.COLOR_ID_TYPE_SHORTAURA_BUFF);
+		t = DHUDColorizeTools.cache_targetShortAuras_buff;
 	end
 	return DHUDColorizeTools:colorizePercentUsingTable(timer[2] / timer[3], t);
 end
@@ -277,21 +277,21 @@ function DHUDSideInfoManager:colorizePlayerShortAurasTimer(timer)
 	if (bit.band(timer[1], DHUDAurasTracker.TIMER_TYPE_MASK_DEBUFF) ~= 0) then
 		if (self.STATIC_colorizePlayerShortDebuffs) then
 			if (bit.band(timer[1], DHUDAurasTracker.TIMER_TYPE_MASK_IS_MAGIC) ~= 0) then
-				t = DHUDColorizeTools:getColorTableForId(DHUDColorizeTools.COLOR_ID_UNIT_SELF + DHUDColorizeTools.COLOR_ID_TYPE_SHORTAURA_DEBUFF_MAGIC);
+				t = DHUDColorizeTools.cache_selfShortAuras_debuffMagic;
 			elseif (bit.band(timer[1], DHUDAurasTracker.TIMER_TYPE_MASK_IS_POISON) ~= 0) then
-				t = DHUDColorizeTools:getColorTableForId(DHUDColorizeTools.COLOR_ID_UNIT_SELF + DHUDColorizeTools.COLOR_ID_TYPE_SHORTAURA_DEBUFF_POISON);
+				t = DHUDColorizeTools.cache_selfShortAuras_debuffPoison;
 			elseif (bit.band(timer[1], DHUDAurasTracker.TIMER_TYPE_MASK_IS_CURSE) ~= 0) then
-				t = DHUDColorizeTools:getColorTableForId(DHUDColorizeTools.COLOR_ID_UNIT_SELF + DHUDColorizeTools.COLOR_ID_TYPE_SHORTAURA_DEBUFF_CURSE);
+				t = DHUDColorizeTools.cache_selfShortAuras_debuffCurse;
 			elseif (bit.band(timer[1], DHUDAurasTracker.TIMER_TYPE_MASK_IS_DISEASE) ~= 0) then
-				t = DHUDColorizeTools:getColorTableForId(DHUDColorizeTools.COLOR_ID_UNIT_SELF + DHUDColorizeTools.COLOR_ID_TYPE_SHORTAURA_DEBUFF_DISEASE);
+				t = DHUDColorizeTools.cache_selfShortAuras_debuffDisease;
 			else
-				t = DHUDColorizeTools:getColorTableForId(DHUDColorizeTools.COLOR_ID_UNIT_SELF + DHUDColorizeTools.COLOR_ID_TYPE_SHORTAURA_DEBUFF);
+				t = DHUDColorizeTools.cache_selfShortAuras_debuff;
 			end
 		else
-			t = DHUDColorizeTools:getColorTableForId(DHUDColorizeTools.COLOR_ID_UNIT_SELF + DHUDColorizeTools.COLOR_ID_TYPE_SHORTAURA_DEBUFF);
+			t = DHUDColorizeTools.cache_selfShortAuras_debuff;
 		end
 	else
-		t = DHUDColorizeTools:getColorTableForId(DHUDColorizeTools.COLOR_ID_UNIT_SELF + DHUDColorizeTools.COLOR_ID_TYPE_SHORTAURA_BUFF);
+		t = DHUDColorizeTools.cache_selfShortAuras_buff;
 	end
 	return DHUDColorizeTools:colorizePercentUsingTable(timer[2] / timer[3], t);
 end
@@ -302,17 +302,17 @@ end
 function DHUDSideInfoManager:colorizePlayerCooldownsTimer(timer)
 	local t;
 	if (bit.band(timer[1], DHUDCooldownsTracker.TIMER_TYPE_MASK_ITEM) ~= 0) then
-		t = DHUDColorizeTools:getColorTableForId(DHUDColorizeTools.COLOR_ID_UNIT_SELF + DHUDColorizeTools.COLOR_ID_TYPE_COOLDOWN_ITEM);
+		t = DHUDColorizeTools.cache_selfCooldowns_item;
 	else
 		if (bit.band(timer[1], DHUDCooldownsTracker.TIMER_TYPE_MASK_SCHOOLLOCK) ~= 0) then
 			if (self.STATIC_colorizePlayerCooldownsLock) then
 				local school = self.currentDataTracker.schoolLockType;
 				return DHUDColorizeTools:colorizeBySpellSchool(school);
 			else
-				t = DHUDColorizeTools:getColorTableForId(DHUDColorizeTools.COLOR_ID_UNIT_SELF + DHUDColorizeTools.COLOR_ID_TYPE_COOLDOWN_SPELL);
+				t = DHUDColorizeTools.cache_selfCooldowns_spell;
 			end
 		else
-			t = DHUDColorizeTools:getColorTableForId(DHUDColorizeTools.COLOR_ID_UNIT_SELF + DHUDColorizeTools.COLOR_ID_TYPE_COOLDOWN_SPELL);
+			t = DHUDColorizeTools.cache_selfCooldowns_spell;
 		end
 	end
 	return DHUDColorizeTools:colorizePercentUsingTable(timer[2] / timer[3], t);

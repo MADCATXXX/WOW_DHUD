@@ -223,31 +223,35 @@ end
 
 --- Function to show blizzard casting frame
 function DHUDNonAddonSettingsHandler:showBlizzardCastingFrame()
-	if (CastingBarFrame ~= nil) then
-		CastingBarFrame:RegisterEvent("UNIT_SPELLCAST_START");
-		CastingBarFrame:RegisterEvent("UNIT_SPELLCAST_STOP");
-		CastingBarFrame:RegisterEvent("UNIT_SPELLCAST_FAILED");
-		CastingBarFrame:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED");
-		CastingBarFrame:RegisterEvent("UNIT_SPELLCAST_DELAYED");
-		CastingBarFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START");
-		CastingBarFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE");
-		CastingBarFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP");
+	local frame = CastingBarFrame; -- vanilla/tbc/wotlk
+	if (frame == nil) then
+		frame = PlayerCastingBarFrame; -- retail dragonflight
 	end
+	frame:RegisterEvent("UNIT_SPELLCAST_START");
+	frame:RegisterEvent("UNIT_SPELLCAST_STOP");
+	frame:RegisterEvent("UNIT_SPELLCAST_FAILED");
+	frame:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED");
+	frame:RegisterEvent("UNIT_SPELLCAST_DELAYED");
+	frame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START");
+	frame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE");
+	frame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP");
 end
 
 --- Function to hide blizzard casting frame
 function DHUDNonAddonSettingsHandler:hideBlizzardCastingFrame()
-	if (CastingBarFrame ~= nil) then
-		CastingBarFrame:UnregisterEvent("UNIT_SPELLCAST_START");
-		CastingBarFrame:UnregisterEvent("UNIT_SPELLCAST_STOP");
-		CastingBarFrame:UnregisterEvent("UNIT_SPELLCAST_FAILED");
-		CastingBarFrame:UnregisterEvent("UNIT_SPELLCAST_INTERRUPTED");
-		CastingBarFrame:UnregisterEvent("UNIT_SPELLCAST_DELAYED");
-		CastingBarFrame:UnregisterEvent("UNIT_SPELLCAST_CHANNEL_START");
-		CastingBarFrame:UnregisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE");
-		CastingBarFrame:UnregisterEvent("UNIT_SPELLCAST_CHANNEL_STOP");
-		CastingBarFrame:Hide();
+	local frame = CastingBarFrame;
+	if (frame == nil) then
+		frame = PlayerCastingBarFrame;
 	end
+	frame:UnregisterEvent("UNIT_SPELLCAST_START");
+	frame:UnregisterEvent("UNIT_SPELLCAST_STOP");
+	frame:UnregisterEvent("UNIT_SPELLCAST_FAILED");
+	frame:UnregisterEvent("UNIT_SPELLCAST_INTERRUPTED");
+	frame:UnregisterEvent("UNIT_SPELLCAST_DELAYED");
+	frame:UnregisterEvent("UNIT_SPELLCAST_CHANNEL_START");
+	frame:UnregisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE");
+	frame:UnregisterEvent("UNIT_SPELLCAST_CHANNEL_STOP");
+	frame:Hide();
 end
 
 --- Function to show blizzard target frame

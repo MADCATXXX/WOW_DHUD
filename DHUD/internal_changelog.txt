@@ -1,3 +1,9 @@
+changelog 2.0.100000.77:
+- optimize colorize text function (do not use "format" to get HEX value)
+- additional colorize optimization to reduce it's CPU usage
+- fix hide castbar option
+- update toc
+
 changelog 2.0.100000.76:
 - further compatibility of DHUD Settings with DragonFlight
 - fix NaN crash in text format on load with target dummy selected

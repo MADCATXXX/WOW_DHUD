@@ -162,9 +162,13 @@ function DHUDTextTools:parseDataFormatToFunction(textFormat, mapFunctions, argTo
 	local indexE = 0; -- index at which "<word>" found
 	local indexLocalArgsS = 0; -- index at which "(123, 22)" found in "<word>"
 	local indexLocalArgsE = 0; -- index at which "(123, 22)" found in "<word>"
+	local indexColor = 0; -- index at which "color" is found inside special keyword
+	local sizeArrays = 0; -- size of the created arrays
 	local arrayFunctions = { }; -- array for functions to execute
 	local arrayResults = { }; -- array for functions results
 	local subString = "";
+	local colorFuncName = "";
+	local colorFuncIndex = 0;
 	local specialWord = "";
 	local specialArgs = nil;
 	local specialFunc = nil;
@@ -199,7 +203,6 @@ function DHUDTextTools:parseDataFormatToFunction(textFormat, mapFunctions, argTo
 		end
 		-- search function in map
 		specialFunc = mapFunctions[specialWord];
-		--print("specialWord: " .. specialWord .. ", func exists: " .. (specialFunc and "yes" or "no"));
 		-- function found?
 		if (specialFunc ~= nil) then
 			-- update function if it has local arguments
@@ -219,6 +222,37 @@ function DHUDTextTools:parseDataFormatToFunction(textFormat, mapFunctions, argTo
 			table.insert(arrayResults, "");
 			-- update index of static text
 			indexStrBegin = indexE + 1;
+		end
+		-- check if it's color function, optimize performance as needed
+		indexColor = strfind(specialWord, "color");
+		if (indexColor ~= nil and specialFunc ~= nil) then
+			sizeArrays = #arrayFunctions;
+			--print("isColor function " .. specialWord .. " " .. indexColor .. " num " .. #arrayFunctions);
+			if (indexColor == 1) then -- colorize start
+				colorFuncName = specialWord;
+				colorFuncIndex = sizeArrays;
+			elseif (colorFuncName ~= "color" and colorFuncName ~= "color_amount" and (sizeArrays - colorFuncIndex) == 2) then -- try to optimize it
+				local funcColorStart = arrayFunctions[sizeArrays - 2];
+				local funcAmount = arrayFunctions[sizeArrays - 1];
+				local funcColorStop = specialFunc;
+				table.remove(arrayFunctions, sizeArrays);
+				table.remove(arrayFunctions, sizeArrays - 1);
+				table.remove(arrayFunctions, sizeArrays - 2);
+				table.remove(arrayResults, sizeArrays);
+				table.remove(arrayResults, sizeArrays - 1);
+				table.remove(arrayResults, sizeArrays - 2);
+				-- create single function that checks amount
+				--print("optimizing color function " .. colorFuncName);
+				specialFunc = function(self, arg)
+					local innerText = funcAmount(self, arg);
+					if (innerText == "") then
+						return "";
+					end
+					return funcColorStart(self, arg) .. innerText .. funcColorStop(self, arg);
+				end
+				table.insert(arrayFunctions, specialFunc);
+				table.insert(arrayResults, "");
+			end
 		end
 	end
 	-- create function, it references local vars (arrayFunctions, arrayResults, argToFunctions)

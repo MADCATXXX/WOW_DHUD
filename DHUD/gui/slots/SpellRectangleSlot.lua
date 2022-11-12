@@ -90,7 +90,7 @@ end
 -- @param timer timer info to colorize
 -- @return table with color
 function DHUDSpellRectanglesManager:colorizeTargetBuffsTimer(timer)
-	local t = DHUDColorizeTools:getColorTableForId(DHUDColorizeTools.COLOR_ID_UNIT_TARGET + DHUDColorizeTools.COLOR_ID_TYPE_AURA_BUFF);
+	local t = DHUDColorizeTools.cache_targetAuras_buff;
 	return DHUDColorizeTools:colorizePercentUsingTable(timer[2] / timer[3], t);
 end
 
@@ -98,7 +98,7 @@ end
 -- @param timer timer info to colorize
 -- @return table with color
 function DHUDSpellRectanglesManager:colorizeTargetDebuffsTimer(timer)
-	local t = DHUDColorizeTools:getColorTableForId(DHUDColorizeTools.COLOR_ID_UNIT_TARGET + DHUDColorizeTools.COLOR_ID_TYPE_AURA_DEBUFF);
+	local t = DHUDColorizeTools.cache_targetAuras_debuff;
 	return DHUDColorizeTools:colorizePercentUsingTable(timer[2] / timer[3], t);
 end
 
