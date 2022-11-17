@@ -290,9 +290,9 @@ DHUDDataTrackers = {
 	fillMAGE = function(self, charclass)
 		-- fill table with trackers
 		local MAGE = self.MAGE;
-		-----------------
-		-- Shadow orbs --
-		-----------------
+		--------------------
+		-- Arcane Charges --
+		--------------------
 		MAGE.selfArcaneCharges = DHUDSpecificPowerTracker:new();
 		MAGE.selfArcaneCharges:setResourceType(16, "ARCANE_CHARGES");
 		MAGE.selfArcaneCharges:initPlayerSpecsOnly(1);
@@ -329,6 +329,20 @@ DHUDDataTrackers = {
 		-- Destealth tracker --
 		-----------------------
 		ROGUE.selfDeStealthTracker = DHUDSelfDeStealthTracker:new();
+	end,
+	-- trackers that are used by evoker
+	EVOKER = { },
+	fillEVOKER = function(self, charclass)
+		-- fill table with trackers
+		local EVOKER = self.EVOKER;
+
+		-------------
+		-- Essence --
+		-------------
+		EVOKER.selfEssence = DHUDSpecificPowerTracker:new();
+		EVOKER.selfEssence:setResourceType(19, "ESSENCE");
+		EVOKER.selfEssence:initPlayerNotInVehicleOrNoneUnitId();
+		EVOKER.selfEssence.updateFrequently = false;
 	end,
 	-- reference to data helper
 	helper = nil,

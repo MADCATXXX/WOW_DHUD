@@ -177,10 +177,8 @@ function DHUDDataTrackerHelper:init()
 	self.eventsFrame:RegisterEvent("PLAYER_ENTER_COMBAT");
 	self.eventsFrame:RegisterEvent("PLAYER_LEAVE_COMBAT");
 	self.eventsFrame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED");
-	if (MCVanilla <= 0) then -- on vanilla such subscription will result in an error
-		self.eventsFrame:RegisterEvent("PLAYER_TALENT_UPDATE"); -- only PvP talents
-		self.eventsFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED"); -- currently the only way to track PvE talents update
-	end
+	self.eventsFrame:RegisterEvent("PLAYER_TALENT_UPDATE"); -- only PvP talents on retail
+	self.eventsFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED"); -- currently the only way to track PvE talents update on retail
 	self.eventsFrame:RegisterEvent("PLAYER_ALIVE");
 	self.eventsFrame:RegisterEvent("PLAYER_DEAD");
 	self.eventsFrame:RegisterEvent("PLAYER_UNGHOST");

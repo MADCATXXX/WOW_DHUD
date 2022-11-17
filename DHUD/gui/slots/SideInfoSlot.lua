@@ -70,6 +70,8 @@ DHUDSideInfoManager = MCCreateSubClass(DHUDGuiSlotManager, {
 	COMBO_POINT_COLOR_WARLOCK_SOUL_SHARDS = { "ComboCirclePurple", "ComboCirclePurple", "ComboCirclePurple", "ComboCirclePurple" },
 	-- monk chi combo-point colors
 	COMBO_POINT_COLOR_MONK_CHI = { "ComboCircleJadeGreen", "ComboCircleJadeGreen", "ComboCircleJadeGreen", "ComboCircleJadeGreen", "ComboCircleJadeGreen" },
+	-- evoker essence combo-point colors
+	COMBO_POINT_COLOR_EVOKER_ESSENCE = { "ComboCircleCyan", "ComboCircleCyan", "ComboCircleCyan", "ComboCircleCyan", "ComboCircleCyan" },
 	-- list with rune type to texture name
 	RUNES_TYPE_TO_TEXTURE_NAME = {
 		[1] = "BlizzardDeathKnightRuneBlood",
@@ -655,6 +657,8 @@ function DHUDSideInfoManager:onDataTrackerChange(e)
 				self:changeComboPointColors(self.COMBO_POINT_COLOR_MAGE_ARCANE_CHARGES);
 			elseif (self.currentDataTracker == DHUDDataTrackers.WARLOCK.selfSoulShards) then
 				self:changeComboPointColors(self.COMBO_POINT_COLOR_WARLOCK_SOUL_SHARDS);
+			elseif (self.currentDataTracker == DHUDDataTrackers.EVOKER.selfEssence) then
+				self:changeComboPointColors(self.COMBO_POINT_COLOR_EVOKER_ESSENCE);
 			else
 				self:changeComboPointColors(self.COMBO_POINT_COLOR_DEFAULT);
 			end

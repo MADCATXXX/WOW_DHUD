@@ -8,11 +8,14 @@
  @author: MADCAT
 -----------------------------------------------------------------------------------]]--
 
+-- build version from Game API
+local buildNum = select(4, GetBuildInfo());
+
 -- variable that describes build type (vanilla/retail)
-MCVanilla = 1;
+MCVanilla = math.floor(buildNum / 10000);
 
 -- determine if running from WoW Vanilla (1.13.2) or Burning Crusade classic/WotLK classic
-if (select(4, GetBuildInfo()) >= 40000) then
+if (buildNum >= 40000) then
 	MCVanilla = 0;
 	return;
 end
@@ -41,37 +44,48 @@ end
 function GetNumFlyouts() -- spell book multi items, no such thing in classic
 	return 0;
 end
-function UnitHasVehicleUI(unit) -- no vehicles
-	return false;
-end
-function UnitCastingInfo(unit)
-	if (unit == "player") then
-		return CastingInfo();
-	end
-	return nil; -- not casting
-end
-function UnitChannelInfo(unit)
-	if (unit == "player") then
-		return ChannelInfo();
-	end
-	return nil; -- not casting
-end
 function GetUnitChargedPowerPoints(unit)
 	return nil; -- combo points not charged (should return array with charged combo-points)
 end
 SpellActivationOverlayFrame = CreateFrame("Frame"); -- there was no such frame, all calls can be ignored
+
+-- override some Vanilla API
+if (MCVanilla < 3) then -- less than WoTLK
+	UnitHasVehicleUI = function(unit) -- no vehicles
+		return false;
+	end
+	UnitCastingInfo = function(unit)
+		if (unit == "player") then
+			return CastingInfo();
+		end
+		return nil; -- not casting
+	end
+	UnitChannelInfo = function(unit)
+		if (unit == "player") then
+			return ChannelInfo();
+		end
+		return nil; -- not casting
+	end
+end
 -------------------------------------------------------------------------------------
 -- rewrite event frame function, since WoW API throws exceptions on missing events --
 -------------------------------------------------------------------------------------
 MCBlizzardEventExcludes = {
-	["UNIT_ENTERED_VEHICLE"] = 1, ["UNIT_EXITED_VEHICLE"] = 1, ["VEHICLE_PASSENGERS_CHANGED"] = 1, ["UPDATE_VEHICLE_ACTIONBAR"] = 1,
 	["PLAYER_SPECIALIZATION_CHANGED"] = 1,
 	["PET_BATTLE_OPENING_START"] = 1, ["PET_BATTLE_CLOSE"] = 1,
 	["SPELL_ACTIVATION_OVERLAY_SHOW"] = 1,
 	["UNIT_HEAL_PREDICTION"] = 1, ["UNIT_ABSORB_AMOUNT_CHANGED"] = 1, ["UNIT_HEAL_ABSORB_AMOUNT_CHANGED"] = 1,
 	["UNIT_SPELLCAST_INTERRUPTIBLE"] = 1, ["UNIT_SPELLCAST_NOT_INTERRUPTIBLE"] = 1,
 	["UNIT_POWER_POINT_CHARGE"] = 1,
+	["UNIT_SPELLCAST_EMPOWER_START"] = 1, ["UNIT_SPELLCAST_EMPOWER_UPDATE"] = 1, ["UNIT_SPELLCAST_EMPOWER_STOP"] = 1,
 };
+if (MCVanilla < 3) then -- less than WoTLK
+	MCBlizzardEventExcludes["PLAYER_TALENT_UPDATE"] = 1;
+	MCBlizzardEventExcludes["UNIT_ENTERED_VEHICLE"] = 1;
+	MCBlizzardEventExcludes["UNIT_EXITED_VEHICLE"] = 1;
+	MCBlizzardEventExcludes["VEHICLE_PASSENGERS_CHANGED"] = 1;
+	MCBlizzardEventExcludes["UPDATE_VEHICLE_ACTIONBAR"] = 1;
+end
 
 --- Create blizzard event frame to listen to game events
 -- @return blizzard event frame
@@ -340,4 +354,6 @@ function MCVanillaAPIEmulation:switchUnitAuraEmulation(emulate)
 	end
 end
 -- testing code
-MCVanillaAPIEmulation:switchUnitAuraEmulation(true);
+if (MCVanilla < 3) then -- less than WoTLK
+	MCVanillaAPIEmulation:switchUnitAuraEmulation(true);
+end

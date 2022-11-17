@@ -50,10 +50,14 @@ DHUDGUI = {
 		["CastingBarB1"] = { "Interface\\AddOns\\DHUD\\art\\cb", 0, 1, 0, 1 },
 		-- path to texture with inner casting bar flash animation
 		["CastFlashBarB1"] = { "Interface\\AddOns\\DHUD\\art\\cbh", 0, 1, 0, 1 },
+		-- path to texture with inner casting bar filled (for empower positions)
+		["CastFillBarB1"] = { "Interface\\AddOns\\DHUD\\art\\cbe", 0, 1, 0, 1 },
 		-- path to texture with outer casting bar
 		["CastingBarB2"] = { "Interface\\AddOns\\DHUD\\art\\ecb", 0, 1, 0, 1 },
 		-- path to texture with outer casting bar flash animation
 		["CastFlashBarB2"] = { "Interface\\AddOns\\DHUD\\art\\ecbh", 0, 1, 0, 1 },
+		-- path to texture with outer casting bar filled (for empower positions)
+		["CastFillBarB2"] = { "Interface\\AddOns\\DHUD\\art\\ecbe", 0, 1, 0, 1 },
 		-- overlay that is drawn over spell circles
 		["OverlaySpellCircle"] = { "Interface\\AddOns\\DHUD\\art\\serenity0", 0, 1, 0, 1 },
 		-- path to texture with red combo circle
@@ -144,10 +148,14 @@ DHUDGUI = {
 		["CastingBarB1"]  = { 256, 11, 11 },
 		-- information about height of inner casting bar flash animation
 		["CastFlashBarB1"] = { 256, 11, 11 },
-		-- information about height of inner casting bar
+		-- information about height of inner casting bar filled (for empower positions)
+		["CastFillBarB1"] = { 256, 11, 11 },
+		-- information about height of outer casting bar
 		["CastingBarB2"]  = { 256, 5, 5 },
-		-- information about height of inner casting bar flash animation
-		["CastFlashBarB1"]  = { 256, 5, 5 },
+		-- information about height of outer casting bar flash animation
+		["CastFlashBarB2"]  = { 256, 5, 5 },
+		-- information about height of outer casting bar filled (for empower positions)
+		["CastFillBarB2"]  = { 256, 5, 5 },
 	},
 	-- relative information of some frames, required when changing height of bars
 	positions = {
@@ -229,6 +237,8 @@ DHUDGUI = {
 	CASTBAR_GROUP_INDEX_DELAY = 6,
 	-- number of total frames in cast bar group
 	CASTBAR_GROUP_NUM_FRAMES = 6,
+	-- index for empower placement #1, next values will be increased by 1
+	CASTBAR_GROUP_INDEX_EMPOWER1 = 7,
 }
 
 --- Draws backdrop on frame specified, good for debugging purposes
@@ -961,6 +971,8 @@ function DHUDGUI:createCastBarFrameBigInnerLeft(index)
 		frame = self:createTextFrame("DHUD_Left_CastBarTimeTextBig1", "DHUD_Left_BarsBackground", "LEFT", "BOTTOM", 30, 252, 100, 14, "LEFT", "CENTER");
 	elseif (index == self.CASTBAR_GROUP_INDEX_DELAY) then
 		frame = self:createTextFrame("DHUD_Left_CastBarDelayTextBig1", "DHUD_Left_BarsBackground", "LEFT", "BOTTOM", 30, 266, 100, 14, "LEFT", "CENTER");
+	elseif (index >= self.CASTBAR_GROUP_INDEX_EMPOWER1) then
+		frame = self:createCastBarFrame("DHUD_Left_CastBarEmpower1_" .. (index - self.CASTBAR_GROUP_INDEX_EMPOWER1 + 1), relative[1], relative[2], relative[3], relative[4], relative[5], relative[6], relative[7], "CastFillBarB1");
 	end
 	return frame;
 end
@@ -983,6 +995,8 @@ function DHUDGUI:createCastBarFrameBigOuterLeft(index)
 		frame = self:createTextFrame("DHUD_Left_CastBarTimeTextBig2", "DHUD_Left_BarsBackground", "RIGHT", "BOTTOM", 25, 262, 100, 14, "RIGHT", "CENTER");
 	elseif (index == self.CASTBAR_GROUP_INDEX_DELAY) then
 		frame = self:createTextFrame("DHUD_Left_CastBarDelayTextBig2", "DHUD_Left_BarsBackground", "RIGHT", "BOTTOM", 25, 276, 100, 14, "RIGHT", "CENTER");
+	elseif (index >= self.CASTBAR_GROUP_INDEX_EMPOWER1) then
+		frame = self:createCastBarFrame("DHUD_Left_CastBarEmpower2_" .. (index - self.CASTBAR_GROUP_INDEX_EMPOWER1 + 1), relative[1], relative[2], relative[3], relative[4], relative[5], relative[6], relative[7], "CastFillBarB2");
 	end
 	return frame;
 end
@@ -1005,6 +1019,8 @@ function DHUDGUI:createCastBarFrameBigInnerRight(index)
 		frame = self:createTextFrame("DHUD_Right_CastBarTimeTextBig1", "DHUD_Right_BarsBackground", "RIGHT", "BOTTOM", -30, 252, 100, 14, "RIGHT", "CENTER");
 	elseif (index == self.CASTBAR_GROUP_INDEX_DELAY) then
 		frame = self:createTextFrame("DHUD_Right_CastBarDelayTextBig1", "DHUD_Right_BarsBackground", "RIGHT", "BOTTOM", -30, 266, 100, 14, "RIGHT", "CENTER");
+	elseif (index >= self.CASTBAR_GROUP_INDEX_EMPOWER1) then
+		frame = self:createCastBarFrame("DHUD_Right_CastBarEmpower1_" .. (index - self.CASTBAR_GROUP_INDEX_EMPOWER1 + 1), relative[1], relative[2], relative[3], relative[4], relative[5], relative[6], relative[7], "CastFillBarB1", true);
 	end
 	return frame;
 end
@@ -1027,6 +1043,8 @@ function DHUDGUI:createCastBarFrameBigOuterRight(index)
 		frame = self:createTextFrame("DHUD_Right_CastBarTimeTextBig2", "DHUD_Right_BarsBackground", "LEFT", "BOTTOM", -25, 262, 100, 14, "LEFT", "CENTER");
 	elseif (index == self.CASTBAR_GROUP_INDEX_DELAY) then
 		frame = self:createTextFrame("DHUD_Right_CastBarDelayTextBig2", "DHUD_Right_BarsBackground", "LEFT", "BOTTOM", -25, 276, 100, 14, "LEFT", "CENTER");
+	elseif (index >= self.CASTBAR_GROUP_INDEX_EMPOWER1) then
+		frame = self:createCastBarFrame("DHUD_Right_CastBarEmpower2_" .. (index - self.CASTBAR_GROUP_INDEX_EMPOWER1 + 1), relative[1], relative[2], relative[3], relative[4], relative[5], relative[6], relative[7], "CastFillBarB2", true);
 	end
 	return frame;
 end

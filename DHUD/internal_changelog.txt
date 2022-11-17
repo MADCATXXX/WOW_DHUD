@@ -1,3 +1,8 @@
+changelog 2.0.100000.78:
+- Fix WotLK druid stance changes
+- add tracking of vehicle UI on WotLK
+- add basic support for Evoker class in DragonFlight
+
 changelog 2.0.100000.77:
 - optimize colorize text function (do not use "format" to get HEX value)
 - additional colorize optimization to reduce it's CPU usage

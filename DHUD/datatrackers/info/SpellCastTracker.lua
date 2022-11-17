@@ -24,8 +24,8 @@ DHUDSpellCastTracker = MCCreateSubClass(DHUDDataTracker, {
 	isCasting			= false,
 	-- defines if current unit is having global cooldown
 	isGcd				= false,
-	-- defines if current spell is channeling
-	isChannelSpell		= false,
+	-- defines if current spell is channeling, 0 = usual cast, 1 = channeling/gcd tracker, 2 = empowered channeling
+	isChannelSpell		= 0,
 	-- defines if current spell is interruptable, e.g. no lock
 	isInterruptible		= true,
 	-- time at which the spell casting was started, in seconds
@@ -34,6 +34,8 @@ DHUDSpellCastTracker = MCCreateSubClass(DHUDDataTracker, {
 	timeProgress		= 0,
 	-- total amount of time this spell will be casted, in seconds
 	timeTotal			= 0,
+	-- number of stages during cast (for evoker charged spells), isChannelSpell == 2
+	numStages			= 0,
 	-- total delay of the cast in progress, in miliseconds
 	delay				= 0,
 	-- defines if previous spell cast was interrupted by someone
@@ -54,6 +56,8 @@ DHUDSpellCastTracker = MCCreateSubClass(DHUDDataTracker, {
 	spellName			= "",
 	-- path to the texture associated with spell
 	spellTexture		= "",
+	-- array with stage durations or nil if spell is not empowered
+	stageDurations		= nil,
 	-- spell is being cast right now
 	SPELL_FINISH_STATE_IS_CASTING = -1,
 	-- no spells were cast recently
@@ -176,6 +180,27 @@ function DHUDSpellCastTracker:init()
 		end
 		tracker:updateSpellChannelDelay();
 	end
+	-- process unit empower start
+	function self.eventsFrame:UNIT_SPELLCAST_EMPOWER_START(unitId)
+		if (tracker.unitId ~= unitId) then
+			return;
+		end
+		tracker:updateSpellChannelStart();
+	end
+	-- process unit empower stop, separate event will be fired for spell cast interrupt, this event is only for empower stop (as some spells can be casted during channel)
+	function self.eventsFrame:UNIT_SPELLCAST_EMPOWER_STOP(unitId)
+		if (tracker.unitId ~= unitId) then
+			return;
+		end
+		tracker:updateSpellCastStop();
+	end
+	-- process unit empower update
+	function self.eventsFrame:UNIT_SPELLCAST_EMPOWER_UPDATE(unitId)
+		if (tracker.unitId ~= unitId) then
+			return;
+		end
+		tracker:updateSpellChannelDelay();
+	end
 	-- process combat spell interrupt event
 	function self.combatEventsFrame:SPELL_INTERRUPT(timestamp, hideCaster, sourceGUID, sourceName, sourceFlags, sourceFlags2, destGUID, destName, destFlags, destFlags2, spellId, spellName, spellSchool, extraSpellID, extraSpellName, extraSchool)
 		if (destGUID ~= trackingHelper.guids[tracker.unitId]) then
@@ -204,7 +229,7 @@ function DHUDSpellCastTracker:updateGcd(e)
 		self.timeTotal = self.cooldownsTracker.gcdTimeTotal;
 		self.timeUpdatedAt = self.cooldownsTracker.timeUpdatedAt;
 		self.delay = 0;
-		self.isChannelSpell = true;
+		self.isChannelSpell = 1;
 		self.isGcd = true;
 	else
 		if (self.isGcd) then
@@ -227,7 +252,7 @@ function DHUDSpellCastTracker:onUpdateTime()
 		return;
 	end
 	-- update timer
-	if (self.isChannelSpell) then
+	if (self.isChannelSpell == 1) then
 		self.timeProgress = self.timeProgress - diff;
 	else
 		self.timeProgress = self.timeProgress + diff;
@@ -249,7 +274,7 @@ function DHUDSpellCastTracker:getTimeProgress()
 	local timerMs = trackingHelper.timerMs;
 	local diff = timerMs - self.timeUpdatedAt;
 	local progress;
-	if (self.isChannelSpell) then
+	if (self.isChannelSpell == 1) then
 		progress = self.timeProgress - diff;
 	else
 		progress = self.timeProgress + diff;
@@ -263,7 +288,7 @@ function DHUDSpellCastTracker:updateSpellCastStart()
 	-- update boolean variables with casting info
 	self.hasCasted = true;
 	self.isCasting = true;
-	self.isChannelSpell = false;
+	self.isChannelSpell = 0;
 	self:setIsRegenerating(true);
 	self.finishState = self.SPELL_FINISH_STATE_IS_CASTING;
 	-- update spell cast info
@@ -326,29 +351,47 @@ function DHUDSpellCastTracker:updateSpellChannelStart()
 	-- update boolean variables with casting info
 	self.hasCasted = true;
 	self.isCasting = true;
-	self.isChannelSpell = true;
+	self.isChannelSpell = 1;
 	self:setIsRegenerating(true);
 	self.finishState = self.SPELL_FINISH_STATE_IS_CASTING;
 	-- update channel cast info
 	local timerMs = trackingHelper:getTimerMs();
-	local name, text, texture, startTime, endTime, isTradeSkill, notInterruptible = UnitChannelInfo(self.unitId);
+	local name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, spellID, _, numStages = UnitChannelInfo(self.unitId);
+	self.numStages = numStages or 0; -- evoker charged spells
+	local isChargeSpell = self.numStages > 0;
 	self.isInterruptible = not notInterruptible;
 	self.spellName = name;
 	self.spellTexture = texture;
 	self.timeStart = startTime / 1000;
+	if (isChargeSpell) then
+		self.isChannelSpell = 2;
+		local lastStageDuration = GetUnitEmpowerHoldAtMaxTime(self.unitId);
+		endTime = endTime + lastStageDuration;
+		self.timeProgress = timerMs - startTime / 1000;
+		self.stageDurations = {};
+		for i = 1, self.numStages, 1 do
+			local stageDuration = GetUnitEmpowerStageDuration(self.unitId, i-1);
+			table.insert(self.stageDurations, stageDuration / 1000);
+		end
+		table.insert(self.stageDurations, lastStageDuration / 1000);
+		--self.numStages = self.numStages + 1; -- last is holding stage which is not reported as stage
+		--print("durations " .. MCTableToString(self.stageDurations) .. ", stages " .. self.numStages);
+	else
+		self.timeProgress = endTime / 1000 - timerMs;
+		self.stageDurations = nil;
+	end
 	self.timeTotal = (endTime - startTime) / 1000;
-	self.timeProgress = endTime / 1000 - timerMs;
 	self.delay = 0;
 	self.timeUpdatedAt = timerMs;
 	-- process data change
 	self:processDataChanged();
 end
 
---- update spell cast delay
+--- update spell channel delay
 function DHUDSpellCastTracker:updateSpellChannelDelay()
 	-- update delay
 	local timerMs = trackingHelper:getTimerMs();
-	local name, text, texture, startTime, endTime, isTradeSkill, notInterruptible = UnitChannelInfo(self.unitId);
+	local name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, spellID, _, numStages = UnitChannelInfo(self.unitId);
 	if (name == nil) then
 		--print("noChannelInfo");
 		return;
@@ -415,7 +458,7 @@ end
 function DHUDSpellCastTracker:updateSpellCastStop()
 	-- update spell cast time
 	if (self.isCasting) then
-		if (self.isChannelSpell) then
+		if (self.isChannelSpell == 1) then
 			self:updateSpellChannelTime();
 		else
 			self:updateSpellCastTime();
@@ -423,6 +466,7 @@ function DHUDSpellCastTracker:updateSpellCastStop()
 	end
 	-- update stop info
 	self.isCasting = false;
+	self.numStages = 0;
 	self:setIsRegenerating(false);
 	-- update spell info if any
 	if (self.finishState ~= self.SPELL_FINISH_STATE_IS_CASTING) then
@@ -452,6 +496,9 @@ function DHUDSpellCastTracker:startTracking()
 	self.eventsFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START");
 	self.eventsFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP");
 	self.eventsFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE");
+	self.eventsFrame:RegisterEvent("UNIT_SPELLCAST_EMPOWER_START");
+	self.eventsFrame:RegisterEvent("UNIT_SPELLCAST_EMPOWER_STOP");
+	self.eventsFrame:RegisterEvent("UNIT_SPELLCAST_EMPOWER_UPDATE");
 	self.eventsFrame:RegisterEvent("UNIT_SPELLCAST_DELAYED");
 	self.eventsFrame:RegisterEvent("UNIT_SPELLCAST_FAILED");
 	--self.eventsFrame:RegisterEvent("UNIT_SPELLCAST_FAILED_QUIET");
@@ -476,6 +523,9 @@ function DHUDSpellCastTracker:stopTracking()
 	self.eventsFrame:UnregisterEvent("UNIT_SPELLCAST_CHANNEL_START");
 	self.eventsFrame:UnregisterEvent("UNIT_SPELLCAST_CHANNEL_STOP");
 	self.eventsFrame:UnregisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE");
+	self.eventsFrame:UnregisterEvent("UNIT_SPELLCAST_EMPOWER_START");
+	self.eventsFrame:UnregisterEvent("UNIT_SPELLCAST_EMPOWER_STOP");
+	self.eventsFrame:UnregisterEvent("UNIT_SPELLCAST_EMPOWER_UPDATE");
 	self.eventsFrame:UnregisterEvent("UNIT_SPELLCAST_DELAYED");
 	self.eventsFrame:UnregisterEvent("UNIT_SPELLCAST_FAILED");
 	--self.eventsFrame:UnregisterEvent("UNIT_SPELLCAST_FAILED_QUIET");

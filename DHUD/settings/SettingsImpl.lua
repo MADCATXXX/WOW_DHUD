@@ -501,6 +501,8 @@ function DHUDSettings:mapDataTrackers()
 	-- specific to shaman
 	trackersTable["shamanTotems"] =  { DHUDDataTrackers.SHAMAN.selfTotems, DHUDTimersFilterHelperSettingsHandler.filterTotemGuardians };
 	trackersTable["shamanMana"] = { DHUDDataTrackers.SHAMAN.selfMana };
+	-- specific to evoker
+	trackersTable["evokerEssence"] =  { DHUDDataTrackers.EVOKER.selfEssence };
 end
 
 --- Initialize single setting from table

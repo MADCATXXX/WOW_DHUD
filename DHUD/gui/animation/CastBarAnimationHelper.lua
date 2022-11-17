@@ -159,6 +159,41 @@ function DHUDGUICastBarAnimationHelper:updateCastBarHeightAndColor(heightEnd, co
 	texture:SetVertexColor(colors[1], colors[2], colors[3]);
 end
 
+--- External use function, updates position of empowered cast time
+-- @param frame frame fro self group, that was already shown
+-- @param height height of empowered position (as float value from 0 to 1)
+-- @param colors color of empowered position
+function DHUDGUICastBarAnimationHelper:updateCastBarEmpowerPosition(frame, height, colors)
+	-- get texture
+	local texture = frame.texture;
+	-- read clipping info
+	local pixelsHeight = self.clippingInformation[1];
+	local pixelsFromTopPercent = self.clippingInformation[4];
+	local pixelsFromBottomPercent = self.clippingInformation[5];
+	local pixelsRealHeightPercent = self.clippingInformation[6];
+	local textureX1 = self.clippingInformation[7];
+	local textureX2 = self.clippingInformation[8];
+	local parentFrame = self.clippingInformation[9];
+
+	-- calculate height
+	local textureHeight = pixelsRealHeightPercent * pixelsHeight * 0.005;
+	if (textureHeight <= 0) then -- zero height will cause ui to malfunction
+		textureHeight = 0.005;
+	end
+
+	-- calculate texture position
+	local textureTop = 1 - pixelsFromTopPercent - (pixelsRealHeightPercent * (1 - height));
+	local textureBottom = pixelsFromBottomPercent + (pixelsRealHeightPercent * (height - 0.005));
+	local offsetY = pixelsHeight * textureBottom;
+	-- update texture
+	texture:SetHeight(textureHeight);
+	texture:SetTexCoord(textureX1, textureX2, 1 - textureTop, 1 - textureBottom);
+	texture:SetPoint("BOTTOM", parentFrame, "BOTTOM", 0, offsetY);
+	--print("textureHeight " .. textureHeight .. ", offsetY " .. offsetY .. ", x0 " .. textureX1 .. ", x1 " .. textureX2 .. ", y0 " .. (1 - textureTop) .. ", y1 " .. (1 - textureBottom));
+	-- colorize
+	texture:SetVertexColor(colors[1], colors[2], colors[3]);
+end
+
 --- Update bar with values
 -- @param valueTotal total cast time, current cast time is requested by other function
 function DHUDGUICastBarAnimationHelper:startCastBarAnimation(valueTotal)

@@ -226,6 +226,9 @@ function DHUDNonAddonSettingsHandler:showBlizzardCastingFrame()
 	local frame = CastingBarFrame; -- vanilla/tbc/wotlk
 	if (frame == nil) then
 		frame = PlayerCastingBarFrame; -- retail dragonflight
+		frame:RegisterEvent("UNIT_SPELLCAST_EMPOWER_START");
+		frame:RegisterEvent("UNIT_SPELLCAST_EMPOWER_UPDATE");
+		frame:RegisterEvent("UNIT_SPELLCAST_EMPOWER_STOP");
 	end
 	frame:RegisterEvent("UNIT_SPELLCAST_START");
 	frame:RegisterEvent("UNIT_SPELLCAST_STOP");
@@ -242,6 +245,9 @@ function DHUDNonAddonSettingsHandler:hideBlizzardCastingFrame()
 	local frame = CastingBarFrame;
 	if (frame == nil) then
 		frame = PlayerCastingBarFrame;
+		frame:UnregisterEvent("UNIT_SPELLCAST_EMPOWER_START");
+		frame:UnregisterEvent("UNIT_SPELLCAST_EMPOWER_UPDATE");
+		frame:UnregisterEvent("UNIT_SPELLCAST_EMPOWER_STOP");
 	end
 	frame:UnregisterEvent("UNIT_SPELLCAST_START");
 	frame:UnregisterEvent("UNIT_SPELLCAST_STOP");

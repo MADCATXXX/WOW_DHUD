@@ -23,6 +23,8 @@ DHUDCastBarManager = MCCreateSubClass(DHUDGuiSlotManager, {
 	castBarInfoVisible = true,
 	-- defines if cast bar info should be visible
 	castBarInfoShouldBeVisible = false,
+	-- number of castbar stage frames in use by this manager
+	castBarStages = 0,
 	-- id of the unit from DHUDColorizeTools constants
 	unitColorId = 0,
 	-- allows to show or hide player cast bar info
@@ -97,7 +99,7 @@ end
 -- @return text to be shown in gui
 function DHUDCastBarManager:createTextTimeRemain(this)
 	local value;
-	if (not this.currentDataTracker.isChannelSpell) then
+	if (this.currentDataTracker.isChannelSpell ~= 1) then
 		value = this.currentDataTracker.timeTotal - this.currentDataTracker.timeProgress;
 	else
 		value = this.currentDataTracker.timeProgress;
@@ -127,7 +129,7 @@ function DHUDCastBarManager:createTextDelay(this, castPrefix, channelPrefix)
 	if (value <= 0) then
 		return "";
 	end
-	if (this.currentDataTracker.isChannelSpell) then
+	if (this.currentDataTracker.isChannelSpell == 1) then
 		return (channelPrefix or "") .. DHUDTextTools:formatNumberWithPrecision(value, 1);
 	else
 		return (castPrefix or "") .. DHUDTextTools:formatNumberWithPrecision(value, 1);
@@ -178,7 +180,7 @@ function DHUDCastBarManager:colorizeCastBar(valueHeight)
 		end
 	end
 	-- get colors table
-	if (self.currentDataTracker.isChannelSpell) then
+	if (self.currentDataTracker.isChannelSpell == 1) then
 		if (self.currentDataTracker.isInterruptible) then
 			colors = DHUDColorizeTools:getColorTableForId(DHUDColorizeTools.COLOR_ID_TYPE_CASTBAR_CHANNEL + self.unitColorId);
 		else
@@ -230,6 +232,25 @@ function DHUDCastBarManager:onDataChange(e)
 	self.group[DHUDGUI.CASTBAR_GROUP_INDEX_CASTTIME].textField:DSetText(self.textFormatTimeFunction());
 	self.group[DHUDGUI.CASTBAR_GROUP_INDEX_DELAY].textField:DSetText(self.textFormatDelayFunction());
 	self.group[DHUDGUI.CASTBAR_GROUP_INDEX_SPELLNAME].textField:DSetText(self.textFormatSpellNameFunction());
+	-- update empower groups
+	local numStages = self.currentDataTracker.numStages;
+	for i = numStages, self.castBarStages, 1 do
+		self.group[DHUDGUI.CASTBAR_GROUP_INDEX_EMPOWER1 + i - 1]:DHide();
+	end
+	if (numStages > 0) then
+		local totalTime = self.currentDataTracker.timeTotal;
+		local empowerTimes = self.currentDataTracker.stageDurations;
+		local empowerTime = 0;
+		for i = 1, numStages, 1 do
+			empowerTime = empowerTime + empowerTimes[i];
+			local height = empowerTime / totalTime;
+			--print("i " .. i .. " height " .. height .. " empower " .. empowerTime .. " total " .. totalTime);
+			local empowerFrame = self.group[DHUDGUI.CASTBAR_GROUP_INDEX_EMPOWER1 + i - 1];
+			empowerFrame:DShow();
+			self.helper:updateCastBarEmpowerPosition(empowerFrame, empowerTime / totalTime, {1, 1, 1});
+		end
+	end
+	self.castBarStages = numStages;
 	-- update icon
 	local icon = self.group[DHUDGUI.CASTBAR_GROUP_INDEX_ICON];
 	icon:SetNormalTexture(self.currentDataTracker.spellTexture);
