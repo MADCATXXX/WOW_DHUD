@@ -33,7 +33,7 @@ DHUDSideInfoManager = MCCreateSubClass(DHUDGuiSlotManager, {
 	-- table with color exchanges for combo-points
 	comboPointsColorOrder = nil,
 	-- index of colored charged combopoint
-	comboPointsChargeColorIndex = 0,
+	comboPointsChargeColorIndexes = nil,
 	-- defines if player short debuffs should be colorized
 	STATIC_colorizePlayerShortDebuffs = false,
 	-- defines if player cooldowns lock should be colorized
@@ -67,7 +67,7 @@ DHUDSideInfoManager = MCCreateSubClass(DHUDGuiSlotManager, {
 	-- priest shadow orbs combo-point colors
 	COMBO_POINT_COLOR_MAGE_ARCANE_CHARGES = { "ComboCircleCyan", "ComboCircleCyan", "ComboCircleCyan", "ComboCircleCyan" },
 	-- warlock soul shards combo-point colors
-	COMBO_POINT_COLOR_WARLOCK_SOUL_SHARDS = { "ComboCirclePurple", "ComboCirclePurple", "ComboCirclePurple", "ComboCirclePurple" },
+	COMBO_POINT_COLOR_WARLOCK_SOUL_SHARDS = { "ComboCirclePurple", "ComboCirclePurple", "ComboCirclePurple", "ComboCirclePurple", "ComboCirclePurple" },
 	-- monk chi combo-point colors
 	COMBO_POINT_COLOR_MONK_CHI = { "ComboCircleJadeGreen", "ComboCircleJadeGreen", "ComboCircleJadeGreen", "ComboCircleJadeGreen", "ComboCircleJadeGreen" },
 	-- evoker essence combo-point colors
@@ -126,6 +126,7 @@ end
 --- Construct side info manager
 function DHUDSideInfoManager:constructor()
 	self.comboPointsColorOrder = { };
+	self.comboPointsChargeColorIndexes = { };
 	DHUDGuiSlotManager.constructor(self); -- call super
 end
 
@@ -546,10 +547,12 @@ end
 function DHUDSideInfoManager:updateComboPoints()
 	local amount = self.currentDataTracker.amount;
 	local amountExtra = self.currentDataTracker.amountExtra;
-	local chargedIndex = self.currentDataTracker.chargedPowerPointIndex or 0;
+	local chargedIndexes = self.currentDataTracker.chargedPowerPointIndexes;
+	local numChargedNow = chargedIndexes and #chargedIndexes or 0;
+	local chargedHighest = self.currentDataTracker.chargedPowerPointMaxIndex or 0;
 	local total = amount + amountExtra;
 	-- update colors
-	local amountForColors = amount > chargedIndex and amount or chargedIndex; -- need to show required amount of frames in order to highlight some combo-point
+	local amountForColors = amount > chargedHighest and amount or chargedHighest; -- need to show required amount of frames in order to highlight some combo-point
 	if (amountForColors >= 5) then
 		self:changeComboPointColorOrder(1, 5, 6, 10);
 	else
@@ -557,30 +560,36 @@ function DHUDSideInfoManager:updateComboPoints()
 	end
 	self.currentGroup:setFramesShown(amountForColors + amountExtra);
 	-- update alpha and preprocess charged combo-points if needed
-	local prevChargeIndex = self.comboPointsChargeColorIndex;
-	if (prevChargeIndex > 0) then
+	local prevChargeIndexes = self.comboPointsChargeColorIndexes;
+	local numChargedPrev = #prevChargeIndexes;
+	if (numChargedPrev > 0) then
 		self.comboPointsAlpha = 0; -- force alpha override if charged combo-points were shown
 	end
 	local alpha = self.currentDataTracker.isStoredAmount and 0.5 or 1.0;
 	self:changeComboPointsAlpha(alpha);
 	-- change charged combo texture
 	--print("gui charged combopoints " .. chargedIndex .. ", self value " .. prevChargeIndex);
-	if (prevChargeIndex > 0 or chargedIndex > 0) then -- combo coloring may be lost due to "changeComboPointColorOrder" function
+	if (numChargedPrev > 0 or numChargedNow > 0) then -- combo coloring may be lost due to "changeComboPointColorOrder" function
 		-- restore original color
-		if (prevChargeIndex > 0) then
-			self:changeSingleComboPointColor(prevChargeIndex, self.comboPointsColorTable[prevChargeIndex]);
+		for i = numChargedPrev, 1, -1 do
+			local index = prevChargeIndexes[i];
+			self:changeSingleComboPointColor(index, self.comboPointsColorTable[index]);
+			table.remove(prevChargeIndexes, i);
 		end
 		-- set cyan color for charge
-		if (chargedIndex > 0) then
-			self:changeSingleComboPointColor(chargedIndex, "ComboCircleCyan");
+		for i = 1, numChargedNow, 1 do
+			local index = chargedIndexes[i];
+			self:changeSingleComboPointColor(index, "ComboCircleCyan");
+			table.insert(prevChargeIndexes, index);
 		end
-		self.comboPointsChargeColorIndex = chargedIndex;
 	end
 	-- update alpha for charged combo-point if needed
-	if (chargedIndex > 0 and total < chargedIndex) then
-		for i = 1, chargedIndex do
+	if (numChargedNow > 0 and total < chargedHighest) then
+		for i = 1, chargedHighest do
 			local comboFrame = self.currentGroup[i];
-			local comboAlpha = i > total and (i == chargedIndex and 0.4 or 0) or 1;
+			local isCharged = false;
+			for j = 1, numChargedNow, 1 do if (chargedIndexes[j] == i) then isCharged = true; break; end; end;
+			local comboAlpha = i > total and (isCharged and 0.4 or 0) or 1;
 			comboFrame:SetAlpha(self.comboPointsAlpha * comboAlpha);
 		end
 	end

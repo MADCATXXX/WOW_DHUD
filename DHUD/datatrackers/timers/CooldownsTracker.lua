@@ -214,7 +214,7 @@ function DHUDCooldownsTracker:findSpellCooldownsToTrack()
 	-- clear array
 	self.cooldownsSpellIds = {};
 	-- spell
-	local spellType, spellId, spellData;
+	local spellType, spellId, overrideSpellId, spellData;
 	local charges, maxCharges, startTime, duration;
 	local isPassive, baseCooldownMs, gcdMs;
 	-- iterate over spellbooks (vanilla has 3 of them, release (shadowlands+) version only 2)
@@ -252,15 +252,17 @@ function DHUDCooldownsTracker:findSpellCooldownsToTrack()
 		if (flyoutIsKnown) then
 			for j = 1, flyoutNumSlots, 1 do
 				-- get spell info
-				spellId, flyoutIsKnown = GetFlyoutSlotInfo(flyoutId, j);
-				spellData = trackingHelper:getSpellData(spellId, true);
-				isPassive = IsPassiveSpell(spellId);
-				baseCooldownMs = GetSpellBaseCooldown(spellId);
-				if (isPassive ~= true and baseCooldownMs ~= nil and baseCooldownMs > 1500 and baseCooldownMs < 3600000 and self:isValidCooldownSpellId(spellId)) then -- don't need long cooldowns like 8hour teleport to Pandaria Dungeon, etc...
-					charges, maxCharges = GetSpellCharges(spellId);
-					local cooldownInfo = { spellId, maxCharges, spellData };
-					table.insert(self.cooldownsSpellIds, cooldownInfo);
-					--print("flyout " .. flyoutId .. " spellData " .. MCTableToString(spellData[1]) .. " baseCooldownMs " .. baseCooldownMs .. ", maxCharges " .. MCTableToString(maxCharges));
+				spellId, overrideSpellId, flyoutIsKnown = GetFlyoutSlotInfo(flyoutId, j);
+				if (flyoutIsKnown) then
+					spellData = trackingHelper:getSpellData(spellId, true);
+					isPassive = IsPassiveSpell(spellId);
+					baseCooldownMs = GetSpellBaseCooldown(spellId);
+					if (isPassive ~= true and baseCooldownMs ~= nil and baseCooldownMs > 1500 and baseCooldownMs < 3600000 and self:isValidCooldownSpellId(spellId)) then -- don't need long cooldowns like 8hour teleport to Pandaria Dungeon, etc...
+						charges, maxCharges = GetSpellCharges(spellId);
+						local cooldownInfo = { spellId, maxCharges, spellData };
+						table.insert(self.cooldownsSpellIds, cooldownInfo);
+						--print("flyout " .. flyoutId .. " spellData " .. MCTableToString(spellData[1]) .. " baseCooldownMs " .. baseCooldownMs .. ", maxCharges " .. MCTableToString(maxCharges));
+					end
 				end
 			end
 		end
@@ -295,7 +297,7 @@ function DHUDCooldownsTracker:updateSpellCooldowns()
 			maxCharges = v[2];
 			spellData = v[3];
 			-- check spells with charges
-			if (maxCharges ~= nil) then
+			if (true) then -- maxCharges ~= nil (maxCharges doesn't always return correct amount)
 				charges, maxCharges, startTime, duration = GetSpellCharges(spellId);
 				if (charges ~= nil and (maxCharges - charges) > 0) then
 					cooldownCharges = (maxCharges - charges);

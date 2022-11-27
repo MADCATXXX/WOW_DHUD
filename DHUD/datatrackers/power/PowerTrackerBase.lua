@@ -64,6 +64,7 @@ DHUDPowerTracker = MCCreateSubClass(DHUDDataTracker, {
 		[16]	= "ARCANE_CHARGES",
 		[17]	= "FURY",
 		[18]	= "PAIN",
+		[19]	= "ESSENCE",
 	},
 	-- table with base percents for resource types, all unset resource types will be treated as 0
 	BASE_PERCENT_FOR_RESOURCE_TYPE = {

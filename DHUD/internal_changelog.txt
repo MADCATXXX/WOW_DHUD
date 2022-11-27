@@ -1,3 +1,8 @@
+changelog 2.0.100000.79:
+- regeneration of evoker essence / warlock shards is set to correct number to apply rested alpha
+- multiple charged combo points can now be tracked
+- cooldowns will always check charges due to API bugs (found only once, but still a bug)
+
 changelog 2.0.100000.78:
 - Fix WotLK druid stance changes
 - add tracking of vehicle UI on WotLK

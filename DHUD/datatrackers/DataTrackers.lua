@@ -247,6 +247,7 @@ DHUDDataTrackers = {
 		------------------
 		WARLOCK.selfSoulShards = DHUDSpecificPowerTracker:new();
 		WARLOCK.selfSoulShards:setResourceType(7, "SOUL_SHARDS");
+		WARLOCK.selfSoulShards:setAmountBasePercent(0.6);
 		WARLOCK.selfSoulShards:initPlayerNotInVehicleOrNoneUnitId();
 		WARLOCK.selfSoulShards.precision = 0;
 	end,
@@ -341,6 +342,7 @@ DHUDDataTrackers = {
 		-------------
 		EVOKER.selfEssence = DHUDSpecificPowerTracker:new();
 		EVOKER.selfEssence:setResourceType(19, "ESSENCE");
+		EVOKER.selfEssence:setAmountBasePercent(1);
 		EVOKER.selfEssence:initPlayerNotInVehicleOrNoneUnitId();
 		EVOKER.selfEssence.updateFrequently = false;
 	end,
