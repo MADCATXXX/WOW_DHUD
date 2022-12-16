@@ -75,8 +75,8 @@ DHUDSideInfoManager = MCCreateSubClass(DHUDGuiSlotManager, {
 	-- list with rune type to texture name
 	RUNES_TYPE_TO_TEXTURE_NAME = {
 		[1] = "BlizzardDeathKnightRuneBlood",
-		[2] = "BlizzardDeathKnightRuneUnholy",
-		[3] = "BlizzardDeathKnightRuneFrost",
+		[2] = "BlizzardDeathKnightRuneFrost",
+		[3] = "BlizzardDeathKnightRuneUnholy",
 		[4] = "BlizzardDeathKnightRuneDeath",
 	},
 })

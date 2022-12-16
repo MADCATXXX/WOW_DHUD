@@ -195,6 +195,29 @@ function DHUDTimersTracker:findTimerByIdOnly(id, createIfNone, inUse)
 	return timer;
 end
 
+--- Search for timer that is created for source, and contains info about id specified to be used for reading by any other code
+-- @param id id of the data, e.g. buff spell id
+-- @param sourceId id of the source
+-- @return table with data about timer
+function DHUDTimersTracker:findTimerForPublicRead(id, sourceId)
+	local sourceInfo = self.sources[sourceId];
+	if (sourceInfo == nil) then
+		return nil;
+	end
+	local indexBegin = sourceInfo[1];
+	local numTimers = sourceInfo[2];
+	local indexLast = indexBegin + numTimers - 1;
+	-- iterate over timers
+	for i = indexBegin, indexLast, 1 do
+		timer = self.timers[i];
+		-- check id
+		if (timer[4] == id) then
+			return timer;
+		end
+	end
+	return nil;
+end
+
 --- Check if source contains timer with negative duration
 -- @param sourceId id of the source
 -- @return true if timers with negative duration are present

@@ -1,3 +1,9 @@
+changelog 2.0.100000.80:
+- garrote tracking for assassination rogues
+- cooldowns tracking improved
+- fix death knight rune coloring on WotLK classic
+- update list of default immunity auras to track
+
 changelog 2.0.100000.79:
 - regeneration of evoker essence / warlock shards is set to correct number to apply rested alpha
 - multiple charged combo points can now be tracked

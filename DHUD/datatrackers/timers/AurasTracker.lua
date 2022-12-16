@@ -19,6 +19,10 @@ local trackingHelper = DHUDDataTrackingHelper;
 
 --- Class to track unit buffs and debuffs
 DHUDAurasTracker = MCCreateSubClass(DHUDTimersTracker, {
+	-- source group that contains buffs
+	TIMER_SOURCE_GROUP_BUFF			= 0,
+	-- source group that contains debuffs
+	TIMER_SOURCE_GROUP_DEBUFF		= 1,
 	-- mask for the type, that specifies that aura is a buff
 	TIMER_TYPE_MASK_BUFF			= 1,
 	-- mask for the type, that specifies that aura is a debuff

@@ -24,10 +24,10 @@ DHUDRunesTracker = MCCreateSubClass(DHUDPowerTracker, {
 	timeUpdatedAt		= 0,
 	-- rune type is blood
 	RUNETYPE_BLOOD		= 1,
-	-- rune type is unholy
-	RUNETYPE_CHROMATIC	= 2,
 	-- rune type is frost
-	RUNETYPE_FROST		= 3,
+	RUNETYPE_FROST		= 2,
+	-- rune type is unholy
+	RUNETYPE_CHROMATIC	= 3,
 	-- rune type is death
 	RUNETYPE_DEATH		= 4,
 })
@@ -65,6 +65,9 @@ function DHUDRunesTracker:init()
 		end
 		tracker:updateRuneTypes();
 	end
+	function self.eventsFrame:RUNE_TYPE_UPDATE(rune, enabled)
+		tracker:updateRuneTypes();
+	end
 	-- init unit ids
 	self:initPlayerNotInVehicleOrNoneUnitId();
 end
@@ -73,16 +76,30 @@ end
 function DHUDRunesTracker:updateRuneTypes()
 	-- create vars
 	local spec = GetSpecialization();
-	local runeType; -- 1 : RUNETYPE_BLOOD, 2 : RUNETYPE_CHROMATIC, 3 : RUNETYPE_FROST, 4 : RUNETYPE_DEATH
-	runeType = spec == 1 and 1 or (spec == 2 and 3 or 2);
+	local runeType; -- 1 : RUNETYPE_BLOOD, 2 : RUNETYPE_FROST, 3 : RUNETYPE_CHROMATIC, 4 : RUNETYPE_DEATH
+	runeType = spec == 1 and 1 or (spec == 2 and 2 or 3);
 	-- update runes
 	for i = 1, 6, 1 do
-		--runeType = 1; -- GetRuneType(i);
+		if (MCVanilla >= 3 and GetRuneType ~= nil) then
+			local runeIndex = self:fixClassicRuneOrder(i);
+			runeType = GetRuneType(runeIndex);
+		end
 		local rune = self.runes[i];
 		rune[1] = runeType;
 	end
 	-- dispatch event
 	self:processDataChanged();
+end
+
+--- Update rune order on WotLK classic, code from original RuneFrame.lua (function "RuneFrame_FixRunes")
+function DHUDRunesTracker:fixClassicRuneOrder(i)
+	if (i >= 5) then
+		return i - 2;
+	elseif (i >= 3) then
+		return i + 2;
+	else
+		return i;
+	end
 end
 
 --- Update rune cooldowns through API
@@ -93,9 +110,14 @@ function DHUDRunesTracker:updateRuneCooldowns()
 	local start, duration, runeReady;
 	-- update runes
 	for i = 1, 6, 1 do
-		start, duration, runeReady = GetRuneCooldown(i);
+		local runeIndex = i;
+		if (MCVanilla >= 3) then
+			runeIndex = self:fixClassicRuneOrder(i);
+		end
+		start, duration, runeReady = GetRuneCooldown(runeIndex);
 		local rune = self.runes[i];
 		rune[2] = start + duration - timerMs;
+		--print("i " .. i .. ": " .. GetRuneType(i) .. ", cooldown " .. rune[2]);
 		-- update if rune is ready
 		runesReady = runesReady + (runeReady and 1 or 0);
 	end
@@ -137,7 +159,9 @@ function DHUDRunesTracker:startTracking()
 	-- listen to game events
 	self.eventsFrame:RegisterEvent("RUNE_POWER_UPDATE");
 	self.eventsFrame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED");
-	--self.eventsFrame:RegisterEvent("RUNE_TYPE_UPDATE");
+	if (MCVanilla >= 3) then
+		self.eventsFrame:RegisterEvent("RUNE_TYPE_UPDATE");
+	end
 	trackingHelper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE, self, self.onUpdateTime);
 end
 
@@ -146,7 +170,9 @@ function DHUDRunesTracker:stopTracking()
 	-- stop listening to game events
 	self.eventsFrame:UnregisterEvent("RUNE_POWER_UPDATE");
 	self.eventsFrame:UnregisterEvent("PLAYER_SPECIALIZATION_CHANGED");
-	--self.eventsFrame:UnregisterEvent("RUNE_TYPE_UPDATE");
+	if (MCVanilla >= 3) then
+		self.eventsFrame:UnregisterEvent("RUNE_TYPE_UPDATE");
+	end
 	trackingHelper:removeEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE, self, self.onUpdateTime);
 end
 

@@ -330,6 +330,12 @@ DHUDDataTrackers = {
 		-- Destealth tracker --
 		-----------------------
 		ROGUE.selfDeStealthTracker = DHUDSelfDeStealthTracker:new();
+		----------------------------------
+		-- Assasination garrote tracker --
+		----------------------------------
+		if (DHUDRogueAssasinationGarroteTracker ~= nil) then
+			ROGUE.selfAssasinationGarrote = DHUDRogueAssasinationGarroteTracker:new();
+		end
 	end,
 	-- trackers that are used by evoker
 	EVOKER = { },

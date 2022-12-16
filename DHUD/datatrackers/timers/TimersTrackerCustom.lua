@@ -31,6 +31,8 @@ DHUDCustomTimerTracker = MCCreateSubClass(DHUDDataTracker, {
 	timersGroup = 0,
 	-- defines if this tracker currently updates timers tracker that was attached
 	trackingAllowed = false,
+	-- defines if this tracker should update multiple timers (timerIdsToUpdate)
+	trackingMultiple = false,
 })
 
 --- allow tracking setting has changed
@@ -79,24 +81,28 @@ end
 function DHUDCustomTimerTracker:updateTimers()
 	--print("updateTimers");
 	-- search for timer to be updated
+	local numUpdated = 0;
 	local timer;
 	for i, v in ipairs(self.timerIdsToUpdate) do
 		timer = self.timersTracker:findTimerByIdOnly(v, false, true);
 		if (timer ~= nil) then
+			numUpdated = numUpdated + 1;
+			self:updateTimer(timer);
 			--print("update timer by id found " .. v);
-			break;
+			if (not self.trackingMultiple) then
+				break;
+			end
 		end
 	end
 	-- check if we should create default timer
-	if (timer == nil) then
+	if (numUpdated == 0) then
 		--print("update timer by id not found ");
 		timer = self:getDefaultTimer();
 		if (timer == nil) then
 			return;
 		end
+		self:updateTimer(timer);
 	end
-	-- update timer
-	self:updateTimer(timer);
 end
 
 -- allow timer tracking

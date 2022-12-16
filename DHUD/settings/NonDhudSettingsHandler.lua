@@ -351,7 +351,7 @@ function DHUDNonAddonSettingsHandler:processDestealthTracking(track)
 	end
 	if (trackingHelper.playerClass == "ROGUE") then
 		DHUDDataTrackers.ROGUE.selfDeStealthTracker:changeTrackingState(track);
-	else
+	elseif (trackingHelper.playerClass == "DRUID") then
 		DHUDDataTrackers.DRUID.selfDeStealthTracker:changeTrackingState(track);
 	end
 end

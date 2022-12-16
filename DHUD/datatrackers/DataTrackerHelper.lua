@@ -178,6 +178,8 @@ function DHUDDataTrackerHelper:init()
 	self.eventsFrame:RegisterEvent("PLAYER_LEAVE_COMBAT");
 	self.eventsFrame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED");
 	self.eventsFrame:RegisterEvent("PLAYER_TALENT_UPDATE"); -- only PvP talents on retail
+	self.eventsFrame:RegisterEvent("PET_SPECIALIZATION_CHANGED");
+	self.eventsFrame:RegisterEvent("LEARNED_SPELL_IN_TAB");
 	self.eventsFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED"); -- currently the only way to track PvE talents update on retail
 	self.eventsFrame:RegisterEvent("PLAYER_ALIVE");
 	self.eventsFrame:RegisterEvent("PLAYER_DEAD");
@@ -258,6 +260,15 @@ function DHUDDataTrackerHelper:init()
 		end
 		--print("PvE Talent update " .. spellId);
 		helper:onTalentsChanged();
+	end
+	function self.eventsFrame:PET_SPECIALIZATION_CHANGED()
+		--print("Pet Talent update " .. spellId);
+		helper:onTalentsChanged();
+	end
+	function self.eventsFrame:LEARNED_SPELL_IN_TAB(spellId, skillInfoIndex, isGuildPerkSpell)
+		--print("New spell " .. spellId);
+		helper:removeEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE_FREQUENT, helper, helper.onTalentsChangedDelayed);
+		helper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE_FREQUENT, helper, helper.onTalentsChangedDelayed);
 	end
 	function self.eventsFrame:PLAYER_ALIVE()
 		helper:setIsDead(UnitIsDeadOrGhost("player") == 1);
@@ -454,6 +465,12 @@ function DHUDDataTrackerHelper:onTalentsChanged()
 	end
 	--self.playerTalents = {};
 	self:dispatchEvent(self.eventTalents);
+end
+
+--- player talents were recently updated, one tick passed (due to API not always updating spell book instantly)
+function DHUDDataTrackerHelper:onTalentsChangedDelayed()
+	self:removeEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE_FREQUENT, self, self.onTalentsChangedDelayed);
+	self:onTalentsChanged();
 end
 
 --- player is entering world

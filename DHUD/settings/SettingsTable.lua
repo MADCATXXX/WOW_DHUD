@@ -468,33 +468,53 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			["playerAurasPriorityList"] = { { }, 5 },
 			-- allows to show auras from this list, regardless of time or charges
 			["targetAurasWhiteList"] = { { -- druid symbiosis spells are named the same, no point in including them
+				-- DEATHKNIGHT
 				48792, -- DK: Icebound Fortitude, prevents stuns on target, reduces all damage by 20%
 				48707, -- DK: Anti-Magic Shell, prevents all magic damage to target
+				-- DRUID
 				33786, -- Druid: Cyclone, prevents any damage to target
 				61336, -- Druid: Survival Instincts, reduces all gamage by 50%
-				19263, -- Hunter: Deterrence, prevents all damage to target
-				186265, -- Hunter: Aspect of the turtle, reflects all attacks
+				305497, -- Druid: Thorns, High self damage (120% spellpower of caster)
+				-- EVOKER
+				378441, -- Evoker: TimeStop, prevents any damage to target
+				378464, -- Evoker: Nullifying Shroud, prevents cc to target
+				-- HUNTER
+				19263, -- Hunter: Deterrence, reflects all attacks
+				186265, -- Hunter: Aspect of the turtle, prevents all damage to target
+				-- MAGE
 				45438, -- Mage: Ice block, prevents all damage to target
-				--108978, -- Mage: Alter Time, reverts all damage done to target after 6 seconds
+				108978, -- Mage: Alter Time, reverts all damage done to target after 6 seconds
+				-- PALADIN
 				1022, -- Paladin: Hand of protection, prevents physical damage to target
 				642, -- Paladin: Divine Shield, prevents all damage to target
+				-- PRIEST
 				47585, -- Priest: Dispersion, reduces damage by 90%
 				33206, -- Priest: Pain Supression, reduces all damage by 40%
 				213602, -- Priest: Greater Fade, 100% miss
+				-- ROGUE
 				31224, -- Rogue: Cloak of Shadows, prevents all magic damage to target
 				5277, -- Rogue: Evasion, increased dodge chance by 100%
+				-- MONK
 				115176,	-- Monk: Zen Meditation, reduces magic damage by 90%
-				178345, -- Monk: Fist of Fury, increased parry chance by 100%
+				122783, -- Monk: Diffuse Magic, reduces all damage by 60%
+				--178345, -- Monk: Fist of Fury, increased parry chance by 100%
 				--122470, -- Monk: Touch of Karma, redirects all damage to enemy
+				-- SHAMAN
 				--30823, -- Shaman: Shamanistic Rage, reduces all damage by 30%
+				-- WARLOCK
 				--110913, -- Warlock: Dark Bargain, prevents all damage, 50% of the damage will be dealed after buff expires
 				104773, -- Warlock: Unending Resolve, reduces all damage by 40%
+				-- WARRIOR
 				871, -- Warrior: Shield Wall, reduces damage by 60%
 				118038, -- Warrior: Die by the Sword, reduces damage by 20% and increases parry by 100%
+				-- DEMON HUNTER
 				198589, -- Demon Hunter: Blur, 50% evasion
 				206803, -- Demon Hunter: Rain From Above, prevents all damage to target
 				354610, -- Demon Hunter: Glimpse, CC immnunity, reduce damage by 75%
+				196555, -- Demon Hunter: Netherwalk, prevents all damage to target
+				-- ALL
 				121164, -- Battlegrounds Sphere which needs to be killed, prevents some abilities such as BoP, Shadow Duel, etc...
+				377360, -- PvP Talent Precognition, cc immunity
 			}, 5 },
 			-- allows to not show auras from this list, regardless of time or charges
 			["targetAurasBlackList"] = { { }, 5 },

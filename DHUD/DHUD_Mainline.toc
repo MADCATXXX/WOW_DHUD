@@ -3,7 +3,7 @@
 ## X-Min-Interface: 11302
 ## Notes: Head-Up Display with all possible information about player and it's target
 ## Title: Drathals HUD
-## Version: v2.0.100002.79
+## Version: v2.0.100002.80
 ## SavedVariables: DHUDODB3
 ## SavedVariablesPerCharacter: DHUD_SavedVars
 
@@ -29,6 +29,7 @@ datatrackers/info/UnitInfoTracker.lua
 datatrackers/info/SpellCastTracker.lua
 datatrackers/info/PlayerInfoTracker.lua
 datatrackers/info/DeStealthTracker.lua
+datatrackers/customspecs/RogueAssasinationGarrote.lua
 datatrackers/DataTrackers.lua
 settings/SettingsTable.lua
 settings/SettingsImpl.lua
