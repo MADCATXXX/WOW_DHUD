@@ -40,12 +40,20 @@ DHUDNonAddonSettingsHandler = {
 	SETTING_NAME_SERVICE_LUA_START_UP = "service_luaStartUp",
 	-- name of the setting that contains result of the last start up code
 	SETTING_NAME_SERVICE_LUA_START_UP_ERROR = "service_luaStartUpError",
-	-- update tracking of stealth broking reasons
+	-- name of the setting that contains soft targeting mode (e.g. use "softenemy" instead of "target")
+	SETTING_NAME_SERVICE_SOFT_TARGET_TRACKING = "service_softTargetingMode",
+	-- name of the setting that contains if stealth break events should be printed to chat
 	SETTING_NAME_SERVICE_DESTEALTH_TRACKING = "service_destealthTracker",
 }
 
 -- value of the setting has changed
 function DHUDNonAddonSettingsHandler:onBlizzardPlayerFrameChange(e)
+	trackingHelper:removeEventListener(DHUDDataTrackerHelperEvent.EVENT_COMBAT_STATE_CHANGED, self, self.onBlizzardPlayerFrameChange);
+	if (trackingHelper.isInCombat) then
+		trackingHelper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_COMBAT_STATE_CHANGED, self, self.onBlizzardPlayerFrameChange);
+		DHUDMain:print("Can't change player frame visibility in combat, setting will be updated after combat ends, or use /reload to apply now");
+		return;
+	end
 	local val = DHUDSettings:getValue(self.SETTING_NAME_BLIZZARD_PLAYER);
 	if (val) then
 		self:showBlizzardPlayerFrame();
@@ -56,6 +64,12 @@ end
 
 -- value of the setting has changed
 function DHUDNonAddonSettingsHandler:onBlizzardTargetFrameChange(e)
+	trackingHelper:removeEventListener(DHUDDataTrackerHelperEvent.EVENT_COMBAT_STATE_CHANGED, self, self.onBlizzardTargetFrameChange);
+	if (trackingHelper.isInCombat) then
+		trackingHelper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_COMBAT_STATE_CHANGED, self, self.onBlizzardTargetFrameChange);
+		DHUDMain:print("Can't change target frame visibility in combat, setting will be updated after combat ends, or use /reload to apply now");
+		return;
+	end
 	local val = DHUDSettings:getValue(self.SETTING_NAME_BLIZZARD_TARGET);
 	if (val) then
 		self:showBlizzardTargetFrame();
@@ -66,6 +80,12 @@ end
 
 -- value of the setting has changed
 function DHUDNonAddonSettingsHandler:onBlizzardCastbarFrameChange(e)
+	trackingHelper:removeEventListener(DHUDDataTrackerHelperEvent.EVENT_COMBAT_STATE_CHANGED, self, self.onBlizzardCastbarFrameChange);
+	if (trackingHelper.isInCombat) then
+		trackingHelper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_COMBAT_STATE_CHANGED, self, self.onBlizzardCastbarFrameChange);
+		DHUDMain:print("Can't change castbar frame visibility in combat, setting will be updated after combat ends, or use /reload to apply now");
+		return;
+	end
 	local val = DHUDSettings:getValue(self.SETTING_NAME_BLIZZARD_CASTBAR);
 	if (val) then
 		self:showBlizzardCastingFrame();
@@ -99,6 +119,12 @@ function DHUDNonAddonSettingsHandler:onLuaStartUpChange(e)
 	DHUDSettings:setValue(self.SETTING_NAME_SERVICE_LUA_START_UP_ERROR, false);
 end
 
+-- value of the soft targeting has changed
+function DHUDNonAddonSettingsHandler:onSoftTargetingChange(e)
+	local val = DHUDSettings:getValue(self.SETTING_NAME_SERVICE_SOFT_TARGET_TRACKING);
+	trackingHelper.PRIORITIZE_SOFT_TARGETS = val;
+end
+
 -- value of the setting has changed
 function DHUDNonAddonSettingsHandler:onDestealthTrackingChange(e)
 	local val = DHUDSettings:getValue(self.SETTING_NAME_SERVICE_DESTEALTH_TRACKING);
@@ -116,6 +142,7 @@ function DHUDNonAddonSettingsHandler:init()
 	local uiErrorsLevel = DHUDSettings:getValue(self.SETTING_NAME_SERVICE_UI_ERROR_FILTER);
 	local luaStartUp = DHUDSettings:getValue(self.SETTING_NAME_SERVICE_LUA_START_UP);
 	local luaStartUpError = DHUDSettings:getValue(self.SETTING_NAME_SERVICE_LUA_START_UP_ERROR);
+	local softTargetingMode = DHUDSettings:getValue(self.SETTING_NAME_SERVICE_SOFT_TARGET_TRACKING);
 	local destealthTracking = DHUDSettings:getValue(self.SETTING_NAME_SERVICE_DESTEALTH_TRACKING);
 	self.blizzardPowerAurasAlpha = DHUDSettings:getValue(self.SETTING_NAME_BLIZZARD_SPELL_ACTIVATION_ALPHA);
 	self.blizzardPowerAurasScale = DHUDSettings:getValue(self.SETTING_NAME_BLIZZARD_SPELL_ACTIVATION_SCALE);
@@ -127,6 +154,7 @@ function DHUDNonAddonSettingsHandler:init()
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. self.SETTING_NAME_BLIZZARD_SPELL_ACTIVATION_SCALE, self, self.onBlizzardSpellActivationFrameScaleChange);
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. self.SETTING_NAME_SERVICE_UI_ERROR_FILTER, self, self.onServiceUIErrorLevelChange);
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. self.SETTING_NAME_SERVICE_LUA_START_UP, self, self.onLuaStartUpChange);
+	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. self.SETTING_NAME_SERVICE_SOFT_TARGET_TRACKING, self, self.onSoftTargetingChange);
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. self.SETTING_NAME_SERVICE_DESTEALTH_TRACKING, self, self.onDestealthTrackingChange);
 	-- register to power auras event
 	self.eventsFrame:RegisterEvent("SPELL_ACTIVATION_OVERLAY_SHOW");
@@ -151,6 +179,9 @@ function DHUDNonAddonSettingsHandler:init()
 	end
 	if (luaStartUp ~= "" and luaStartUpError ~= true) then
 		self:processLuaStartUpCode(luaStartUp);
+	end
+	if (softTargetingMode == true) then
+		self:onSoftTargetingChange(nil);
 	end
 	if (destealthTracking == true) then
 		self:processDestealthTracking(true);

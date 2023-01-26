@@ -334,9 +334,7 @@ function DHUDGUIManager:onPreviewStop(e)
 	self:updateAlpha(true);
 	-- stop cast bars preview
 	for i, v in ipairs(self.castBarManagers) do
-		if (v.currentDataTracker ~= nil) then
-			v:clearPreviewData();
-		end
+		v:clearPreviewData(); -- currentDataTracker check was moved inside, as castbar can be hidden once setting apply ends
 	end
 	-- stop side info preview
 	for i, v in ipairs(self.sideManagers) do

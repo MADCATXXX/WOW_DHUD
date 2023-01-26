@@ -808,3 +808,6 @@ L["HEADER_SERVICE_BLIZZARD"] = "Blizzard Frames:";
 
 L["SETTING_SERVICE_ERRORS"] = "Errors filtering";
 L["SETTING_SERVICE_ERRORS_TOOLTIP"] = "Change level of UI error messages filtering (e.g. Not Enough Energy), 0 - all errors are shown, 1 - errors are hidden, 2 - error frame is hidden (quest messages won't be shown)";
+
+L["SETTING_SERVICE_SOFTTARGET"] = "Soft target mode";
+L["SETTING_SERVICE_SOFTTARGET_TOOLTIP"] = "Change to prioritize soft targets over locked targets (See Parameters Combat Allow Soft Targeting)";

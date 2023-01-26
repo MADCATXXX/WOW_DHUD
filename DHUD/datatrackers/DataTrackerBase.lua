@@ -72,7 +72,7 @@ DHUDDataTracker = MCCreateSubClass(MADCATEventDispatcher, {
 	isQueriedDataEventWaiting = false,
 	-- id of unit to track data for, this value changes according to situation
 	unitId				= "",
-	-- id of the unit that this tracker is set to track, vehicle is treated as "player"
+	-- id of the unit that this tracker is set to track, vehicle is treated as "player", "softenemy" is treated as "target", etc...
 	trackUnitId			= "",
 	-- defines if resource exists (should be shown in GUI), e.g. target health is not required without target
 	isExists			= true,
@@ -329,7 +329,7 @@ end
 --- set target unit id for this tracker
 function DHUDDataTracker:initTargetUnitId()
 	function self:onTargetEvent(e)
-		self:setUnitId(trackingHelper.isTargetAvailable and "target" or "", true);
+		self:setUnitId(trackingHelper.isTargetAvailable and trackingHelper.targetCasterUnitId or "", true);
 	end
 	self.trackUnitId = "target";
 	self:onTargetEvent(nil);
@@ -339,7 +339,7 @@ end
 --- set target of target unit id for this tracker
 function DHUDDataTracker:initTargetOfTargetUnitId()
 	function self:onTargetOfTargetEvent(e)
-		self:setUnitId(trackingHelper.isTargetOfTargetAvailable and "targettarget" or "", true);
+		self:setUnitId(trackingHelper.isTargetOfTargetAvailable and trackingHelper.targetOfTargetCasterUnitId or "", true);
 	end
 	self.trackUnitId = "targettarget";
 	self:onTargetOfTargetEvent(nil);

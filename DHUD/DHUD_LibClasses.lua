@@ -342,6 +342,17 @@ local MCTableValToStr = function(v)
 		return "table" == type(v) and MCTableToString(v) or tostring(v);
 	end
 end
+local MCSTableValToStr = function(v)
+	if "string" == type(v) then
+		v = string.gsub(v, "\n", "\\n");
+		if string.match(string.gsub(v,"[^'\"]",""), '^"+$') then
+			return "'" .. v .. "'";
+		end
+		return '"' .. string.gsub(v, '"', '\\"') .. '"';
+	else
+		return "table" == type(v) and MCSTableToString(v) or tostring(v);
+	end
+end
 
 --- Convert key from table to string
 -- @param k key to convert
@@ -351,6 +362,13 @@ local MCTableKeyToStr = function(k)
 		return k;
 	else
 		return "[" .. MCTableValToStr(k) .. "]";
+	end
+end
+local MCSTableKeyToStr = function(k)
+	if "string" == type(k) and string.match(k, "^[_%a][_%a%d]*$") then
+		return k;
+	else
+		return "[" .. MCSTableValToStr(k) .. "]";
 	end
 end
 
@@ -376,6 +394,52 @@ function MCTableToString(tbl)
 		end
 	end
 	-- return
+	return "{" .. table.concat(result, ",") .. "}";
+end
+
+-- list with tables that were already iterated by "MCSTableToString" function
+local MCSTableToStringList = nil;
+-- maximum number of tables to be saved in array (infinite recursion protection)
+local MCSTableToStringLimit = 100;
+
+--- Print table contents as string (Safe version with recursion protection, but may be a bit slower)
+-- @param tbl table to print contents from
+-- @return string with contents
+function MCSTableToString(tbl)
+	if ("table" ~= type(tbl)) then
+		return tostring(tbl);
+	end
+	local needToInitTable = MCSTableToStringList == nil;
+	if (needToInitTable) then
+		MCSTableToStringList = { tbl };
+	else
+		if (tbl == _G) then
+			return "_G";
+		end
+		local numTableIters = #MCSTableToStringList;
+		if (numTableIters >= MCSTableToStringLimit) then
+			return "limit" .. numTableIters;
+		end
+		for i = 1, numTableIters do
+			if (MCSTableToStringList[i] == tbl) then
+				return "recursion"..i;
+			end
+		end
+		table.insert(MCSTableToStringList, tbl);
+	end
+	local result, done = {}, {};
+	for k, v in ipairs(tbl) do
+		table.insert(result, MCSTableValToStr(v));
+		done[k] = true;
+	end
+	for k, v in pairs(tbl) do
+		if not done[k] then
+			table.insert(result, MCSTableKeyToStr(k) .. "=" .. MCSTableValToStr(v));
+		end
+	end
+	if (needToInitTable) then
+		MCSTableToStringList = nil;
+	end
 	return "{" .. table.concat(result, ",") .. "}";
 end
 

@@ -379,5 +379,7 @@ function DHUDCastBarManager:clearPreviewData()
 		v:DHide();
 	end
 	-- call super
-	DHUDGuiSlotManager.clearPreviewData(self);
+	if (self.currentDataTracker ~= nil) then
+		DHUDGuiSlotManager.clearPreviewData(self);
+	end
 end

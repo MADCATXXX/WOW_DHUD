@@ -94,9 +94,13 @@ DHUDDataTrackerHelper = MCCreateSubClass(MADCATEventDispatcher, {
 	isInVehicle			= false,
 	-- id of the player casting unit, "vehicle" when in vehicle or "player" otherwise
 	playerCasterUnitId	= "player",
+	-- id of the target casting unit, "softenemy"/"softfriend" if soft target exists and setting is enabled, empty string if nothing is selected
+	targetCasterUnitId = "target",
+	-- id of the target of target casting unit, usually "targettarget", but in case of "softenemy"/"softfriend" usage - may change to another
+	targetOfTargetCasterUnitId = "targettarget",
 	-- defines if player has pet or not
 	isPetAvailable		= false,
-	-- defines if player has something in target or not
+	-- defines if player has something in target or not (in case of soft targets if something is in soft target)
 	isTargetAvailable	= false,
 	-- defines if player has target and target of target exists
 	isTargetOfTargetAvailable = false,
@@ -116,7 +120,7 @@ DHUDDataTrackerHelper = MCCreateSubClass(MADCATEventDispatcher, {
 	itemIdData			= {},
 	-- table with durations of auras
 	auraIdDurationData = {},
-	-- table with guids for various unit ids, contains guids for player, pet, vehicle and target
+	-- table with guids for various unit ids, contains guids for exact ids: player, pet, vehicle and target, softenemy, softfriend
 	guids				= {},
 	-- mask with currently pressed modifier keys
 	modifierKeysMask	= 0,
@@ -126,6 +130,8 @@ DHUDDataTrackerHelper = MCCreateSubClass(MADCATEventDispatcher, {
 	MODIFIER_KEY_CTRL	= 2,
 	-- defines if shift modifier key is currently pressed
 	MODIFIER_KEY_SHIFT	= 4,
+	-- defines if Soft Targets should be prioritized over usual Target (when Target is dead or is player)
+	PRIORITIZE_SOFT_TARGETS = false,
 })
 
 --- Create data tracking helper
@@ -170,6 +176,8 @@ function DHUDDataTrackerHelper:init()
 	self.eventsFrame:RegisterEvent("VEHICLE_PASSENGERS_CHANGED");
 	self.eventsFrame:RegisterEvent("UPDATE_VEHICLE_ACTIONBAR");
 	self.eventsFrame:RegisterEvent("PLAYER_TARGET_CHANGED");
+	self.eventsFrame:RegisterEvent("PLAYER_SOFT_ENEMY_CHANGED");
+	self.eventsFrame:RegisterEvent("PLAYER_SOFT_FRIEND_CHANGED");
 	self.eventsFrame:RegisterEvent("UNIT_TARGET");
 	self.eventsFrame:RegisterEvent("UNIT_PET");
 	self.eventsFrame:RegisterEvent("PLAYER_REGEN_DISABLED");
@@ -216,14 +224,25 @@ function DHUDDataTrackerHelper:init()
 		helper:setIsInVehicle(UnitHasVehicleUI("player"));
 	end
 	function self.eventsFrame:PLAYER_TARGET_CHANGED()
-		helper:setIsTargetAvailable(UnitExists("target"));
-		helper:setIsTargetOfTargetAvailable(UnitExists("targettarget"));
+		helper:processTargetChangeEvents(false);
 	end
-	function self.eventsFrame:UNIT_TARGET(unitId)
-		if (unitId ~= "target") then
+	function self.eventsFrame:PLAYER_SOFT_ENEMY_CHANGED()
+		if (helper.PRIORITIZE_SOFT_TARGETS ~= true) then
 			return;
 		end
-		helper:setIsTargetOfTargetAvailable(UnitExists("targettarget"));
+		helper:processTargetChangeEvents(true);
+	end
+	function self.eventsFrame:PLAYER_SOFT_FRIEND_CHANGED()
+		if (helper.PRIORITIZE_SOFT_TARGETS ~= true) then
+			return;
+		end
+		helper:processTargetChangeEvents(true);
+	end
+	function self.eventsFrame:UNIT_TARGET(unitId)
+		if (unitId ~= helper.targetCasterUnitId) then
+			return;
+		end
+		helper:setIsTargetOfTargetAvailable(UnitExists(helper.targetOfTargetCasterUnitId));
 	end
 	function self.eventsFrame:UNIT_PET(unitId)
 		if (unitId ~= "player") then
@@ -371,7 +390,6 @@ end
 
 --- set isTargetAvailable variable
 function DHUDDataTrackerHelper:setIsTargetAvailable(isTargetAvailable)
-	self.guids["target"] = isTargetAvailable and UnitGUID("target") or "";
 	self.isTargetAvailable = isTargetAvailable;
 	-- dispatch target event as it means that target is changed (target existence doesn't matter)
 	self:dispatchEvent(self.eventTarget);
@@ -382,6 +400,34 @@ function DHUDDataTrackerHelper:setIsTargetOfTargetAvailable(isTargetOfTargetAvai
 	self.isTargetOfTargetAvailable = isTargetOfTargetAvailable;
 	-- dispatch target of target event as it means that target of target is changed (unit existence doesn't matter)
 	self:dispatchEvent(self.eventTargetTarget);
+end
+
+--- Process events that are related to target changes (soft or non soft related)
+function DHUDDataTrackerHelper:processTargetChangeEvents(softTargetRelated)
+	local targetAvailable = UnitExists("target");
+	if (targetAvailable) then
+		self.targetCasterUnitId = "target";
+		self.targetOfTargetCasterUnitId = "targettarget";
+		self.guids["target"] = UnitGUID("target");
+	else
+		self.guids["target"] = "";
+	end
+	-- soft target mode?
+	if (self.PRIORITIZE_SOFT_TARGETS) then
+		local checkEnemy = UnitExists("softenemy");
+		local checkAlly = UnitExists("softfriend");
+		self.guids["softenemy"] = checkEnemy and UnitGUID("softenemy") or "";
+		self.guids["softfriend"] = checkAlly and UnitGUID("softfriend") or "";
+		-- replace target with this values
+		if ((checkEnemy or checkAlly) and ((not targetAvailable) or UnitIsDead("target") or UnitIsPlayer("target"))) then
+			self.targetCasterUnitId = checkEnemy and "softenemy" or "softfriend";
+			self.targetOfTargetCasterUnitId = self.targetCasterUnitId .. "target";
+			targetAvailable = true;
+		end
+	end
+	--print("target is " .. self.targetCasterUnitId .. ", available " .. MCTableToString(targetAvailable));
+	self:setIsTargetAvailable(targetAvailable);
+	self:setIsTargetOfTargetAvailable(UnitExists(self.targetOfTargetCasterUnitId));
 end
 
 --- set isPetAvailable variable

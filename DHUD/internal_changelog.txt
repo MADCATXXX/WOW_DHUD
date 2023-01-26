@@ -1,3 +1,9 @@
+changelog 2.0.100000.81:
+- additional debugging tools for further development
+- soft targeting mode
+- fix "PlayerFrame" show/hide in combat (delay setting apply)
+- fix castbar empowered cast being stuck after preview (if some cast occured during preview)
+
 changelog 2.0.100000.80:
 - garrote tracking for assassination rogues
 - cooldowns tracking improved

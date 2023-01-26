@@ -1,8 +1,8 @@
-## Interface: 100002
+## Interface: 100005
 ## X-Min-Interface: 11302
 ## Title: Drathals HUD Options
 ## Author: MADCAT, Markus Inger (Drathal/Silberklinge), Howie (Caeryn)
-## Version: v2.0.100002.80
+## Version: v2.0.100005.81
 ## Notes: Options addon for Drathals HUD, loaded on demand.
 ## Dependencies: DHUD
 ## LoadOnDemand: 1

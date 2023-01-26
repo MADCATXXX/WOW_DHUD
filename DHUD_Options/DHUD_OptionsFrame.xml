@@ -2909,6 +2909,17 @@
 									<Attribute name="SETTING" value="service_uiErrorFilter" />
 								</Attributes>
 							</Slider>
+							<CheckButton name="$parent_SoftTargetingMode" inherits="DHUD_OptionsTemplate_CheckBox" text="SoftTargetingMode">
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="10" y="-208" />
+									</Anchor>
+								</Anchors>
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_SERVICE_SOFTTARGET" />
+									<Attribute name="SETTING" value="service_softTargetingMode" />
+								</Attributes>
+							</CheckButton>
 						</Frames>
 					</Frame>
 				</Frames>

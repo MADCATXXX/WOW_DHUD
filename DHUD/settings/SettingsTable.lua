@@ -935,6 +935,8 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			["luaStartUp"] = { "SetCVar(\"cameraDistanceMaxZoomFactor\", 2.6);", 0 },
 			-- result of the last lua start up code
 			["luaStartUpError"] = { false, 0 },
+			-- defines if soft targeting mode should be enabled (so that addons shows soft targets intead of selected target)
+			["softTargetingMode"] = { false, 0 },
 			-- destealth tracking (reason that broke stealth) via chat messages
 			["destealthTracker"] = { false, 0 },
 		}, 1 },
