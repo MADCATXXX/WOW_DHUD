@@ -71,7 +71,7 @@ end
 -- rewrite event frame function, since WoW API throws exceptions on missing events --
 -------------------------------------------------------------------------------------
 MCBlizzardEventExcludes = {
-	["PLAYER_SPECIALIZATION_CHANGED"] = 1,
+	["PLAYER_SPECIALIZATION_CHANGED"] = 1, ["PET_SPECIALIZATION_CHANGED"] = 1,
 	["PET_BATTLE_OPENING_START"] = 1, ["PET_BATTLE_CLOSE"] = 1,
 	["SPELL_ACTIVATION_OVERLAY_SHOW"] = 1,
 	["UNIT_HEAL_PREDICTION"] = 1, ["UNIT_ABSORB_AMOUNT_CHANGED"] = 1, ["UNIT_HEAL_ABSORB_AMOUNT_CHANGED"] = 1,

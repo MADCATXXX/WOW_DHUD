@@ -3,7 +3,7 @@
 ## X-Min-Interface: 11302
 ## Notes: Head-Up Display with all possible information about player and it's target
 ## Title: Drathals HUD
-## Version: v2.0.100005.81
+## Version: v2.0.100005.82
 ## SavedVariables: DHUDODB3
 ## SavedVariablesPerCharacter: DHUD_SavedVars
 
@@ -52,3 +52,4 @@ gui/GuiManager.lua
 DHUD_Debug.lua
 DHUD_Main.lua
 MyMinimapButton.lua
+DHUD_API.lua

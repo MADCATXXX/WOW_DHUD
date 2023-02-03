@@ -75,6 +75,18 @@ function DHUDRogueAssasinationGarroteTracker:init()
 		local targetGUID = select(4, ...);
 		tracker:processGarroteAppliedToGUID(targetGUID);
 	end
+	function self.combatEventsFrame:SPELL_AURA_REMOVED(timestamp, hideCaster, sourceGUID, ...)
+		if (sourceGUID ~= trackingHelper.guids[tracker.unitId]) then
+			return;
+		end
+		local spellId = select(8, ...);
+		if (tracker.GARROTE_SPELL_ID ~= spellId) then
+			return;
+		end
+		--print("SPELL_AURA_REMOVED " .. MCTableToString({ ... }));
+		local targetGUID = select(4, ...);
+		tracker:processGarroteRemovedFromGUID(targetGUID);
+	end
 	-- init unit ids
 	self:initPlayerNotInVehicleOrNoneUnitId();
 	self:initPlayerSpecsOnly(1);
@@ -92,19 +104,26 @@ function DHUDRogueAssasinationGarroteTracker:updateTimer(timer)
 	end
 	-- check if improved
 	local targetGUID = trackingHelper.guids["target"];
-	local stacks = 1;
-	for i = 1, self.MAX_TRACKED_GUIDS do
-		if (self.imrovedGUIDS[i] == targetGUID) then
-			stacks = 2;
-		end
-	end
+	local stacks = self:isGarroteDebuffImproved(targetGUID) and 2 or 1;
 	-- update stacks
 	timer[7] = stacks;
 end
 
+--- Check if target GUID has improved garrote debuff
+-- @param targetGUID guid to be checked if improved garrote was applied to it
+-- @return true if target has improved garrote and UI should reflect it
+function DHUDRogueAssasinationGarroteTracker:isGarroteDebuffImproved(targetGUID)
+	for i = 1, self.MAX_TRACKED_GUIDS do
+		if (self.imrovedGUIDS[i] == targetGUID) then
+			return true;
+		end
+	end
+	return false;
+end
+
 --- Check if improved garrote buff is available
 -- @return true if garrote will be improved
-function DHUDRogueAssasinationGarroteTracker:hasImprovedGarrote()
+function DHUDRogueAssasinationGarroteTracker:hasImprovedGarroteBuff()
 	local selfAuras = DHUDDataTrackers.ALL.selfAuras;
 	for i, v in ipairs(self.STEALTH_APPLICATION_SPELL_IDS) do
 		local timer = selfAuras:findTimerForPublicRead(v, DHUDAurasTracker.TIMER_SOURCE_GROUP_BUFF);
@@ -119,7 +138,7 @@ end
 --- Process new garrote application to target specified
 -- @param guid id of the target to which garrote was applied
 function DHUDRogueAssasinationGarroteTracker:processGarroteAppliedToGUID(guid)
-	local isImproved = self:hasImprovedGarrote();
+	local isImproved = self:hasImprovedGarroteBuff();
 	local indexGUID = 0;
 	for i = 1, self.MAX_TRACKED_GUIDS do
 		if (self.imrovedGUIDS[i] == guid) then
@@ -145,6 +164,17 @@ function DHUDRogueAssasinationGarroteTracker:processGarroteAppliedToGUID(guid)
 	self:updateGarroteState();
 end
 
+--- Process garrote was removed from target specified
+-- @param guid id of the target from which garrote was removed
+function DHUDRogueAssasinationGarroteTracker:processGarroteRemovedFromGUID(guid)
+	for i = 1, self.MAX_TRACKED_GUIDS do
+		if (self.imrovedGUIDS[i] == guid) then
+			self.imrovedGUIDS[i] = "";
+			break;
+		end
+	end
+end
+
 --- update garrote state
 function DHUDRogueAssasinationGarroteTracker:updateGarroteState()
 	self:processDataChanged();
@@ -154,12 +184,14 @@ end
 function DHUDRogueAssasinationGarroteTracker:startTracking()
 	self.combatEventsFrame:RegisterEvent("SPELL_AURA_APPLIED");
 	self.combatEventsFrame:RegisterEvent("SPELL_AURA_REFRESH");
+	self.combatEventsFrame:RegisterEvent("SPELL_AURA_REMOVED");
 end
 
 --- Stop tracking data
 function DHUDRogueAssasinationGarroteTracker:stopTracking()
 	self.combatEventsFrame:UnregisterEvent("SPELL_AURA_APPLIED");
 	self.combatEventsFrame:UnregisterEvent("SPELL_AURA_REFRESH");
+	self.combatEventsFrame:UnregisterEvent("SPELL_AURA_REMOVED");
 end
 
 --- Update all data for current unitId

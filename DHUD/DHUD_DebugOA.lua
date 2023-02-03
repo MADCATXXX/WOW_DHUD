@@ -466,6 +466,8 @@ DHUDFakeFrame = MCCreateClass{
 	eventFrame = nil,
 	-- frame for update propogation
 	updateFrame = nil,
+	-- frame for attribute propogation
+	attrFrame = nil,
 	-- last id that is incremented
 	FAKE_FRAME_LAST_ID = 1,
 }
@@ -487,16 +489,25 @@ end
 --- [[[ functions proxy calls that should be printed in log ]]]
 function DHUDFakeFrame:SetAttribute(name, val)
 	MCDebugLog("DH SetAttribute " .. MCSTableToString({name, val}) .. ", id " .. self.id);
+	if (self.attrFrame == nil) then
+		self.attrFrame = origCreateFrame("Frame");
+	end
+	self.attrFrame:SetAttribute(name, val);
+end
+function DHUDFakeFrame:GetAttribute(prefix, name, suffix)
+	local res = self.attrFrame:GetAttribute(prefix, name, suffix);
+	MCDebugLog("DH GetAttribute " .. MCSTableToString({prefix, name, suffix, res}) .. ", id " .. self.id);
+	return res;
 end
 function DHUDFakeFrame:SetScript(name, func)
 	MCDebugLog("DH SetScript " .. MCSTableToString({name, func}) .. ", id " .. self.id);
-	local that = self;
 	if (name == "OnEvent") then
 		self.onEvent = func;
 		MCDeInitFrameProxying(); -- comment this if not required
 	elseif (name == "OnUpdate") then
 		self.onUpdate = func;
 		if (self.updateFrame == nil) then
+			local that = self;
 			local frame = origCreateFrame("Frame");
 			frame:SetScript("OnUpdate", function (self, elapsed, ...)
 				that.elapsed = that.elapsed + elapsed;
@@ -507,6 +518,7 @@ function DHUDFakeFrame:SetScript(name, func)
 				MCDebugLog("DH Propogating Update, id " .. that.id);
 				local func = that.onUpdate; if (func) then func(that, elapsed, ...); end
 			end);
+			self.updateFrame = frame;
 		end
 	end
 end
@@ -537,8 +549,9 @@ function DHUDFakeFrame:RegisterEvent(name)
 			MCDebugLog("DH Propogating " .. MCSTableToString(event) .. ", id " .. that.id);
 			local func = that.onEvent; if (func) then func(that, event, ...); end
 		end);
-		frame:RegisterEvent(name);
+		self.eventFrame = frame;
 	end
+	self.eventFrame:RegisterEvent(name);
 end
 function DHUDFakeFrame:ClearAllPoints()
 end
@@ -748,9 +761,6 @@ function MCDeInitLicenseProtectionRemoval()
 	MCDebugLog("Stopping license protection removal");
 	BNGetInfo = origBNInfo;
 	GetServerTime = origGetServerTime;
-	if (level < 2) then
-		return;
-	end
 	C_Timer.After = origTimerAfter;
 end
 

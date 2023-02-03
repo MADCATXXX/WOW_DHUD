@@ -928,7 +928,7 @@ function DHUD_OptionsTemplates_LUA:processColorsLineOnLoad(frame)
 				local colorHexPrev = settingValue[i - 1] or "FFFFFF";
 				local colorPrev = DHUDColorizeTools:hexToColorTable(colorHexPrev);
 				local texture = _G[name .. "_G" .. (i - 1) .. "Texture"];
-				if (MCVanilla <= 0) then -- not vanilla
+				if (MCVanilla <= 0 or MCVanilla == 3) then -- not vanilla
 					texture:SetGradient("HORIZONTAL", colorPrev, color);
 				else
 					texture:SetGradient("HORIZONTAL", colorPrev.r, colorPrev.g, colorPrev.b, color.r, color.g, color.b);
