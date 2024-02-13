@@ -205,8 +205,11 @@ end
 -- @param resourceTypeName name of the resource, used to improve performance, pass empty string to allow updates on every UNIT_POWER event
 function DHUDPowerTracker:setResourceType(resourceType, resourceTypeName)
 	-- don't save string if it's not usual resource, it will be reported as different in power change events
-	--print("self.POWER_TYPES[resourceType] " .. self.POWER_TYPES[resourceType] .. ", resourceTypeName " .. resourceTypeName);
-	if (self.POWER_TYPES[resourceType] ~= resourceTypeName) then
+	--print("self.POWER_TYPES[resourceType] " .. MCTableToString(self.POWER_TYPES[resourceType]) .. ", resourceTypeName " .. MCTableToString(resourceTypeName));
+	if (resourceType == nil) then
+		resourceType = -1;
+	end
+	if (resourceTypeName == nil or self.POWER_TYPES[resourceType] ~= resourceTypeName) then
 		resourceTypeName = "";
 	end
 	-- return if already set

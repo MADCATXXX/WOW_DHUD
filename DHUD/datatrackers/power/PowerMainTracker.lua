@@ -50,7 +50,7 @@ end
 --- Update unit power type
 function DHUDMainPowerTracker:updatePowerType()
 	local powerType, powerTypeString = UnitPowerType(self.unitId);
-	--print("powerType " .. powerType .. ", powerTypeString " .. powerTypeString);
+	--print("powerType " .. MCTableToString(powerType) .. ", powerTypeString " .. MCTableToString(powerTypeString));
 	-- update resource
 	self:setResourceType(powerType, powerTypeString);
 end

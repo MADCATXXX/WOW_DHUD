@@ -1,3 +1,6 @@
+changelog 2.0.100205.83:
+- fix exception when entering vehicle (due to WoW API now returning nil for some cases)
+
 changelog 2.0.100000.82:
 - fix crash on WoW classic and WotLK classic
 - update addon for WotLK classic (TOC update + DHUD Options support for WotLK Frame Changes)
