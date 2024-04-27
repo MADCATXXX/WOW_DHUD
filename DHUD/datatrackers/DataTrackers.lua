@@ -325,7 +325,7 @@ DHUDDataTrackers = {
 		-- fill table with trackers
 		local ROGUE = self.ROGUE;
 
-		--ROGUE.selfBanditsGuile = DHUDBanditsGuileTracker:new();
+		--[[ROGUE.selfBanditsGuile = DHUDBanditsGuileTracker:new();]]--
 		-----------------------
 		-- Destealth tracker --
 		-----------------------

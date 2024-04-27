@@ -76,27 +76,30 @@ function DHUDAurasTracker:updateAuras()
 	local timerMs = trackingHelper.timerMs;
 	local playerCasterUnitId = trackingHelper.playerCasterUnitId;
 	-- create variables
-	local name, icon, count, debuffType, duration, expirationTime, unitCaster, canPurge, consolidate, spellId, canBeCastByPlayer, isCastByBoss, isCastByPlayer;
+	local name, icon, count, debuffType, duration, expirationTime, unitCaster, canPurge, consolidate, spellId, canBeCastByPlayer, isCastByBoss, isCastByPlayer, nameplateShowAll, timeMod;
 	local timer;
 	-- update buffs
 	self:findSourceTimersBegin(0);
 	-- iterate
 	local i = 1;
 	while (true) do
-		name, icon, count, debuffType, duration, expirationTime, unitCaster, canPurge, consolidate, spellId, canBeCastByPlayer, isCastByBoss = UnitBuff(self.unitId, i);
+		name, icon, count, debuffType, duration, expirationTime, unitCaster, canPurge, consolidate, spellId, canBeCastByPlayer, isCastByBoss, isCastByPlayer, nameplateShowAll, timeMod = UnitBuff(self.unitId, i);
 		if (name == nil) then
 			break;
 		end
+		if (timeMod == nil) then timeMod = 1; end;
 		timer = self:findTimer(i, spellId);
 		-- fill timer info, { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder }
+		--print("name " .. name .. ", unitCaster " .. unitCaster .. ", duration " .. duration .. ", timeMod " .. MCTableToString(timeMod));
 		timer[1] = self.TIMER_TYPE_MASK_BUFF + (self.debuffTypeMask[debuffType] or 0) + (canPurge and self.TIMER_TYPE_MASK_IS_PURGABLE or 0) + (unitCaster == playerCasterUnitId and self.TIMER_TYPE_MASK_IS_CAST_BY_PLAYER or 0); -- type
 		timer[2] = expirationTime - timerMs; -- timeLeft
-		timer[3] = trackingHelper:getUnitAuraCorrectDuration(spellId, duration); -- duration
+		timer[3] = trackingHelper:getUnitAuraCorrectDuration(spellId, duration / timeMod); -- duration
 		timer[4] = spellId; -- id
 		timer[5] = i; -- tooltip id
 		timer[6] = name; -- name
 		timer[7] = count; -- stacks
 		timer[8] = icon; -- texture
+		timer[15] = timeMod; -- time mod (e.g. value to use for division in GUI)
 		-- continue
 		i = i + 1;
 	end
@@ -108,21 +111,23 @@ function DHUDAurasTracker:updateAuras()
 	-- iterate
 	i = 1;
 	while (true) do
-		name, icon, count, debuffType, duration, expirationTime, unitCaster, canPurge, consolidate, spellId, canBeCastByPlayer, isCastByBoss = UnitDebuff(self.unitId, i);
+		name, icon, count, debuffType, duration, expirationTime, unitCaster, canPurge, consolidate, spellId, canBeCastByPlayer, isCastByBoss, isCastByPlayer, nameplateShowAll, timeMod = UnitDebuff(self.unitId, i);
 		if (name == nil) then
 			break;
 		end
+		if (timeMod == nil) then timeMod = 1; end;
 		timer = self:findTimer(i, spellId);
 		-- fill timer info, { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder }
-		--print("name " .. name .. ", unitCaster " .. unitCaster);
+		--print("name " .. name .. ", unitCaster " .. unitCaster .. ", duration " .. duration .. ", timeMod " .. MCTableToString(timeMod));
 		timer[1] = self.TIMER_TYPE_MASK_DEBUFF + (self.debuffTypeMask[debuffType] or 0) + (canPurge and self.TIMER_TYPE_MASK_IS_PURGABLE or 0) + (unitCaster == playerCasterUnitId and self.TIMER_TYPE_MASK_IS_CAST_BY_PLAYER or 0); -- type
 		timer[2] = expirationTime - timerMs; -- timeLeft
-		timer[3] = trackingHelper:getUnitAuraCorrectDuration(spellId, duration); -- duration
+		timer[3] = trackingHelper:getUnitAuraCorrectDuration(spellId, duration / timeMod); -- duration
 		timer[4] = spellId; -- id
 		timer[5] = i; -- tooltip id
 		timer[6] = name; -- name
 		timer[7] = count; -- stacks
 		timer[8] = icon; -- texture
+		timer[15] = timeMod; -- time mod (e.g. value to use for division in GUI)
 		-- continue
 		i = i + 1;
 	end

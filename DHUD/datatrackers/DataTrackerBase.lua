@@ -377,3 +377,20 @@ function DHUDDataTracker:initPlayerSpecsOnly(...)
 	trackingHelper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_SPECIALIZATION_CHANGED, self, self.onSpecializationEvent);
 	self:onSpecializationEvent(nil);
 end
+
+--- find name of this tracker in DataTrackers table (function intented use is for Debug only where performance doesn't matter)
+function DHUDDataTracker:getTrackerName()
+	local ALL = DHUDDataTrackers.ALL;
+	local PCLASS = DHUDDataTrackers[trackingHelper.playerClass];
+	for k, v in pairs(ALL) do
+		if (v == self) then
+			return k;
+		end
+	end
+	for k, v in pairs(PCLASS) do
+		if (v == self) then
+			return k;
+		end
+	end
+	return "Unnamed";
+end

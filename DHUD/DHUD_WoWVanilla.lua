@@ -14,8 +14,8 @@ local buildNum = select(4, GetBuildInfo());
 -- variable that describes build type (vanilla/retail)
 MCVanilla = math.floor(buildNum / 10000);
 
--- determine if running from WoW Vanilla (1.13.2) or Burning Crusade classic/WotLK classic
-if (buildNum >= 40000) then
+-- determine if running from WoW Vanilla (1.13.2) or Burning Crusade classic/WotLK classic/Cataclysm classic
+if (buildNum >= 50000) then
 	MCVanilla = 0;
 	return;
 end
@@ -70,16 +70,27 @@ end
 -------------------------------------------------------------------------------------
 -- rewrite event frame function, since WoW API throws exceptions on missing events --
 -------------------------------------------------------------------------------------
-MCBlizzardEventExcludes = {
-	["PLAYER_SPECIALIZATION_CHANGED"] = 1, ["PET_SPECIALIZATION_CHANGED"] = 1,
-	["PET_BATTLE_OPENING_START"] = 1, ["PET_BATTLE_CLOSE"] = 1,
-	["SPELL_ACTIVATION_OVERLAY_SHOW"] = 1,
-	["UNIT_HEAL_PREDICTION"] = 1, ["UNIT_ABSORB_AMOUNT_CHANGED"] = 1, ["UNIT_HEAL_ABSORB_AMOUNT_CHANGED"] = 1,
-	["UNIT_SPELLCAST_INTERRUPTIBLE"] = 1, ["UNIT_SPELLCAST_NOT_INTERRUPTIBLE"] = 1,
-	["UNIT_POWER_POINT_CHARGE"] = 1,
-	["UNIT_SPELLCAST_EMPOWER_START"] = 1, ["UNIT_SPELLCAST_EMPOWER_UPDATE"] = 1, ["UNIT_SPELLCAST_EMPOWER_STOP"] = 1,
-	["PLAYER_SOFT_ENEMY_CHANGED"] = 1, ["PLAYER_SOFT_FRIEND_CHANGED"] = 1,
-};
+MCBlizzardEventExcludes = { };
+if (MCVanilla < 5) then -- less than Pandaria
+	MCBlizzardEventExcludes["PET_SPECIALIZATION_CHANGED"] = 1;
+	MCBlizzardEventExcludes["UNIT_ABSORB_AMOUNT_CHANGED"] = 1;
+	MCBlizzardEventExcludes["UNIT_HEAL_ABSORB_AMOUNT_CHANGED"] = 1;
+	MCBlizzardEventExcludes["UNIT_SPELLCAST_EMPOWER_START"] = 1;
+	MCBlizzardEventExcludes["UNIT_SPELLCAST_EMPOWER_UPDATE"] = 1;
+	MCBlizzardEventExcludes["UNIT_SPELLCAST_EMPOWER_STOP"] = 1;
+end
+if (MCVanilla < 4) then -- less than Cataclysm
+	MCBlizzardEventExcludes["PLAYER_SPECIALIZATION_CHANGED"] = 1;
+	MCBlizzardEventExcludes["PET_BATTLE_OPENING_START"] = 1;
+	MCBlizzardEventExcludes["PET_BATTLE_CLOSE"] = 1;
+	MCBlizzardEventExcludes["SPELL_ACTIVATION_OVERLAY_SHOW"] = 1;
+	MCBlizzardEventExcludes["UNIT_HEAL_PREDICTION"] = 1;
+	MCBlizzardEventExcludes["UNIT_SPELLCAST_INTERRUPTIBLE"] = 1;
+	MCBlizzardEventExcludes["UNIT_SPELLCAST_NOT_INTERRUPTIBLE"] = 1;
+	MCBlizzardEventExcludes["UNIT_POWER_POINT_CHARGE"] = 1;
+	MCBlizzardEventExcludes["PLAYER_SOFT_ENEMY_CHANGED"] = 1;
+	MCBlizzardEventExcludes["PLAYER_SOFT_FRIEND_CHANGED"] = 1;
+end
 if (MCVanilla < 3) then -- less than WoTLK
 	MCBlizzardEventExcludes["PLAYER_TALENT_UPDATE"] = 1;
 	MCBlizzardEventExcludes["UNIT_ENTERED_VEHICLE"] = 1;

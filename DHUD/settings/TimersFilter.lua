@@ -77,7 +77,7 @@ function DHUDTimersFilterHelperSettingsHandler.filterPlayerShortAuras(timer)
 			return nil;
 		end
 		-- if duration is too high or stack count is low - return
-		if ((timer[2] > self.aurasTimeLeftMax or timer[2] < 0) and (not self.aurasWithCharges or timer[7] < 1)) then
+		if ((timer[2] / timer[15] > self.aurasTimeLeftMax or timer[2] < 0) and (not self.aurasWithCharges or timer[7] < 1)) then
 			return nil;
 		end
 	end
@@ -107,7 +107,7 @@ function DHUDTimersFilterHelperSettingsHandler.filterTargetShortAuras(timer)
 			return nil;
 		end
 		-- if duration is too high or stack count is low - return
-		if ((timer[2] > self.aurasTimeLeftMax or timer[2] < 0) and (not self.aurasWithCharges or timer[7] < 1)) then
+		if ((timer[2] / timer[15] > self.aurasTimeLeftMax or timer[2] < 0) and (not self.aurasWithCharges or timer[7] < 1)) then
 			return nil;
 		end
 	end

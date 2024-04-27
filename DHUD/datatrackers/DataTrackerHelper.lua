@@ -76,8 +76,10 @@ end
 DHUDDataTrackerHelper = MCCreateSubClass(MADCATEventDispatcher, {
 	-- frame that is listening to events
 	eventsFrame			= nil,
-	-- number of milliseconds since some event in the past (e.g. entering world), float number, whole part is seconds, fractional pars is milliseconds
+	-- number of milliseconds since some event in the past (e.g. entering world), float number, whole part is seconds, fractional parts is milliseconds
 	timerMs				= 0,
+	-- tick identifier that is changed on every tick (e.g. int number that is increased with each tick)
+	tickId				= 0,
 	-- amount of time since last dispatch of semi frequent update event
 	timeSinceLastUpdateFast = 0,
 	-- amount of time since last dispatch of update event
@@ -340,9 +342,10 @@ end
 --- Function that is called by blizzard event frame to update ui
 -- @param timeElapsed amount of time elapsed since last update
 function DHUDDataTrackerHelper:onUpdate(timeElapsed)
-	self:dispatchEvent(self.eventUpdateFrequent);
 	self.timeSinceLastUpdateFast = self.timeSinceLastUpdateFast + timeElapsed;
+	self.tickId = self.tickId + 1;
 	self.timerMs = GetTime();
+	self:dispatchEvent(self.eventUpdateFrequent);
 	if (self.timeSinceLastUpdateFast < 0.045) then
 		return;
 	end

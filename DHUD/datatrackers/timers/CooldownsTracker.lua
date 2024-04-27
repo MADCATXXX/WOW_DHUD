@@ -135,19 +135,19 @@ function DHUDCooldownsTracker:onUpdateTime()
 		return;
 	end
 	-- update spell cooldowns if required, wow doesn't throw event for cooldown end
-	if (self:containsTimerWithNegativeDuration(0)) then
+	if (self.sources[0][2] > 0 and self:containsTimerWithNegativeDuration(0)) then
 		self:updateSpellCooldowns();
 	end
 	-- update item cooldowns if required, wow doesn't throw event for cooldown end
-	if (self:containsTimerWithNegativeDuration(1)) then
+	if (self.sources[1][2] > 0 and self:containsTimerWithNegativeDuration(1)) then
 		self:updateItemCooldowns();
 	end
 	-- update action bar cooldowns if required, wow doesn't throw event for cooldown end
-	if (self:containsTimerWithNegativeDuration(2)) then
+	if (self.sources[2][2] > 0 and self:containsTimerWithNegativeDuration(2)) then
 		self:updateActionBarCooldowns();
 	end
 	-- update pet cooldowns if required, wow doesn't throw event for cooldown end
-	if (self:containsTimerWithNegativeDuration(3)) then
+	if (self.sources[3][2] > 0 and self:containsTimerWithNegativeDuration(3)) then
 		self:updatePetCooldowns();
 	end
 end

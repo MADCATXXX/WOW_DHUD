@@ -1,3 +1,8 @@
+changelog 2.0.100207.84:
+- fix item cooldown timers, support timeMod parameter for auras duration
+- fix error with "SetJustifyV" call introduced in latest client
+- support for cataclysm client
+
 changelog 2.0.100205.83:
 - fix exception when entering vehicle (due to WoW API now returning nil for some cases)
 

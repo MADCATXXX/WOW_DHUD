@@ -1,4 +1,4 @@
-## Interface: 20504
+## Interface: 40400
 ## X-Min-Interface: 11302
 ## Title: Drathals HUD Options
 ## Author: MADCAT, Markus Inger (Drathal/Silberklinge), Howie (Caeryn)

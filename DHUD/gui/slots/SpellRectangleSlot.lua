@@ -91,7 +91,7 @@ end
 -- @return table with color
 function DHUDSpellRectanglesManager:colorizeTargetBuffsTimer(timer)
 	local t = DHUDColorizeTools.cache_targetAuras_buff;
-	return DHUDColorizeTools:colorizePercentUsingTable(timer[2] / timer[3], t);
+	return DHUDColorizeTools:colorizePercentUsingTable(timer[2] / timer[15] / timer[3], t);
 end
 
 --- Function to colorize target debuff timer
@@ -99,7 +99,7 @@ end
 -- @return table with color
 function DHUDSpellRectanglesManager:colorizeTargetDebuffsTimer(timer)
 	local t = DHUDColorizeTools.cache_targetAuras_debuff;
-	return DHUDColorizeTools:colorizePercentUsingTable(timer[2] / timer[3], t);
+	return DHUDColorizeTools:colorizePercentUsingTable(timer[2] / timer[15] / timer[3], t);
 end
 
 --- Function to colorize timer
@@ -107,7 +107,7 @@ end
 -- @return table with color
 function DHUDSpellRectanglesManager:colorizeUnknownTimer(timer)
 	local t = DHUDColorizeTools:getColorTableForId(DHUDColorizeTools.COLOR_ID_TYPE_UNKNOWN);
-	return DHUDColorizeTools:colorizePercentUsingTable(timer[2] / timer[3], t);
+	return DHUDColorizeTools:colorizePercentUsingTable(timer[2] / timer[15] / timer[3], t);
 end
 
 --- Function to update spell rectangles data
@@ -125,8 +125,8 @@ function DHUDSpellRectanglesManager:updateSpellRectangles(timers)
 		local color = self.timersColorizeFunc(self, v);
 		spellRectangleFrame.border:SetVertexColor(color[1], color[2], color[3]);
 		-- update text
-		local time = (showTimersText and v[2] >= 0) and (DHUDColorizeTools:colorToColorizeString(color) .. DHUDTextTools:formatTime(v[2]) .. "|r") or "";
-		spellRectangleFrame.textFieldTime:DSetText(time);
+		local timeText = (showTimersText and v[2] >= 0) and (DHUDColorizeTools:colorToColorizeString(color) .. DHUDTextTools:formatTime(v[2] / v[15]) .. "|r") or "";
+		spellRectangleFrame.textFieldTime:DSetText(timeText);
 		local stackText = (v[7] > 1) and (DHUDColorizeTools:colorToColorizeString(color) .. ((v[13] ~= nil) and "&" or "") .. v[7] .. "|r") or "";
 		spellRectangleFrame.textFieldCount:DSetText(stackText);
 	end
@@ -151,8 +151,8 @@ function DHUDSpellRectanglesManager:updateSpellRectanglesTime()
 		local color = self.timersColorizeFunc(self, v);
 		spellRectangleFrame.border:SetVertexColor(color[1], color[2], color[3]);
 		-- update text
-		local time = (v[2] >= 0) and (DHUDColorizeTools:colorToColorizeString(color) .. DHUDTextTools:formatTime(v[2]) .. "|r") or "";
-		spellRectangleFrame.textFieldTime:DSetText(time);
+		local timeText = (v[2] >= 0) and (DHUDColorizeTools:colorToColorizeString(color) .. DHUDTextTools:formatTime(v[2] / v[15]) .. "|r") or "";
+		spellRectangleFrame.textFieldTime:DSetText(timeText);
 	end
 end
 

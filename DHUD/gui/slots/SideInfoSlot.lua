@@ -269,7 +269,7 @@ function DHUDSideInfoManager:colorizeTargetShortAurasTimer(timer)
 	else
 		t = DHUDColorizeTools.cache_targetShortAuras_buff;
 	end
-	return DHUDColorizeTools:colorizePercentUsingTable(timer[2] / timer[3], t);
+	return DHUDColorizeTools:colorizePercentUsingTable(timer[2] / timer[15] / timer[3], t);
 end
 
 --- Function to colorize player short auras timer
@@ -296,7 +296,7 @@ function DHUDSideInfoManager:colorizePlayerShortAurasTimer(timer)
 	else
 		t = DHUDColorizeTools.cache_selfShortAuras_buff;
 	end
-	return DHUDColorizeTools:colorizePercentUsingTable(timer[2] / timer[3], t);
+	return DHUDColorizeTools:colorizePercentUsingTable(timer[2] / timer[15] / timer[3], t);
 end
 
 --- Function to colorize player cooldown timer
@@ -318,7 +318,7 @@ function DHUDSideInfoManager:colorizePlayerCooldownsTimer(timer)
 			t = DHUDColorizeTools.cache_selfCooldowns_spell;
 		end
 	end
-	return DHUDColorizeTools:colorizePercentUsingTable(timer[2] / timer[3], t);
+	return DHUDColorizeTools:colorizePercentUsingTable(timer[2] / timer[15] / timer[3], t);
 end
 
 --- Function to colorize player guardian timer
@@ -331,7 +331,7 @@ function DHUDSideInfoManager:colorizePlayerGuardiansTimer(timer)
 	else
 		t = DHUDColorizeTools:getColorTableForId(DHUDColorizeTools.COLOR_ID_UNIT_SELF + DHUDColorizeTools.COLOR_ID_TYPE_GUARDIAN_PASSIVE);
 	end
-	return DHUDColorizeTools:colorizePercentUsingTable(timer[2] / timer[3], t);
+	return DHUDColorizeTools:colorizePercentUsingTable(timer[2] / timer[15] / timer[3], t);
 end
 
 --- Function to colorize timer
@@ -339,7 +339,7 @@ end
 -- @return table with color
 function DHUDSideInfoManager:colorizeUnknownTimer(timer)
 	local t = DHUDColorizeTools:getColorTableForId(DHUDColorizeTools.COLOR_ID_TYPE_UNKNOWN);
-	return DHUDColorizeTools:colorizePercentUsingTable(timer[2] / timer[3], t);
+	return DHUDColorizeTools:colorizePercentUsingTable(timer[2] / timer[15] / timer[3], t);
 end
 
 --- Function to clear spell circle animation
@@ -365,7 +365,7 @@ function DHUDSideInfoManager:updateSpellCircleAnimationDisappear(spellCircleFram
 	end
 	local scale = DHUDGUI.scale[DHUDGUI.SCALE_SPELL_CIRCLES];
 	-- update according to time left
-	local percent = (1 - timer[2] / 1);
+	local percent = (1 - timer[2] / timer[15]);
 	if (percent > 1) then -- do not try to animate further
 		percent = 1;
 	end
@@ -472,15 +472,15 @@ function DHUDSideInfoManager:updateSpellCircles(timers)
 		-- update animation
 		self:updateSpellCircleAnimation(spellCircleFrame, v);
 		-- update text
-		local time;
+		local timeText;
 		local withTime = (v[2] >= 0);
 		if (withTime) then
 			numTimersWithTime = numTimersWithTime + 1;
-			time = (DHUDColorizeTools:colorToColorizeString(color) .. DHUDTextTools:formatTime(v[2]) .. "|r");
+			timeText = (DHUDColorizeTools:colorToColorizeString(color) .. DHUDTextTools:formatTime(v[2] / v[15]) .. "|r");
 		else
-			time = "";
+			timeText = "";
 		end
-		spellCircleFrame.textFieldTime:DSetText(time);
+		spellCircleFrame.textFieldTime:DSetText(timeText);
 		local stackText = (v[7] > 1) and (DHUDColorizeTools:colorToColorizeString(color) .. ((v[13] ~= nil) and "&" or "") .. v[7] .. "|r") or "";
 		spellCircleFrame.textFieldCount:DSetText(stackText);
 	end
@@ -503,8 +503,8 @@ function DHUDSideInfoManager:updateSpellCirclesTime()
 		-- update animation
 		self:updateSpellCircleAnimation(spellCircleFrame, v);
 		-- update text
-		local time = (v[2] >= 0) and (DHUDColorizeTools:colorToColorizeString(color) .. DHUDTextTools:formatTime(v[2]) .. "|r") or "";
-		spellCircleFrame.textFieldTime:DSetText(time);
+		local timeText = (v[2] >= 0) and (DHUDColorizeTools:colorToColorizeString(color) .. DHUDTextTools:formatTime(v[2] / v[15]) .. "|r") or "";
+		spellCircleFrame.textFieldTime:DSetText(timeText);
 	end
 end
 
@@ -526,8 +526,8 @@ function DHUDSideInfoManager:updateRunes()
 			texture:SetTexCoord(x0, x1, y0, y1);
 		end
 		-- update time left
-		local time = (v[2] >= 0) and DHUDTextTools:formatTime(v[2]) or "";
-		frame.textFieldTime:DSetText(time);
+		local timeText = (v[2] >= 0) and DHUDTextTools:formatTime(v[2]) or "";
+		frame.textFieldTime:DSetText(timeText);
 	end
 end
 
@@ -538,8 +538,8 @@ function DHUDSideInfoManager:updateRunesTime()
 	for i, v in ipairs(runesInfo) do
 		frame = self.currentGroup[i];
 		-- update time left
-		local time = (v[2] >= 0) and DHUDTextTools:formatTime(v[2]) or "";
-		frame.textFieldTime:DSetText(time);
+		local timeText = (v[2] >= 0) and DHUDTextTools:formatTime(v[2]) or "";
+		frame.textFieldTime:DSetText(timeText);
 	end
 end
 

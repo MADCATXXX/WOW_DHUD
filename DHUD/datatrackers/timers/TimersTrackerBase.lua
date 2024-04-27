@@ -19,16 +19,18 @@ local trackingHelper = DHUDDataTrackingHelper;
 
 --- Base class for trackers of timers for player buffs and cooldowns
 DHUDTimersTracker = MCCreateSubClass(DHUDDataTracker, {
-	-- list with timers, that should be shown in GUI, each element is table with following data: { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder, grouped, groupData, stayInCombat } (where type - type of the timer from class consts, id - spell or item id for tooltip)
+	-- list with timers, that should be shown in GUI, each element is table with following data: { type[1], timeLeft[2], duration[3], id[4], tooltipId[5], name[6], stacks[7], texture[8], exists[9], iterating[10], sortOrder[11], grouped[12], groupData[13], stayInCombat[14] } (where type - type of the timer from class consts, id - spell or item id for tooltip)
 	timers				= nil,
 	-- table with tables of filtered timers, updated on each filterTimers function call
 	filteredTimers		= nil,
 	-- list with sources information, used to make mapping between blizzard infomation and internal timer tables, each value contains table with following data: { indexTimerBegin, numTimers, numToSkipMinusOne, timeUpdateAt }
 	sources				= nil,
-	-- found value from sources table
+	-- found value from sources table, { indexTimerBegin, numTimers, numToSkipMinusOne, timeUpdateAt }
 	sourceInfo			= nil,
 	-- time at which timers was updated
 	timeUpdatedAt		= 0,
+	-- defines if tracker contains timers that needs time updates
+	hasTimersToUpdateTimeMask = 0,
 	-- table with custom trackers, each key is timerGroupId, each value is array with customTracker implementation objects
 	customTrackers		= nil,
 	-- number of custom trackers for perfomance improvement
@@ -64,7 +66,7 @@ function DHUDTimersTracker:setUpdatesRequired(updatesRequired)
 		return;
 	end
 	self.processingUpdates = updatesRequired;
-	--print("timer updates requred: " ..  MCTableToString(updatesRequired));
+	--print("timers " .. self:getTrackerName() .. " updates requred: " ..  MCTableToString(updatesRequired));
 	if (updatesRequired) then
 		DHUDDataTrackers.helper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE_SEMIFREQUENT, self, self.onUpdateTime);
 	else
@@ -82,7 +84,13 @@ function DHUDTimersTracker:onUpdateTime()
 	if (diff <= 0 or #self.timers == 0) then
 		return;
 	end
-	--print("timers update diff " .. MCTableToString(diff));
+	--print("timers update diff " .. MCTableToString(diff) .. " tickId " .. trackingHelper.tickId .. " " .. self.trackerName);
+	--[[if (self.trackerName == "selfCooldowns") then
+		if (self.sources[1][2] > 0) then
+			local itemCooldown = self.timers[ self.sources[1][1] ];
+			print("item cooldown update diff " .. MCTableToString(diff) .. " tickId " .. trackingHelper.tickId .. " " .. itemCooldown[6] .. " timeLeft " .. itemCooldown[2]);
+		end
+	end]]--
 	-- iterate over timers
 	for i, v in ipairs(self.timers) do
 		-- update time left
@@ -153,8 +161,8 @@ function DHUDTimersTracker:findTimer(sourceIndex, id)
 			end
 		end
 	end
-	-- timer not found, create new { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder, grouped, groupData, stayInCombat }
-	timer = { 0, 0, 0, 0, 0, "", 0, "", true, true, 0 };
+	-- timer not found, create new { type[1], timeLeft[2], duration[3], id[4], tooltipId[5], name[6], stacks[7], texture[8], exists[9], iterating[10], sortOrder[11], grouped[12], groupData[13], stayInCombat[14], timeMod[15] }
+	timer = { 0, 0, 0, 0, 0, "", 0, "", true, true, 0, false, nil, false, 1 };
 	--print("Timer " .. id .. ", sourceIndex " .. sourceIndex .. ", predictedIndex " ..  indexToCheck .. " was created at " .. indexBounds);
 	table.insert(self.timers, indexBounds, timer);
 	self.sourceInfo[2] = numTimers + 1;
@@ -184,11 +192,11 @@ function DHUDTimersTracker:findTimerByIdOnly(id, createIfNone, inUse)
 			end
 		end
 	end
-	-- timer not found, create new { type, timeLeft, duration, id, tooltipId, name, stacks, texture, exists, iterating, sortOrder, grouped, groupData, stayInCombat } or return
+	-- timer not found, create new { type[1], timeLeft[2], duration[3], id[4], tooltipId[5], name[6], stacks[7], texture[8], exists[9], iterating[10], sortOrder[11], grouped[12], groupData[13], stayInCombat[14], timeMod[15] } or return
 	if (not createIfNone) then
 		return nil;
 	end
-	timer = { 0, 0, 0, 0, 0, "", 0, "", true, true, 0 };
+	timer = { 0, 0, 0, 0, 0, "", 0, "", true, true, 0, false, nil, false, 1 };
 	--print("Timer " .. id .. ", sourceIndex " .. sourceIndex .. ", predictedIndex " ..  indexToCheck .. " was created at " .. indexBounds);
 	table.insert(self.timers, indexLast + 1, timer);
 	self.sourceInfo[2] = numTimers + 1;
@@ -227,7 +235,7 @@ function DHUDTimersTracker:containsTimerWithNegativeDuration(sourceId)
 	local numTimers = sourceInfo[2];
 	local n = indexBegin + numTimers - 1;
 	for i = indexBegin, n, 1 do
-		if (self.timers[i][2] < 0) then
+		if (self.timers[i][2] < 0 and self.timers[i][9] ~= "pendingCombatEnd") then
 			return true;
 		end
 	end
@@ -285,11 +293,28 @@ function DHUDTimersTracker:findSourceTimersEnd(sourceId)
 				if (timer[2] > 0) then
 					timer[2] = 0;
 				end
+				timer[9] = "pendingCombatEnd";
 				self.pendingUpdateOnCombatEnd = true;
 			end
 		end
 		timer[10] = false;
 		i = i - 1;
+	end
+	-- check if there are timers to be updated
+	local hasTimersToUpdateTime = false;
+	i = indexBegin + numTimers - 1;
+	while (i >= indexBegin) do
+		local timeLeft = self.timers[i][2];
+		if (timeLeft >= 0 and timeLeft <= 3600) then -- timers longer than one hour will be updated by updateData call only
+			hasTimersToUpdateTime = true;
+			break;
+		end
+		i = i - 1;
+	end
+	if (hasTimersToUpdateTime) then
+		self.hasTimersToUpdateTimeMask = mcbit.bor(self.hasTimersToUpdateTimeMask, mcbit.lshift(1, sourceId));
+	else
+		self.hasTimersToUpdateTimeMask = mcbit.band(self.hasTimersToUpdateTimeMask, mcbit.bnot(mcbit.lshift(1, sourceId)));
 	end
 	-- save new count
 	sourceInfo[2] = numTimers;
@@ -306,12 +331,15 @@ function DHUDTimersTracker:findSourceTimersEnd(sourceId)
 		i = i + 1;
 	end
 	--print("findTimer end source " .. sourceId);
-	self:setUpdatesRequired(#self.timers > 0);
+	self:setUpdatesRequired(self.hasTimersToUpdateTimeMask ~= 0);
 end
 
 --- Updates timeUpdatedAt variable and timers for sources that wasn't updated, must be called after partial timers update
 function DHUDTimersTracker:forceUpdateTimers()
 	local timerMs = trackingHelper.timerMs;
+	if (self.timeUpdatedAt == timerMs) then
+		return; -- already updated in onUpdateTime
+	end
 	-- iterate over sources
 	for i, v in ipairs(self.sources) do
 		-- check if source timers are updated
@@ -368,7 +396,7 @@ function DHUDTimersTracker:groupTimersByTime(sourceId, funcSelf, func)
 					for j = i + 1, lastTimer, 1 do
 						timer2 = self.timers[j];
 						-- timer is active, not grouped and don't have stacks?
-						if (timer2[10] == true and timer2[12] == nil and timer2[7] == 1) then
+						if (timer2[10] == true and timer2[12] ~= true and timer2[7] == 1) then
 							-- check if timeleft and duration is the same
 							if (timer[2] == timer2[2] and timer[3] == timer2[3]) then
 								-- add to the table

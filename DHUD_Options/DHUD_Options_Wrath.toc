@@ -1,9 +1,10 @@
-## Interface: 30401
+## Interface: 30403
 ## X-Min-Interface: 11302
 ## Title: Drathals HUD Options
 ## Author: MADCAT, Markus Inger (Drathal/Silberklinge), Howie (Caeryn)
-## Version: v2.0.100002.82
+## Version: v2.0.100207.84
 ## Notes: Options addon for Drathals HUD, loaded on demand.
+## IconTexture: Interface\Icons\ACHIEVEMENT_GUILDPERK_WORKINGOVERTIME
 ## Dependencies: DHUD
 ## LoadOnDemand: 1
 

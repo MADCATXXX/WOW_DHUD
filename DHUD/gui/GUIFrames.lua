@@ -567,7 +567,7 @@ function DHUDGUI:createSpellCircleFrame(name)
 	-- set normal texture
 	frame:SetNormalTexture("Interface\\Icons\\Ability_Druid_TravelForm");
 	-- time left text
-	local textField1 = self:createTextFontString(frame, "textFieldTime", "CENTER", "CENTER", 0, 0, 26 * 2, 26, "CENTER", "CENTER", "default", "OVERLAY");
+	local textField1 = self:createTextFontString(frame, "textFieldTime", "CENTER", "CENTER", 0, 0, 26 * 2, 26, "CENTER", "MIDDLE", "default", "OVERLAY");
 	-- stack text
 	local textField2 = self:createTextFontString(frame, "textFieldCount", "BOTTOMRIGHT", "BOTTOMRIGHT", 10, -5, 26, 26, "RIGHT", "BOTTOM", "default", "OVERLAY");
 	-- listen to mouse events, mouse will be enabled during runtime if enabled in settings
@@ -609,7 +609,7 @@ function DHUDGUI:createSpellRectangleFrame(name, parentName, relativePointThis, 
 	-- set normal texture
 	frame:SetNormalTexture("Interface\\Icons\\Ability_Druid_TravelForm");
 	-- time left text
-	local textField1 = self:createTextFontString(frame, "textFieldTime", "CENTER", "CENTER", 0, 0, 20 * 2, 20, "CENTER", "CENTER", "default", "OVERLAY");
+	local textField1 = self:createTextFontString(frame, "textFieldTime", "CENTER", "CENTER", 0, 0, 20 * 2, 20, "CENTER", "MIDDLE", "default", "OVERLAY");
 	-- stack text
 	local textField2 = self:createTextFontString(frame, "textFieldCount", "BOTTOMRIGHT", "BOTTOMRIGHT", 3, -3, 20, 20, "RIGHT", "BOTTOM", "default", "OVERLAY");
 	-- listen to mouse events, mouse will be enabled during runtime if enabled in settings
@@ -641,7 +641,7 @@ function DHUDGUI:createRuneFrame(name)
 	-- create frame
 	local frame, texture = self:createTextureFrame(name, "DHUD_UIParent", "CENTER", "CENTER", 0, 0, 30, 30, "BlizzardDeathKnightRuneDeath", false);
 	-- create text
-	local textField1 = self:createTextFontString(frame, "textFieldTime", "CENTER", "CENTER", 0, 0, 30 * 2, 30, "CENTER", "CENTER", "default", "OVERLAY");
+	local textField1 = self:createTextFontString(frame, "textFieldTime", "CENTER", "CENTER", 0, 0, 30 * 2, 30, "CENTER", "MIDDLE", "default", "OVERLAY");
 	return frame;
 end
 
@@ -966,11 +966,11 @@ function DHUDGUI:createCastBarFrameBigInnerLeft(index)
 	elseif (index == self.CASTBAR_GROUP_INDEX_ICON) then
 		frame = self:createCastBarIconFrame("DHUD_Left_CastBarIconBig1", "DHUD_Left_BarsBackground", "BOTTOM", "BOTTOM", 60, 275, 30, 30);
 	elseif (index == self.CASTBAR_GROUP_INDEX_SPELLNAME) then
-		frame = self:createTextFrame("DHUD_Left_CastBarSpellTextBig1", "DHUD_Left_BarsBackground", "LEFT", "BOTTOM", 79, 290, nil, 14, "LEFT", "CENTER");
+		frame = self:createTextFrame("DHUD_Left_CastBarSpellTextBig1", "DHUD_Left_BarsBackground", "LEFT", "BOTTOM", 79, 290, nil, 14, "LEFT", "MIDDLE");
 	elseif (index == self.CASTBAR_GROUP_INDEX_CASTTIME) then
-		frame = self:createTextFrame("DHUD_Left_CastBarTimeTextBig1", "DHUD_Left_BarsBackground", "LEFT", "BOTTOM", 30, 252, 100, 14, "LEFT", "CENTER");
+		frame = self:createTextFrame("DHUD_Left_CastBarTimeTextBig1", "DHUD_Left_BarsBackground", "LEFT", "BOTTOM", 30, 252, 100, 14, "LEFT", "MIDDLE");
 	elseif (index == self.CASTBAR_GROUP_INDEX_DELAY) then
-		frame = self:createTextFrame("DHUD_Left_CastBarDelayTextBig1", "DHUD_Left_BarsBackground", "LEFT", "BOTTOM", 30, 266, 100, 14, "LEFT", "CENTER");
+		frame = self:createTextFrame("DHUD_Left_CastBarDelayTextBig1", "DHUD_Left_BarsBackground", "LEFT", "BOTTOM", 30, 266, 100, 14, "LEFT", "MIDDLE");
 	elseif (index >= self.CASTBAR_GROUP_INDEX_EMPOWER1) then
 		frame = self:createCastBarFrame("DHUD_Left_CastBarEmpower1_" .. (index - self.CASTBAR_GROUP_INDEX_EMPOWER1 + 1), relative[1], relative[2], relative[3], relative[4], relative[5], relative[6], relative[7], "CastFillBarB1");
 	end
@@ -990,11 +990,11 @@ function DHUDGUI:createCastBarFrameBigOuterLeft(index)
 	elseif (index == self.CASTBAR_GROUP_INDEX_ICON) then
 		frame = self:createCastBarIconFrame("DHUD_Left_CastBarIconBig2", "DHUD_Left_BarsBackground", "BOTTOM", "BOTTOM", 25, 285, 30, 30);
 	elseif (index == self.CASTBAR_GROUP_INDEX_SPELLNAME) then
-		frame = self:createTextFrame("DHUD_Left_CastBarSpellTextBig2", "DHUD_Left_BarsBackground", "RIGHT", "BOTTOM", 5, 300, nil, 14, "RIGHT", "CENTER");
+		frame = self:createTextFrame("DHUD_Left_CastBarSpellTextBig2", "DHUD_Left_BarsBackground", "RIGHT", "BOTTOM", 5, 300, nil, 14, "RIGHT", "MIDDLE");
 	elseif (index == self.CASTBAR_GROUP_INDEX_CASTTIME) then
-		frame = self:createTextFrame("DHUD_Left_CastBarTimeTextBig2", "DHUD_Left_BarsBackground", "RIGHT", "BOTTOM", 25, 262, 100, 14, "RIGHT", "CENTER");
+		frame = self:createTextFrame("DHUD_Left_CastBarTimeTextBig2", "DHUD_Left_BarsBackground", "RIGHT", "BOTTOM", 25, 262, 100, 14, "RIGHT", "MIDDLE");
 	elseif (index == self.CASTBAR_GROUP_INDEX_DELAY) then
-		frame = self:createTextFrame("DHUD_Left_CastBarDelayTextBig2", "DHUD_Left_BarsBackground", "RIGHT", "BOTTOM", 25, 276, 100, 14, "RIGHT", "CENTER");
+		frame = self:createTextFrame("DHUD_Left_CastBarDelayTextBig2", "DHUD_Left_BarsBackground", "RIGHT", "BOTTOM", 25, 276, 100, 14, "RIGHT", "MIDDLE");
 	elseif (index >= self.CASTBAR_GROUP_INDEX_EMPOWER1) then
 		frame = self:createCastBarFrame("DHUD_Left_CastBarEmpower2_" .. (index - self.CASTBAR_GROUP_INDEX_EMPOWER1 + 1), relative[1], relative[2], relative[3], relative[4], relative[5], relative[6], relative[7], "CastFillBarB2");
 	end
@@ -1014,11 +1014,11 @@ function DHUDGUI:createCastBarFrameBigInnerRight(index)
 	elseif (index == self.CASTBAR_GROUP_INDEX_ICON) then
 		frame = self:createCastBarIconFrame("DHUD_Right_CastBarIconBig1", "DHUD_Right_BarsBackground", "BOTTOM", "BOTTOM", -60, 275, 30, 30);
 	elseif (index == self.CASTBAR_GROUP_INDEX_SPELLNAME) then
-		frame = self:createTextFrame("DHUD_Right_CastBarSpellTextBig1", "DHUD_Right_BarsBackground", "RIGHT", "BOTTOM", -79, 290, nil, 14, "RIGHT", "CENTER");
+		frame = self:createTextFrame("DHUD_Right_CastBarSpellTextBig1", "DHUD_Right_BarsBackground", "RIGHT", "BOTTOM", -79, 290, nil, 14, "RIGHT", "MIDDLE");
 	elseif (index == self.CASTBAR_GROUP_INDEX_CASTTIME) then
-		frame = self:createTextFrame("DHUD_Right_CastBarTimeTextBig1", "DHUD_Right_BarsBackground", "RIGHT", "BOTTOM", -30, 252, 100, 14, "RIGHT", "CENTER");
+		frame = self:createTextFrame("DHUD_Right_CastBarTimeTextBig1", "DHUD_Right_BarsBackground", "RIGHT", "BOTTOM", -30, 252, 100, 14, "RIGHT", "MIDDLE");
 	elseif (index == self.CASTBAR_GROUP_INDEX_DELAY) then
-		frame = self:createTextFrame("DHUD_Right_CastBarDelayTextBig1", "DHUD_Right_BarsBackground", "RIGHT", "BOTTOM", -30, 266, 100, 14, "RIGHT", "CENTER");
+		frame = self:createTextFrame("DHUD_Right_CastBarDelayTextBig1", "DHUD_Right_BarsBackground", "RIGHT", "BOTTOM", -30, 266, 100, 14, "RIGHT", "MIDDLE");
 	elseif (index >= self.CASTBAR_GROUP_INDEX_EMPOWER1) then
 		frame = self:createCastBarFrame("DHUD_Right_CastBarEmpower1_" .. (index - self.CASTBAR_GROUP_INDEX_EMPOWER1 + 1), relative[1], relative[2], relative[3], relative[4], relative[5], relative[6], relative[7], "CastFillBarB1", true);
 	end
@@ -1038,11 +1038,11 @@ function DHUDGUI:createCastBarFrameBigOuterRight(index)
 	elseif (index == self.CASTBAR_GROUP_INDEX_ICON) then
 		frame = self:createCastBarIconFrame("DHUD_Right_CastBarIconBig2", "DHUD_Right_BarsBackground", "BOTTOM", "BOTTOM", -25, 285, 30, 30);
 	elseif (index == self.CASTBAR_GROUP_INDEX_SPELLNAME) then
-		frame = self:createTextFrame("DHUD_Right_CastBarSpellTextBig2", "DHUD_Right_BarsBackground", "LEFT", "BOTTOM", -5, 300, nil, 14, "LEFT", "CENTER");
+		frame = self:createTextFrame("DHUD_Right_CastBarSpellTextBig2", "DHUD_Right_BarsBackground", "LEFT", "BOTTOM", -5, 300, nil, 14, "LEFT", "MIDDLE");
 	elseif (index == self.CASTBAR_GROUP_INDEX_CASTTIME) then
-		frame = self:createTextFrame("DHUD_Right_CastBarTimeTextBig2", "DHUD_Right_BarsBackground", "LEFT", "BOTTOM", -25, 262, 100, 14, "LEFT", "CENTER");
+		frame = self:createTextFrame("DHUD_Right_CastBarTimeTextBig2", "DHUD_Right_BarsBackground", "LEFT", "BOTTOM", -25, 262, 100, 14, "LEFT", "MIDDLE");
 	elseif (index == self.CASTBAR_GROUP_INDEX_DELAY) then
-		frame = self:createTextFrame("DHUD_Right_CastBarDelayTextBig2", "DHUD_Right_BarsBackground", "LEFT", "BOTTOM", -25, 276, 100, 14, "LEFT", "CENTER");
+		frame = self:createTextFrame("DHUD_Right_CastBarDelayTextBig2", "DHUD_Right_BarsBackground", "LEFT", "BOTTOM", -25, 276, 100, 14, "LEFT", "MIDDLE");
 	elseif (index >= self.CASTBAR_GROUP_INDEX_EMPOWER1) then
 		frame = self:createCastBarFrame("DHUD_Right_CastBarEmpower2_" .. (index - self.CASTBAR_GROUP_INDEX_EMPOWER1 + 1), relative[1], relative[2], relative[3], relative[4], relative[5], relative[6], relative[7], "CastFillBarB2", true);
 	end
@@ -2091,48 +2091,48 @@ function DHUDGUI:createFrames()
 	self:createFrameGroup("bars");
 	-- create left big inner bar
 	group = self:createDynamicFrameGroup("leftBigBar1", self.createBarFrameBigInnerLeft, 10, self.frameGroups.bars, self.frameGroups.alphaFrames);
-	frame = self:createTextFrame("DHUD_Left_TextBig1", "DHUD_Left_BarsBackground", "LEFT", "BOTTOM", 95 - 50, 2 + 7, 200, 14, "LEFT", "CENTER", "numeric");
+	frame = self:createTextFrame("DHUD_Left_TextBig1", "DHUD_Left_BarsBackground", "LEFT", "BOTTOM", 95 - 50, 2 + 7, 200, 14, "LEFT", "MIDDLE", "numeric");
 	group["text"] = frame;
 	group["helper"] = DHUDGUIBarAnimationHelper:new(group, "TexturePrefixBarB1", "leftBars");
 	-- create left big outer bar
 	group = self:createDynamicFrameGroup("leftBigBar2", self.createBarFrameBigOuterLeft, 10, self.frameGroups.bars, self.frameGroups.alphaFrames);
-	frame = self:createTextFrame("DHUD_Left_TextBig2", "DHUD_Left_BarsBackground", "LEFT", "BOTTOM", 80 - 50, -16 + 7, 200, 14, "LEFT", "CENTER", "numeric");
+	frame = self:createTextFrame("DHUD_Left_TextBig2", "DHUD_Left_BarsBackground", "LEFT", "BOTTOM", 80 - 50, -16 + 7, 200, 14, "LEFT", "MIDDLE", "numeric");
 	group["text"] = frame;
 	group["helper"] = DHUDGUIBarAnimationHelper:new(group, "TexturePrefixBarB2", "leftBars");
 	-- create left small inner bar
 	group = self:createDynamicFrameGroup("leftSmallBar1", self.createBarFrameSmallInnerLeft, 10, self.frameGroups.bars, self.frameGroups.alphaFrames);
-	frame = self:createTextFrame("DHUD_Left_TextSmall1", "DHUD_Left_BarsBackground", "LEFT", "BOTTOM", 110 - 50, 19 + 7, 200, 14, "LEFT", "CENTER", "numeric");
+	frame = self:createTextFrame("DHUD_Left_TextSmall1", "DHUD_Left_BarsBackground", "LEFT", "BOTTOM", 110 - 50, 19 + 7, 200, 14, "LEFT", "MIDDLE", "numeric");
 	group["text"] = frame;
 	group["helper"] = DHUDGUIBarAnimationHelper:new(group, "TexturePrefixBarS1", "leftBars");
 	-- create left small outer bar
 	group = self:createDynamicFrameGroup("leftSmallBar2", self.createBarFrameSmallOuterLeft, 10, self.frameGroups.bars, self.frameGroups.alphaFrames);
-	frame = self:createTextFrame("DHUD_Left_TextSmall2", "DHUD_Left_BarsBackground", "LEFT", "BOTTOM", 120 - 50, 34 + 7, 200, 14, "LEFT", "CENTER", "numeric");
+	frame = self:createTextFrame("DHUD_Left_TextSmall2", "DHUD_Left_BarsBackground", "LEFT", "BOTTOM", 120 - 50, 34 + 7, 200, 14, "LEFT", "MIDDLE", "numeric");
 	group["text"] = frame;
 	group["helper"] = DHUDGUIBarAnimationHelper:new(group, "TexturePrefixBarS2", "leftBars");
 	-- create left big inner bar
 	group = self:createDynamicFrameGroup("rightBigBar1", self.createBarFrameBigInnerRight, 10, self.frameGroups.bars, self.frameGroups.alphaFrames);
-	frame = self:createTextFrame("DHUD_Right_TextBig1", "DHUD_Right_BarsBackground", "RIGHT", "BOTTOM", -95 + 50, 2 + 7, 200, 14, "RIGHT", "CENTER", "numeric");
+	frame = self:createTextFrame("DHUD_Right_TextBig1", "DHUD_Right_BarsBackground", "RIGHT", "BOTTOM", -95 + 50, 2 + 7, 200, 14, "RIGHT", "MIDDLE", "numeric");
 	group["text"] = frame;
 	group["helper"] = DHUDGUIBarAnimationHelper:new(group, "TexturePrefixBarB1", "rightBars");
 	-- create left big outer bar
 	group = self:createDynamicFrameGroup("rightBigBar2", self.createBarFrameBigOuterRight, 10, self.frameGroups.bars, self.frameGroups.alphaFrames);
-	frame = self:createTextFrame("DHUD_Right_TextBig2", "DHUD_Right_BarsBackground", "RIGHT", "BOTTOM", -80 + 50, -16 + 7, 200, 14, "RIGHT", "CENTER", "numeric");
+	frame = self:createTextFrame("DHUD_Right_TextBig2", "DHUD_Right_BarsBackground", "RIGHT", "BOTTOM", -80 + 50, -16 + 7, 200, 14, "RIGHT", "MIDDLE", "numeric");
 	group["text"] = frame;
 	group["helper"] = DHUDGUIBarAnimationHelper:new(group, "TexturePrefixBarB2", "rightBars");
 	-- create right small inner bar
 	group = self:createDynamicFrameGroup("rightSmallBar1", self.createBarFrameSmallInnerRight, 10, self.frameGroups.bars, self.frameGroups.alphaFrames);
-	frame = self:createTextFrame("DHUD_Right_TextSmall1", "DHUD_Right_BarsBackground", "RIGHT", "BOTTOM", -110 + 50, 19 + 7, 200, 14, "RIGHT", "CENTER", "numeric");
+	frame = self:createTextFrame("DHUD_Right_TextSmall1", "DHUD_Right_BarsBackground", "RIGHT", "BOTTOM", -110 + 50, 19 + 7, 200, 14, "RIGHT", "MIDDLE", "numeric");
 	group["text"] = frame;
 	group["helper"] = DHUDGUIBarAnimationHelper:new(group, "TexturePrefixBarS1", "rightBars");
 	-- create right small outer bar
 	group = self:createDynamicFrameGroup("rightSmallBar2", self.createBarFrameSmallOuterRight, 10, self.frameGroups.bars, self.frameGroups.alphaFrames);
-	frame = self:createTextFrame("DHUD_Right_TextSmall2", "DHUD_Right_BarsBackground", "RIGHT", "BOTTOM", -120 + 50, 34 + 7, 200, 14, "RIGHT", "CENTER", "numeric");
+	frame = self:createTextFrame("DHUD_Right_TextSmall2", "DHUD_Right_BarsBackground", "RIGHT", "BOTTOM", -120 + 50, 34 + 7, 200, 14, "RIGHT", "MIDDLE", "numeric");
 	group["text"] = frame;
 	group["helper"] = DHUDGUIBarAnimationHelper:new(group, "TexturePrefixBarS2", "rightBars");
 	-- create target info text
-	frame = self:createUnitTextFrame("DHUD_Center_TextInfo1", "DHUD_UIParent", "BOTTOM", "BOTTOM", 0, -45, nil, 14, "CENTER", "CENTER");
+	frame = self:createUnitTextFrame("DHUD_Center_TextInfo1", "DHUD_UIParent", "BOTTOM", "BOTTOM", 0, -45, nil, 14, "CENTER", "MIDDLE");
 	-- create target2 info text
-	frame = self:createUnitTextFrame("DHUD_Center_TextInfo2", "DHUD_Center_TextInfo1", "BOTTOM", "BOTTOM", 0, -20, nil, 14, "CENTER", "CENTER");
+	frame = self:createUnitTextFrame("DHUD_Center_TextInfo2", "DHUD_Center_TextInfo1", "BOTTOM", "BOTTOM", 0, -20, nil, 14, "CENTER", "MIDDLE");
 	-- create spell circles group
 	self:createFrameGroup("spellCircles");
 	-- create buff circles
