@@ -1,3 +1,6 @@
+changelog 2.0.100207.85:
+- minor fix to vanilla API rewrites to not cause error window
+
 changelog 2.0.100207.84:
 - fix item cooldown timers, support timeMod parameter for auras duration
 - fix error with "SetJustifyV" call introduced in latest client
