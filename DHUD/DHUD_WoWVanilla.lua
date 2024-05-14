@@ -23,37 +23,42 @@ end
 ----------------------------------------------
 -- add api that is not supported by vanilla --
 ----------------------------------------------
-function GetSpecialization() -- there was no specialization, talents can be used on any tree
-	return 1;
+-- override Cataclysm API
+if (MCVanilla < 5) then -- less than Pandaria
+	function GetSpecialization() -- there was no specialization, talents can be used on any tree
+		return 1;
+	end
+	function GetNumSpecializations() -- there was no specialization, talents can be used on any tree
+		return 3;
+	end
+	function GetSpecializationRole(spec) -- there was no specialization, talents can be used on any tree
+		return "TANK";
+	end
+	function UnitGetTotalAbsorbs(unit) -- Can be emulated if needed, e.g. check if target has Power Word: Shield
+		return 0;
+	end
+	function UnitGetTotalHealAbsorbs(unit) -- no such thing in classic
+		return 0;
+	end
+	function GetNumFlyouts() -- spell book multi items, no such thing in classic
+		return 0;
+	end
+	function GetUnitChargedPowerPoints(unit)
+		return nil; -- combo points not charged (should return array with charged combo-points)
+	end
+	SpellActivationOverlayFrame = CreateFrame("Frame"); -- there was no such frame, all calls can be ignored
 end
-function GetNumSpecializations() -- there was no specialization, talents can be used on any tree
-	return 3;
+
+-- override WOTLK and TBC API
+if (MCVanilla < 4) then -- less than Cata
+	function UnitGetIncomingHeals(unit) -- no incoming heals, I don't think it's possible to check it
+		return 0;
+	end
 end
-function GetSpecializationRole(spec) -- there was no specialization, talents can be used on any tree
-	return "TANK";
-end
-function UnitGetTotalAbsorbs(unit) -- Can be emulated if needed, e.g. check if target has Power Word: Shield
-	return 0;
-end
-function UnitGetTotalHealAbsorbs(unit) -- no such thing in classic
-	return 0;
-end
-function UnitGetIncomingHeals(unit) -- no incoming heals, I don't think it's possible to check it
-	return 0;
-end
-function GetNumFlyouts() -- spell book multi items, no such thing in classic
-	return 0;
-end
-function GetUnitChargedPowerPoints(unit)
-	return nil; -- combo points not charged (should return array with charged combo-points)
-end
-SpellActivationOverlayFrame = CreateFrame("Frame"); -- there was no such frame, all calls can be ignored
 
 -- override some Vanilla API
 if (MCVanilla < 3) then -- less than WoTLK
-	UnitHasVehicleUI = function(unit) -- no vehicles
-		return false;
-	end
+	--UnitHasVehicleUI = function(unit) return false; end -- no vehicles, but function is now included as part of Vanilla
 	UnitCastingInfo = function(unit)
 		if (unit == "player") then
 			return CastingInfo();
