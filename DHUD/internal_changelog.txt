@@ -1,4 +1,4 @@
-changelog 2.0.100207.85:
+changelog 2.0.100207.84b:
 - minor fix to vanilla API rewrites to not cause error window
 
 changelog 2.0.100207.84:
