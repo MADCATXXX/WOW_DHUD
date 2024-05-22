@@ -214,7 +214,7 @@ function DHUDCooldownsTracker:findSpellCooldownsToTrack()
 	-- clear array
 	self.cooldownsSpellIds = {};
 	-- spell
-	local spellType, spellId, overrideSpellId, spellData;
+	local spellBookItemInfo, spellType, spellId, overrideSpellId, spellData;
 	local charges, maxCharges, startTime, duration;
 	local isPassive, baseCooldownMs, gcdMs;
 	-- iterate over spellbooks (vanilla has 3 of them, release (shadowlands+) version only 2)
@@ -225,9 +225,10 @@ function DHUDCooldownsTracker:findSpellCooldownsToTrack()
 		-- iterate over spell book
 		for i = bookOffset + 1, n, 1 do
 			-- get spell info
-			spellType, spellId = GetSpellBookItemInfo(i, BOOKTYPE_SPELL);
+			spellBookItemInfo = C_SpellBook.GetSpellBookItemInfo(i, Enum.SpellBookSpellBank.Player);
+			spellType, spellId = spellBookItemInfo.itemType, spellBookItemInfo.actionID
 			spellData = trackingHelper:getSpellData(spellId, true);
-			isPassive = IsPassiveSpell(spellId);
+			isPassive = C_Spell.IsSpellPassive(spellId);
 			baseCooldownMs, gcdMs = GetSpellBaseCooldown(spellId); -- doesn't work for several spells like "Shiv", need to use SpellCharges instead
 			charges, maxCharges, startTime, duration = GetSpellCharges(spellId);
 			if (maxCharges ~= nil) then
@@ -255,7 +256,7 @@ function DHUDCooldownsTracker:findSpellCooldownsToTrack()
 				spellId, overrideSpellId, flyoutIsKnown = GetFlyoutSlotInfo(flyoutId, j);
 				if (flyoutIsKnown) then
 					spellData = trackingHelper:getSpellData(spellId, true);
-					isPassive = IsPassiveSpell(spellId);
+					isPassive = C_Spell.IsSpellPassive(spellId);
 					baseCooldownMs = GetSpellBaseCooldown(spellId);
 					if (isPassive ~= true and baseCooldownMs ~= nil and baseCooldownMs > 1500 and baseCooldownMs < 3600000 and self:isValidCooldownSpellId(spellId)) then -- don't need long cooldowns like 8hour teleport to Pandaria Dungeon, etc...
 						charges, maxCharges = GetSpellCharges(spellId);
@@ -359,7 +360,7 @@ function DHUDCooldownsTracker:updatePetCooldowns()
 	-- update pet cooldowns
 	self:findSourceTimersBegin(3);
 	-- check if pet can cast something?
-	local numPetSpells = HasPetSpells();
+	local numPetSpells = C_SpellBook.HasPetSpells();
 	-- if we don't have pet or are inside vehicle - this cooldowns are not required
 	if (numPetSpells == nil or self.unitId ~= "player" or not trackingHelper.isPetAvailable) then
 		-- clear cooldowns if any and return
@@ -370,11 +371,12 @@ function DHUDCooldownsTracker:updatePetCooldowns()
 	local timerMs = trackingHelper.timerMs;
 	-- create variables
 	local cooldownId = 0;
-	local spellType, petActionId, autocastAllowed, autocastEnabled, spellData, startTime, duration, enable, name, texture;
+	local spellBookItemInfo, spellType, petActionId, autocastAllowed, autocastEnabled, spellData, startTime, duration, enable, name, texture;
 	-- iterate over spell book
 	for i = 1, numPetSpells, 1 do
 		-- get spell info
-		spellType, petActionId = GetSpellBookItemInfo(i, BOOKTYPE_PET);
+		spellBookItemInfo = C_SpellBook.GetSpellBookItemInfo(i, Enum.SpellBookSpellBank.Pet);
+		spellType, petActionId = spellBookItemInfo.itemType, spellBookItemInfo.actionID
 		-- only process spells
 		if (petActionId ~= nil) then
 			-- check if spell is on autocast, we should only display non-autocast spells

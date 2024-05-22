@@ -24,7 +24,7 @@ DHUDAPI = {
 
 --- function for event dispatcher debugging
 -- @param unitId id of the unit, e.g. "target" (not GUID)
-function DHUDAPI:isRogueGarroteImproved(unitId)
+function DHUDAPI:rogueIsGarroteDebuffImproved(unitId)
 	if (trackingHelper.playerClass ~= "ROGUE") then
 		return false;
 	end

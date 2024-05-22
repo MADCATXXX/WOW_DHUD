@@ -837,7 +837,11 @@ function DHUDSettings:createBlizzardInterfaceOptions()
 	button:SetHeight(22);
 	button:SetPoint("TOPLEFT", frame.titleTextField, "BOTTOMLEFT", 0, -10);
 	button:SetScript("OnClick", function()
-		InterfaceOptionsFrame_Show();
+		if Settings and Settings.RegisterCanvasLayoutCategory then
+			HideUIPanel(SettingsPanel);--.CloseButton:Click()
+		else
+			InterfaceOptionsFrame_Show();
+		end
 		HideUIPanel(GameMenuFrame);
 		DHUDMain:openSettings();
 	end)
@@ -851,5 +855,11 @@ function DHUDSettings:createBlizzardInterfaceOptions()
 	
 	-- add to options
 	self.blizzardInterfaceAddonTab = frame;
-	InterfaceOptions_AddCategory(frame);
+	if Settings and Settings.RegisterCanvasLayoutCategory then
+		local category = Settings.RegisterCanvasLayoutCategory(frame, "DHUD")
+		category.ID = "DHUD"
+		Settings.RegisterAddOnCategory(category)
+	else
+		InterfaceOptions_AddCategory(frame);
+	end
 end

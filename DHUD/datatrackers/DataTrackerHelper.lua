@@ -538,8 +538,10 @@ function DHUDDataTrackerHelper:getSpellData(spellId, silent)
 	if (spellData) then
 		return spellData;
 	end
-	spellData = { GetSpellInfo(spellId) };
-	if (#spellData == 0) then
+	local spell = C_Spell.GetSpellInfo(spellId);
+	if (spell ~= nil) then
+		spellData = { spell.name, 1, spell.iconID, spell.castTime, spell.minTime, spell.maxRange };
+	else
 		if (not silent) then
 			DHUDMain:print("[E] Spell with id " .. spellId .. " is nil!");
 			--geterrorhandler()("DHUD: [E] Spell with id " .. spellId .. " is nil!");

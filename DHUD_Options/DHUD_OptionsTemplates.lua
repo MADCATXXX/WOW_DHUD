@@ -211,7 +211,7 @@ function DHUD_OptionsTemplates_LUA:processRedButtonOnLoad(frame)
 	frame:SetText(DHUDOptionsLocalization[ltext] or ("LTEXT: " .. ltext));
 end
 
---- Options checkbox frame is loaded, *** NEW One based on SettingsCheckBoxControlTemplate ***
+--- Options checkbox frame is loaded, *** NEW One based on SettingsCheckBoxControlTemplate ***, can also be based on InterfaceOptionsCheckButtonTemplate
 function DHUD_OptionsTemplates_LUA:processCheckBoxOnLoad(frame)
 	local name = frame:GetName();
 	local ltext = frame:GetAttribute("LTEXT") or "";
@@ -226,29 +226,29 @@ function DHUD_OptionsTemplates_LUA:processCheckBoxOnLoad(frame)
 	frame.Text:SetText(DHUDOptionsLocalization[ltext] or ("LTEXT: " .. ltext));
 	-- save setting
 	frame.setting = setting;
-	frame.CheckBox.setting = setting;
+	frame.Checkbox.setting = setting;
 	-- set on click handler
-	frame.CheckBox:SetScript("OnClick", function(frame, arg1)
+	frame.Checkbox:SetScript("OnClick", function(frame, arg1)
 		--print("onClick " .. frame.setting);
 		DHUDOptions:toggleBooleanSetting(frame.setting);
 	end);
 	-- set on show handler
 	frame:SetScript("OnShow", function(frame)
-		frame.CheckBox:SetChecked(DHUDOptions:getSettingValue(frame.setting));
+		frame.Checkbox:SetChecked(DHUDOptions:getSettingValue(frame.setting));
 	end);
 	-- set tooltip handlers
 	frame:SetScript("OnEnter", function(frame)
 		GameTooltip:SetOwner(frame, "ANCHOR_RIGHT");
 		GameTooltip:SetText(DHUDOptionsLocalization[ltext .. "_TOOLTIP"] or ("LTOOLTIP: " .. ltext), 1, 1, 1, 1);
 	end);
-	frame.CheckBox:SetScript("OnEnter", function(frame)
+	frame.Checkbox:SetScript("OnEnter", function(frame)
 		GameTooltip:SetOwner(frame, "ANCHOR_RIGHT");
 		GameTooltip:SetText(DHUDOptionsLocalization[ltext .. "_TOOLTIP"] or ("LTOOLTIP: " .. ltext), 1, 1, 1, 1);
 	end);
 	frame:SetScript("OnLeave", function(frame)
 		GameTooltip:Hide();
 	end);
-	frame.CheckBox:SetScript("OnLeave", function(frame)
+	frame.Checkbox:SetScript("OnLeave", function(frame)
 		GameTooltip:Hide();
 	end);
 	--print("header on load " .. frame:GetName() .. ", ltext " .. MCTableToString(ltext));
@@ -823,7 +823,7 @@ function DHUD_OptionsTemplates_LUA:processSpellListTextBoxOnLoad(frame)
 	frame:SetScript("OnShow", function(frame)
 		-- read setting value
 		local settingValue = DHUDOptions:getSettingValue(frame.setting);
-		--print("frame.setting " .. frame.setting .. ", settingValue " .. MCTableToString(settingValue));
+		print("frame.setting " .. frame.setting .. ", settingValue " .. MCTableToString(settingValue));
 		-- generate text
 		local text = table.concat(settingValue, ", ") or "";
 		-- update text
