@@ -371,7 +371,7 @@ function DHUDCooldownsTracker:updatePetCooldowns()
 	local timerMs = trackingHelper.timerMs;
 	-- create variables
 	local cooldownId = 0;
-	local spellBookItemInfo, spellType, petActionId, autocastAllowed, autocastEnabled, spellData, startTime, duration, enable, name, texture;
+	local spellBookItemInfo, spellType, petActionId, autocastAllowed, autocastEnabled, spellData, spellCdInfo, startTime, duration, enable, name, texture;
 	-- iterate over spell book
 	for i = 1, numPetSpells, 1 do
 		-- get spell info
@@ -380,17 +380,18 @@ function DHUDCooldownsTracker:updatePetCooldowns()
 		-- only process spells
 		if (petActionId ~= nil) then
 			-- check if spell is on autocast, we should only display non-autocast spells
-			autocastAllowed, autocastEnabled = GetSpellAutocast(i, BOOKTYPE_PET);
+			autocastAllowed, autocastEnabled = C_SpellBook.GetSpellBookItemAutoCast(i, Enum.SpellBookSpellBank.Pet);
 			--print("i " .. i .. ", spellType " .. MCTableToString(spellType) .. ", petActionId " .. MCTableToString(petActionId) .. ", autocastEnabled " .. MCTableToString(autocastEnabled));
 			if (not autocastEnabled) then
-				name = GetSpellBookItemName(i, BOOKTYPE_PET);
+				name = C_SpellBook.GetSpellBookItemName(i, Enum.SpellBookSpellBank.Pet);
 				if (name ~= nil) then -- spell data is not yet available to WoW Client
 					spellData = trackingHelper:getSpellData(name, true);
 					--texture = GetSpellBookItemTexture(i, BOOKTYPE_PET);
 					-- check usual cooldown
-					startTime, duration, enable = GetSpellCooldown(i, BOOKTYPE_PET);
+					spellCdInfo = C_SpellBook.GetSpellBookItemCooldown(i, Enum.SpellBookSpellBank.Pet);
 					-- valid cooldown?
-					if (startTime ~= nil and duration > 1.5) then
+					if (spellCdInfo ~= nil and spellCdInfo.duration > 1.5) then
+						startTime, duration = spellCdInfo.startTime, spellCdInfo.duration;
 						--print("filling spelldId " .. MCTableToString(petActionId) .. ", bookname " .. name .. ", name " .. MCTableToString(spellData[1]) .. ", texture " .. MCTableToString(spellData[3]));
 						cooldownId = cooldownId + 1;
 						timer = self:findTimer(cooldownId, petActionId);

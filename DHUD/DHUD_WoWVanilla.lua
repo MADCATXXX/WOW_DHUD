@@ -47,6 +47,72 @@ if (MCVanilla < 5) then -- less than Pandaria
 		return nil; -- combo points not charged (should return array with charged combo-points)
 	end
 	SpellActivationOverlayFrame = CreateFrame("Frame"); -- there was no such frame, all calls can be ignored
+	
+	if (Enum == nil) then
+		Enum = {};
+	end
+	if (C_Spell == nil) then
+		C_Spell = {};
+	end
+	if (C_Spell.GetSpellInfo == nil) then
+		C_Spell.GetSpellInfo = function(spellId)
+			local spell = {};
+			local oldSpell = { GetSpellInfo(spellId) };
+			spell.name = oldSpell[1];
+			spell.rank = oldSpell[2];
+			spell.iconID = oldSpell[3];
+			spell.castTime = oldSpell[4];
+			spell.minRange = oldSpell[5];
+			spell.maxRange = oldSpell[6];
+			return spell;
+		end
+	end
+	if (C_Spell.IsSpellPassive == nil) then
+		C_Spell.IsSpellPassive = function(spellId)
+			return IsPassiveSpell(spellId);
+		end
+	end
+	
+	if (Enum.SpellBookSpellBank == nil) then
+		Enum.SpellBookSpellBank = { Player = 0, Pet = 1 };
+	end
+	if (C_SpellBook == nil) then
+		C_SpellBook = {};
+	end
+	if (C_SpellBook.GetSpellBookItemInfo == nil) then
+		C_SpellBook.GetSpellBookItemInfo = function(index, spellBookType)
+			local bookItemInfo = {};
+			local oldSpellType, oldSpellId = GetSpellBookItemInfo(index, spellBookType);
+			bookItemInfo.itemType = oldSpellType;
+			bookItemInfo.actionID = oldSpellId;
+			return bookItemInfo;
+		end
+	end
+	if (C_SpellBook.HasPetSpells == nil) then
+		C_SpellBook.HasPetSpells = function()
+			return HasPetSpells();
+		end
+	end
+	if (C_SpellBook.GetSpellBookItemAutoCast == nil) then
+		C_SpellBook.GetSpellBookItemAutoCast = function(index, spellBookType)
+			return GetSpellAutocast(index, spellBookType);
+		end
+	end
+	if (C_SpellBook.GetSpellBookItemName == nil) then
+		C_SpellBook.GetSpellBookItemName = function(index, spellBookType)
+			return GetSpellBookItemName(index, spellBookType);
+		end
+	end
+	if (C_SpellBook.GetSpellBookItemCooldown == nil) then
+		C_SpellBook.GetSpellBookItemCooldown = function(index, spellBookType)
+			local itemCd = {};
+			local oldStartTime, oldDuration, oldEnable = GetSpellCooldown(index, spellBookType);
+			itemCd.startTime = oldSpellType;
+			itemCd.duration = oldSpellId;
+			itemCd.enable = oldEnable;
+			return itemCd;
+		end
+	end
 end
 
 -- override WOTLK and TBC API

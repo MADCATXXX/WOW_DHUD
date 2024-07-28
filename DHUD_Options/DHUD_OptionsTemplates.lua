@@ -823,7 +823,7 @@ function DHUD_OptionsTemplates_LUA:processSpellListTextBoxOnLoad(frame)
 	frame:SetScript("OnShow", function(frame)
 		-- read setting value
 		local settingValue = DHUDOptions:getSettingValue(frame.setting);
-		print("frame.setting " .. frame.setting .. ", settingValue " .. MCTableToString(settingValue));
+		--print("frame.setting " .. frame.setting .. ", settingValue " .. MCTableToString(settingValue));
 		-- generate text
 		local text = table.concat(settingValue, ", ") or "";
 		-- update text

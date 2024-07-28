@@ -357,6 +357,10 @@ function DHUDSpellCastTracker:updateSpellChannelStart()
 	-- update channel cast info
 	local timerMs = trackingHelper:getTimerMs();
 	local name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, spellID, _, numStages = UnitChannelInfo(self.unitId);
+	if (startTime == nil) then
+		self:updateData(); -- not casting anymore (why event about spell cast start fired?), update
+		return;
+	end
 	self.numStages = numStages or 0; -- evoker charged spells
 	local isChargeSpell = self.numStages > 0;
 	self.isInterruptible = not notInterruptible;
@@ -392,8 +396,8 @@ function DHUDSpellCastTracker:updateSpellChannelDelay()
 	-- update delay
 	local timerMs = trackingHelper:getTimerMs();
 	local name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, spellID, _, numStages = UnitChannelInfo(self.unitId);
-	if (name == nil) then
-		--print("noChannelInfo");
+	if (endTime == nil) then
+		self:updateData(); -- not casting anymore (why event about delay fired?), update
 		return;
 	end
 	local newTimeTotal = endTime / 1000 - self.timeStart;

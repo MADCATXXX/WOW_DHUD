@@ -1,3 +1,7 @@
+changelog 2.0.110002.86:
+- fix hunters cooldowns for TWW
+- this version can now work on all clients (vanilla / cata / tww)
+
 changelog 2.0.110002.85:
 - basic support for the War Within Prepatch
 - support not tested to work with classic - it's better to use old version for classic for now
