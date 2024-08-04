@@ -570,9 +570,9 @@ function DHUDSettings:processDefaultSettingsTable()
 	local spellIdList = self.default["shortAurasOptions"][1]["targetAurasWhiteList"][1];
 	for i=#spellIdList,1,-1 do
 		local spellId = spellIdList[i];
-		local spellData = GetSpellInfo(spellId);
+		local spellData = DHUDDataTrackers.helper:getSpellData(spellId, true);
 		--print("spellid " .. spellId .. " data is " .. MCTableToString(spellData));
-		if (spellData == nil) then
+		if (spellData[7] == 0) then -- spellId is 0
 			table.remove(spellIdList, i);
 		end
 	end

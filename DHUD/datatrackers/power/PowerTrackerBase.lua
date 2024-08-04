@@ -124,7 +124,7 @@ end
 
 --- Update maximum amount or resource, should be invoked only from changeTrackingState function!
 function DHUDPowerTracker:updateAmountMax()
-
+	-- to be overriden by subclasses
 end
 
 --- Stop tracking amountMax data, should be invoked only from changeTrackingState function!
@@ -224,7 +224,11 @@ function DHUDPowerTracker:setResourceType(resourceType, resourceTypeName)
 	self:setAmountBasePercent(self.BASE_PERCENT_FOR_RESOURCE_TYPE[self.resourceTypeString] or 0);
 	self:setAmountMinPercent(self.MIN_PERCENT_FOR_RESOURCE_TYPE[self.resourceTypeString] or 0);
 	-- update data
-	self:updateData();
+	if (resourceType ~= -1) then
+		self:updateData();
+	else -- unknown resource, calling UnitPowerMax/UnitPower will cause an exception in tww
+		self:setAmountMax(0);
+	end
 end
 
 --- change power tracker to custom resourceType

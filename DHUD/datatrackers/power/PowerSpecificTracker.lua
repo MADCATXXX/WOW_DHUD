@@ -122,7 +122,6 @@ function DHUDSpecificPowerTracker:updatePower()
 	else
 		power = UnitPower(self.unitId, self.resourceType);
 	end
-	--print("power is " .. power);
 	self:setAmount(power);
 end
 
@@ -132,8 +131,11 @@ function DHUDSpecificPowerTracker:updateMaxPower()
 	if (self.precision ~= 0) then
 		powerMax = UnitPowerMax(self.unitId, self.resourceType, true);
 		powerMax = powerMax / (10 ^ self.precision);
-	else
+	elseif (self.resourceType ~= -1) then
 		powerMax = UnitPowerMax(self.unitId, self.resourceType);
+	else -- if resource type is not set - game will throw exception
+		--print("tracker " .. MCTableToString(self:getTrackerName()) .. ", unit " .. MCTableToString(self.unitId) .. ", powertype not set, trackingMax " .. MCTableToString(self.isTrackingAmountMax));
+		powerMax = 0;
 	end
 	self:setAmountMax(powerMax);
 end
@@ -156,7 +158,7 @@ function DHUDSpecificPowerTracker:initTrackIfNotMain()
 	end
 	-- update check is exists function to also check unit power
 	function self:checkIsExists()
-		if (not DHUDSpecificPowerTracker.checkIsExists(self)) then -- call super
+		if (not DHUDPowerTracker.checkIsExists(self)) then -- call super
 			return false;
 		end
 		local powerType = UnitPowerType(self.unitId);

@@ -532,7 +532,7 @@ end
 --- Get cached spell data for spell Id specified
 -- @param spellId spell id of the spell
 -- @param silent if true than error message will not be printed (game can report broken ids too)
--- @return spellData to be used in other functions { name, rank, icon, castTime, minRange, maxRange }
+-- @return spellData to be used in other functions { name, rank, icon, castTime, minRange, maxRange, spellID }, originalIcon not used
 function DHUDDataTrackerHelper:getSpellData(spellId, silent)
 	local spellData = self.spellIdData[spellId];
 	if (spellData) then
@@ -540,13 +540,13 @@ function DHUDDataTrackerHelper:getSpellData(spellId, silent)
 	end
 	local spell = C_Spell.GetSpellInfo(spellId);
 	if (spell ~= nil) then
-		spellData = { spell.name, 1, spell.iconID, spell.castTime, spell.minTime, spell.maxRange };
+		spellData = { spell.name, 1, spell.iconID, spell.castTime, spell.minTime, spell.maxRange, spell.spellID };
 	else
 		if (not silent) then
 			DHUDMain:print("[E] Spell with id " .. spellId .. " is nil!");
 			--geterrorhandler()("DHUD: [E] Spell with id " .. spellId .. " is nil!");
 		end
-		spellData = { "id:" .. tostring(spellId), 1, "", 0, 0, 0 };
+		spellData = { "id:" .. tostring(spellId), 1, "", 0, 0, 0, 0 };
 	end
 	self.spellIdData[spellId] = spellData;
 	return spellData;

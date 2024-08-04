@@ -215,24 +215,28 @@ function DHUDCooldownsTracker:findSpellCooldownsToTrack()
 	self.cooldownsSpellIds = {};
 	-- spell
 	local spellBookItemInfo, spellType, spellId, overrideSpellId, spellData;
-	local charges, maxCharges, startTime, duration;
+	local chargeInfo, maxCharges, startTime, duration;
 	local isPassive, baseCooldownMs, gcdMs;
 	-- iterate over spellbooks (vanilla has 3 of them, release (shadowlands+) version only 2)
-	local bookLast = (MCVanilla > 0) and 4 or 3;
+	local bookLast = C_SpellBook.GetNumSpellBookSkillLines();
 	for bookIndex = 1, bookLast, 1 do -- 2 is always main spell book for current spec, 1 is main spell tab info (racials, artifacts, etc...)
-		local bookName, bookTexture, bookOffset, bookNumSpells = GetSpellTabInfo(bookIndex);
-		local n = bookOffset + bookNumSpells;
+		local skillLineInfo = C_SpellBook.GetSpellBookSkillLineInfo(bookIndex);
+		local offset, numSlots = 0, 0;
+		if (skillLineInfo ~= nil) then -- somehow it can be null for DRUID class
+			offset, numSlots = skillLineInfo.itemIndexOffset, skillLineInfo.numSpellBookItems;
+		end
 		-- iterate over spell book
-		for i = bookOffset + 1, n, 1 do
+		for i = offset + 1, offset + numSlots, 1 do
 			-- get spell info
 			spellBookItemInfo = C_SpellBook.GetSpellBookItemInfo(i, Enum.SpellBookSpellBank.Player);
 			spellType, spellId = spellBookItemInfo.itemType, spellBookItemInfo.actionID
 			spellData = trackingHelper:getSpellData(spellId, true);
 			isPassive = C_Spell.IsSpellPassive(spellId);
 			baseCooldownMs, gcdMs = GetSpellBaseCooldown(spellId); -- doesn't work for several spells like "Shiv", need to use SpellCharges instead
-			charges, maxCharges, startTime, duration = GetSpellCharges(spellId);
-			if (maxCharges ~= nil) then
-				baseCooldownMs = duration * 1000;
+			chargeInfo = C_Spell.GetSpellCharges(spellId);
+			if (chargeInfo ~= nil) then
+				maxCharges = chargeInfo.maxCharges
+				baseCooldownMs = chargeInfo.cooldownDuration * 1000;
 			end
 			if (isPassive ~= true and baseCooldownMs ~= nil and baseCooldownMs > 1500 and (baseCooldownMs < 3600000 or bookIndex ~= 1) and self:isValidCooldownSpellId(spellId)) then
 				local cooldownInfo = { spellId, maxCharges, spellData };
@@ -259,8 +263,8 @@ function DHUDCooldownsTracker:findSpellCooldownsToTrack()
 					isPassive = C_Spell.IsSpellPassive(spellId);
 					baseCooldownMs = GetSpellBaseCooldown(spellId);
 					if (isPassive ~= true and baseCooldownMs ~= nil and baseCooldownMs > 1500 and baseCooldownMs < 3600000 and self:isValidCooldownSpellId(spellId)) then -- don't need long cooldowns like 8hour teleport to Pandaria Dungeon, etc...
-						charges, maxCharges = GetSpellCharges(spellId);
-						local cooldownInfo = { spellId, maxCharges, spellData };
+						chargeInfo = C_Spell.GetSpellCharges(spellId);
+						local cooldownInfo = { spellId, chargeInfo and chargeInfo.maxCharges, spellData };
 						table.insert(self.cooldownsSpellIds, cooldownInfo);
 						--print("flyout " .. flyoutId .. " spellData " .. MCTableToString(spellData[1]) .. " baseCooldownMs " .. baseCooldownMs .. ", maxCharges " .. MCTableToString(maxCharges));
 					end
@@ -277,7 +281,7 @@ function DHUDCooldownsTracker:updateSpellCooldowns()
 	-- create variables
 	local cooldownId = 0;
 	local gcdUpdated = false;
-	local startTime, duration, enable, charges, maxCharges, cooldownCharges;
+	local cdInfo, startTime, duration, enable, chargeInfo, charges, maxCharges, cooldownCharges;
 	local spellType, spellId, spellData;
 	local timer;
 	-- update spell cooldowns
@@ -299,15 +303,18 @@ function DHUDCooldownsTracker:updateSpellCooldowns()
 			spellData = v[3];
 			-- check spells with charges
 			if (true) then -- maxCharges ~= nil (maxCharges doesn't always return correct amount)
-				charges, maxCharges, startTime, duration = GetSpellCharges(spellId);
-				if (charges ~= nil and (maxCharges - charges) > 0) then
+				chargeInfo = C_Spell.GetSpellCharges(spellId);
+				if (chargeInfo ~= nil and (chargeInfo.maxCharges - chargeInfo.currentCharges) > 0) then
+					charges, maxCharges, startTime, duration = chargeInfo.currentCharges, chargeInfo.maxCharges, chargeInfo.cooldownStartTime, chargeInfo.cooldownDuration
 					cooldownCharges = (maxCharges - charges);
 				else
-					startTime, duration, enable = GetSpellCooldown(spellId);
+					cdInfo = C_Spell.GetSpellCooldown(spellId);
+					startTime, duration, enable = cdInfo.startTime, cdInfo.duration, cdInfo.isEnabled
 					cooldownCharges = 1;
 				end
 			else -- check usual cooldown
-				startTime, duration, enable = GetSpellCooldown(spellId);
+				cdInfo = C_Spell.GetSpellCooldown(spellId);
+				startTime, duration, enable = cdInfo.startTime, cdInfo.duration, cdInfo.isEnabled
 				cooldownCharges = 1;
 			end
 			-- valid cooldown?
@@ -466,8 +473,8 @@ function DHUDCooldownsTracker:updateActionBarCooldowns()
 	local timerMs = trackingHelper.timerMs;
 	-- create variables
 	local cooldownId = 0;
-	local charges, maxCharges;
-	local startTime, duration, enable;
+	local chargeInfo, charges, maxCharges;
+	local cdInfo, startTime, duration, enable;
 	local actionType, actionSubType, spellId, spellData;
 	local timer;
 	-- update action bar cooldowns
@@ -479,11 +486,13 @@ function DHUDCooldownsTracker:updateActionBarCooldowns()
 			spellData = { GetSpellInfo(spellId) }; -- do not cache spell data as extra spell abilities can change
 			-- spell data exists?
 			if (spellData[1] ~= nil) then
-				charges, maxCharges, startTime, duration = GetSpellCharges(spellData[1]);
-				if (charges ~= nil and (maxCharges - charges) > 0) then
+				chargeInfo = C_Spell.GetSpellCharges(spellData[1]);
+				if (chargeInfo ~= nil and (chargeInfo.maxCharges - chargeInfo.currentCharges) > 0) then
+					charges, maxCharges, startTime, duration = chargeInfo.currentCharges, chargeInfo.maxCharges, chargeInfo.cooldownStartTime, chargeInfo.cooldownDuration
 					cooldownCharges = (maxCharges - charges);
 				else -- check usual cooldown
-					startTime, duration, enable = GetSpellCooldown(spellData[1]);
+					cdInfo = C_Spell.GetSpellCooldown(spellData[1]);
+					startTime, duration, enable = cdInfo.startTime, cdInfo.duration, cdInfo.isEnabled
 					cooldownCharges = 1;
 				end
 				--print("spellId " .. spellId .. ", startTime " .. MCTableToString(starTime) .. ", duration " .. MCTableToString(duration) .. ", charges " .. MCTableToString(charges) .. ", spellData " .. MCTableToString(spellData));

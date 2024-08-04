@@ -1,3 +1,6 @@
+changelog 2.0.110002.87:
+- Fixes for patch 11.0.2 of TWW
+
 changelog 2.0.110002.86:
 - fix hunters cooldowns for TWW
 - this version can now work on all clients (vanilla / cata / tww)

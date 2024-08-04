@@ -55,7 +55,7 @@ end
 function DHUDMain:openSettings()
 	-- check if addon is loaded
 	if (not DHUD_OptionsFrame) then
-		local res = LoadAddOn("DHUD_Options");
+		local res = C_AddOns.LoadAddOn("DHUD_Options");
 		if (res == nil) then
 			self:print("DHUD Options addon is disabled, please enable it first");
 			return;
@@ -147,7 +147,7 @@ end
 --- Main function of the addon, invoked once to initialize subsystems
 function DHUDMain:main()
 	-- read addon version from toc file
-	self.version = GetAddOnMetadata("DHUD", "Version");
+	self.version = C_AddOns.GetAddOnMetadata("DHUD", "Version");
 	self.versionInt = tonumber(strsub(self.version, strfind(self.version, "%.[^%.]*$") + 1)); -- search for last dot and substring int version
 	-- slash commands
 	self:SlashCommandHandlerInit();

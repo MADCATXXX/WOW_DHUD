@@ -72,12 +72,51 @@ if (MCVanilla < 5) then -- less than Pandaria
 			return IsPassiveSpell(spellId);
 		end
 	end
+	if (C_Spell.GetSpellCharges == nil) then
+		C_Spell.GetSpellCharges = function(spellId)
+			local chargeInfo = {};
+			local oldCharge = { GetSpellCharges(spellId) };
+			chargeInfo.currentCharges = oldCharge[1];
+			chargeInfo.maxCharges = oldCharge[2];
+			chargeInfo.cooldownStartTime = oldCharge[3];
+			chargeInfo.cooldownDuration = oldCharge[4];
+			chargeInfo.chargeModRate = oldCharge[5];
+			return chargeInfo;
+		end
+	end
+	if (C_Spell.GetSpellCooldown == nil) then
+		C_Spell.GetSpellCooldown = function(spellId)
+			local cdInfo = {};
+			local oldInfo = { GetSpellCooldown(spellId) };
+			cdInfo.startTime = oldInfo[1];
+			cdInfo.duration = oldInfo[2];
+			cdInfo.isEnabled = oldInfo[3];
+			cdInfo.modRate = oldInfo[4];
+			return cdInfo;
+		end
+	end
 	
 	if (Enum.SpellBookSpellBank == nil) then
 		Enum.SpellBookSpellBank = { Player = 0, Pet = 1 };
 	end
 	if (C_SpellBook == nil) then
 		C_SpellBook = {};
+	end
+	if (C_SpellBook.GetNumSpellBookSkillLines == nil) then
+		C_SpellBook.GetNumSpellBookSkillLines = function()
+			return GetNumSpellTabs();
+		end
+	end
+	if (C_SpellBook.GetSpellBookSkillLineInfo == nil) then
+		C_SpellBook.GetSpellBookSkillLineInfo = function(index)
+			local skillLineInfo = {};
+			local oldBookName, olbBookTexture, oldBookOffset, oldBookNumSpells = GetSpellTabInfo(index);
+			skillLineInfo.name = oldBookName;
+			skillLineInfo.iconID = olbBookTexture;
+			skillLineInfo.itemIndexOffset = oldBookOffset;
+			skillLineInfo.numSpellBookItems = oldBookNumSpells;
+			return skillLineInfo;
+		end
 	end
 	if (C_SpellBook.GetSpellBookItemInfo == nil) then
 		C_SpellBook.GetSpellBookItemInfo = function(index, spellBookType)
@@ -111,6 +150,70 @@ if (MCVanilla < 5) then -- less than Pandaria
 			itemCd.duration = oldSpellId;
 			itemCd.enable = oldEnable;
 			return itemCd;
+		end
+	end
+	
+	if (C_Auras == nil) then
+		C_Auras = {};
+	end
+	if (C_Auras.GetBuffDataByIndex == nil) then
+		C_Auras.GetBuffDataByIndex = function(unit, index, filter)
+			local auraData = {};
+			local name, icon, count, debuffType, duration, expirationTime, unitCaster, canPurge, consolidate, spellId, canBeCastByPlayer, isCastByBoss, isCastByPlayer, nameplateShowAll, timeMod = UnitBuff(unit, index, filter);
+			if (timeMod == nil) then timeMod = 1; end;
+			auraData.name = name;
+			auraData.icon = icon;
+			auraData.applications = count;
+			auraData.dispelName = debuffType;
+			auraData.duration = duration;
+			auraData.expirationTime = expirationTime;
+			auraData.sourceUnit = unitCaster;
+			auraData.isStealable = canPurge;
+			auraData.nameplateShowPersonal = consolidate;
+			auraData.spellId = spellId;
+			auraData.canApplyAura = canBeCastByPlayer;
+			auraData.isBossAura = isCastByBoss;
+			auraData.isFromPlayerOrPlayerPet = isCastByPlayer;
+			auraData.nameplateShowAll = nameplateShowAll;
+			auraData.timeMod = timeMod;
+			return auraData;
+		end
+	end
+	if (C_Auras.GetDebuffDataByIndex == nil) then
+		C_Auras.GetDebuffDataByIndex = function(unit, index, filter)
+			local auraData = {};
+			local name, icon, count, debuffType, duration, expirationTime, unitCaster, canPurge, consolidate, spellId, canBeCastByPlayer, isCastByBoss, isCastByPlayer, nameplateShowAll, timeMod = UnitDebuff(unit, index, filter);
+			if (timeMod == nil) then timeMod = 1; end;
+			auraData.name = name;
+			auraData.icon = icon;
+			auraData.applications = count;
+			auraData.dispelName = debuffType;
+			auraData.duration = duration;
+			auraData.expirationTime = expirationTime;
+			auraData.sourceUnit = unitCaster;
+			auraData.isStealable = canPurge;
+			auraData.nameplateShowPersonal = consolidate;
+			auraData.spellId = spellId;
+			auraData.canApplyAura = canBeCastByPlayer;
+			auraData.isBossAura = isCastByBoss;
+			auraData.isFromPlayerOrPlayerPet = isCastByPlayer;
+			auraData.nameplateShowAll = nameplateShowAll;
+			auraData.timeMod = timeMod;
+			return auraData;
+		end
+	end
+	
+	if (C_AddOns == nil) then
+		C_AddOns = {};
+	end
+	if (C_AddOns.GetAddOnMetadata == nil) then
+		C_AddOns.GetAddOnMetadata = function(name, field)
+			return GetAddOnMetadata(name, field);
+		end
+	end
+	if (C_AddOns.LoadAddOn == nil) then
+		C_AddOns.LoadAddOn = function(name)
+			return LoadAddOn(name);
 		end
 	end
 end
