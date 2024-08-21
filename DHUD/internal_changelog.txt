@@ -1,3 +1,11 @@
+changelog 2.0.110002.88:
+- Add Health Reduce amount tracking
+- Add Spec/Race/ClassRaceCombo to target info
+- Add tracking of interruptability for enemy spellcasts
+- Add API for rogue SAP macro helper
+- Add API for auction commodity buyout macro helper
+- Fix target guild text
+
 changelog 2.0.110002.87:
 - Fixes for patch 11.0.2 of TWW
 

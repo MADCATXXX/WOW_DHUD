@@ -33,6 +33,8 @@ DHUDGuiBarManager = MCCreateSubClass(DHUDGuiSlotManager, {
 	STATIC_showHealthShield = true,
 	-- defines if health heal absorb should be visible in ui
 	STATIC_showHealthHealAbsorb = true,
+	-- defines if health reduce should be visible in ui
+	STATIC_showHealthMaxReduce = true,
 	-- defines if health heal incoming should be visible in ui
 	STATIC_showHealthHealIncoming = true,
 	-- empty space for some powers
@@ -47,15 +49,18 @@ DHUDGuiBarManager = MCCreateSubClass(DHUDGuiSlotManager, {
 	-- health absorb value and priority
 	VALUE_TYPE_HEALTH_ABSORB = 3,
 	VALUE_INFO_HEALTH_ABSORB = { 3, 2 },
+	-- health absorb value and priority
+	VALUE_TYPE_HEALTH_REDUCE = 4,
+	VALUE_INFO_HEALTH_REDUCE = { 4, 3 },
 	-- health shield value and priority
-	VALUE_TYPE_HEALTH_SHIELD = 4,
-	VALUE_INFO_HEALTH_SHIELD = { 4, 3 },
+	VALUE_TYPE_HEALTH_SHIELD = 5,
+	VALUE_INFO_HEALTH_SHIELD = { 5, 4 },
 	-- health incomming heal and priority
-	VALUE_TYPE_HEALTH_HEAL_INCOMMING = 5,
-	VALUE_INFO_HEALTH_HEAL_INCOMMING = { 5, 4 },
+	VALUE_TYPE_HEALTH_HEAL_INCOMMING = 6,
+	VALUE_INFO_HEALTH_HEAL_INCOMMING = { 6, 5 },
 	-- custom data value and priority
-	VALUE_TYPE_CUSTOMDATA = 6,
-	VALUE_INFO_CUSTOMDATA = { 6, 1 },
+	VALUE_TYPE_CUSTOMDATA = 7,
+	VALUE_INFO_CUSTOMDATA = { 7, 1 },
 	-- values info for health
 	VALUES_INFO_HEALTH = { },
 	-- values info for resources
@@ -68,6 +73,13 @@ DHUDGuiBarManager = MCCreateSubClass(DHUDGuiSlotManager, {
 	FUNCTIONS_MAP_POWER = { },
 	-- map with functions that are available to output power to text
 	FUNCTIONS_MAP_CUSTOMDATA = { },
+	-- map of this enum types of health to colorize tool color enums
+	HEALTH_COLOR_MAPPING = {
+		[3] = DHUDColorizeTools.COLOR_ID_TYPE_HEALTH_ABSORB, -- VALUE_TYPE_HEALTH_ABSORB
+		[4] = DHUDColorizeTools.COLOR_ID_TYPE_HEALTH_REDUCE, -- VALUE_TYPE_HEALTH_REDUCE
+		[5] = DHUDColorizeTools.COLOR_ID_TYPE_HEALTH_SHIELD, -- VALUE_TYPE_HEALTH_SHIELD
+		[6] = DHUDColorizeTools.COLOR_ID_TYPE_HEALTH_INCOMINGHEAL, -- VALUE_TYPE_HEALTH_HEAL_INCOMMING
+	},
 })
 
 --- show health shield setting has changed
@@ -77,12 +89,17 @@ function DHUDGuiBarManager:STATIC_onShowHealthShieldsSetting(e)
 	self.STATIC_showHealthShield = shieldStyle ~= 0;
 end
 
---- show health shield setting has changed
+--- show health heal absorb setting has changed
 function DHUDGuiBarManager:STATIC_onShowHealthHealAbsorbSetting(e)
 	self.STATIC_showHealthHealAbsorb = DHUDSettings:getValue("healthBarOptions_showHealAbsorb");
 end
 
---- show health shield setting has changed
+--- show health reduce setting has changed
+function DHUDGuiBarManager:STATIC_onShowHealthReduceSetting(e)
+	self.STATIC_showHealthMaxReduce = DHUDSettings:getValue("healthBarOptions_showHealthReduce");
+end
+
+--- show health heal income setting has changed
 function DHUDGuiBarManager:STATIC_onShowHealthHealIncomingSetting(e)
 	self.STATIC_showHealthHealIncoming = DHUDSettings:getValue("healthBarOptions_showHealIncoming");
 end
@@ -91,6 +108,7 @@ end
 function DHUDGuiBarManager:STATIC_init()
 	table.insert(self.VALUES_INFO_HEALTH, self.VALUE_INFO_HEALTH);
 	table.insert(self.VALUES_INFO_HEALTH, self.VALUE_INFO_HEALTH_ABSORB);
+	table.insert(self.VALUES_INFO_HEALTH, self.VALUE_INFO_HEALTH_REDUCE);
 	table.insert(self.VALUES_INFO_HEALTH, self.VALUE_INFO_HEALTH_SHIELD);
 	table.insert(self.VALUES_INFO_HEALTH, self.VALUE_INFO_HEALTH_HEAL_INCOMMING);
 	table.insert(self.VALUES_INFO_RESOURCES, self.VALUE_INFO_POWER_NONE);
@@ -100,14 +118,17 @@ function DHUDGuiBarManager:STATIC_init()
 	-- listen to settings change events
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "healthBarOptions_showShields", self, self.STATIC_onShowHealthShieldsSetting);
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "healthBarOptions_showHealAbsorb", self, self.STATIC_onShowHealthHealAbsorbSetting);
+	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "healthBarOptions_showHealthReduce", self, self.STATIC_onShowHealthReduceSetting);
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. "healthBarOptions_showHealIncoming", self, self.STATIC_onShowHealthHealIncomingSetting);
 	self:STATIC_onShowHealthShieldsSetting(nil);
 	self:STATIC_onShowHealthHealAbsorbSetting(nil);
+	self:STATIC_onShowHealthReduceSetting(nil);
 	self:STATIC_onShowHealthHealIncomingSetting(nil);
 	-- init functions map
 	self.FUNCTIONS_MAP_HEALTH["amount"] = self.createTextAmount;
 	self.FUNCTIONS_MAP_HEALTH["amount_extra"] = self.createTextAmountHealthShield;
 	self.FUNCTIONS_MAP_HEALTH["amount_habsorb"] = self.createTextAmountHealthHealAbsorb;
+	self.FUNCTIONS_MAP_HEALTH["amount_hreduce"] = self.createTextAmountHealthHealthReduce;
 	self.FUNCTIONS_MAP_HEALTH["amount_hincome"] = self.createTextAmountHealthHealIncoming;
 	self.FUNCTIONS_MAP_HEALTH["amount_max"] = self.createTextAmountMax;
 	self.FUNCTIONS_MAP_HEALTH["amount_percent"] = self.createTextAmountPercent;
@@ -116,6 +137,7 @@ function DHUDGuiBarManager:STATIC_init()
 	self.FUNCTIONS_MAP_HEALTH["color_amount"] = self.createTextColorizeAmountHealthStart;
 	self.FUNCTIONS_MAP_HEALTH["color_amount_extra"] = self.createTextColorizeAmountHealthShieldStart;
 	self.FUNCTIONS_MAP_HEALTH["color_amount_habsorb"] = self.createTextColorizeAmountHealthHealAbsorbStart;
+	self.FUNCTIONS_MAP_HEALTH["color_amount_hreduce"] = self.createTextColorizeAmountHealthReduceStart;
 	self.FUNCTIONS_MAP_HEALTH["color_amount_hincome"] = self.createTextColorizeAmountHealthHealIncomingStart;
 	-- power
 	self.FUNCTIONS_MAP_POWER["amount"] = self.createTextAmount;
@@ -154,14 +176,8 @@ function DHUDGuiBarManager:colorizeBar(valueType, valueHeightBegin, valueHeightE
 			else
 				colors = DHUDColorizeTools:getColorTableForId(DHUDColorizeTools.COLOR_ID_TYPE_HEALTH + self.unitColorId);
 			end
-		elseif (valueType == self.VALUE_TYPE_HEALTH_SHIELD) then
-			colors = DHUDColorizeTools:getColorTableForId(DHUDColorizeTools.COLOR_ID_TYPE_HEALTH_SHIELD + self.unitColorId);
-		elseif (valueType == self.VALUE_TYPE_HEALTH_ABSORB) then
-			colors = DHUDColorizeTools:getColorTableForId(DHUDColorizeTools.COLOR_ID_TYPE_HEALTH_ABSORB + self.unitColorId);
-		elseif (valueType == self.VALUE_TYPE_HEALTH_HEAL_INCOMMING) then
-			colors = DHUDColorizeTools:getColorTableForId(DHUDColorizeTools.COLOR_ID_TYPE_HEALTH_INCOMINGHEAL + self.unitColorId);
 		else
-			colors = DHUDColorizeTools.colors_default;
+			colors = DHUDColorizeTools:getColorTableForId(self.HEALTH_COLOR_MAPPING[valueType] + self.unitColorId);
 		end
 	-- get colors table for power
 	elseif (self.valuesInfo == self.VALUES_INFO_RESOURCES) then
@@ -310,6 +326,23 @@ function DHUDGuiBarManager:createTextAmountHealthHealAbsorb(this, prefix, precis
 	return(precision and DHUDTextTools:formatNumberWithPrecision(value, precision) or DHUDTextTools:formatNumber(value, nil, valueMax));
 end
 
+--- Create text that contains data amount heal absorb, prefixed if specified
+-- @param this reference to this bar manager (self is nil)
+-- @param prefix for text
+-- @param precision number of digits to use after comma, if not nil, than number will be printed as float
+-- @return text to be shown in gui
+function DHUDGuiBarManager:createTextAmountHealthHealthReduce(this, prefix, precision)
+	local value = this:getHealthMaxReduce();
+	local valueMax = this.currentDataTracker.amountMax;
+	if (prefix ~= nil) then
+		if (value > 0) then
+			return prefix .. (precision and DHUDTextTools:formatNumberWithPrecision(value, precision) or DHUDTextTools:formatNumber(value, nil, valueMax));
+		end
+		return "";
+	end
+	return(precision and DHUDTextTools:formatNumberWithPrecision(value, precision) or DHUDTextTools:formatNumber(value, nil, valueMax));
+end
+
 --- Create text that contains data amount heal incoming, prefixed if specified
 -- @param this reference to this bar manager (self is nil)
 -- @param prefix for text
@@ -364,7 +397,7 @@ function DHUDGuiBarManager:createTextColorizeAmountHealthShieldStart(this)
 	return DHUDColorizeTools:colorToColorizeString(this:colorizeBar(this.VALUE_TYPE_HEALTH_SHIELD, 0, value));
 end
 
---- Create text that will colorize text after it in amount health shield color
+--- Create text that will colorize text after it in amount health heal absorb color
 -- @param this reference to this bar manager (self is nil)
 -- @return text to be shown in gui
 function DHUDGuiBarManager:createTextColorizeAmountHealthHealAbsorbStart(this)
@@ -373,7 +406,16 @@ function DHUDGuiBarManager:createTextColorizeAmountHealthHealAbsorbStart(this)
 	return DHUDColorizeTools:colorToColorizeString(this:colorizeBar(this.VALUE_TYPE_HEALTH_ABSORB, 0, value));
 end
 
---- Create text that will colorize text after it in amount health shield color
+--- Create text that will colorize text after it in amount health temporary reduce color
+-- @param this reference to this bar manager (self is nil)
+-- @return text to be shown in gui
+function DHUDGuiBarManager:createTextColorizeAmountHealthReduceStart(this)
+	local value = this:getHealthMaxReduce() / this.currentDataTracker.amountMax;
+	--print("colorizeAbsorbHeal " .. MCTableToString(this:colorizeBar(this.VALUE_TYPE_HEALTH_ABSORB, 0, value)));
+	return DHUDColorizeTools:colorToColorizeString(this:colorizeBar(this.VALUE_TYPE_HEALTH_REDUCE, 0, value));
+end
+
+--- Create text that will colorize text after it in amount health heal income color
 -- @param this reference to this bar manager (self is nil)
 -- @return text to be shown in gui
 function DHUDGuiBarManager:createTextColorizeAmountHealthHealIncomingStart(this)
@@ -397,6 +439,11 @@ function DHUDGuiBarManager:getHealthHealAbsorb()
 	return self.STATIC_showHealthHealAbsorb and self.currentDataTracker.amountHealAbsorb or 0;
 end
 
+--- Get health reduce amount if settings allow this
+function DHUDGuiBarManager:getHealthMaxReduce()
+	return self.STATIC_showHealthMaxReduce and self.currentDataTracker.amountMaxHealthReduce or 0;
+end
+
 --- Get health heal incoming amount if settings allow this
 function DHUDGuiBarManager:getHealthHealIncoming()
 	return self.STATIC_showHealthHealIncoming and self.currentDataTracker.amountHealIncoming or 0;
@@ -407,6 +454,7 @@ function DHUDGuiBarManager:updateHealth()
 	-- amount total
 	local amountTotal = self.currentDataTracker.amountMax;
 	local absorbed = self:getHealthHealAbsorb();
+	local reduced = self:getHealthMaxReduce();
 	local amount = self.currentDataTracker.amount;
 	-- heal absorb should not be shown higher than health amount
 	if (absorbed > amount) then
@@ -440,8 +488,9 @@ function DHUDGuiBarManager:updateHealth()
 	-- update heights
 	self.valuesHeight[1] = amountNonAbsorbed / amountTotalPlusShield;
 	self.valuesHeight[2] = absorbed / amountTotalPlusShield;
-	self.valuesHeight[3] = amountShield / amountTotalPlusShield;
-	self.valuesHeight[4] = amountHeal / amountTotalPlusShield;
+	self.valuesHeight[3] = reduced / amountTotalPlusShield;
+	self.valuesHeight[4] = amountShield / amountTotalPlusShield;
+	self.valuesHeight[5] = amountHeal / amountTotalPlusShield;
 	-- significant height
 	local heightSignificant = amountTotal / amountTotalPlusShield;
 	-- update gui

@@ -23,10 +23,16 @@ DHUDHealthTracker = MCCreateSubClass(DHUDPowerTracker, {
 	SPELLIDS_ABSORB_HEAL = {
 		--73975,			-- DK: Necrotic Strike
 	};
+	-- value that is reported by UnitHealthMax without any changes
+	amountMaxUnmodified = 0,
+	-- value that is reporting current health modifier without any changes
+	amountHealthModifier = 0,
 	-- amount of incoming heal (e.g. when casting non-instant healing spell on the target)
 	amountHealIncoming	= 0,
 	-- amount of healing absorption (e.g. Necrotic Strike that should be healed through)
 	amountHealAbsorb	= 0,
+	-- amount of health reduce via Max Health Modifier (e.g. Delves Poison aura)
+	amountMaxHealthReduce = 0,
 	-- defines state at which killing unit won't give credit to player (unit tagging)
 	noCreditForKill		= false,
 	-- reference to tracker which will make tracking of unit tagging
@@ -81,6 +87,13 @@ function DHUDHealthTracker:init()
 		end
 		tracker:updateAbsorbedHeal();
 	end
+	-- process units max hp amount change event
+	function self.eventsFrame:UNIT_MAX_HEALTH_MODIFIERS_CHANGED(unitId)
+		if (tracker.unitId ~= unitId) then
+			return;
+		end
+		tracker:updateMaxHpModifier();
+	end
 	-- process units heal absorb amount change event
 	function self.eventsFrame:UNIT_AURA(unitId)
 		if (tracker.unitId ~= unitId) then
@@ -116,6 +129,7 @@ function DHUDHealthTracker:startTracking()
 	self.eventsFrame:RegisterEvent("UNIT_HEAL_PREDICTION");
 	self.eventsFrame:RegisterEvent("UNIT_ABSORB_AMOUNT_CHANGED");
 	self.eventsFrame:RegisterEvent("UNIT_HEAL_ABSORB_AMOUNT_CHANGED");
+	self.eventsFrame:RegisterEvent("UNIT_MAX_HEALTH_MODIFIERS_CHANGED");
 	--self.eventsFrame:RegisterEvent("UNIT_AURA");
 	if (self.creditInfoTracker ~= nil) then
 		self.creditInfoTracker:addEventListener(DHUDDataTrackerEvent.EVENT_DATA_CHANGED, self, self.updateTagging);
@@ -132,6 +146,7 @@ function DHUDHealthTracker:stopTracking()
 	self.eventsFrame:UnregisterEvent("UNIT_HEAL_PREDICTION");
 	self.eventsFrame:UnregisterEvent("UNIT_ABSORB_AMOUNT_CHANGED");
 	self.eventsFrame:UnregisterEvent("UNIT_HEAL_ABSORB_AMOUNT_CHANGED");
+	self.eventsFrame:UnregisterEvent("UNIT_MAX_HEALTH_MODIFIERS_CHANGED");
 	--self.eventsFrame:UnregisterEvent("UNIT_AURA");
 	if (self.creditInfoTracker ~= nil) then
 		self.creditInfoTracker:removeEventListener(DHUDDataTrackerEvent.EVENT_DATA_CHANGED, self, self.updateTagging);
@@ -192,6 +207,24 @@ function DHUDHealthTracker:updateAbsorbedHeal()
 	end
 end
 
+--- Update maximum unit health modifiers
+function DHUDHealthTracker:updateMaxHpModifier()
+	local before = self.amountHealthModifier;
+	local value = GetUnitTotalModifiedMaxHealthPercent(self.unitId) or 0;
+	if (value >= 1 or value < 0) then
+		return; -- don't need to go out of bounds
+	end
+	self.amountHealthModifier = value;
+	-- dispatch event
+	if (before ~= value) then
+		local amountMax = math.floor(self.amountMaxUnmodified / (1 - self.amountHealthModifier) + 0.5);
+		self.amountMaxHealthReduce = amountMax - self.amountMaxUnmodified;
+		self:setAmountMax(amountMax);
+		self:processDataChanged();
+	end
+	--print("GetUnitTotalModifiedMaxHealthPercent(" .. MCTableToString(self.unitId) .. ") " .. MCTableToString(self.amountMaxHealthReduce));
+end
+
 --- Update health for unit
 function DHUDHealthTracker:updateHealth()
 	--print("UnitHealth(" .. MCTableToString(self.unitId) .. ") " .. MCTableToString(UnitHealth(self.unitId)));
@@ -200,8 +233,16 @@ end
 
 --- Update maximum health for unit
 function DHUDHealthTracker:updateMaxHealth()
-	--print("UnitHealthMax(" .. MCTableToString(self.unitId) .. ") " .. MCTableToString(UnitHealthMax(self.unitId)));
-	self:setAmountMax(UnitHealthMax(self.unitId) or 0);
+	local value = UnitHealthMax(self.unitId) or 0;
+	self.amountMaxUnmodified = value;
+	if (self.amountHealthModifier == 0) then
+		self:setAmountMax(value);
+	else
+		local amountMax = math.floor(self.amountMaxUnmodified / (1 - self.amountHealthModifier) + 0.5);
+		self.amountMaxHealthReduce = amountMax - value;
+		self:setAmountMax(amountMax);
+	end
+	--print("UnitHealthMax(" .. MCTableToString(self.unitId) .. ") " .. MCTableToString(self.amountMax));
 end
 
 --- Update unit tagging for unit
@@ -219,6 +260,7 @@ function DHUDHealthTracker:updateData()
 	self:updateIncomingHeal();
 	self:updateAbsorbedHeal();
 	self:updateMaxHealth();
+	self:updateMaxHpModifier();
 	self:updateTagging();
 	self:updateHealth();
 end

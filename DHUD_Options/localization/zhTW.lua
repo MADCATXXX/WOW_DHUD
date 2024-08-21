@@ -28,7 +28,7 @@ L["HELP_UNITTEXTS_TYPE"] = {
 		"<color_amount>\n",
 	["unitInfo"] = 
 		"\n|cffff0000Info trackers:|r\n" ..
-		"<level>\n<elite>\n<name>\n<class>\n<pvp>\n<color_level>\n<color_reaction>\n<color_class>\n\n" ..
+		"<level>\n<elite>\n<name>\n<class>\n<spec>\n<race>\n<class_race>\n<pvp>\n<color_level>\n<color_reaction>\n<color_class>\n\n" ..
 		"<guild>\narg1 = prefix\narg2 = postfix\n",
 	["cast"] = 
 		"\n|cffff0000Cast trackers:|r\n" ..

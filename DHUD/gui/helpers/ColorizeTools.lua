@@ -95,10 +95,12 @@ DHUDColorizeTools = {
 	COLOR_ID_TYPE_HEALTH_SHIELD = 201,
 	-- constant for health absorb power type
 	COLOR_ID_TYPE_HEALTH_ABSORB = 202,
+	-- constant for health reduce power type
+	COLOR_ID_TYPE_HEALTH_REDUCE = 203,
 	-- constant for health incoming heal power type
-	COLOR_ID_TYPE_HEALTH_INCOMINGHEAL = 203,
+	COLOR_ID_TYPE_HEALTH_INCOMINGHEAL = 204,
 	-- constant for health of unit that is not tapped
-	COLOR_ID_TYPE_HEALTH_NOTTAPPED = 204,
+	COLOR_ID_TYPE_HEALTH_NOTTAPPED = 205,
 	-- constant for castbar cast colorizing
 	COLOR_ID_TYPE_CASTBAR_CAST = 300,
 	-- constant for castbar channel colorizing
@@ -476,6 +478,9 @@ function DHUDColorizeTools:init()
 	self:processSetting(self.COLOR_ID_TYPE_HEALTH_ABSORB + self.COLOR_ID_UNIT_SELF, "colors_player_healthAbsorb");
 	self:processSetting(self.COLOR_ID_TYPE_HEALTH_ABSORB + self.COLOR_ID_UNIT_TARGET, "colors_target_healthAbsorb");
 	self:processSetting(self.COLOR_ID_TYPE_HEALTH_ABSORB + self.COLOR_ID_UNIT_PET, "colors_pet_healthAbsorb");
+	self:processSetting(self.COLOR_ID_TYPE_HEALTH_REDUCE + self.COLOR_ID_UNIT_SELF, "colors_player_healthReduce");
+	self:processSetting(self.COLOR_ID_TYPE_HEALTH_REDUCE + self.COLOR_ID_UNIT_TARGET, "colors_target_healthReduce");
+	self:processSetting(self.COLOR_ID_TYPE_HEALTH_REDUCE + self.COLOR_ID_UNIT_PET, "colors_pet_healthReduce");
 	self:processSetting(self.COLOR_ID_TYPE_HEALTH_INCOMINGHEAL + self.COLOR_ID_UNIT_SELF, "colors_player_healthHeal");
 	self:processSetting(self.COLOR_ID_TYPE_HEALTH_INCOMINGHEAL + self.COLOR_ID_UNIT_TARGET, "colors_target_healthHeal");
 	self:processSetting(self.COLOR_ID_TYPE_HEALTH_INCOMINGHEAL + self.COLOR_ID_UNIT_PET, "colors_pet_healthHeal");

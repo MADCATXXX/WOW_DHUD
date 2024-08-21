@@ -57,18 +57,26 @@ DHUDCooldownsTracker = MCCreateSubClass(DHUDTimersTracker, {
 	-- array with spellIds to be tracked via cooldown tracker
 	cooldownsSpellIds				= nil,
 	-- list with actions for extra cooldowns (for "player")
-	SPELLIDS_EXTRAACTION_PLAYER = {
+	SPELLIDS_EXTRAACTION_PLAYER 	= {
 		169, -- Extra Action Bar ability, different per zone
 	},
 	-- list with spells for extra cooldowns (for "vehicle")
-	SPELLIDS_EXTRAACTION_VEHICLE = {
+	SPELLIDS_EXTRAACTION_VEHICLE 	= {
 		133, 134, 135, 136, 137, 138 -- Vehicle Extra Action Bar ability, different per zone
 	},
 	-- list with spells for extra cooldowns (for "player")
-	SPELLIDS_EXTRASPELL_PLAYER = {
+	SPELLIDS_EXTRASPELL_PLAYER 		= {
 		--313347, -- Shadowlands Covenant ability (already exists in player book after choosing covenant)
 		--326526, -- Shadowlands Signature ability (all classes covenant utility ability)
 	},
+	-- timer group for player cooldowns
+	TIMER_GROUP_ID_PLAYER_CDS		= 0,
+	-- timer group for item cooldowns
+	TIMER_GROUP_ID_ITEM_CDS			= 1,
+	-- timer group for actionbar cooldowns
+	TIMER_GROUP_ID_ACTIONBAR_CDS	= 2,
+	-- timer group for pet cooldowns
+	TIMER_GROUP_ID_PET_CDS			= 3,
 })
 
 --- Create new unit cooldowns tracker, unitId should be specified after constructor
@@ -285,7 +293,7 @@ function DHUDCooldownsTracker:updateSpellCooldowns()
 	local spellType, spellId, spellData;
 	local timer;
 	-- update spell cooldowns
-	self:findSourceTimersBegin(0);
+	self:findSourceTimersBegin(0); -- TIMER_GROUP_ID_PLAYER_CDS
 	-- spell cooldowns are only required for player, not vehicle
 	if (self.unitId == "player") then
 		-- skip cooldowns with invalid duration
@@ -365,7 +373,7 @@ end
 --- Update spell cooldowns from main spellbook (don't update cooldowns on guild perks, etc.)
 function DHUDCooldownsTracker:updatePetCooldowns()
 	-- update pet cooldowns
-	self:findSourceTimersBegin(3);
+	self:findSourceTimersBegin(3); -- TIMER_GROUP_ID_PET_CDS
 	-- check if pet can cast something?
 	local numPetSpells = C_SpellBook.HasPetSpells();
 	-- if we don't have pet or are inside vehicle - this cooldowns are not required
@@ -436,7 +444,7 @@ function DHUDCooldownsTracker:updateItemCooldowns()
 	local itemId, itemData;
 	local timer;
 	-- update item cooldowns
-	self:findSourceTimersBegin(1);
+	self:findSourceTimersBegin(1); -- TIMER_GROUP_ID_ITEM_CDS
 	-- item cooldowns are only required for player, not vehicle
 	if (self.unitId == "player") then
 		-- iterate
@@ -478,7 +486,7 @@ function DHUDCooldownsTracker:updateActionBarCooldowns()
 	local actionType, actionSubType, spellId, spellData;
 	local timer;
 	-- update action bar cooldowns
-	self:findSourceTimersBegin(2);
+	self:findSourceTimersBegin(2); -- TIMER_GROUP_ID_ACTIONBAR_CDS
 	-- update extra action button spell cooldown ( /script print("id is " .. ActionButton_GetPagedID(ExtraActionButton1)) )
 	if (self.unitId == "player") then
 		-- iterate extra spells

@@ -157,6 +157,7 @@ function DHUDTextTools:parseDataFormatToFunction(textFormat, mapFunctions, argTo
 	local cacheValue = { };
 	table.insert(cacheForTextFormat, cacheValue);
 	-- process
+	local textFormatLength = textFormat:len();
 	local indexStrBegin = 1; -- index of text to substring from before "<word>"
 	local indexS = 0; -- index at which "<word>" found
 	local indexE = 0; -- index at which "<word>" found
@@ -170,12 +171,21 @@ function DHUDTextTools:parseDataFormatToFunction(textFormat, mapFunctions, argTo
 	local colorFuncName = "";
 	local colorFuncIndex = 0;
 	local specialWord = "";
+	local isInQuotes = false;
 	local specialArgs = nil;
 	local specialFunc = nil;
 	while (true) do
-		indexS, indexE = strfind(textFormat, "<.->", indexE + 1); -- search for "<word>"
+		--indexS, indexE = strfind(textFormat, "<.->", indexE + 1); -- doesn't process quotes correctly
+		indexS = nil; -- search for "<word>"
+		for i = indexE + 1, textFormatLength do
+			local symbol = textFormat:byte(i);
+			if (symbol == 34) then isInQuotes = not isInQuotes;
+			elseif (isInQuotes) then isInQuotes = true; -- do nothing
+			elseif (symbol == 60 and indexS == nil) then indexS = i; -- <
+			elseif (symbol == 62) then indexE = i; break; end; -- >
+		end
 		-- no more special words found, end search
-		if (indexS == nil) then
+		if (indexS == nil or indexS > indexE) then
 			subString = strsub(textFormat, indexStrBegin);
 			if (#subString ~= 0) then
 				table.insert(arrayFunctions, false); -- can't push nil to array

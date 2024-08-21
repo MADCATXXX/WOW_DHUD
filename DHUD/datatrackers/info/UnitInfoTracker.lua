@@ -12,6 +12,7 @@
 local _;
 -- tracker helper
 local trackingHelper = DHUDDataTrackingHelper;
+local pvpHelper = DHUDPvPTrackingHelper;
 
 -----------------------
 -- Unit info tracker --
@@ -22,8 +23,10 @@ DHUDUnitInfoTracker = MCCreateSubClass(DHUDDataTracker, {
 	name				= "",
 	-- name of the guild
 	guild				= "",
-	-- defines unit type
-	type				= 0,
+	-- defines unit type, from UNIT_TYPE_* enum
+	unitType			= 0,
+	-- defines friend unit type string, e.g. "Pet" / "NPC"
+	friendUnitTypeString = "",
 	-- defines unit relation, e.g. friendly, neutral, or hostile
 	relation			= 0,
 	-- defines if unit can be attacked
@@ -34,16 +37,20 @@ DHUDUnitInfoTracker = MCCreateSubClass(DHUDDataTracker, {
 	class				= "",
 	-- unit english class name
 	classEng			= "",
+	-- race of the unit, e.g. night elf
+	race				= "",
 	-- unit specialization id
-	spec				= 0,
-	-- texture of the specialization
+	specID				= 0,
+	-- name of the specialization
+	specName 			= "",
+	-- texture of the specialization, empty for now
 	specTexture			= "",
-	-- unit specialization role (e.g. "TANK")
+	-- unit specialization role (e.g. "TANK"), empty for now
 	specRole			= "",
 	-- defines unit elite type, e.g. golden dragon or silver dragon
 	eliteType			= 0,
 	-- type of the npc, e.g. critter
-	npcType				= 0,
+	npcType				= "",
 	-- defines if player will receive credit for killing unit
 	tagged				= true,
 	-- defines if anyone can tag unit and receive credit for killing unit
@@ -54,6 +61,8 @@ DHUDUnitInfoTracker = MCCreateSubClass(DHUDDataTracker, {
 	pvpFaction			= 0,
 	-- defines if unit pvp faction differs from player
 	isDifferentPvPFaction = false,
+	-- defines inspect is ready for unitGUID, e.g. for GetInspectSpecialization function we need to call NotifyInspect and wait INSPECT_READY
+	inspectReadyGUID	= "",
 	-- defines unit pvp state
 	pvpState			= 0,
 	-- unit is player
@@ -63,7 +72,7 @@ DHUDUnitInfoTracker = MCCreateSubClass(DHUDDataTracker, {
 	-- unit is an ally npc
 	UNIT_TYPE_ALLY_NPC	= 2,
 	-- unit is not any of the above
-	UNIT_TYPE_OTHER		= 3,
+	UNIT_TYPE_CREATURE	= 3,
 	-- unit faction is neutral
 	UNIT_PVP_FACTION_NONE = 0,
 	-- unit faction is alliance
@@ -94,7 +103,18 @@ DHUDUnitInfoTracker = MCCreateSubClass(DHUDDataTracker, {
 	UNIT_ELITE_TYPE_RAREELITE	= 4,
 	--  unit is boss and elite, e.g. golden dragon in standard interface
 	UNIT_ELITE_TYPE_BOSS = 5,
+	-- LIBRARY with specs info for friendly targets
+	STATIC_LIB_INSPECT = { GetCachedInfo = function(guid) DHUDUnitInfoTracker:STATIC_INIT_INSPECT(); return DHUDUnitInfoTracker.STATIC_LIB_INSPECT.GetCachedInfo(guid); end },
 })
+
+--- Initialize inspect library if needed
+function DHUDUnitInfoTracker:STATIC_INIT_INSPECT()
+	DHUDUnitInfoTracker.STATIC_LIB_INSPECT = LibStub and LibStub:GetLibrary("LibGroupInSpecT-1.1", true);
+	if (DHUDUnitInfoTracker.STATIC_LIB_INSPECT == nil) then
+		DHUDUnitInfoTracker.STATIC_LIB_INSPECT = {};
+		DHUDUnitInfoTracker.STATIC_LIB_INSPECT.GetCachedInfo = function(guid) return nil; end
+	end
+end
 
 --- Create new unit info tracker, unitId should be specified after constructor
 function DHUDUnitInfoTracker:new()
@@ -160,14 +180,17 @@ end
 
 --- update information about unit type
 function DHUDUnitInfoTracker:updateUnitType()
-	self.type = self.UNIT_TYPE_OTHER;
+	self.unitType = self.UNIT_TYPE_CREATURE;
+	self.friendUnitTypeString = "";
 	if (UnitIsPlayer(self.unitId)) then
-		self.type = self.UNIT_TYPE_PLAYER;
-	elseif (not UnitCanAttack("player", self.unitId)) then
+		self.unitType = self.UNIT_TYPE_PLAYER;
+	elseif (not self.canAttack) then
 		if (UnitPlayerControlled(self.unitId) == 1) then
-			self.type = self.UNIT_TYPE_PET;
+			self.friendUnitTypeString = "Pet";
+			self.unitType = self.UNIT_TYPE_PET;
 		else
-			self.type = self.UNIT_TYPE_ALLY_NPC;
+			self.friendUnitTypeString = "NPC";
+			self.unitType = self.UNIT_TYPE_ALLY_NPC;
 		end
 	end
 	self:processDataChanged();
@@ -183,7 +206,7 @@ function DHUDUnitInfoTracker:updateRelation()
 	else
 		self.relation = self.UNIT_RELATION_NEUTRAL;
 	end
-	self.canAttack = UnitCanAttack("player", self.unitId) == 1;
+	self.canAttack = UnitCanAttack("player", self.unitId) == true;
 	self:processDataChanged();
 end
 
@@ -199,12 +222,45 @@ function DHUDUnitInfoTracker:updateClass()
 	self:processDataChanged();
 end
 
+--- update unit race information
+function DHUDUnitInfoTracker:updateRace()
+	self.race = UnitRace(self.unitId);
+	self:processDataChanged();
+end
+
 --- update unit spec information
 function DHUDUnitInfoTracker:updateSpecialization()
-	--[[self.spec = GetInspectSpecialization(self.unitId);
-	local id, name, description, icon, background, role = GetSpecializationInfoByID(self.spec);
-	self.specTexture = icon;
-	self.specRole = role;]]--
+	self.specName = self.class;
+	self.specRole = "";
+	self.specTexture = "";
+	self.specID = 0;
+	if ((MCVanilla ~= 0 and MCVanilla < 5) or self.unitType ~= self.UNIT_TYPE_PLAYER) then
+		return; -- no specializations before MoP, or not player
+	end
+	local guid = trackingHelper.guids[self.unitId];
+	local zone = trackingHelper.zoneType;
+	local specName;
+	if (zone == "pvp" or (zone == "arena" and self.canAttack)) then -- battleground
+		local info = pvpHelper:getSpecInfoByGUID(guid);
+		if (info ~= nil) then
+			self.specName = info.specName;
+			self.specTexture = info.specIcon;
+			self.specID = info.specID;
+			self.specRole = info.role;
+		end
+	else
+		-- only friend group inspect if user has library from another addon
+		local info = self.STATIC_LIB_INSPECT:GetCachedInfo(guid);
+		if (info ~= nil) then
+			self.specID = info.global_spec_id;
+			self.specTexture = info.spec_icon;
+			self.specRole = info.spec_role;
+			self.specName = info.spec_name_localized;
+		end
+		--[[if (self.inspectReadyGUID ~= guid) then
+			self.spec = GetInspectSpecialization(self.unitId); NotifyInspect(self.unitId);...
+		end]]--
+	end
 	self:processDataChanged();
 end
 
@@ -230,7 +286,6 @@ end
 --- update unit npc type information
 function DHUDUnitInfoTracker:updateNpcType()
 	self.npcType = UnitCreatureType(self.unitId);
-	self.isNPC = false;
 	self:processDataChanged();
 end
 
@@ -299,10 +354,11 @@ end
 function DHUDUnitInfoTracker:updateData()
 	self:updateUnitName();
 	self:updateGuildName();
-	self:updateUnitType();
 	self:updateRelation();
+	self:updateUnitType();
 	self:updateLevel();
 	self:updateClass();
+	self:updateRace();
 	self:updateSpecialization();
 	self:updateEliteType();
 	self:updateNpcType();

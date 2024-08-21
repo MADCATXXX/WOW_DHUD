@@ -863,10 +863,21 @@
 									<Attribute name="SETTING" value="healthBarOptions_showHealAbsorb" />
 								</Attributes>
 							</CheckButton>
-							<CheckButton name="$parent_HealthHealIncomingCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
+							<CheckButton name="$parent_HealthMaxReduceCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
 								<Anchors>
 									<Anchor point="TOPLEFT">
 										<Offset x="171" y="-385" />
+									</Anchor>
+								</Anchors>
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_HEALTHBAR_HEALTHREDUCE" />
+									<Attribute name="SETTING" value="healthBarOptions_showHealthReduce" />
+								</Attributes>
+							</CheckButton>
+							<CheckButton name="$parent_HealthHealIncomingCheckBox" inherits="DHUD_OptionsTemplate_CheckBox" text="BlizzardPlayerFrame">
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="171" y="-416" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -1819,10 +1830,21 @@
 									<Attribute name="SETTING" value="colors_player_healthAbsorb" />
 								</Attributes>
 							</Frame>
-							<Frame name="$parent_PlayerHealthHealColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+							<Frame name="$parent_PlayerHealthReduceColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
 								<Anchors>
 									<Anchor point="TOPLEFT">
 										<Offset x="117" y="-109" />
+									</Anchor>
+								</Anchors>
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_PLAYER_HEALTHMAXREDUCE" />
+									<Attribute name="SETTING" value="colors_player_healthReduce" />
+								</Attributes>
+							</Frame>
+							<Frame name="$parent_PlayerHealthHealColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-135" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -1833,7 +1855,7 @@
 							<Frame name="$parent_PlayerManaColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="117" y="-135" />
+										<Offset x="117" y="-161" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -1844,7 +1866,7 @@
 							<Frame name="$parent_PlayerRageColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="117" y="-161" />
+										<Offset x="117" y="-187" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -1855,23 +1877,12 @@
 							<Frame name="$parent_PlayerEnergyColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="117" y="-187" />
+										<Offset x="117" y="-213" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
 									<Attribute name="LTEXT" value="SETTING_COLORS_PLAYER_ENERGY" />
 									<Attribute name="SETTING" value="colors_player_energy" />
-								</Attributes>
-							</Frame>
-							<Frame name="$parent_PlayerRunicPowerColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
-								<Anchors>
-									<Anchor point="TOPLEFT">
-										<Offset x="117" y="-213" />
-									</Anchor>
-								</Anchors>
-								<Attributes>
-									<Attribute name="LTEXT" value="SETTING_COLORS_PLAYER_RUNICPOWER" />
-									<Attribute name="SETTING" value="colors_player_runicPower" />
 								</Attributes>
 							</Frame>
 							<Frame name="$parent_PlayerFocusColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
@@ -2036,10 +2047,21 @@
 									<Attribute name="SETTING" value="colors_target_healthAbsorb" />
 								</Attributes>
 							</Frame>
-							<Frame name="$parent_TargetHealthHealColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+							<Frame name="$parent_TargetHealthReduceColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
 								<Anchors>
 									<Anchor point="TOPLEFT">
 										<Offset x="117" y="-109" />
+									</Anchor>
+								</Anchors>
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_TARGET_HEALTHMAXREDUCE" />
+									<Attribute name="SETTING" value="colors_target_healthReduce" />
+								</Attributes>
+							</Frame>
+							<Frame name="$parent_TargetHealthHealColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-135" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -2050,7 +2072,7 @@
 							<Frame name="$parent_TargetHealthNotTappedColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="117" y="-135" />
+										<Offset x="117" y="-161" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -2061,7 +2083,7 @@
 							<Frame name="$parent_TargetManaColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="117" y="-161" />
+										<Offset x="117" y="-187" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -2072,7 +2094,7 @@
 							<Frame name="$parent_TargetRageColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="117" y="-187" />
+										<Offset x="117" y="-213" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -2083,23 +2105,12 @@
 							<Frame name="$parent_TargetEnergyColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="117" y="-213" />
+										<Offset x="117" y="-239" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
 									<Attribute name="LTEXT" value="SETTING_COLORS_TARGET_ENERGY" />
 									<Attribute name="SETTING" value="colors_target_energy" />
-								</Attributes>
-							</Frame>
-							<Frame name="$parent_TargetRunicPowerColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
-								<Anchors>
-									<Anchor point="TOPLEFT">
-										<Offset x="117" y="-239" />
-									</Anchor>
-								</Anchors>
-								<Attributes>
-									<Attribute name="LTEXT" value="SETTING_COLORS_TARGET_RUNICPOWER" />
-									<Attribute name="SETTING" value="colors_target_runicPower" />
 								</Attributes>
 							</Frame>
 							<Frame name="$parent_TargetFocusColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
@@ -2285,10 +2296,21 @@
 									<Attribute name="SETTING" value="colors_pet_healthAbsorb" />
 								</Attributes>
 							</Frame>
-							<Frame name="$parent_PetHealthHealColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+							<Frame name="$parent_PetHealthReduceColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
 								<Anchors>
 									<Anchor point="TOPLEFT">
 										<Offset x="117" y="-185" />
+									</Anchor>
+								</Anchors>
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_PET_HEALTHMAXREDUCE" />
+									<Attribute name="SETTING" value="colors_pet_healthReduce" />
+								</Attributes>
+							</Frame>
+							<Frame name="$parent_PetHealthHealColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-211" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -2299,7 +2321,7 @@
 							<Frame name="$parent_PetManaColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="117" y="-211" />
+										<Offset x="117" y="-237" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -2310,7 +2332,7 @@
 							<Frame name="$parent_PetFocusColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="117" y="-237" />
+										<Offset x="117" y="-263" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -2321,7 +2343,7 @@
 							<Frame name="$parent_PetEnergyColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="117" y="-263" />
+										<Offset x="117" y="-289" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -2332,7 +2354,7 @@
 							<Frame name="$parent_HeaderAlternativePowerColors" inherits="DHUD_OptionsTemplate_Header">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="5" y="-289" />
+										<Offset x="5" y="-315" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -2342,7 +2364,7 @@
 							<Frame name="$parent_AlternativeGuardianActiveColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="117" y="-313" />
+										<Offset x="117" y="-339" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -2353,7 +2375,7 @@
 							<Frame name="$parent_AlternativeGuardianPassiveColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="117" y="-339" />
+										<Offset x="117" y="-365" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -2364,7 +2386,7 @@
 							<Frame name="$parent_AlternativeEclipseColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="117" y="-365" />
+										<Offset x="117" y="-391" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -2375,7 +2397,7 @@
 							<Frame name="$parent_AlternativeMaelstromColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="117" y="-391" />
+										<Offset x="117" y="-417" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -2386,7 +2408,7 @@
 							<Frame name="$parent_AlternativeFuryColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="117" y="-417" />
+										<Offset x="117" y="-443" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -2397,7 +2419,7 @@
 							<Frame name="$parent_AlternativePainColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="117" y="-443" />
+										<Offset x="117" y="-469" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
@@ -2405,15 +2427,132 @@
 									<Attribute name="SETTING" value="colors_player_pain" />
 								</Attributes>
 							</Frame>
+						</Frames>
+					</Frame>
+					<Frame name="$parent_Page4" inherits="DHUD_OptionsTemplate_TabPage">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset x="-500" />
+							</Anchor>
+						</Anchors>
+						<Frames>
+							<Frame name="$parent_HeaderAlternativePowerColors" inherits="DHUD_OptionsTemplate_Header">
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="5" y="-7" />
+									</Anchor>
+								</Anchors>
+								<Attributes>
+									<Attribute name="LTEXT" value="HEADER_COLORS_ALTERNATIVEPOWER" />
+								</Attributes>
+							</Frame>
+							<Frame name="$parent_PlayerRunicPowerColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-31" />
+									</Anchor>
+								</Anchors>
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_PLAYER_RUNICPOWER" />
+									<Attribute name="SETTING" value="colors_player_runicPower" />
+								</Attributes>
+							</Frame>
+							<Frame name="$parent_PlayerInsanityColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-57" />
+									</Anchor>
+								</Anchors>
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_ALTERNATIVEPOWER_INSANITY" />
+									<Attribute name="SETTING" value="colors_player_insanity" />
+								</Attributes>
+							</Frame>
 							<Frame name="$parent_AlternativeStaggerColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
 								<Anchors>
 									<Anchor point="TOPLEFT">
-										<Offset x="117" y="-469" />
+										<Offset x="117" y="-83" />
 									</Anchor>
 								</Anchors>
 								<Attributes>
 									<Attribute name="LTEXT" value="SETTING_COLORS_OTHERPOWER_STAGGER" />
 									<Attribute name="SETTING" value="colors_player_stagger" />
+								</Attributes>
+							</Frame>
+							<Frame name="$parent_HeaderTargetAlternativePowerColors" inherits="DHUD_OptionsTemplate_Header">
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="5" y="-109" />
+									</Anchor>
+								</Anchors>
+								<Attributes>
+									<Attribute name="LTEXT" value="HEADER_COLORS_TARGETALTERNATIVEPOWER" />
+								</Attributes>
+							</Frame>
+							<Frame name="$parent_TargetRunicPowerColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-131" />
+									</Anchor>
+								</Anchors>
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_TARGET_RUNICPOWER" />
+									<Attribute name="SETTING" value="colors_target_runicPower" />
+								</Attributes>
+							</Frame>
+							<Frame name="$parent_TargetAlternativeEclipseColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-157" />
+									</Anchor>
+								</Anchors>
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_TARGETALTERNATIVEPOWER_ECLIPSE" />
+									<Attribute name="SETTING" value="colors_target_eclipse" />
+								</Attributes>
+							</Frame>
+							<Frame name="$parent_TargetAlternativeMaelstromColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-183" />
+									</Anchor>
+								</Anchors>
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_TARGETALTERNATIVEPOWER_MAELSTROM" />
+									<Attribute name="SETTING" value="colors_target_maelstrom" />
+								</Attributes>
+							</Frame>
+							<Frame name="$parent_TargetAlternativeFuryColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-209" />
+									</Anchor>
+								</Anchors>
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_TARGETALTERNATIVEPOWER_FURY" />
+									<Attribute name="SETTING" value="colors_target_fury" />
+								</Attributes>
+							</Frame>
+							<Frame name="$parent_TargetAlternativePainColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-235" />
+									</Anchor>
+								</Anchors>
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_TARGETALTERNATIVEPOWER_PAIN" />
+									<Attribute name="SETTING" value="colors_target_pain" />
+								</Attributes>
+							</Frame>
+							<Frame name="$parent_TargetAlternativeInsanityColorsLine" inherits="DHUD_OptionsTemplate_ColorsLine3">
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset x="117" y="-261" />
+									</Anchor>
+								</Anchors>
+								<Attributes>
+									<Attribute name="LTEXT" value="SETTING_COLORS_TARGETALTERNATIVEPOWER_INSANITY" />
+									<Attribute name="SETTING" value="colors_target_insanity" />
 								</Attributes>
 							</Frame>
 						</Frames>

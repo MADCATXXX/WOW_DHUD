@@ -3,8 +3,8 @@
  DHUD for WotLK and later expansions (c) 2013 by MADCAT (EU-Гордунни, Мадкат)
  (http://eu.battle.net/wow/en/character/Гордунни/Мадкат/advanced)
 ---------------------------------------------------------------------------------------
- This file contains functions and classes to track data about unit resources, health,
- buffs and other information
+ This file contains functions and classes to track data about unit spell cast related
+ information
  @author: MADCAT
 -----------------------------------------------------------------------------------]]--
 
@@ -28,6 +28,10 @@ DHUDSpellCastTracker = MCCreateSubClass(DHUDDataTracker, {
 	isChannelSpell		= 0,
 	-- defines if current spell is interruptable, e.g. no lock
 	isInterruptible		= true,
+	-- defines if player interrupt is on cd or not, tracked only for non player instances, data change event is not thrown for this variable
+	isInterruptOnCd		= false,
+	-- defines if current spell is interruptable by player, e.g. it's not locked and player kick is not on cooldown (or cooldown will expire during spell cast)
+	canBeInterruptedByPlayer = true,
 	-- time at which the spell casting was started, in seconds
 	timeStart			= 0,
 	-- amount of time the spell is casting or amount of time for channel to end, in seconds, this value may be less than zero as reported by game!
@@ -76,6 +80,8 @@ DHUDSpellCastTracker = MCCreateSubClass(DHUDDataTracker, {
 	combatEventsFrame				= nil,
 	-- cooldowns tracker to track gcds
 	cooldownsTracker				= nil,
+	-- interrupt cooldown tracker to track player ability to interrupt spells
+	interruptCdTracker				= nil,
 })
 
 --- Create new spell cast tracker, unitId should be specified after constructor
@@ -92,7 +98,7 @@ function DHUDSpellCastTracker:constructor()
 	-- custom events
 	self.eventDataTimersChanged = DHUDDataTrackerEvent:new(DHUDDataTrackerEvent.EVENT_DATA_TIMERS_UPDATED, self);
 	-- call super constructor
-	DHUDPowerTracker.constructor(self);
+	DHUDDataTracker.constructor(self);
 end
 
 --- Initialize health-points tracking
@@ -241,6 +247,39 @@ function DHUDSpellCastTracker:updateGcd(e)
 	self:processDataChanged();
 end
 
+-- process interrupt cooldown change
+function DHUDSpellCastTracker:updateInterruptCd(e)
+	local isInterruptOnCd = false;
+	if (self.interruptCdTracker ~= nil) then
+		isInterruptOnCd = self.interruptCdTracker.isInterruptOnCd;
+	end
+	self.isInterruptOnCd = isInterruptOnCd;
+	self:updateCanInterruptSpell();
+end
+
+--- Update possibility to interrupt enemy spell
+function DHUDSpellCastTracker:updateCanInterruptSpell()
+	local canBeInterruptedByPlayer = self.isCasting and self.isInterruptible;
+	if (canBeInterruptedByPlayer and self.isInterruptOnCd) then
+		local cdEndTime = trackingHelper.timerMs + self.interruptCdTracker:getInterruptCooldown();
+		local spellEndTime = 0;
+		if (self.isChannelSpell == 0) then -- usual cast
+			spellEndTime = self.timeStart + self.timeTotal + self.delay;
+		elseif (self.isChannelSpell == 1) then -- channel
+			spellEndTime = self.timeStart + self.timeTotal - self.delay;
+		elseif (self.isChannelSpell == 2) then -- evoker charged spell
+			spellEndTime = self.timeStart + self.stageDurations[1] + self.delay;
+		end
+		canBeInterruptedByPlayer = (cdEndTime - spellEndTime) <= -0.2;
+		--print("onCd, cdEnd " .. cdEndTime .. " spell end " .. spellEndTime);
+	end
+	--print("name " .. self.spellName .. " can be interrupted " .. MCTableToString(canBeInterruptedByPlayer) .. " interrupt cd " .. MCTableToString(self.isInterruptOnCd));
+	if (self.canBeInterruptedByPlayer ~= canBeInterruptedByPlayer) then
+		self.canBeInterruptedByPlayer = canBeInterruptedByPlayer;
+		self:processDataChanged();
+	end
+end
+
 --- Game time updated, update spell cast progress, updated every 100 ms, animation should use it's own timer
 function DHUDSpellCastTracker:onUpdateTime()
 	if (self.isCasting == false and self.isGcd == false) then
@@ -292,7 +331,7 @@ function DHUDSpellCastTracker:updateSpellCastStart()
 	self:setIsRegenerating(true);
 	self.finishState = self.SPELL_FINISH_STATE_IS_CASTING;
 	-- update spell cast info
-	local timerMs = trackingHelper:getTimerMs();
+	local timerMs = trackingHelper.timerMs;
 	local name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo(self.unitId);
 	if (startTime == nil) then
 		self:updateData(); -- not casting anymore (why event about spell cast start fired?), update
@@ -306,6 +345,7 @@ function DHUDSpellCastTracker:updateSpellCastStart()
 	self.timeProgress = timerMs - startTime / 1000;
 	self.delay = 0;
 	self.timeUpdatedAt = timerMs;
+	self:updateCanInterruptSpell();
 	--print("startTime " .. startTime .. ", endTime " .. endTime .. ", timerMs " .. timerMs);
 	-- process data change
 	self:processDataChanged();
@@ -314,7 +354,7 @@ end
 --- update spell cast delay
 function DHUDSpellCastTracker:updateSpellCastDelay()
 	-- update delay
-	local timerMs = trackingHelper:getTimerMs();
+	local timerMs = trackingHelper.timerMs;
 	local name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo(self.unitId);
 	if (endTime == nil) then
 		self:updateData(); -- not casting anymore (why event about delay fired?), update
@@ -324,6 +364,7 @@ function DHUDSpellCastTracker:updateSpellCastDelay()
 	self.delay = newTimeTotal - self.timeTotal;
 	self.timeProgress = timerMs - startTime / 1000;
 	self.timeUpdatedAt = timerMs;
+	self:updateCanInterruptSpell();
 	--print("delay startTime " .. startTime .. ", endTime " .. endTime .. ", timerMs " .. timerMs .. ", delay " .. self.delay);
 	-- process data change
 	self:processDataChanged();
@@ -332,7 +373,7 @@ end
 --- update spell cast time
 function DHUDSpellCastTracker:updateSpellCastTime()
 	-- update time
-	local timerMs = trackingHelper:getTimerMs();
+	local timerMs = trackingHelper.timerMs;
 	self.timeProgress = timerMs - self.timeStart;
 	-- process data change
 	self:processDataChanged();
@@ -355,7 +396,7 @@ function DHUDSpellCastTracker:updateSpellChannelStart()
 	self:setIsRegenerating(true);
 	self.finishState = self.SPELL_FINISH_STATE_IS_CASTING;
 	-- update channel cast info
-	local timerMs = trackingHelper:getTimerMs();
+	local timerMs = trackingHelper.timerMs;
 	local name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, spellID, _, numStages = UnitChannelInfo(self.unitId);
 	if (startTime == nil) then
 		self:updateData(); -- not casting anymore (why event about spell cast start fired?), update
@@ -387,6 +428,7 @@ function DHUDSpellCastTracker:updateSpellChannelStart()
 	self.timeTotal = (endTime - startTime) / 1000;
 	self.delay = 0;
 	self.timeUpdatedAt = timerMs;
+	self:updateCanInterruptSpell();
 	-- process data change
 	self:processDataChanged();
 end
@@ -394,7 +436,7 @@ end
 --- update spell channel delay
 function DHUDSpellCastTracker:updateSpellChannelDelay()
 	-- update delay
-	local timerMs = trackingHelper:getTimerMs();
+	local timerMs = trackingHelper.timerMs;
 	local name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, spellID, _, numStages = UnitChannelInfo(self.unitId);
 	if (endTime == nil) then
 		self:updateData(); -- not casting anymore (why event about delay fired?), update
@@ -405,6 +447,7 @@ function DHUDSpellCastTracker:updateSpellChannelDelay()
 	--print("delay is " .. self.delay);
 	self.timeProgress = endTime / 1000 - timerMs;
 	self.timeUpdatedAt = timerMs;
+	self:updateCanInterruptSpell();
 	-- process data change
 	self:processDataChanged();
 end
@@ -412,7 +455,7 @@ end
 --- update channel cast time
 function DHUDSpellCastTracker:updateSpellChannelTime()
 	-- update time
-	local timerMs = trackingHelper:getTimerMs();
+	local timerMs = trackingHelper.timerMs;
 	self.timeProgress = self.timeStart + self.timeTotal - self.delay - timerMs;
 	-- process data change
 	self:processDataChanged();
@@ -514,8 +557,11 @@ function DHUDSpellCastTracker:startTracking()
 	self.eventsFrame:RegisterEvent("UNIT_SPELLCAST_STOP");
 	self.eventsFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED");
 	trackingHelper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_UPDATE, self, self.onUpdateTime);
-	if (self.cooldownsTracker ~= nil) then
+	if (self.cooldownsTracker ~= nil and self.trackUnitId == "player") then
 		self.cooldownsTracker:addEventListener(DHUDDataTrackerEvent.EVENT_DATA_CHANGED, self, self.updateGcd);
+	end
+	if (self.interruptCdTracker ~= nil and self.trackUnitId ~= "player") then
+		self.interruptCdTracker:addEventListener(DHUDDataTrackerEvent.EVENT_DATA_CHANGED, self, self.updateInterruptCd);
 	end
 end
 
@@ -544,12 +590,16 @@ function DHUDSpellCastTracker:stopTracking()
 	if (self.cooldownsTracker ~= nil) then
 		self.cooldownsTracker:removeEventListener(DHUDDataTrackerEvent.EVENT_DATA_CHANGED, self, self.updateGcd);
 	end
+	if (self.interruptCdTracker ~= nil) then
+		self.interruptCdTracker:removeEventListener(DHUDDataTrackerEvent.EVENT_DATA_CHANGED, self, self.updateInterruptCd);
+	end
 end
 
 --- Update all data for current unitId
 function DHUDSpellCastTracker:updateData()
 	self:updateSpellCastStopReason(self.SPELL_FINISH_STATE_NOT_CASTING);
 	self:updateSpellCastStop();
+	self:updateInterruptCd();
 end
 
 --- set unitId variable
@@ -569,8 +619,25 @@ function DHUDSpellCastTracker:attachCooldownsTracker(cooldownsTracker)
 	end
 	self.cooldownsTracker = cooldownsTracker;
 	-- add listener to new tracker
-	if (cooldownsTracker ~= nil and self.isTracking) then
+	if (cooldownsTracker ~= nil and self.isTracking and self.trackUnitId == "player") then
 		self.cooldownsTracker:addEventListener(DHUDDataTrackerEvent.EVENT_DATA_CHANGED, self, self.updateGcd);
 		self:updateGcd();
 	end
 end
+
+--- Attach interrupt tracker to track player ability to interrupt spell inside this tracker
+function DHUDSpellCastTracker:attachInterruptCdTracker(interruptCdTracker)
+	-- remove listener from old tracker
+	if (self.interruptCdTracker ~= nil) then
+		self.interruptCdTracker:removeEventListener(DHUDDataTrackerEvent.EVENT_DATA_CHANGED, self, self.updateInterruptCd);
+		self.isInterruptOnCd = false;
+	end
+	self.interruptCdTracker = interruptCdTracker;
+	-- add listener to new tracker
+	if (interruptCdTracker ~= nil and self.isTracking and self.trackUnitId ~= "player") then
+		self.interruptCdTracker:addEventListener(DHUDDataTrackerEvent.EVENT_DATA_CHANGED, self, self.updateInterruptCd);
+		self:updateInterruptCd();
+	end
+end
+
+

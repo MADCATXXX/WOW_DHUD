@@ -26,7 +26,7 @@ L["HELP_UNITTEXTS_TYPE"] = {
 		"<color_amount>\n",
 	["unitInfo"] = 
 		"\n|cffff0000Info trackers:|r\n" ..
-		"<level>\n<elite>\n<name>\n<class>\n<pvp>\n<color_level>\n<color_reaction>\n<color_class>\n\n" ..
+		"<level>\n<elite>\n<name>\n<class>\n<spec>\n<race>\n<class_race>\n<pvp>\n<color_level>\n<color_reaction>\n<color_class>\n\n" ..
 		"<guild>\narg1 = prefix\narg2 = postfix\n",
 	["cast"] = 
 		"\n|cffff0000Cast trackers:|r\n" ..
@@ -261,6 +261,9 @@ L["SETTING_HEALTHBAR_SHIELDS_TOOLTIP"] = "If set to 2 then shields will be displ
 
 L["SETTING_HEALTHBAR_HEALABSORBS"] = "Heal Absorption";
 L["SETTING_HEALTHBAR_HEALABSORBS_TOOLTIP"] = "If checked then summary of heal absorption effects (e.g. Nectrotic Strike) will be displayed on health bar and it's text";
+
+L["SETTING_HEALTHBAR_HEALTHREDUCE"] = "Health Reduction";
+L["SETTING_HEALTHBAR_HEALTHREDUCE_TOOLTIP"] = "If checked then summary of health reduction effects (e.g. Delves Suffocating Fumes) will be displayed on health bar and it's text";
 
 L["SETTING_HEALTHBAR_HEALINCOMING"] = "Incoming Heal";
 L["SETTING_HEALTHBAR_HEALINCOMING_TOOLTIP"] = "If checked then summary of incoming heal effects will be displayed on health bar and it's text";
@@ -515,6 +518,9 @@ L["SETTING_COLORS_PLAYER_HEALTHSHIELD_TOOLTIP"] = "Color to be used on bar and t
 L["SETTING_COLORS_PLAYER_HEALTHHEALABSORB"] = "Heal Absorb";
 L["SETTING_COLORS_PLAYER_HEALTHHEALABSORB_TOOLTIP"] = "Color to be used on bar and text when displaying Player Absorbed Heal";
 
+L["SETTING_COLORS_PLAYER_HEALTHMAXREDUCE"] = "Health Reduce";
+L["SETTING_COLORS_PLAYER_HEALTHMAXREDUCE_TOOLTIP"] = "Color to be used on bar and text when displaying Player Temporary Reduced Health";
+
 L["SETTING_COLORS_PLAYER_HEALTHHEALINCOMING"] = "Incoming Heal";
 L["SETTING_COLORS_PLAYER_HEALTHHEALINCOMING_TOOLTIP"] = "Color to be used on bar and text when displaying Player Incoming Heal";
 
@@ -570,6 +576,9 @@ L["SETTING_COLORS_TARGET_HEALTHSHIELD_TOOLTIP"] = "Color to be used on bar and t
 
 L["SETTING_COLORS_TARGET_HEALTHHEALABSORB"] = "Heal Absorb";
 L["SETTING_COLORS_TARGET_HEALTHHEALABSORB_TOOLTIP"] = "Color to be used on bar and text when displaying Target Absorbed Heal";
+
+L["SETTING_COLORS_TARGET_HEALTHMAXREDUCE"] = "Health Reduce";
+L["SETTING_COLORS_TARGET_HEALTHMAXREDUCE_TOOLTIP"] = "Color to be used on bar and text when displaying Target Temporary Reduced Health";
 
 L["SETTING_COLORS_TARGET_HEALTHHEALINCOMING"] = "Incoming Heal";
 L["SETTING_COLORS_TARGET_HEALTHHEALINCOMING_TOOLTIP"] = "Color to be used on bar and text when displaying Target Incoming Heal";
@@ -633,6 +642,9 @@ L["SETTING_COLORS_PET_HEALTHSHIELD_TOOLTIP"] = "Color to be used on bar and text
 L["SETTING_COLORS_PET_HEALTHHEALABSORB"] = "Heal Absorb";
 L["SETTING_COLORS_PET_HEALTHHEALABSORB_TOOLTIP"] = "Color to be used on bar and text when displaying Pet Absorbed Heal";
 
+L["SETTING_COLORS_PET_HEALTHMAXREDUCE"] = "Health Reduce";
+L["SETTING_COLORS_PET_HEALTHMAXREDUCE_TOOLTIP"] = "Color to be used on bar and text when displaying Pet Temporary Reduced Health";
+
 L["SETTING_COLORS_PET_HEALTHHEALINCOMING"] = "Incoming Heal";
 L["SETTING_COLORS_PET_HEALTHHEALINCOMING_TOOLTIP"] = "Color to be used on bar and text when displaying Pet Incoming Heal";
 
@@ -671,11 +683,31 @@ L["SETTING_COLORS_ALTERNATIVEPOWER_BURNINGEMBERS_TOOLTIP"] = "Color to be used o
 L["SETTING_COLORS_ALTERNATIVEPOWER_DEMONICFURY"] = "Demonic Fury";
 L["SETTING_COLORS_ALTERNATIVEPOWER_DEMONICFURY_TOOLTIP"] = "Color to be used on bar and text when displaying Player Demonic Fury";
 
+L["SETTING_COLORS_ALTERNATIVEPOWER_INSANITY"] = "Insanity";
+L["SETTING_COLORS_ALTERNATIVEPOWER_INSANITY_TOOLTIP"] = "Color to be used on bar and text when displaying Player Insanity";
+
 L["SETTING_COLORS_OTHERPOWER_VENGEANCE"] = "Vengeance";
 L["SETTING_COLORS_OTHERPOWER_VENGEANCE_TOOLTIP"] = "Color to be used on bar and text when displaying Tank Vengeance";
 
 L["SETTING_COLORS_OTHERPOWER_STAGGER"] = "Stagger";
 L["SETTING_COLORS_OTHERPOWER_STAGGER_TOOLTIP"] = "Color to be used on bar and text when displaying Monk Brewmaster Stagger";
+
+L["HEADER_COLORS_TARGETALTERNATIVEPOWER"] = "Target Alternative Powers:";
+
+L["SETTING_COLORS_TARGETALTERNATIVEPOWER_ECLIPSE"] = "Eclipse";
+L["SETTING_COLORS_TARGETALTERNATIVEPOWER_ECLIPSE_TOOLTIP"] = "Color to be used on bar and text when displaying Target Eclipse";
+
+L["SETTING_COLORS_TARGETALTERNATIVEPOWER_MAELSTROM"] = "Maelstrom";
+L["SETTING_COLORS_TARGETALTERNATIVEPOWER_MAELSTROM_TOOLTIP"] = "Color to be used on bar and text when displaying Target Maelstrom";
+
+L["SETTING_COLORS_TARGETALTERNATIVEPOWER_FURY"] = "Fury";
+L["SETTING_COLORS_TARGETALTERNATIVEPOWER_FURY_TOOLTIP"] = "Color to be used on bar and text when displaying Target Fury";
+
+L["SETTING_COLORS_TARGETALTERNATIVEPOWER_PAIN"] = "Pain";
+L["SETTING_COLORS_TARGETALTERNATIVEPOWER_PAIN_TOOLTIP"] = "Color to be used on bar and text when displaying Target Pain";
+
+L["SETTING_COLORS_TARGETALTERNATIVEPOWER_INSANITY"] = "Insanity";
+L["SETTING_COLORS_TARGETALTERNATIVEPOWER_INSANITY_TOOLTIP"] = "Color to be used on bar and text when displaying Target Insanity";
 
 -- unit texts
 L["HEADER_UNITTEXTS_PLAYER"] = "Player:";

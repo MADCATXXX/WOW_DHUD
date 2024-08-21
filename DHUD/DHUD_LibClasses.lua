@@ -443,6 +443,13 @@ function MCSTableToString(tbl)
 	return "{" .. table.concat(result, ",") .. "}";
 end
 
+--- Print string contents as hex
+-- @param str string to print contents from
+-- @return hex formatted string
+function MCStringToHex(str)
+   return (str:gsub(".", function(char) return string.format("%02x ", char:byte()) end))
+end
+
 ------------------------
 -- bitwise operations --
 ------------------------

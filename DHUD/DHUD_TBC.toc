@@ -3,7 +3,7 @@
 ## X-Min-Interface: 11302
 ## Notes: Head-Up Display with all possible information about player and it's target
 ## Title: Drathals HUD
-## Version: v2.0.110002.87
+## Version: v2.0.110002.88
 ## SavedVariables: DHUDODB3
 ## SavedVariablesPerCharacter: DHUD_SavedVars
 ## IconTexture: Interface\Icons\ACHIEVEMENT_GUILDPERK_QUICK AND DEAD
@@ -12,6 +12,7 @@ DHUD_LibClasses.lua
 DHUD_WoWVanilla.lua
 DHUD_WoWAddonStudio.lua
 datatrackers/DataTrackerHelper.lua
+datatrackers/DataTrackerPvPHelper.lua
 datatrackers/DataTrackerBase.lua
 datatrackers/power/PowerTrackerBase.lua
 datatrackers/power/AuraValueTracker.lua
@@ -27,6 +28,7 @@ datatrackers/timers/AurasTracker.lua
 datatrackers/timers/CooldownsTracker.lua
 datatrackers/timers/GuardiansTracker.lua
 datatrackers/info/UnitInfoTracker.lua
+datatrackers/info/InterruptCdTracker.lua
 datatrackers/info/SpellCastTracker.lua
 datatrackers/info/PlayerInfoTracker.lua
 datatrackers/info/DeStealthTracker.lua

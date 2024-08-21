@@ -142,11 +142,13 @@ end
 -- @param interruptedText text to be shown when spell was interrupted
 -- @param interruptedByPlayerText text to be shown when spell was interrupted by player
 -- @param interruptedNamePrefix text to be shown before player name that interrupted spell, or nil if name is not required
+-- @param nonInterruptColor color of the spell name when it can't be interrupted by player
 -- @return text to be shown in gui
-function DHUDCastBarManager:createTextSpellName(this, canceledText, interruptedText, interruptedByPlayerText, interruptedNamePrefix, interruptedNamePostfix)
+function DHUDCastBarManager:createTextSpellName(this, canceledText, interruptedText, interruptedByPlayerText, interruptedNamePrefix, interruptedNamePostfix, nonInterruptColor)
 	interruptedText = interruptedText or "|cff0000ffINTERRUPTED|r";
 	canceledText = canceledText or "|cff0000ffCANCELED|r";
 	interruptedByPlayerText = interruptedByPlayerText or "|cff0000ffINTERRUPTED BY ME|r";
+	nonInterruptColor = nonInterruptColor or "C0C0C0";
 	local value = this.currentDataTracker.spellName;
 	local finishState = this.currentDataTracker.finishState;
 	if (not this.currentDataTracker.isCasting and (not this.currentDataTracker.isGcd or not this.STATIC_showPlayerGcd)) then
@@ -163,7 +165,11 @@ function DHUDCastBarManager:createTextSpellName(this, canceledText, interruptedT
 					value = interruptedText;
 				end
 			end
+		elseif (not this.currentDataTracker.canBeInterruptedByPlayer and this.currentDataTracker.trackUnitId ~= "player") then
+			value = "|cff" .. nonInterruptColor .. value .. "|r";
 		end
+	elseif (not this.currentDataTracker.canBeInterruptedByPlayer and this.currentDataTracker.trackUnitId ~= "player") then
+		value = "|cff" .. nonInterruptColor .. value .. "|r";
 	end
 	return value;
 end
@@ -229,9 +235,12 @@ function DHUDCastBarManager:onDataChange(e)
 		end
 	end
 	-- update text
-	self.group[DHUDGUI.CASTBAR_GROUP_INDEX_CASTTIME].textField:DSetText(self.textFormatTimeFunction());
-	self.group[DHUDGUI.CASTBAR_GROUP_INDEX_DELAY].textField:DSetText(self.textFormatDelayFunction());
-	self.group[DHUDGUI.CASTBAR_GROUP_INDEX_SPELLNAME].textField:DSetText(self.textFormatSpellNameFunction());
+	local needText = self.currentDataTracker.isCasting or self.helper.processingUpdates;
+	if (needText) then
+		self.group[DHUDGUI.CASTBAR_GROUP_INDEX_CASTTIME].textField:DSetText(self.textFormatTimeFunction());
+		self.group[DHUDGUI.CASTBAR_GROUP_INDEX_DELAY].textField:DSetText(self.textFormatDelayFunction());
+		self.group[DHUDGUI.CASTBAR_GROUP_INDEX_SPELLNAME].textField:DSetText(self.textFormatSpellNameFunction());
+	end
 	-- update empower groups
 	local numStages = self.currentDataTracker.numStages;
 	for i = numStages, self.castBarStages, 1 do

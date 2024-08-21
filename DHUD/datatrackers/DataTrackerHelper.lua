@@ -76,7 +76,7 @@ end
 DHUDDataTrackerHelper = MCCreateSubClass(MADCATEventDispatcher, {
 	-- frame that is listening to events
 	eventsFrame			= nil,
-	-- number of milliseconds since some event in the past (e.g. entering world), float number, whole part is seconds, fractional parts is milliseconds
+	-- number of milliseconds since some event in the past (e.g. entering world), float number, whole part is seconds!!!, fractional parts is milliseconds
 	timerMs				= 0,
 	-- tick identifier that is changed on every tick (e.g. int number that is increased with each tick)
 	tickId				= 0,
@@ -116,6 +116,8 @@ DHUDDataTrackerHelper = MCCreateSubClass(MADCATEventDispatcher, {
 	isResting			= false,
 	-- defines if player is in pet battle
 	isInPetBattle		= false,
+	-- defines type of the zone, that the player is currently in, e.g. "pvp"/"arena"
+	zoneType			= "",
 	-- table with conversion from spell id to spell data
 	spellIdData			= {},
 	-- table with conversion from item id to item data
@@ -124,6 +126,8 @@ DHUDDataTrackerHelper = MCCreateSubClass(MADCATEventDispatcher, {
 	auraIdDurationData = {},
 	-- table with guids for various unit ids, contains guids for exact ids: player, pet, vehicle and target, softenemy, softfriend
 	guids				= {},
+	-- table with specs, initialized on demand, example usage: getSpecsTable[SpecName or ID]
+	specsTable			= nil,
 	-- mask with currently pressed modifier keys
 	modifierKeysMask	= 0,
 	-- defines if alt modifier key is currently pressed
@@ -324,7 +328,7 @@ function DHUDDataTrackerHelper:init()
 	self.eventsFrame:SetScript("OnUpdate", function (self, timeElapsed) helper:onUpdate(timeElapsed); end);
 end
 
---- Update helpers data, this function is invoked on init and when entering world
+--- Update helpers data, this function is invoked on init and when entering world (e.g. /reload or map change, basically whenever the loading screen appears)
 function DHUDDataTrackerHelper:updateData()
 	self:setIsInCombat(UnitAffectingCombat("player") == 1);
 	self:setIsAttacking(false);
@@ -337,6 +341,9 @@ function DHUDDataTrackerHelper:updateData()
 	self.eventsFrame:PLAYER_ALIVE();
 	-- update player guid
 	self.guids["player"] = UnitGUID("player");
+	-- update player zone
+	local _, zoneType = IsInInstance();
+	self.zoneType = zoneType;
 end
 
 --- Function that is called by blizzard event frame to update ui
@@ -401,6 +408,11 @@ end
 --- set isTargetAvailable variable
 function DHUDDataTrackerHelper:setIsTargetOfTargetAvailable(isTargetOfTargetAvailable)
 	self.isTargetOfTargetAvailable = isTargetOfTargetAvailable;
+	if (isTargetOfTargetAvailable) then
+		self.guids[self.targetOfTargetCasterUnitId] = UnitGUID(self.targetOfTargetCasterUnitId);
+	else
+		self.guids[self.targetOfTargetCasterUnitId] = "";
+	end
 	-- dispatch target of target event as it means that target of target is changed (unit existence doesn't matter)
 	self:dispatchEvent(self.eventTargetTarget);
 end
@@ -657,6 +669,36 @@ function DHUDDataTrackerHelper:isTankSpecializationActive()
 	end
 	return false;
 end
+
+--- Initialize specs table on demand
+-- @return specs table, example usage: getSpecsTable[SpecName or ID]
+function DHUDDataTrackerHelper:getSpecsTable()
+	if (self.specsTable ~= nil) then
+		return self.specsTable;
+	end
+	local specsTable = {};
+	self.specsTable = specsTable;
+	if (not (MCVanilla == 0 or MCVanilla >= 5)) then
+		return self.specsTable;
+	end
+	local classTag, specID, maleSpecName, femaleSpecName, icon, role;
+	for classID = 1, GetNumClasses() do
+		_, classTag = GetClassInfo(classID);
+		for i = 1, GetNumSpecializationsForClassID(classID) do
+			specID, maleSpecName, _, icon, role = GetSpecializationInfoForClassID(classID, i, 2); -- male version
+			specID, femaleSpecName, _, icon, role = GetSpecializationInfoForClassID(classID, i, 3); -- female version
+			local specInfo = { classTag = classTag, role = role, specID = specID, specName = maleSpecName, femaleSpecName = femaleSpecName, specIcon = icon };
+			specsTable[maleSpecName] = specInfo;
+			specsTable[specID] = specInfo;
+			if (maleSpecName ~= femaleSpecName) then
+				specsTable[femaleSpecName] = specInfo;
+			end
+		end
+	end
+	--print("Specs table " .. MCTableToString(self.specsTable));
+	return specs;
+end
+
 
 -- helper object
 DHUDDataTrackingHelper = DHUDDataTrackerHelper:new();

@@ -12,6 +12,7 @@
 local _;
 -- tracker helper
 local trackingHelper = DHUDDataTrackingHelper;
+local pvpHelper = DHUDPvPTrackingHelper;
 
 --------------------
 -- Trackers table --
@@ -145,6 +146,14 @@ DHUDDataTrackers = {
 		-----------------------------
 		ALL.selfCooldowns = DHUDCooldownsTracker:new();
 		ALL.selfCooldowns:initPlayerOrVehicleUnitId();
+		
+		-------------------------------
+		-- Player Interrupt Cooldown --
+		-------------------------------
+		ALL.selfInterruptCd = DHUDInterruptCdTracker:new();
+		ALL.selfInterruptCd:initPlayerUnitId();
+		ALL.selfInterruptCd:attachCooldownsTracker(ALL.selfCooldowns);
+		ALL.targetCast:attachInterruptCdTracker(ALL.selfInterruptCd);
 
 		----------------------
 		-- Player cast info --
@@ -358,6 +367,7 @@ DHUDDataTrackers = {
 	createTrackers = function(self)
 		-- init tracking helper
 		trackingHelper:init();
+		pvpHelper:init();
 		self.helper = trackingHelper;
 		local charclass = trackingHelper.playerClass;
 		-- init trackers for any class
@@ -373,6 +383,7 @@ DHUDDataTrackers = {
 	init = function(self)
 		local charclass = trackingHelper.playerClass;
 		-- init static class variables
+		DHUDInterruptCdTracker:STATIC_init();
 		DHUDCustomTimerTracker:STATIC_init();
 		-- init trackers
 		for i, v in pairs(self.ALL) do

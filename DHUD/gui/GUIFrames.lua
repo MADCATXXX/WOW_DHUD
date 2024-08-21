@@ -100,6 +100,14 @@ DHUDGUI = {
 		["BlizzardRaidIcon7"] = { "Interface\\TargetingFrame\\UI-RaidTargetingIcons", 0.50, 0.75, 0.25, 0.50 },
 		-- blizzard raid icon with index 8
 		["BlizzardRaidIcon8"] = { "Interface\\TargetingFrame\\UI-RaidTargetingIcons", 0.75, 1, 0.25, 0.50 },
+		-- blizzard spec role icon for GUIDE, LFGROLE / UI-LFG-ICON-PORTRAITROLES / UI-LFG-ICON-ROLES
+		["BlizzardSpecRoleIconGUIDE"] = { "Interface\\LFGFrame\\UI-LFG-ICON-ROLES", 0, 67 / 256, 0, 67 / 256 },
+		-- blizzard spec role icon for TANK
+		["BlizzardSpecRoleIconTANK"] = { "Interface\\LFGFrame\\UI-LFG-ICON-ROLES", 0, 67 / 256, 67 / 256, 134 / 256 },
+		-- blizzard spec role icon for DAMAGER
+		["BlizzardSpecRoleIconDAMAGER"] = { "Interface\\LFGFrame\\UI-LFG-ICON-ROLES", 67 / 256, 134 / 256, 67 / 256, 134 / 256 },
+		-- blizzard spec role icon for HEALER
+		["BlizzardSpecRoleIconHEALER"] = { "Interface\\LFGFrame\\UI-LFG-ICON-ROLES", 67 / 256, 134 / 256, 0, 67 / 256 },
 		-- blizzard resting icon
 		["BlizzardPlayerResting"] = { "Interface\\CharacterFrame\\UI-StateIcon", 0.0625, 0.4475, 0.0625, 0.4375 },
 		-- blizzard inCombat icon
@@ -797,6 +805,10 @@ function DHUDGUI:createDynamicFrameGroup(groupName, createFrameFunction, limit, 
 		end
 		local frame, onCreate = createFrameFunction(DHUDGUI, key);
 		group[key] = frame;
+		-- update num visible frames
+		for i = group.framesShown + 1, key - 1, 1 do
+			group[i]:DShow();
+		end
 		group.framesShown = key;
 		-- check onCreate function
 		if (onCreate ~= nil) then

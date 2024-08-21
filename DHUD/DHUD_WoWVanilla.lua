@@ -25,28 +25,54 @@ end
 ----------------------------------------------
 -- override Cataclysm API
 if (MCVanilla < 5) then -- less than Pandaria
-	function GetSpecialization() -- there was no specialization, talents can be used on any tree
-		return 1;
+	if (GetSpecialization == nil) then
+		GetSpecialization = function() -- there was no specialization, talents can be used on any tree
+			return 1;
+		end
 	end
-	function GetNumSpecializations() -- there was no specialization, talents can be used on any tree
-		return 3;
+	if (GetNumSpecializations == nil) then
+		GetNumSpecializations = function() -- there was no specialization, talents can be used on any tree
+			return 3;
+		end
 	end
-	function GetSpecializationRole(spec) -- there was no specialization, talents can be used on any tree
-		return "TANK";
+	if (GetSpecializationRole == nil) then
+		GetSpecializationRole = function(spec) -- there was no specialization, talents can be used on any tree
+			return "TANK";
+		end
 	end
-	function UnitGetTotalAbsorbs(unit) -- Can be emulated if needed, e.g. check if target has Power Word: Shield
-		return 0;
+	if (GetArenaOpponentSpec == nil) then
+		GetArenaOpponentSpec = function(unit)
+			return nil; -- there was no specialization, talents can be used on any tree
+		end
 	end
-	function UnitGetTotalHealAbsorbs(unit) -- no such thing in classic
-		return 0;
+	if (UnitGetTotalAbsorbs == nil) then
+		UnitGetTotalAbsorbs = function(unit) -- Can be emulated if needed, e.g. check if target has Power Word: Shield
+			return 0;
+		end
 	end
-	function GetNumFlyouts() -- spell book multi items, no such thing in classic
-		return 0;
+	if (UnitGetTotalHealAbsorbs == nil) then
+		UnitGetTotalHealAbsorbs = function(unit) -- no such thing in classic
+			return 0;
+		end
 	end
-	function GetUnitChargedPowerPoints(unit)
-		return nil; -- combo points not charged (should return array with charged combo-points)
+	if (GetUnitTotalModifiedMaxHealthPercent == nil) then
+		GetUnitTotalModifiedMaxHealthPercent = function(unit) -- no such thing in classic
+			return 0;
+		end
 	end
-	SpellActivationOverlayFrame = CreateFrame("Frame"); -- there was no such frame, all calls can be ignored
+	if (GetNumFlyouts == nil) then
+		GetNumFlyouts = function() -- spell book multi items, no such thing in classic
+			return 0;
+		end
+	end
+	if (GetUnitChargedPowerPoints == nil) then
+		GetUnitChargedPowerPoints = function(unit)
+			return nil; -- combo points not charged (should return array with charged combo-points)
+		end
+	end
+	if (SpellActivationOverlayFrame == nil) then
+		SpellActivationOverlayFrame = CreateFrame("Frame"); -- there was no such frame, all calls can be ignored
+	end
 	
 	if (Enum == nil) then
 		Enum = {};
@@ -64,6 +90,7 @@ if (MCVanilla < 5) then -- less than Pandaria
 			spell.castTime = oldSpell[4];
 			spell.minRange = oldSpell[5];
 			spell.maxRange = oldSpell[6];
+			spell.spellID = oldSpell[7];
 			return spell;
 		end
 	end
@@ -93,6 +120,12 @@ if (MCVanilla < 5) then -- less than Pandaria
 			cdInfo.isEnabled = oldInfo[3];
 			cdInfo.modRate = oldInfo[4];
 			return cdInfo;
+		end
+	end
+	if (C_Spell.IsSpellInRange == nil) then
+		C_Spell.IsSpellInRange = function(spellId, unit)
+			local inRange = IsSpellInRange(spellId, unit);
+			return inRange and (inRange == 1);
 		end
 	end
 	
@@ -216,29 +249,44 @@ if (MCVanilla < 5) then -- less than Pandaria
 			return LoadAddOn(name);
 		end
 	end
+	
+	if (C_PvP == nil) then
+		C_PvP = {};
+	end
+	if (C_PvP.GetScoreInfoByPlayerGuid == nil) then
+		C_PvP.GetScoreInfoByPlayerGuid = function(guid)
+			return nil;
+		end
+	end
 end
 
 -- override WOTLK and TBC API
 if (MCVanilla < 4) then -- less than Cata
-	function UnitGetIncomingHeals(unit) -- no incoming heals, I don't think it's possible to check it
-		return 0;
+	if (UnitGetIncomingHeals == nil) then
+		UnitGetIncomingHeals = function(unit) -- no incoming heals, I don't think it's possible to check it
+			return 0;
+		end
 	end
 end
 
 -- override some Vanilla API
 if (MCVanilla < 3) then -- less than WoTLK
 	--UnitHasVehicleUI = function(unit) return false; end -- no vehicles, but function is now included as part of Vanilla
-	UnitCastingInfo = function(unit)
-		if (unit == "player") then
-			return CastingInfo();
+	if (UnitCastingInfo == nil) then
+		UnitCastingInfo = function(unit)
+			if (unit == "player") then
+				return CastingInfo();
+			end
+			return nil; -- not casting
 		end
-		return nil; -- not casting
 	end
-	UnitChannelInfo = function(unit)
-		if (unit == "player") then
-			return ChannelInfo();
+	if (UnitChannelInfo == nil) then
+		UnitChannelInfo = function(unit)
+			if (unit == "player") then
+				return ChannelInfo();
+			end
+			return nil; -- not casting
 		end
-		return nil; -- not casting
 	end
 end
 -------------------------------------------------------------------------------------
@@ -252,6 +300,8 @@ if (MCVanilla < 5) then -- less than Pandaria
 	MCBlizzardEventExcludes["UNIT_SPELLCAST_EMPOWER_START"] = 1;
 	MCBlizzardEventExcludes["UNIT_SPELLCAST_EMPOWER_UPDATE"] = 1;
 	MCBlizzardEventExcludes["UNIT_SPELLCAST_EMPOWER_STOP"] = 1;
+	MCBlizzardEventExcludes["ARENA_PREP_OPPONENT_SPECIALIZATIONS"] = 1;
+	MCBlizzardEventExcludes["UNIT_MAX_HEALTH_MODIFIERS_CHANGED"] = 1;
 end
 if (MCVanilla < 4) then -- less than Cataclysm
 	MCBlizzardEventExcludes["PLAYER_SPECIALIZATION_CHANGED"] = 1;

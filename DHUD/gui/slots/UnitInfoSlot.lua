@@ -26,6 +26,9 @@ function DHUDUnitInfoManager:STATIC_init()
 	self.FUNCTIONS_MAP_INFO["elite"] = self.createTextElite;
 	self.FUNCTIONS_MAP_INFO["name"] = self.createTextName;
 	self.FUNCTIONS_MAP_INFO["class"] = self.createTextClass;
+	self.FUNCTIONS_MAP_INFO["spec"] = self.createTextSpec;
+	self.FUNCTIONS_MAP_INFO["race"] = self.createTextRace;
+	self.FUNCTIONS_MAP_INFO["class_race"] = self.createTextClassRace;
 	self.FUNCTIONS_MAP_INFO["guild"] = self.createTextGuild;
 	self.FUNCTIONS_MAP_INFO["pvp"] = self.createTextPvP;
 	self.FUNCTIONS_MAP_INFO["color"] = DHUDTextTools.createTextColorizeStart;
@@ -102,15 +105,55 @@ end
 -- @param this reference to this bar manager (self is nil)
 -- @return text to be shown in gui
 function DHUDUnitInfoManager:createTextClass(this)
-	local type = this.currentDataTracker.type;
-	if (type == DHUDUnitInfoTracker.UNIT_TYPE_OTHER) then
+	local unitType = this.currentDataTracker.unitType;
+	if (unitType == DHUDUnitInfoTracker.UNIT_TYPE_CREATURE) then
 		return this.currentDataTracker.npcType;
-	elseif (type == DHUDUnitInfoTracker.UNIT_TYPE_PET) then
-		return "Pet";
-	elseif (type == DHUDUnitInfoTracker.UNIT_TYPE_ALLY_NPC) then
-		return "NPC";
-	else
+	elseif (unitType == DHUDUnitInfoTracker.UNIT_TYPE_PLAYER) then
 		return this.currentDataTracker.class;
+	else
+		return this.currentDataTracker.friendUnitTypeString;
+	end
+end
+
+--- Create text that contains unit class
+-- @param this reference to this bar manager (self is nil)
+-- @return text to be shown in gui
+function DHUDUnitInfoManager:createTextSpec(this)
+	local unitType = this.currentDataTracker.unitType;
+	if (unitType == DHUDUnitInfoTracker.UNIT_TYPE_CREATURE) then
+		return this.currentDataTracker.npcType;
+	elseif (unitType == DHUDUnitInfoTracker.UNIT_TYPE_PLAYER) then
+		return this.currentDataTracker.specName;
+	else
+		return this.currentDataTracker.friendUnitTypeString;
+	end
+end
+
+--- Create text that contains unit race
+-- @param this reference to this bar manager (self is nil)
+-- @return text to be shown in gui
+function DHUDUnitInfoManager:createTextRace(this)
+	local unitType = this.currentDataTracker.unitType;
+	if (unitType == DHUDUnitInfoTracker.UNIT_TYPE_PLAYER) then
+		return this.currentDataTracker.race;
+	else
+		return "";
+	end
+end
+
+--- Create text that contains unit class and race
+-- @param this reference to this bar manager (self is nil)
+-- @param delimeter delimeter to use
+-- @return text to be shown in gui
+function DHUDUnitInfoManager:createTextClassRace(this, delimeter)
+	local unitType = this.currentDataTracker.unitType;
+	if (unitType == DHUDUnitInfoTracker.UNIT_TYPE_PLAYER) then
+		delimeter = delimeter or " - ";
+		return this.currentDataTracker.class .. delimeter .. this.currentDataTracker.race;
+	elseif (unitType == DHUDUnitInfoTracker.UNIT_TYPE_CREATURE) then
+		return this.currentDataTracker.npcType;
+	else
+		return this.currentDataTracker.friendUnitTypeString;
 	end
 end
 
@@ -155,9 +198,9 @@ end
 function DHUDUnitInfoManager:createTextColorReaction(this)
 	local relation = this.currentDataTracker.relation;
 	local canAttack = this.currentDataTracker.canAttack;
-	local type = this.currentDataTracker.type;
+	local unitType = this.currentDataTracker.unitType;
 	local reactionId = 0;
-	if (type == DHUDUnitInfoTracker.UNIT_TYPE_PLAYER) then
+	if (unitType == DHUDUnitInfoTracker.UNIT_TYPE_PLAYER) then
 		if (this.currentDataTracker.pvpState ~= DHUDUnitInfoTracker.UNIT_PVP_STATE_OFF) then
 			if (canAttack) then
 				reactionId = DHUDColorizeTools.REACTION_ID_HOSTILE;

@@ -145,7 +145,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			-- allows to show target raid icon
 			["targetRaidIcon"] = { true, 0 },
 			-- allows to show target spec role (players only)
-			["targetSpecRoleIcon"] = { true, 0 },
+			["targetSpecRoleIcon"] = { false, 0 },
 			-- allows to show target spec (players only)
 			["targetSpecIcon"] = { true, 0 },
 		}, 1 },
@@ -197,6 +197,8 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				["healthShield"] = { { "FFFFFF", "FFFFFF", "FFFFFF" }, 3 },
 				-- allows to change color of player health absorbed on bars
 				["healthAbsorb"] = { { "FF0080", "FF0080", "FF0080" }, 3 },
+				-- allows to change color of player temporary reduced health on bars
+				["healthReduce"] = { { "400020", "500028", "600030" }, 3 },
 				-- allows to change color of player health incoming heal on bars
 				["healthHeal"] = { { "0000FF", "0000FF", "0000FF" }, 3 },
 				-- allows to change color of player mana on bars
@@ -232,6 +234,8 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				["healthShield"] = { { "aaaaaa", "aaaaaa", "aaaaaa" }, 3 },
 				-- allows to change color of target health absorbed on bars
 				["healthAbsorb"] = { { "aa0055", "aa0055", "aa0055" }, 3 },
+				-- allows to change color of target temporary reduced health on bars
+				["healthReduce"] = { { "2a0015", "35001a", "400020" }, 3 },
 				-- allows to change color of target health incoming heal on bars
 				["healthHeal"] = { { "0000aa", "0000aa", "0000aa" }, 3 },
 				-- allows to change color of target health on bars when target is not tapped by player
@@ -265,6 +269,8 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 				["healthShield"] = { { "FFFFFF", "FFFFFF", "FFFFFF" }, 3 },
 				-- allows to change color of pet health absorbed on bars
 				["healthAbsorb"] = { { "FF0080", "FF0080", "FF0080" }, 3 },
+				-- allows to change color of pet temporary reduced health on bars
+				["healthReduce"] = { { "400020", "500028", "600030" }, 3 },
 				-- allows to change color of pet health incoming heal on bars
 				["healthHeal"] = { { "0000FF", "0000FF", "0000FF" }, 3 },
 				-- allows to change color of target mana on bars
@@ -405,15 +411,15 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			-- empty text
 			["empty"] = "",
 			-- health amount only
-			["health1"] = "<color_amount><amount></color><color_amount_habsorb><amount_habsorb(\" - \")></color><color_amount_extra><amount_extra(\" + \")></color><color_amount_hincome><amount_hincome(\" + \")></color>",
+			["health1"] = "<color_amount><amount></color><color_amount_habsorb><amount_habsorb(\" - \")></color><color_amount_hreduce><amount_hreduce(\" - \")></color><color_amount_extra><amount_extra(\" + \")></color><color_amount_hincome><amount_hincome(\" + \")></color>",
 			-- health amount with health max amount
-			["health2"] = "<color_amount><amount></color>/<amount_max><color_amount_habsorb><amount_habsorb(\" - \")></color><color_amount_extra><amount_extra(\" + \")></color><color_amount_hincome><amount_hincome(\" + \")></color>",
+			["health2"] = "<color_amount><amount></color>/<amount_max><color_amount_habsorb><amount_habsorb(\" - \")></color><color_amount_hreduce><amount_hreduce(\" - \")></color><color_amount_extra><amount_extra(\" + \")></color><color_amount_hincome><amount_hincome(\" + \")></color>",
 			-- health percent only
-			["health3"] = "<color_amount><amount_percent>%</color><color_amount_habsorb><amount_habsorb(\" - \")></color><color_amount_extra><amount_extra(\" + \")></color><color_amount_hincome><amount_hincome(\" + \")></color>",
+			["health3"] = "<color_amount><amount_percent>%</color><color_amount_habsorb><amount_habsorb(\" - \")></color><color_amount_hreduce><amount_hreduce(\" - \")></color><color_amount_extra><amount_extra(\" + \")></color><color_amount_hincome><amount_hincome(\" + \")></color>",
 			-- health amount with health percent
-			["health4"] = "<color_amount><amount></color> <color(\"999999\")>(</color><amount_percent>%<color(\"999999\")>)</color><color_amount_habsorb><amount_habsorb(\" - \")></color><color_amount_extra><amount_extra(\" + \")></color><color_amount_hincome><amount_hincome(\" + \")></color>";
+			["health4"] = "<color_amount><amount></color> <color(\"999999\")>(</color><amount_percent>%<color(\"999999\")>)</color><color_amount_habsorb><amount_habsorb(\" - \")></color><color_amount_hreduce><amount_hreduce(\" - \")></color><color_amount_extra><amount_extra(\" + \")></color><color_amount_hincome><amount_hincome(\" + \")></color>";
 			-- health amount with health max amount and percent
-			["health5"] = "<color_amount><amount>/<amount_max></color> <color(\"999999\")>(</color><amount_percent>%<color(\"999999\")>)</color><color_amount_habsorb><amount_habsorb(\" - \")></color><color_amount_extra><amount_extra(\" + \")></color><color_amount_hincome><amount_hincome(\" + \")></color>",
+			["health5"] = "<color_amount><amount>/<amount_max></color> <color(\"999999\")>(</color><amount_percent>%<color(\"999999\")>)</color><color_amount_habsorb><amount_habsorb(\" - \")></color><color_amount_hreduce><amount_hreduce(\" - \")></color><color_amount_extra><amount_extra(\" + \")></color><color_amount_hincome><amount_hincome(\" + \")></color>",
 			-- power amount only
 			["power1"] = "<color_amount><amount></color>",
 			-- power amount with power max amount
@@ -427,11 +433,11 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			-- power amount only with precision to 1 digit
 			["power6"] = "<color_amount><amount(nil, 1)></color>",
 			-- maximum user info
-			["unitInfo1"] = "<color_level><level><elite></color> <color_reaction><name></color> [<color_class><class></color>] <guild(\"<\",\">\")> <pvp>",
+			["unitInfo1"] = "<color_level><level><elite></color> <color_reaction><name></color> [<color_class><spec></color>] <guild(\"<\",\">\")> <pvp>",
 			-- medium user info
-			["unitInfo2"] = "<color_level><level><elite></color> <color_reaction><name></color> [<color_class><class></color>] <pvp>",
+			["unitInfo2"] = "<color_level><level><elite></color> <color_reaction><name></color> [<color_class><spec></color>]",
 			-- minimum user info
-			["unitInfo3"] = "<color_level><level><elite></color> <color_reaction><name></color> <pvp>",
+			["unitInfo3"] = "<color_level><level><elite></color> <color_reaction><name></color>",
 			-- cast time text
 			["castTime1"] = "<color(\"ffff00\")><time></color>",
 			-- cast time remaining time
@@ -439,7 +445,7 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			-- cast delay text
 			["castDelay1"] = "<color(\"ff0000\")><delay(\"+ \", \"- \")></color>",
 			-- cast spell name text
-			["castSpellName1"] = "<color(\"ffffff\")><spellname(\"|cff\" .. \"0099CC\" .. \"Canceled\" .. \"|\" .. \"r\", \"|cff\" .. \"FF3399\" .. \"Interrupted\", \"|cff\" .. \"66FF00\" .. \"Interrupted by Me\" .. \"|\" .. \"r\", \" by \", \"|\" .. \"r\")></color>",
+			["castSpellName1"] = "<color(\"ffffff\")><spellname(\"|cff\" .. \"0099CC\" .. \"Canceled\" .. \"|\" .. \"r\", \"|cff\" .. \"FF3399\" .. \"Interrupted\", \"|cff\" .. \"66FF00\" .. \"Interrupted by Me\" .. \"|\" .. \"r\", \" by \", \"|\" .. \"r\", \"C0C0C0\")></color>",
 		}, 2 },
 		-- allows to change bar textures
 		["textures"] = { {
@@ -554,6 +560,8 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			["showShields"] =  { 2, 0, { range = { 0, 2, 1 } } },
 			-- allows to show how much of the health will be absorbed by heal
 			["showHealAbsorb"] = { true, 0 },
+			-- allows to show how much of the health is reduced temporary
+			["showHealthReduce"] = { true, 0 },
 			-- allows to show incoming heal
 			["showHealIncoming"] = { true, 0 },
 		}, 1 },

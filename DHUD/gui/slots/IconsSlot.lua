@@ -160,7 +160,7 @@ function DHUDIconsManager:onTargetDataChanged(e)
 		if (pvp == DHUDUnitInfoTracker.UNIT_PVP_STATE_FFA) then
 			textureName = "BlizzardPvPArena";
 		else
-			local pvpFaction = self.targetInfoTracker.pvpFaction
+			local pvpFaction = self.targetInfoTracker.pvpFaction;
 			if (pvpFaction == DHUDUnitInfoTracker.UNIT_PVP_FACTION_ALLIANCE) then
 				textureName = "BlizzardPvPAlliance";
 			elseif (pvpFaction == DHUDUnitInfoTracker.UNIT_PVP_FACTION_HORDE) then
@@ -175,6 +175,25 @@ function DHUDIconsManager:onTargetDataChanged(e)
 		texture:SetTexture(path);
 		texture:SetTexCoord(x0, x1, y0, y1);
 	end
+	local role = self.targetInfoTracker.specRole;
+	if (role ~= "" and self.STATIC_targetSpecRoleIcon) then
+		numIcons = numIcons + 1;
+		textureName = "BlizzardSpecRoleIcon" .. role;
+		--print("role " .. role .. " coordinates " .. MCTableToString(GetTexCoordsForRoleSmallCircle(role)));
+		local path, x0, x1, y0, y1 = unpack(DHUDGUI.textures[textureName]);
+		local texture = self.targetStateGroup[numIcons].texture;
+		-- set texture and coordinates
+		texture:SetTexture(path);
+		texture:SetTexCoord(x0, x1, y0, y1);
+	end
+	local specIcon = self.targetInfoTracker.specTexture;
+	if (specIcon ~= "" and self.STATIC_targetSpecIcon) then
+		numIcons = numIcons + 1;
+		local texture = self.targetStateGroup[numIcons].texture;
+		-- set texture and coordinates
+		texture:SetTexture(specIcon);
+		texture:SetTexCoord(0, 1, 0, 1);
+	end
 	local raidIcon = self.targetInfoTracker.raidIcon;
 	if (raidIcon ~= 0 and self.STATIC_targetRaidIcon) then
 		numIcons = numIcons + 1;
@@ -186,6 +205,7 @@ function DHUDIconsManager:onTargetDataChanged(e)
 		texture:SetTexCoord(x0, x1, y0, y1);
 	end
 	-- show and reposition icons
+	--print(self.targetInfoTracker.name .. " numIcons " .. MCTableToString(numIcons));
 	self.targetStateGroup:setFramesShown(numIcons);
 	self.targetStateGroup.reposition(DHUDGUI);
 end
@@ -193,6 +213,7 @@ end
 --- target data no longer exists or started to exists
 function DHUDIconsManager:onTargetDataExistanceChanged(e)
 	local exists = self.targetInfoTracker.isExists;
+	--print("exists " .. MCTableToString(exists));
 	-- hide frames if no data is available
 	if (not exists) then
 		self.targetDragonFrame:DHide();
