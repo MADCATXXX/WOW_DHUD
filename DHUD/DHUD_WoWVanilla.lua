@@ -70,6 +70,48 @@ if (MCVanilla < 5) then -- less than Pandaria
 			return nil; -- combo points not charged (should return array with charged combo-points)
 		end
 	end
+	if (TargetFrame_OpenMenu == nil) then
+		TargetFrame_OpenMenu = function(frame)
+			local menu, raidId;
+			-- check if enemy
+			if (UnitIsEnemy("target", "player")) then
+				menu = "TARGET";
+			else
+				-- check if self
+				if (UnitIsUnit("target", "player")) then
+					menu = "SELF";
+				-- check if vehicle
+				elseif (UnitIsUnit("target", "vehicle")) then
+					menu = "VEHICLE";
+				-- check if pet
+				elseif (UnitIsUnit("target", "pet")) then
+					menu = "PET";
+				-- check if player
+				elseif (UnitIsPlayer("target")) then
+					-- check if raid player
+					raidId = UnitInRaid("target");
+					if (raidId) then
+						menu = "RAID_PLAYER";
+					-- check if party player
+					elseif (UnitInParty("target")) then
+						menu = "PARTY";
+					-- unit is player
+					else
+						menu = "PLAYER";
+					end
+				else
+					-- unit is other target
+					menu = "TARGET";
+				end
+			end
+			UnitPopup_ShowMenu(frame, menu, "target", nil, raidId);
+		end
+	end
+	if (UnitPopup_OpenMenu == nil) then
+		UnitPopup_OpenMenu = function(which, contextData)
+			UnitPopup_ShowMenu(contextData.frame, which, contextData.unit);
+		end
+	end
 	if (SpellActivationOverlayFrame == nil) then
 		SpellActivationOverlayFrame = CreateFrame("Frame"); -- there was no such frame, all calls can be ignored
 	end

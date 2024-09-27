@@ -100,6 +100,22 @@ DHUDGUI = {
 		["BlizzardRaidIcon7"] = { "Interface\\TargetingFrame\\UI-RaidTargetingIcons", 0.50, 0.75, 0.25, 0.50 },
 		-- blizzard raid icon with index 8
 		["BlizzardRaidIcon8"] = { "Interface\\TargetingFrame\\UI-RaidTargetingIcons", 0.75, 1, 0.25, 0.50 },
+		-- blizzard raid icon with index 9 (utility icons)
+		["BlizzardRaidIcon9"] = { "Interface\\TargetingFrame\\UI-RaidTargetingIcons", 0, 0.25, 0.50, 0.75 },
+		-- blizzard raid icon with index 10 (utility icons)
+		["BlizzardRaidIcon10"] = { "Interface\\TargetingFrame\\UI-RaidTargetingIcons", 0.25, 0.50, 0.50, 0.75 },
+		-- blizzard raid icon with index 11 (utility icons)
+		["BlizzardRaidIcon11"] = { "Interface\\TargetingFrame\\UI-RaidTargetingIcons", 0.50, 0.75, 0.50, 0.75 },
+		-- blizzard raid icon with index 12 (utility icons)
+		["BlizzardRaidIcon12"] = { "Interface\\TargetingFrame\\UI-RaidTargetingIcons", 0.75, 1, 0.50, 0.75 },
+		-- blizzard raid icon with index 13 (utility icons)
+		["BlizzardRaidIcon13"] = { "Interface\\TargetingFrame\\UI-RaidTargetingIcons", 0, 0.25, 0.75, 1 },
+		-- blizzard raid icon with index 14 (utility icons)
+		["BlizzardRaidIcon14"] = { "Interface\\TargetingFrame\\UI-RaidTargetingIcons", 0.25, 0.50, 0.75, 1 },
+		-- blizzard raid icon with index 15 (utility icons)
+		["BlizzardRaidIcon15"] = { "Interface\\TargetingFrame\\UI-RaidTargetingIcons", 0.50, 0.75, 0.75, 1 },
+		-- blizzard raid icon with index 16 (utility icons)
+		["BlizzardRaidIcon16"] = { "Interface\\TargetingFrame\\UI-RaidTargetingIcons", 0.75, 1, 0.75, 1 },
 		-- blizzard spec role icon for GUIDE, LFGROLE / UI-LFG-ICON-PORTRAITROLES / UI-LFG-ICON-ROLES
 		["BlizzardSpecRoleIconGUIDE"] = { "Interface\\LFGFrame\\UI-LFG-ICON-ROLES", 0, 67 / 256, 0, 67 / 256 },
 		-- blizzard spec role icon for TANK
@@ -703,45 +719,15 @@ end
 --- Initialize player dropdown list (do not use it manually, as it's not part of this class!)
 -- @param frame reference to dropdown frame
 function DHUDGUI.initDropDownMenuPlayer(frame)
-	UnitPopup_ShowMenu(frame, "SELF", "player");
+	local which = "SELF";
+	local contextData = { unit = "player", frame = frame };
+	UnitPopup_OpenMenu(which, contextData);
 end
 
 --- Initialize target dropdown list (do not use it manually, as it's not part of this class!)
 -- @param frame reference to dropdown frame
 function DHUDGUI.initDropDownMenuTarget(frame)
-	local menu, raidId;
-	-- check if enemy
-	if (UnitIsEnemy("target", "player")) then
-		menu = "TARGET";
-	else
-		-- check if self
-		if (UnitIsUnit("target", "player")) then
-			menu = "SELF";
-		-- check if vehicle
-		elseif (UnitIsUnit("target", "vehicle")) then
-			menu = "VEHICLE";
-		-- check if pet
-		elseif (UnitIsUnit("target", "pet")) then
-			menu = "PET";
-		-- check if player
-		elseif (UnitIsPlayer("target")) then
-			-- check if raid player
-			raidId = UnitInRaid("target");
-			if (raidId) then
-				menu = "RAID_PLAYER";
-			-- check if party player
-			elseif (UnitInParty("target")) then
-				menu = "PARTY";
-			-- unit is player
-			else
-				menu = "PLAYER";
-			end
-		else
-			-- unit is other target
-			menu = "TARGET";
-		end
-	end
-	UnitPopup_ShowMenu(frame, menu, "target", nil, raidId);
+	TargetFrame_OpenMenu(frame);
 end
 
 --- Set text to text field, updating text field width and it's frame (do not use it manually, as it's not part of this class!)

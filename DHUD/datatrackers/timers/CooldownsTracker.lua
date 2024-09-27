@@ -107,8 +107,12 @@ function DHUDCooldownsTracker:init()
 		tracker:updateActionBarCooldowns();
 		tracker:updatePetCooldowns();
 	end
-	-- process units cooldown end event, fires every gcd or even every update? 
-	function self.eventsFrame:SPELL_UPDATE_USABLE(unitId)
+	-- process player can cast new spell under some condition, check Blizzard ActionButton.lua and SpellActivationOverlay.lua
+	function self.eventsFrame:SPELL_ACTIVATION_OVERLAY_SHOW(spellId)
+		
+	end
+	-- process player can no longer cast spell under some condition
+	function self.eventsFrame:SPELL_ACTIVATION_OVERLAY_HIDE(spellId)
 		
 	end
 	-- process spell cast succeed event, fires when spell was cast
@@ -632,7 +636,9 @@ function DHUDCooldownsTracker:startTracking()
 	self.eventsFrame:RegisterEvent("UPDATE_INVENTORY_ALERTS");
 	self.eventsFrame:RegisterEvent("UNIT_INVENTORY_CHANGED");
 	self.eventsFrame:RegisterEvent("SPELL_ACTIVATION_OVERLAY_GLOW_SHOW");
-	self.eventsFrame:RegisterEvent("SPELL_ACTIVATION_OVERLAY_GLOW_HIDE");]]--
+	self.eventsFrame:RegisterEvent("SPELL_ACTIVATION_OVERLAY_GLOW_HIDE");
+	self.eventsFrame:RegisterEvent("SPELL_ACTIVATION_OVERLAY_SHOW");
+	self.eventsFrame:RegisterEvent("SPELL_ACTIVATION_OVERLAY_HIDE");]]--
 	-- call super
 	DHUDTimersTracker.startTracking(self);
 end

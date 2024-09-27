@@ -39,6 +39,8 @@ DHUDSettings = MCCreateSubClass(MADCATEventDispatcher, {
 			["targetFrame"] = { true, 0 },
 			-- allows to show or hide blizzard casting frame
 			["castingFrame"] = { false, 0 },
+			-- allows to show or hide blizzard casting frame, -1 do not touch, 0 = hide, 1 = show
+			["selfNameplateFrame"] = { 0, 0, { range = { -1, 1, 1 } } },
 			-- allows to change alpha of SpellActivationOverlayFrame
 			["spellActivationFrameAlpha"] = { 0.5, 0, { range = { 0, 1, 0.1 } } },
 			-- allows to change alpha of SpellActivationOverlayFrame

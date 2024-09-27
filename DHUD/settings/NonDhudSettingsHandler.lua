@@ -30,6 +30,8 @@ DHUDNonAddonSettingsHandler = {
 	SETTING_NAME_BLIZZARD_TARGET = "blizzardFrames_targetFrame",
 	-- name of the setting that changes visibility of the castbar frame
 	SETTING_NAME_BLIZZARD_CASTBAR = "blizzardFrames_castingFrame",
+	-- name of the setting that changes visibility of the self nameplate frame
+	SETTING_NAME_BLIZZARD_SELFNAMEPLATE = "blizzardFrames_selfNameplateFrame",
 	-- name of the setting that changes alpha of SpellActivationOverlayFrame
 	SETTING_NAME_BLIZZARD_SPELL_ACTIVATION_ALPHA = "blizzardFrames_spellActivationFrameAlpha",
 	-- name of the setting that changes scale of SpellActivationOverlayFrame
@@ -95,6 +97,11 @@ function DHUDNonAddonSettingsHandler:onBlizzardCastbarFrameChange(e)
 end
 
 -- value of the setting has changed
+function DHUDNonAddonSettingsHandler:onBlizzardSelfNameplateFrameChange(e)
+	self:updateBlizzardSelfNameplateFrameVisibility();
+end
+
+-- value of the setting has changed
 function DHUDNonAddonSettingsHandler:onBlizzardSpellActivationFrameAlphaChange(e)
 	self.blizzardPowerAurasAlpha = DHUDSettings:getValue(self.SETTING_NAME_BLIZZARD_SPELL_ACTIVATION_ALPHA);
 	-- update frame
@@ -150,6 +157,7 @@ function DHUDNonAddonSettingsHandler:init()
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. self.SETTING_NAME_BLIZZARD_PLAYER, self, self.onBlizzardPlayerFrameChange);
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. self.SETTING_NAME_BLIZZARD_TARGET, self, self.onBlizzardTargetFrameChange);
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. self.SETTING_NAME_BLIZZARD_CASTBAR, self, self.onBlizzardCastbarFrameChange);
+	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. self.SETTING_NAME_BLIZZARD_SELFNAMEPLATE, self, self.onBlizzardSelfNameplateFrameChange);
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. self.SETTING_NAME_BLIZZARD_SPELL_ACTIVATION_ALPHA, self, self.onBlizzardSpellActivationFrameAlphaChange);
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. self.SETTING_NAME_BLIZZARD_SPELL_ACTIVATION_SCALE, self, self.onBlizzardSpellActivationFrameScaleChange);
 	DHUDSettings:addEventListener(DHUDSettingsEvent.EVENT_SPECIFIC_SETTING_CHANGED_PREFIX .. self.SETTING_NAME_SERVICE_UI_ERROR_FILTER, self, self.onServiceUIErrorLevelChange);
@@ -173,6 +181,7 @@ function DHUDNonAddonSettingsHandler:init()
 	if (not castbarFrameVisible) then
 		self:hideBlizzardCastingFrame();
 	end
+	self:updateBlizzardSelfNameplateFrameVisibility();
 	-- process service settings if required
 	if (uiErrorsLevel ~= 0) then
 		self:changeServiceUIErrorFiltering(uiErrorsLevel);
@@ -326,7 +335,23 @@ function DHUDNonAddonSettingsHandler:hideBlizzardTargetFrame()
 	ComboFrame:Hide();
 end
 
---- Function to show blizzard target frame
+--- Function to update power auras frame alpha and scale
+function DHUDNonAddonSettingsHandler:updateBlizzardSelfNameplateFrameVisibility()
+	local val = DHUDSettings:getValue(self.SETTING_NAME_BLIZZARD_SELFNAMEPLATE);
+	if (val == -1) then return; end
+	local exValue = GetCVar("nameplateShowSelf");
+	if (exValue == val) then return; end
+	
+	trackingHelper:removeEventListener(DHUDDataTrackerHelperEvent.EVENT_COMBAT_STATE_CHANGED, self, self.updateBlizzardSelfNameplateFrameVisibility);
+	if (trackingHelper.isInCombat) then
+		trackingHelper:addEventListener(DHUDDataTrackerHelperEvent.EVENT_COMBAT_STATE_CHANGED, self, self.updateBlizzardSelfNameplateFrameVisibility);
+		DHUDMain:print("Can't change self nameplate frame visibility in combat, setting will be updated after combat ends, or use /reload to apply now");
+		return;
+	end
+	SetCVar("nameplateShowSelf", val);
+end
+
+--- Function to update power auras frame alpha and scale
 function DHUDNonAddonSettingsHandler:updateBlizzardPowerAurasFrame()
 	-- change alpha and scale of blizzard power auras
 	SpellActivationOverlayFrame:SetAlpha(self.blizzardPowerAurasAlpha);

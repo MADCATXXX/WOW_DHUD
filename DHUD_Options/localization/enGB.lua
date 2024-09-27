@@ -55,6 +55,9 @@ L["SETTING_BLIZZARD_TARGET_TOOLTIP"] = "Show Blizzard Target Frame";
 L["SETTING_BLIZZARD_CASTBAR"] = "Show Castingbar";
 L["SETTING_BLIZZARD_CASTBAR_TOOLTIP"] = "Show Blizzard Castingbar";
 
+L["SETTING_BLIZZARD_SELFNAMEPLATE"] = "Show Self Nameplate";
+L["SETTING_BLIZZARD_SELFNAMEPLATE_TOOLTIP"] = "Show Blizzard Self Resource Nameplate, -1 = let other addons manage setting, 0 = disable, 1 = enable";
+
 L["SETTING_BLIZZARD_SPELLACTIVATION_ALPHA"] = "SpellActivation Alpha";
 L["SETTING_BLIZZARD_SPELLACTIVATION_ALPHA_TOOLTIP"] = "Change Alpha of Blizzard Spell Activation Frame";
 
@@ -63,6 +66,7 @@ L["SETTING_BLIZZARD_SPELLACTIVATION_SCALE_TOOLTIP"] = "Change Scale of Blizzard 
 
 -- general scale
 L["HEADER_SCALE"] = "Scale:";
+L["HEADER_SCALE_ALPHA"] = "Scale & Alpha:";
 
 L["SETTING_SCALE_MAIN"] = "HUD";
 L["SETTING_SCALE_MAIN_TOOLTIP"] = "Scale the HUD";

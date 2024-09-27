@@ -57,6 +57,9 @@ L["SETTING_BLIZZARD_TARGET_TOOLTIP"] = "Показать стандартную 
 L["SETTING_BLIZZARD_CASTBAR"] = "Показ. панель закл.";
 L["SETTING_BLIZZARD_CASTBAR_TOOLTIP"] = "Показать стандартную панель произнесения заклинаний";
 
+L["SETTING_BLIZZARD_SELFNAMEPLATE"] = "Показ. панель ресурсов";
+L["SETTING_BLIZZARD_SELFNAMEPLATE_TOOLTIP"] = "Показать стандартную панель ресурсов, -1 = предоставить контроль другим аддонам, 0 = выключить, 1 = включить";
+
 L["SETTING_BLIZZARD_SPELLACTIVATION_ALPHA"] = "Непрозр. актив. закл.";
 L["SETTING_BLIZZARD_SPELLACTIVATION_ALPHA_TOOLTIP"] = "Изменить непрозрачность стандартной панели активации заклинаний";
 
@@ -65,6 +68,7 @@ L["SETTING_BLIZZARD_SPELLACTIVATION_SCALE_TOOLTIP"] = "Изменить масш
 
 -- general scale
 L["HEADER_SCALE"] = "Масштаб:";
+L["HEADER_SCALE_ALPHA"] = "Масштаб и непрозрач:";
 
 L["SETTING_SCALE_MAIN"] = "Панель целиком";
 L["SETTING_SCALE_MAIN_TOOLTIP"] = "Изменить масштаб панели целиком";
