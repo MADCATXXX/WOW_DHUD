@@ -89,10 +89,6 @@ function DHUDAPI:auctionBuyCommodity(itemsInfo, config)
 		DHUDMain:print("This macro call requires arguments to be passed, see code for example");
 		return;
 	end
-	if (not AuctionHouseFrame:IsVisible()) then
-		DHUDMain:print("Macro requires auction house to be opened");
-		return false;
-	end
 	if (type(itemsInfo[1]) ~= "table") then -- allow to pass only 1 item
 		itemsInfo = { itemsInfo };
 	end
@@ -106,6 +102,15 @@ function DHUDAPI:auctionBuyCommodity(itemsInfo, config)
 	-- Provide default config if needed
 	if (config == nil) then
 		config = {};
+	end
+	-- close any automatic popups if any
+	self:auctionRemoveSplashPopups();
+	-- check auction house visible
+	if (AuctionHouseFrame == nil or not AuctionHouseFrame:IsVisible()) then
+		if (not self:auctionOpenAllMail(config)) then
+			DHUDMain:print("Macro requires auction house to be opened");
+		end
+		return;
 	end
 	-- recalculate session time, it will be used by some of the throttle checks along with C_AuctionHouse.IsThrottledMessageSystemReady()
 	if (DHUDAPI.aucCommoditySessionStartMs == nil or (trackingHelper.timerMs - DHUDAPI.aucCommoditySessionMs) > 60) then
@@ -158,8 +163,8 @@ function DHUDAPI:auctionBuyCommodity(itemsInfo, config)
 		return;
 	end
 	DHUDAPI:auctionCheckCommodityUnderPriceAndStartPurchase(desiredItemID, maxPrice, maxTotalPrice, config);
-	if (config.baitSell) then
-		DHUDAPI:auctionCommodityBaitSellCheck(desiredItemID, maxPrice, config);
+	if (config.autoSell or config.baitSell) then
+		DHUDAPI:auctionCommodityAutoAndBaitSellCheck(desiredItemID, maxPrice, config);
 	end
 end
 function DHUDAPI:auctionCheckCommodityUnderPriceAndStartPurchase(desiredItemID, maxPrice, maxTotalPrice, config)
@@ -168,23 +173,50 @@ function DHUDAPI:auctionCheckCommodityUnderPriceAndStartPurchase(desiredItemID, 
 	local numResults = C_AuctionHouse.GetNumCommoditySearchResults(desiredItemID)
 	if (numResults > 3) then
 		-- recalculate maxPrice if it's not provided
-		if (maxPrice == -1) then
-			if (numResults > 10) then
-				numResults = 10;
+		if (maxPrice < 0) then
+			local maxPriceLimit = -maxPrice;
+			local resultsToConsider = config.autoPriceResults or 10;
+			if (numResults > resultsToConsider) then
+				numResults = resultsToConsider;
 			end
-			local totalQuantity = 0;
-			for i = 1, numResults do
-				totalQuantity = totalQuantity + C_AuctionHouse.GetCommoditySearchResultInfo(desiredItemID, i).quantity;
+			local excessSellPrice = config.autoSell and DHUDAPI:auctionCommodityCalculateAutoPrice(desiredItemID, numResults,
+				config.requiredPercent or 0.15, config.requiredCount or 1000);
+			local skipQuantity = 0;
+			local nonSkipQuantity = 0;
+			local i = 1
+			while i <= numResults do
+				local info = C_AuctionHouse.GetCommoditySearchResultInfo(desiredItemID, i);
+				if (info.numOwnerItems > 0 and i <= 3) then
+					numResults = numResults + 1;
+					skipQuantity = skipQuantity + info.quantity;
+				else
+					nonSkipQuantity = nonSkipQuantity + info.quantity;
+				end
+				i = i + 1;
 			end
-			local medianQuantityPosition = totalQuantity / 2;
+			local medianQuantityPosition = skipQuantity + nonSkipQuantity / 2;
 			local accumulatedQuantity = 0;
 			for i = 1, numResults do
 				local info = C_AuctionHouse.GetCommoditySearchResultInfo(desiredItemID, i);
 				accumulatedQuantity = accumulatedQuantity + info.quantity;
 				if (accumulatedQuantity >= medianQuantityPosition) then
-					maxPrice = math.floor(info.unitPrice * 66 / 100);
-					DHUDAPI.aucCommodityAutoMaxPriceValue = maxPrice;
+					maxPrice = math.floor(info.unitPrice * 68 / 100);
+					local limitEnabled = maxPriceLimit ~= 1;
+					if (limitEnabled and maxPrice > maxPriceLimit) then
+						maxPrice = maxPriceLimit;
+					end
+					-- save a bit lower value for bait sell, so that in case price goes down we still buy it
+					DHUDAPI.aucCommodityAutoMaxBuyPriceValue = maxPrice;
+					DHUDAPI.aucCommodityAutoMaxSellPriceValue = math.floor((maxPrice * 100 / 68) * 64 / 100);
+					DHUDAPI.aucCommodityAutoExcessSellPriceValue = excessSellPrice;
 					DHUDAPI.aucCommodityAutoMaxPriceId = desiredItemID;
+					if (trackingHelper.timerMs - (DHUDAPI.aucCommodityLastFoundMs or 0) > 15 and trackingHelper.timerMs - (DHUDAPI.aucCommodityAutoMaxPricePrintMs or 0) > 15) then
+						DHUDAPI.aucCommodityAutoMaxPricePrintMs = trackingHelper.timerMs;
+						DHUDMain:print("Max price to buy item calculated as " .. DHUDAPI:moneyToPriceString(maxPrice) ..
+							", max price limit is " .. ((limitEnabled and "enabled at " .. DHUDAPI:moneyToPriceString(maxPriceLimit)) or "disabled, money loss can occur") ..
+							", bait sell price " .. DHUDAPI:moneyToPriceString(DHUDAPI.aucCommodityAutoMaxSellPriceValue) ..
+							", excess sell price " .. DHUDAPI:moneyToPriceString(excessSellPrice));
+					end
 					break
 				end
 			end
@@ -223,7 +255,7 @@ function DHUDAPI:auctionCheckCommodityUnderPriceAndStartPurchase(desiredItemID, 
 			break;
 		end
 	end
-	if (itemCountToBuy > 0) then
+	if (itemCountToBuy > 0 or requiredItemThreshold == 0) then
 		DHUDAPI.aucCommodityLastFoundMs = trackingHelper.timerMs;
 	end
 	if (itemCountToBuy > requiredItemThreshold) then
@@ -303,8 +335,8 @@ function DHUDAPI:auctionCheckCommodityInProgress(desiredItemID, maxPrice, maxTot
 			if (debugMode) then DHUDMain:print("Waiting for transaction end, close manually if stuck"); end
 			return true;
 		end
-		if (maxPrice == -1 and DHUDAPI.aucCommodityAutoMaxPriceId == desiredItemID) then
-			maxPrice = DHUDAPI.aucCommodityAutoMaxPriceValue; -- load last calculated value if not provided
+		if (maxPrice < 0 and DHUDAPI.aucCommodityAutoMaxPriceId == desiredItemID) then
+			maxPrice = DHUDAPI.aucCommodityAutoMaxBuyPriceValue; -- load last calculated value if not provided
 		end
 		-- check final price, it can increase
 		local quantity = startedPurchase[2];
@@ -389,13 +421,12 @@ function DHUDAPI:auctionCheckBrowseListForCommodity(itemsInfo, config)
 	end
 	return false;
 end
-function DHUDAPI:auctionCommodityBaitSellCheck(desiredItemID, maxPrice, config)
+function DHUDAPI:auctionCommodityAutoAndBaitSellCheck(desiredItemID, maxPrice, config)
 	local debugMode = config.debugMode;
-	local foundTimeMs = DHUDAPI.aucCommodityLastFoundMs;
+	local baitSell = config.baitSell;
+	local autoSell = config.autoSell;
+	local foundTimeMs = DHUDAPI.aucCommodityLastFoundMs or DHUDAPI.aucCommoditySessionStartMs;
 	local sellTimeMs = DHUDAPI.aucCommodityLastSellMs or 0;
-	if (foundTimeMs == nil) then
-		foundTimeMs = DHUDAPI.aucCommoditySessionStartMs;
-	end
 	local baitInterval = config.baitInterval or 15;
 	-- this operation assumes some loss, don't want to do it often
 	--print("found time pass " .. (trackingHelper.timerMs - foundTimeMs) .. ", sell " .. (trackingHelper.timerMs - sellTimeMs));
@@ -408,14 +439,23 @@ function DHUDAPI:auctionCommodityBaitSellCheck(desiredItemID, maxPrice, config)
 	end
 	-- search for item in inventory, can't do anything if it doesn't exist
 	local itemBag, itemSlot;
+	local itemStack = -1;
+	local totalStack = 0;
 	for bag = 0, 5 do
 		local numSlots = C_Container.GetContainerNumSlots(bag);
 		for slot = 1, numSlots do
 			local itemInfo = C_Container.GetContainerItemInfo(bag, slot);
 			if (itemInfo ~= nil and itemInfo.itemID == desiredItemID) then
-				itemBag = bag;
-				itemSlot = slot;
-				break;
+				local stackCount = itemInfo.stackCount or 0;
+				totalStack = totalStack + stackCount;
+				if (stackCount > itemStack) then
+					itemBag = bag;
+					itemSlot = slot;
+					itemStack = stackCount;
+				end
+				if (not autoSell or (totalStack - itemStack) > (config.autoSellMinStack or 5000)) then
+					break;
+				end
 			end
 		end
 	end
@@ -423,40 +463,214 @@ function DHUDAPI:auctionCommodityBaitSellCheck(desiredItemID, maxPrice, config)
 		DHUDMain:print("Item not found in inventory: " .. desiredItemID);
 		return;
 	end
-	if (maxPrice == -1 and DHUDAPI.aucCommodityAutoMaxPriceId == desiredItemID) then
-		maxPrice = DHUDAPI.aucCommodityAutoMaxPriceValue; -- load last calculated value if not provided
+	local quantity = 1;
+	if (autoSell and trackingHelper.timerMs - (DHUDAPI.aucCommodityLastExcessSellMs or 0) > (config.excessInterval or 3600) and (totalStack - itemStack) > (config.autoSellMinStack or 5000)
+		and (DHUDAPI.aucCommodityLastExcessSellCount or 0) < (config.excessSellMaxCount or 5000) and DHUDAPI.aucCommodityAutoMaxPriceId == desiredItemID) then
+		quantity = itemStack;
+		maxPrice = DHUDAPI.aucCommodityAutoExcessSellPriceValue; -- load last calculated value
+		DHUDAPI.aucCommodityLastExcessSellCount = (DHUDAPI.aucCommodityLastExcessSellCount or 0) + quantity;
+		DHUDAPI.aucCommodityLastExcessSellMs = trackingHelper.timerMs;
+	elseif (not baitSell) then
+		return; -- bait sell is disabled and autosell check failed
+	elseif (maxPrice < 0 and DHUDAPI.aucCommodityAutoMaxPriceId == desiredItemID) then
+		maxPrice = DHUDAPI.aucCommodityAutoMaxSellPriceValue; -- load last calculated value if not provided
 	end
 	maxPrice = math.floor(maxPrice / 100) * 100; -- copper not supported
 	local itemLocation = ItemLocation:CreateFromBagAndSlot(itemBag, itemSlot);
 	-- Create frame if not yet created
 	if (not MCAucSecurePostCommodityButton) then
-		--[[CreateFrame("Frame", "MCAucSecurePostCommodityFrame", AuctionHouseFrame, "AuctionHouseCommoditiesSellFrameTemplate");--MCAucSecurePostCommodityFrame.PostButton
-		MCAucSecurePostCommodityFrame.GetQuantity = function() return 1; end;
-		MCAucSecurePostCommodityFrame.GetDuration = function() return 1; end;
-		MCAucSecurePostCommodityFrame.CanPostItem = function() return true; end;
-		MCAucSecurePostCommodityFrame.GetUnitPrice = function() return maxPrice; end;
-		MCAucSecurePostCommodityFrame.GetItem = function() return itemLocation; end;]]--
 		CreateFrame("Button", "MCAucSecurePostCommodityButton", nil, "SecureActionButtonTemplate");
 	end
 	-- set price and item
 	MCAucSecurePostCommodityButton:SetScript("OnClick", function(self, button, down)
-		local pending = C_AuctionHouse.PostCommodity(itemLocation, 1, 1, maxPrice);
-		DHUDMain:print("Item posted to Auction House from bag " .. itemBag .. ", slot " .. itemSlot .. " with max price " .. maxPrice .. ", is pending: " .. MCTableToString(pending));
+		local pending = C_AuctionHouse.PostCommodity(itemLocation, 1, quantity, maxPrice);
+		DHUDMain:print(quantity .. " item(s) posted to Auction House from bag " .. itemBag .. ", slot " .. itemSlot .. " with price " .. DHUDAPI:moneyToPriceString(maxPrice) ..
+			", is pending: " .. MCTableToString(pending));
 	end);
 	MCAucSCP:SetAttribute("clickbutton", MCAucSecurePostCommodityButton);
-	DHUDMain:print("Posting commodity item: " .. desiredItemID .. " at price " .. (maxPrice / 10000) .. "g");
+	DHUDMain:print("Posting " .. quantity .. " commodity item(s): " .. desiredItemID .. " at price " .. DHUDAPI:moneyToPriceString(maxPrice) .. "g");
 	-- confirm action
 	ChangeActionBarPage(config.confirmPage or 6);
 end
 
+--- Macro helper for Auction to sell commodity items without right clicking on them
+-- @param config config that can change some of the macro parameters, e.g. { debugMode = true, refreshThrottle = 0.5 }
+-- macro itself:
+--[[
+/script DHUDAPI:auctionCommodityPlaceIntoAH()
+]]--
+function DHUDAPI:auctionCommodityPlaceIntoAH(config)
+	local cSFrame = AuctionHouseFrame.CommoditiesSellFrame;
+	local iSFrame = AuctionHouseFrame.ItemSellFrame;
+	local commodityVisible = cSFrame:IsVisible();
+	local itemVisible = iSFrame:IsVisible();
+	if (not commodityVisible and not itemVisible) then
+		local sellTab = AuctionHouseFrameSellTab;
+		if (sellTab:IsVisible()) then
+			AuctionHouseFrameSellTab:Click();
+			commodityVisible = cSFrame:IsVisible();
+			itemVisible = iSFrame:IsVisible();
+		end
+		if (not commodityVisible and not itemVisible) then
+			DHUDMain:print("This macro call requires commodity sell screen");
+			return;
+		end
+	end
+	-- Provide default config if needed
+	if (config == nil) then
+		config = {};
+	end
+	-- read params
+	local positionGreaterThan = DHUDAPI.aucCommodityLastPlaceLocation or 0;
+	local minimumItemsToRemain = config.minimumItems or 500;
+	local itemIdToCount = {};
+	local desiredItemID = nil;
+	for bag = 0, 5 do
+		local numSlots = C_Container.GetContainerNumSlots(bag);
+		for slot = 1, numSlots do
+			local itemInfo = C_Container.GetContainerItemInfo(bag, slot);
+			local stackCount = itemInfo and itemInfo.stackCount or 0;
+			-- Check if the item is a commodity (stackable item)
+			if (stackCount > 1) then
+				local itemID = itemInfo.itemID;
+				local itemBound = itemInfo.isBound;
+				local prevItemCount = itemIdToCount[itemID] or 0;
+				local totalCount = prevItemCount + stackCount;
+				itemIdToCount[itemID] = totalCount;
+				local itemPlaceLocation = bag * 100 + slot;
+				local itemLocation = ItemLocation:CreateFromBagAndSlot(bag, slot);
+				local isCommodity = C_AuctionHouse.GetItemCommodityStatus(itemLocation);
+				if (totalCount > minimumItemsToRemain and itemPlaceLocation > positionGreaterThan and isCommodity == 2 and not itemBound) then
+					if (not commodityVisible) then
+						AuctionHouseFrame:SetDisplayMode(AuctionHouseFrameDisplayMode.CommoditiesSell);
+					end
+					DHUDAPI.aucCommodityLastPlaceLocation = itemPlaceLocation;
+					cSFrame:SetItem(itemLocation);
+					if (prevItemCount < minimumItemsToRemain) then
+						cSFrame.QuantityInput.InputBox:SetText(totalCount - minimumItemsToRemain);
+					end
+					DHUDMain:print("Preparing itemID: " .. itemID .. " to be sold, bag " .. bag .. ", slot " .. slot);
+					desiredItemID = itemID;
+					break;
+				end
+			end
+		end
+		if (desiredItemID ~= nil) then break; end;
+	end
+	if (desiredItemID == nil) then
+		if (itemPlaceLocation == 0) then
+			DHUDMain:print("No commodity items left");
+		else
+			DHUDMain:print("Commodity items iteration finished");
+			DHUDAPI.aucCommodityLastPlaceLocation = 0;
+		end
+		return;
+	end
+	-- Create frame if not yet created
+	if (not MCAucSellCommodityWaitRefresh) then
+		CreateFrame("Frame", "MCAucSellCommodityWaitRefresh");
+	end
+	MCAucSellCommodityWaitRefresh:UnregisterEvent("COMMODITY_SEARCH_RESULTS_UPDATED");
+	MCAucSellCommodityWaitRefresh:RegisterEvent("COMMODITY_SEARCH_RESULTS_UPDATED");
+	MCAucSellCommodityWaitRefresh:SetScript("OnEvent", function() DHUDAPI:auctionCommodityUpdatePlacedItemPrice(desiredItemID, config); end);
+end
+function DHUDAPI:auctionCommodityUpdatePlacedItemPrice(desiredItemID, config)
+	local checkResults = config.checkResults or 15;
+	local numResults = C_AuctionHouse.GetNumCommoditySearchResults(desiredItemID);
+	if numResults > checkResults then
+		numResults = checkResults;
+	elseif numResults == 0 then
+		DHUDMain:print("Refresh triggered with empty result, waiting for another try");
+		return;
+	end
+	if (not AuctionHouseFrame.CommoditiesSellFrame:IsVisible()) then
+		MCAucSellCommodityWaitRefresh:UnregisterEvent("COMMODITY_SEARCH_RESULTS_UPDATED");
+		return;
+	end
+	
+	local requiredPrice, requiredIndex = DHUDAPI:auctionCommodityCalculateAutoPrice(desiredItemID, numResults,
+		config.requiredPercent or 0.15, config.requiredCount or 1000);
+
+	-- Set the most common price in the Auction House Sell UI
+	if (requiredPrice ~= nil) then
+		local children = { AuctionHouseFrame.CommoditiesSellList.ScrollBox.ScrollTarget:GetChildren() };
+		if (children[requiredIndex] ~= nil) then
+			children[requiredIndex]:Click();
+		end
+		AuctionHouseFrame.CommoditiesSellFrame.PriceInput:SetAmount(requiredPrice);
+		DHUDMain:print("Price updated to: " .. requiredPrice .. " copper.");
+	else
+		DHUDMain:print("Can't determine optimal price, please enter manually");
+	end
+	MCAucSellCommodityWaitRefresh:UnregisterEvent("COMMODITY_SEARCH_RESULTS_UPDATED");
+	-- auto refresh next item
+	MCAucSellCommodityWaitRefresh:RegisterEvent("COMMODITY_SEARCH_RESULTS_UPDATED");
+	MCAucSellCommodityWaitRefresh:SetScript("OnEvent", function()
+		--print("here " .. MCTableToString(AuctionHouseFrame.CommoditiesSellFrame:GetItem() == nil));
+		if (AuctionHouseFrame.CommoditiesSellFrame:GetItem() == nil) then
+			MCAucSellCommodityWaitRefresh:UnregisterEvent("COMMODITY_SEARCH_RESULTS_UPDATED");
+			DHUDAPI:auctionCommodityPlaceIntoAH(config);
+		end
+	end);
+end
+function DHUDAPI:auctionCommodityCalculateAutoPrice(desiredItemID, numResults, requiredPercent, requiredCountMin)
+	local totalCount = 0;
+	local maxIndexOwn = 0;
+	for i = 1, numResults do
+		local info = C_AuctionHouse.GetCommoditySearchResultInfo(desiredItemID, i);
+		totalCount = totalCount + info.quantity;
+		if (info.numOwnerItems > 0) then
+			maxIndexOwn = i;
+		end
+	end
+	local currentCount = 0;
+	local requiredCount = totalCount * requiredPercent;
+	if (requiredCount < requiredCountMin) then requiredCount = requiredCountMin; end;
+	local requiredPrice = nil;
+	local requiredIndex = 0;
+	for i = 1, numResults do
+		local info = C_AuctionHouse.GetCommoditySearchResultInfo(desiredItemID, i);
+		currentCount = currentCount + info.quantity;
+		if (currentCount > requiredCount) then
+			requiredPrice = info.unitPrice;
+			requiredIndex = i;
+			if (i >= maxIndexOwn) then -- otherwise try to repeat our own price
+				break;
+			end
+		end
+	end
+	return requiredPrice, requiredIndex
+end
+--- Macro to remove any popups that may appear at login
+function DHUDAPI:auctionRemoveSplashPopups()
+	local splashVisible = SplashFrame and SplashFrame:IsVisible() or false;
+	if (splashVisible) then
+		SplashFrame.BottomCloseButton:Click();
+	end
+end
+--- Macro to open mail, e.g. click "Open All Mail" button
+-- @param config config that defines how function should work
+-- @return true if mail window was opened and no extra messages are required
+function DHUDAPI:auctionOpenAllMail(config)
+	local openMailIsVisble = config.disableMail ~= true and OpenAllMail ~= nil and OpenAllMail:IsVisible();
+	if (openMailIsVisble and OpenAllMail:IsEnabled()) then
+		MCAucSCP:SetAttribute("clickbutton", OpenAllMail);
+		ChangeActionBarPage(config.confirmPage or 6);
+	end
+	return openMailIsVisble;
+end
+
 --- Parse price string, e.g. 40g 25s to copper amount
 -- @param str price string to Parse
--- @return amount of copper encoded in the string
+-- @return amount of copper as number that was encoded in the string
 function DHUDAPI:parsePriceString(str)
 	local totalCopper = 0;
 
 	-- Remove any spaces to simplify matching
 	str = str:gsub("%s+", "");
+	
+	-- Check for negative sign
+    local isNegative = str:sub(1, 1) == "-";
 
 	-- Match gold, silver, and copper amounts
 	local gold = tonumber(str:match("(%d+)g")) or 0;
@@ -465,34 +679,35 @@ function DHUDAPI:parsePriceString(str)
 
 	-- Convert everything to copper (1g = 10000c, 1s = 100c)
 	totalCopper = (gold * 10000) + (silver * 100) + copper;
+	
+	-- Apply negative sign if detected
+    if isNegative then
+        totalCopper = -totalCopper;
+    end
 
 	return totalCopper;
 end
 
---[[
-	CreateFrame("Frame", "MCAucSecurePostCommodityFrame");
-	local postButton = CreateFrame("Button", "MCAucSecurePostCommodityButton", MCAucSecurePostCommodityFrame, "SecureActionButtonTemplate");
-	local itemDisplay = CreateFrame("Button", nil, MCAucSecurePostCommodityFrame, "AuctionHouseItemDisplayTemplate");
-	local quantityInput = CreateFrame("Frame", nil, MCAucSecurePostCommodityFrame, "AuctionHouseAlignedQuantityInputFrameTemplate");
-	local priceInput = CreateFrame("Frame", nil, MCAucSecurePostCommodityFrame, "AuctionHouseAlignedPriceInputFrameTemplate");
-	local deposit = CreateFrame("Frame", nil, MCAucSecurePostCommodityFrame, "AuctionHouseAlignedPriceDisplayTemplate");
-	Mixin(MCAucSecurePostCommodityFrame, AuctionHouseCommoditiesSellFrameMixin);
-	MCAucSecurePostCommodityFrame.MarkDirty = function() end;
-	Mixin(MCAucSecurePostCommodityButton, AuctionHouseSellFramePostButtonMixin);
-	Mixin(itemDisplay, AuctionHouseItemBuyItemDisplayMixin);
-	MCAucSecurePostCommodityFrame.ItemDisplay = itemDisplay;
-	--Mixin(quantityInput, AuctionHouseAlignedQuantityInputFrameMixin);
-	MCAucSecurePostCommodityFrame.QuantityInput = quantityInput;
-	MCAucSecurePostCommodityFrame.PriceInput = priceInput;
-	MCAucSecurePostCommodityFrame.Deposit = deposit;
-	MCAucSecurePostCommodityFrame.TotalPrice = deposit; -- same type
-	MCAucSecurePostCommodityFrame.PostButton = postButton;
-	MCAucSecurePostCommodity:SetScript("OnClick", function(self, button, down)
-		local itemLocation = ItemLocation:CreateFromBagAndSlot(itemBag, itemSlot);
-		C_AuctionHouse.PostCommodity(itemLocation, 1, 1, maxPrice);
-		DHUDMain:print("Item posted to Auction House from bag " .. itemBag .. ", slot " .. itemSlot .. " with max price " .. maxPrice);
-	end);
-]]--
---MCAucSecurePostCommodity:SetAttribute("macrotext", string.format(
--- [[/run local itemLocation = ItemLocation:CreateFromBagAndSlot(%d, %d); C_AuctionHouse.PostCommodity(itemLocation, 1, 1, %d);]], itemBag, itemSlot, maxPrice));
---MCAucSecurePostCommodityFrame:SetItem(itemLocation, nil, false);
+--- Convert money in copper to price string to be printed in logs
+-- @param totalCopper amount of copper as number
+-- @param ommitCopper default to true, defines if copper should not be printed in the result
+-- @return price string to be printed
+function DHUDAPI:moneyToPriceString(totalCopper, ommitCopper)
+	if (totalCopper == nil) then return "nil"; end
+	if (ommitCopper == nil) then ommitCopper = true; end
+
+	-- Remove any spaces to simplify matching
+	local goldAmount = math.floor(totalCopper / 10000);
+	
+	local silverAmount = math.floor((totalCopper - goldAmount * 10000) / 100);
+	local silverString = (silverAmount >= 10) and silverAmount or "0" .. silverAmount;
+	
+	if (ommitCopper) then
+		return goldAmount .. "g " .. silverString .. "s";
+	else
+		local copperAmount = totalCopper - goldAmount * 10000 - silverAmount * 100;
+		local copperString = (copperAmount >= 10) and copperAmount or "0" .. copperAmount;
+		return goldAmount .. "g " .. silverString .. "s " .. copperString .. "c";
+	end
+end
+
