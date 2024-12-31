@@ -1,3 +1,7 @@
+changelog 2.0.110105.90:
+- Misc - update TOC
+- Misc - improve auction buy commodity macro (+better pricing)
+
 changelog 2.0.110002.89:
 - Fix raid target icons for new WoW Players (e.g. New Player Guide is RaidTarget15)
 - Fix RightClick Context Menu when clicking on player name in unit info
