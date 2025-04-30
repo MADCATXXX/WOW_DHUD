@@ -66,13 +66,19 @@ function DHUDAuctionHelper:auctionBuyCommodity(itemsInfo, config)
 	if (not nameFrame:IsVisible()) then
 		if (not self:auctionCheckBrowseListForCommodity(itemsInfo, config)) then
 			DHUDMain:print("This macro call requires commodity screen to be open or commodity to be displayed in favorites");
-			if (DHUDAuctionHelper.aucCommodityStuckAt == nil) then
+			if (DHUDAuctionHelper.aucCommodityStuckAt == nil or DHUDAuctionHelper.aucCommodityStuckAt < DHUDAuctionHelper.aucCommoditySessionStartMs) then
 				DHUDAuctionHelper.aucCommodityStuckAt = trackingHelper.timerMs;
 			end
 			if (trackingHelper.timerMs - DHUDAuctionHelper.aucCommodityStuckAt > 30) then -- more than 30 seconds passed = close auction house
-				DHUDMain:print("Auction house is stuck, please reopen it, consider binding interact key");
-				MCAucSCP:SetAttribute("clickbutton", AuctionHouseFrameCloseButton);
 				DHUDAuctionHelper.aucCommodityStuckAt = nil;
+				DHUDAuctionHelper.failCommoditySearchCloseCount = (DHUDAuctionHelper.failCommoditySearchCloseCount or 0) + 1;
+				DHUDMain:print("Auction house is stuck, please reopen it, consider binding interact key, stuck count: " .. DHUDAuctionHelper.failCommoditySearchCloseCount);
+				if (DHUDAuctionHelper.failCommoditySearchCloseCount < 5) then
+					MCAucSCP:SetAttribute("clickbutton", AuctionHouseFrameCloseButton);
+				else -- logout (but can't use macro /logout)
+					local logoutBtn = DHUDAuctionHelper:findLogoutButton();
+					MCAucSCP:SetAttribute("clickbutton", logoutBtn);
+				end
 				ChangeActionBarPage(config.confirmPage or 6);
 			end
 		end
@@ -261,6 +267,11 @@ function DHUDAuctionHelper:auctionCheckCommodityUnderPriceAndStartPurchase(desir
 			break;
 		end
 	end
+	if (DHUDAuctionHelper.aucCommodityCancelRefresh == true) then
+		DHUDAuctionHelper.aucCommodityCancelRefresh = nil;
+		DHUDAuctionHelper.aucCommodityRefreshAt = nil;
+		itemCountToBuy = 0;
+	end
 	if (itemCountToBuy > 0 or requiredItemThreshold == 0) then
 		DHUDAuctionHelper.aucCommodityLastFoundMs = trackingHelper.timerMs;
 		DHUDAuctionHelper.aucCommodityBuyWithBait = requiredItemThreshold == 0;
@@ -289,7 +300,8 @@ function DHUDAuctionHelper:auctionCheckCommodityUnderPriceAndStartPurchase(desir
 			AuctionHouseFrame:TriggerEvent(AuctionHouseFrameMixin.Event.CommoditiesQuantitySelectionChanged, itemCountToBuy);
 			local totalGoldCount = 0;
 			if (AuctionHouseFrame.CommoditiesBuyFrame.BuyDisplay.TotalPrice.MoneyDisplayFrame.GoldDisplay.Text:IsVisible()) then
-				totalGoldCount = tonumber(AuctionHouseFrame.CommoditiesBuyFrame.BuyDisplay.TotalPrice.MoneyDisplayFrame.GoldDisplay.Text:GetText());
+				totalGoldCount = DHUDAuctionHelper:goldAmountToNumber(AuctionHouseFrame.CommoditiesBuyFrame.BuyDisplay.TotalPrice.MoneyDisplayFrame.GoldDisplay.Text:GetText(),
+																	AuctionHouseFrame.CommoditiesBuyFrame.BuyDisplay.TotalPrice.MoneyDisplayFrame.SilverDisplay.Text:GetText());
 			end
 			if (totalGoldCount < maxTotalPrice / 10000) then
 				if (debugMode) then DHUDMain:print("Going to purchase " .. itemCountToBuy .. " items at total gold price: " .. totalGoldCount .. ", item ID: " .. desiredItemID); end
@@ -356,7 +368,8 @@ function DHUDAuctionHelper:auctionCheckCommodityInProgress(desiredItemID, maxPri
 		end
 		-- check final price, it can increase
 		local quantity = startedPurchase[2];
-		local totalGoldCount = tonumber(AuctionHouseFrame.BuyDialog.PriceFrame.GoldDisplay.Text:GetText());
+		local totalGoldCount = DHUDAuctionHelper:goldAmountToNumber(AuctionHouseFrame.BuyDialog.PriceFrame.GoldDisplay.Text:GetText(),
+																	AuctionHouseFrame.BuyDialog.PriceFrame.SilverDisplay.Text:GetText());
 		if (totalGoldCount < maxTotalPrice / 10000 and totalGoldCount / quantity < maxPrice / 10000) then
 			MCAucSCP:SetAttribute("clickbutton", AuctionHouseFrame.BuyDialog.BuyNowButton);
 			if (startedPurchase[1] ~= 0) then
@@ -373,12 +386,13 @@ function DHUDAuctionHelper:auctionCheckCommodityInProgress(desiredItemID, maxPri
 		else
 			MCAucSCP:SetAttribute("clickbutton", AuctionHouseFrame.BuyDialog.CancelButton);
 			if (debugMode) then DHUDMain:print("Canceling purchase " .. quantity .. " items at total gold price: " .. totalGoldCount); end
+			DHUDAuctionHelper.aucCommodityCancelRefresh = true;
 		end
 		-- check if buy button is disabled (e.g. auction house is stuck)
 		local buyIsEnabled = AuctionHouseFrame.BuyDialog.BuyNowButton:IsEnabled();
 		if (not buyIsEnabled) then
 			if (debugMode) then DHUDMain:print("Auction house buy button is not enabled, check for stuck state..."); end
-			if (DHUDAuctionHelper.aucCommodityStuckAt == nil) then
+			if (DHUDAuctionHelper.aucCommodityStuckAt == nil or DHUDAuctionHelper.aucCommodityStuckAt < DHUDAuctionHelper.aucCommoditySessionStartMs) then
 				DHUDAuctionHelper.aucCommodityStuckAt = trackingHelper.timerMs;
 			end
 			if (trackingHelper.timerMs - DHUDAuctionHelper.aucCommodityStuckAt > 30) then -- more than 30 seconds passed = close auction house
@@ -770,3 +784,37 @@ function DHUDAuctionHelper:moneyToPriceString(totalCopper, ommitCopper)
 		return goldAmount .. "g " .. silverString .. "s " .. copperString .. "c";
 	end
 end
+
+--- Convert money string that is printed by game to number, doesn't support fractional numbers, but supports various delimeters
+-- @param goldString gold amount as string to be converted
+-- @param silverString silver amount as string to be converted (used only if gold amount is nil)
+-- @return gold amount as number
+function DHUDAuctionHelper:goldAmountToNumber(goldString, silverString)
+	-- Remove anything that isn't a digit or a leading minus sign
+	local sanitizedG = tostring(goldString):gsub("[^%d%-]", "");
+	local goldN = tonumber(sanitizedG);
+	if (goldN == nil) then
+		local sanitizedS = tostring(silverString):gsub("[^%d%-]", "");
+		local silverN = tonumber(sanitizedS);
+		if (silverN ~= nil) then
+			goldN = 0;
+		end
+	end
+	return goldN;
+end
+
+--- Search for logout button in main menu of the game
+-- @return logout button or nil if not found
+function DHUDAuctionHelper:findLogoutButton()
+	ToggleGameMenu();
+	ToggleGameMenu();
+	local logoutButton = nil;
+	for btn in GameMenuFrame.buttonPool:EnumerateActive() do
+		if btn:GetText() == LOG_OUT then
+			logoutButton = btn;
+			break;
+		end
+	end
+	return logoutButton;
+end
+
