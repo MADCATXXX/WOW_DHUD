@@ -14,8 +14,8 @@ local buildNum = select(4, GetBuildInfo());
 -- variable that describes build type (vanilla/retail)
 MCVanilla = math.floor(buildNum / 10000);
 
--- determine if running from WoW Vanilla (1.13.2) or Burning Crusade classic/WotLK classic/Cataclysm classic
-if (buildNum >= 50000) then
+-- determine if running from WoW Vanilla (1.13.2) or Burning Crusade classic/WotLK classic/Cataclysm classic/Mop Classic
+if (buildNum >= 60000) then
 	MCVanilla = 0;
 	return;
 end
@@ -23,8 +23,8 @@ end
 ----------------------------------------------
 -- add api that is not supported by vanilla --
 ----------------------------------------------
--- override Cataclysm API
-if (MCVanilla < 5) then -- less than Pandaria
+-- override Cataclysm/Mop API
+if (MCVanilla < 6) then -- less than Pandaria
 	if (GetSpecialization == nil) then
 		GetSpecialization = function() -- there was no specialization, talents can be used on any tree
 			return 1;
@@ -43,16 +43,6 @@ if (MCVanilla < 5) then -- less than Pandaria
 	if (GetArenaOpponentSpec == nil) then
 		GetArenaOpponentSpec = function(unit)
 			return nil; -- there was no specialization, talents can be used on any tree
-		end
-	end
-	if (UnitGetTotalAbsorbs == nil) then
-		UnitGetTotalAbsorbs = function(unit) -- Can be emulated if needed, e.g. check if target has Power Word: Shield
-			return 0;
-		end
-	end
-	if (UnitGetTotalHealAbsorbs == nil) then
-		UnitGetTotalHealAbsorbs = function(unit) -- no such thing in classic
-			return 0;
 		end
 	end
 	if (GetUnitTotalModifiedMaxHealthPercent == nil) then
@@ -302,6 +292,20 @@ if (MCVanilla < 5) then -- less than Pandaria
 	end
 end
 
+-- override Cataclysm API
+if (MCVanilla < 5) then -- less than mop
+	if (UnitGetTotalAbsorbs == nil) then
+		UnitGetTotalAbsorbs = function(unit) -- Can be emulated if needed, e.g. check if target has Power Word: Shield
+			return 0;
+		end
+	end
+	if (UnitGetTotalHealAbsorbs == nil) then
+		UnitGetTotalHealAbsorbs = function(unit) -- no such thing in classic
+			return 0;
+		end
+	end
+end
+
 -- override WOTLK and TBC API
 if (MCVanilla < 4) then -- less than Cata
 	if (UnitGetIncomingHeals == nil) then
@@ -335,15 +339,17 @@ end
 -- rewrite event frame function, since WoW API throws exceptions on missing events --
 -------------------------------------------------------------------------------------
 MCBlizzardEventExcludes = { };
-if (MCVanilla < 5) then -- less than Pandaria
+if (MCVanilla < 6) then -- less than Mop
 	MCBlizzardEventExcludes["PET_SPECIALIZATION_CHANGED"] = 1;
-	MCBlizzardEventExcludes["UNIT_ABSORB_AMOUNT_CHANGED"] = 1;
-	MCBlizzardEventExcludes["UNIT_HEAL_ABSORB_AMOUNT_CHANGED"] = 1;
 	MCBlizzardEventExcludes["UNIT_SPELLCAST_EMPOWER_START"] = 1;
 	MCBlizzardEventExcludes["UNIT_SPELLCAST_EMPOWER_UPDATE"] = 1;
 	MCBlizzardEventExcludes["UNIT_SPELLCAST_EMPOWER_STOP"] = 1;
 	MCBlizzardEventExcludes["ARENA_PREP_OPPONENT_SPECIALIZATIONS"] = 1;
 	MCBlizzardEventExcludes["UNIT_MAX_HEALTH_MODIFIERS_CHANGED"] = 1;
+end
+if (MCVanilla < 5) then -- less than Pandaria
+	MCBlizzardEventExcludes["UNIT_ABSORB_AMOUNT_CHANGED"] = 1;
+	MCBlizzardEventExcludes["UNIT_HEAL_ABSORB_AMOUNT_CHANGED"] = 1;
 end
 if (MCVanilla < 4) then -- less than Cataclysm
 	MCBlizzardEventExcludes["PLAYER_SPECIALIZATION_CHANGED"] = 1;

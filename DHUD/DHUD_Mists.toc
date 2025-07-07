@@ -1,5 +1,5 @@
 ## Author: MADCAT, Markus Inger (Drathal/Silberklinge), Howie (Caeryn)
-## Interface: 11503
+## Interface: 50500
 ## X-Min-Interface: 11302
 ## Notes: Head-Up Display with all possible information about player and it's target
 ## Title: Drathals HUD

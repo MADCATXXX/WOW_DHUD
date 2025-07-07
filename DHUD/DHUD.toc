@@ -3,7 +3,7 @@
 ## X-Min-Interface: 100207
 ## Notes: Head-Up Display with all possible information about player and it's target
 ## Title: Drathals HUD
-## Version: v2.0.110105.90
+## Version: v2.0.110105.91
 ## SavedVariables: DHUDODB3
 ## SavedVariablesPerCharacter: DHUD_SavedVars
 ## IconTexture: Interface\Icons\ACHIEVEMENT_GUILDPERK_QUICK AND DEAD

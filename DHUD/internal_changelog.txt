@@ -1,3 +1,7 @@
+changelog 2.0.110105.91:
+- basic support for mists of pandaria classic
+- Misc - improve auction buy commodity macro (+better cancel buyout handling)
+
 changelog 2.0.110105.90:
 - Misc - update TOC
 - Misc - improve auction buy commodity macro (+better pricing)
