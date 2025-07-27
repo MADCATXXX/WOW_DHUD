@@ -240,7 +240,9 @@ DHUDDataTrackers = {
 		---------
 		MONK.selfChi = DHUDSpecificPowerTracker:new();
 		MONK.selfChi:setResourceType(12, "CHI");
-		MONK.selfChi:initPlayerSpecsOnly(3); -- dps spec only in legion
+		if (MCVanilla <= 0) then
+			MONK.selfChi:initPlayerSpecsOnly(3); -- dps spec only in legion
+		end
 		MONK.selfChi:initPlayerNotInVehicleOrNoneUnitId();
 		MONK.selfChi.updateFrequently = false;
 		

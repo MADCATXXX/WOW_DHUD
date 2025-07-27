@@ -226,29 +226,30 @@ function DHUD_OptionsTemplates_LUA:processCheckBoxOnLoad(frame)
 	frame.Text:SetText(DHUDOptionsLocalization[ltext] or ("LTEXT: " .. ltext));
 	-- save setting
 	frame.setting = setting;
-	frame.Checkbox.setting = setting;
+	local checkbox = frame.CheckBox or frame.Checkbox;
+	checkbox.setting = setting;
 	-- set on click handler
-	frame.Checkbox:SetScript("OnClick", function(frame, arg1)
+	checkbox:SetScript("OnClick", function(frame, arg1)
 		--print("onClick " .. frame.setting);
 		DHUDOptions:toggleBooleanSetting(frame.setting);
 	end);
 	-- set on show handler
 	frame:SetScript("OnShow", function(frame)
-		frame.Checkbox:SetChecked(DHUDOptions:getSettingValue(frame.setting));
+		checkbox:SetChecked(DHUDOptions:getSettingValue(frame.setting));
 	end);
 	-- set tooltip handlers
 	frame:SetScript("OnEnter", function(frame)
 		GameTooltip:SetOwner(frame, "ANCHOR_RIGHT");
 		GameTooltip:SetText(DHUDOptionsLocalization[ltext .. "_TOOLTIP"] or ("LTOOLTIP: " .. ltext), 1, 1, 1, 1);
 	end);
-	frame.Checkbox:SetScript("OnEnter", function(frame)
+	checkbox:SetScript("OnEnter", function(frame)
 		GameTooltip:SetOwner(frame, "ANCHOR_RIGHT");
 		GameTooltip:SetText(DHUDOptionsLocalization[ltext .. "_TOOLTIP"] or ("LTOOLTIP: " .. ltext), 1, 1, 1, 1);
 	end);
 	frame:SetScript("OnLeave", function(frame)
 		GameTooltip:Hide();
 	end);
-	frame.Checkbox:SetScript("OnLeave", function(frame)
+	checkbox:SetScript("OnLeave", function(frame)
 		GameTooltip:Hide();
 	end);
 	--print("header on load " .. frame:GetName() .. ", ltext " .. MCTableToString(ltext));
