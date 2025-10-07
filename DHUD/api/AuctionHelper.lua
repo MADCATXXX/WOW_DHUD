@@ -46,7 +46,7 @@ function DHUDAuctionHelper:auctionBuyCommodity(itemsInfo, config)
 		config = {};
 	end
 	-- close any automatic popups if any
-	if (self:auctionRemoveSplashPopups()) then
+	if (self:auctionRemoveSplashPopups(config)) then
 		return;
 	end
 	-- check auction house visible
@@ -713,7 +713,8 @@ function DHUDAuctionHelper:auctionCommodityCalculateAutoPrice(desiredItemID, num
 	return requiredPrice, requiredIndex
 end
 --- Macro to remove any popups that may appear at login
-function DHUDAuctionHelper:auctionRemoveSplashPopups()
+-- @param config config that defines how function should work
+function DHUDAuctionHelper:auctionRemoveSplashPopups(config)
 	local splashVisible = SplashFrame and SplashFrame:IsVisible() or false;
 	if (splashVisible) then
 		DHUDMain:print("Closing initial splash screen");

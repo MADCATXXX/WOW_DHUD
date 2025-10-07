@@ -24,7 +24,7 @@ end
 -- add api that is not supported by vanilla --
 ----------------------------------------------
 -- override Cataclysm/Mop API
-if (MCVanilla < 6) then -- less than Pandaria
+if (MCVanilla < 6) then
 	if (GetSpecialization == nil) then
 		GetSpecialization = function() -- there was no specialization, talents can be used on any tree
 			return 1;
@@ -211,8 +211,8 @@ if (MCVanilla < 6) then -- less than Pandaria
 		C_SpellBook.GetSpellBookItemCooldown = function(index, spellBookType)
 			local itemCd = {};
 			local oldStartTime, oldDuration, oldEnable = GetSpellCooldown(index, spellBookType);
-			itemCd.startTime = oldSpellType;
-			itemCd.duration = oldSpellId;
+			itemCd.startTime = oldStartTime;
+			itemCd.duration = oldDuration;
 			itemCd.enable = oldEnable;
 			return itemCd;
 		end
@@ -339,13 +339,14 @@ end
 -- rewrite event frame function, since WoW API throws exceptions on missing events --
 -------------------------------------------------------------------------------------
 MCBlizzardEventExcludes = { };
-if (MCVanilla < 6) then -- less than Mop
+if (MCVanilla < 6) then -- Pandaria or less
 	MCBlizzardEventExcludes["PET_SPECIALIZATION_CHANGED"] = 1;
 	MCBlizzardEventExcludes["UNIT_SPELLCAST_EMPOWER_START"] = 1;
 	MCBlizzardEventExcludes["UNIT_SPELLCAST_EMPOWER_UPDATE"] = 1;
 	MCBlizzardEventExcludes["UNIT_SPELLCAST_EMPOWER_STOP"] = 1;
 	MCBlizzardEventExcludes["ARENA_PREP_OPPONENT_SPECIALIZATIONS"] = 1;
 	MCBlizzardEventExcludes["UNIT_MAX_HEALTH_MODIFIERS_CHANGED"] = 1;
+	MCBlizzardEventExcludes["UNIT_POWER_POINT_CHARGE"] = 1;
 end
 if (MCVanilla < 5) then -- less than Pandaria
 	MCBlizzardEventExcludes["UNIT_ABSORB_AMOUNT_CHANGED"] = 1;
@@ -359,7 +360,6 @@ if (MCVanilla < 4) then -- less than Cataclysm
 	MCBlizzardEventExcludes["UNIT_HEAL_PREDICTION"] = 1;
 	MCBlizzardEventExcludes["UNIT_SPELLCAST_INTERRUPTIBLE"] = 1;
 	MCBlizzardEventExcludes["UNIT_SPELLCAST_NOT_INTERRUPTIBLE"] = 1;
-	MCBlizzardEventExcludes["UNIT_POWER_POINT_CHARGE"] = 1;
 	MCBlizzardEventExcludes["PLAYER_SOFT_ENEMY_CHANGED"] = 1;
 	MCBlizzardEventExcludes["PLAYER_SOFT_FRIEND_CHANGED"] = 1;
 end
